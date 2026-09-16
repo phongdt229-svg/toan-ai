@@ -515,7 +515,141 @@ Tất cả API bắt đầu bằng `/api/v1/`
 
 ---
 
-## 32. Tóm tắt yêu cầu cốt lõi
+## 32. Kiến trúc tổng thể hệ thống (bổ sung)
+
+**Mục tiêu dữ liệu** — Hệ thống phải làm được 5 việc chính:
+
+1. Lưu hồ sơ học sinh thật chi tiết
+2. Đánh giá đầu vào
+3. Tạo giáo trình cá nhân hóa
+4. Theo dõi tiến độ học và kiểm tra sau mỗi buổi
+5. Hỗ trợ hỏi đáp thông qua Chatbot cá nhân hóa thầy/cô, giải bài, giải thích từng bước
+
+### Tổng quan dự án
+
+| Hạng mục | Mô tả |
+|---|---|
+| Tên hệ thống | Nền tảng học toán online cá nhân hóa bằng A.I |
+| Mục tiêu | Giúp học sinh cải thiện tư duy và điểm số thông qua lộ trình cá nhân hóa |
+| Công nghệ lõi | A.I tạo bài tập, hướng dẫn/gợi ý giải bài tập, phân tích học lực, gợi ý lộ trình, cá nhân hóa giáo án |
+| Đối tượng | Học sinh từ lớp 6 → 12 |
+
+---
+
+## 33. Module: Đăng ký người dùng
+
+**🎯 Mục tiêu:** Thu thập dữ liệu đầu vào để A.I cá nhân hóa ngay từ đầu.
+
+**📋 Thông tin bắt buộc:**
+
+| Trường dữ liệu | Mô tả |
+|---|---|
+| Họ và tên | Xác định người dùng |
+| Ngày sinh | Xác định độ tuổi |
+| Địa chỉ nơi ở | Phục vụ cá nhân hóa (vùng miền, chương trình học) |
+| Email | Đăng nhập / thông báo |
+| Số điện thoại | Xác thực + hỗ trợ |
+| Trường học | Ngữ cảnh học tập |
+| Khối lớp | Lớp 1 → 12 |
+| Học lực | Tự đánh giá ban đầu |
+| Điểm trung bình toán | Input cho AI |
+| Chọn giáo viên | Chọn "thầy" hoặc "cô" (avatar AI) |
+| Màu sắc yêu thích | Cá nhân hóa UI |
+| Sở thích | Cá nhân hóa trải nghiệm |
+
+---
+
+## 34. Module: Kiểm tra đầu vào
+
+| Bước | Mô tả |
+|---|---|
+| 1 | A.I tạo bộ đề dựa trên lớp + học lực + điểm trung bình |
+| 2 | Đề gồm 5–10 câu (trắc nghiệm + tự luận) |
+| 3 | Học sinh làm bài trực tiếp |
+| 4 | A.I chấm điểm + phân tích lỗi |
+
+**Phân loại học lực:**
+
+| Điểm trung bình | Xếp loại |
+|---|---|
+| ≤ 5 | Trung bình |
+| ≤ 8 | Khá |
+| > 8 | Giỏi |
+
+**Output** — Xác định:
+- Nhóm kiến thức yếu
+- Tốc độ làm bài
+- Mức độ hiểu
+
+> 👉 Đây là nền tảng để tạo giáo trình.
+
+---
+
+## 35. Module: Tạo giáo trình A.I (Core Engine)
+
+**Mục tiêu:** Tạo lộ trình học riêng cho từng học sinh.
+
+**⚙️ Thành phần:**
+
+**1. Lý thuyết**
+- Chia theo chuyên đề
+- Tối giản, dễ hiểu
+- Phù hợp với học lực
+
+**2. Bài tập thực hành**
+- Phân cấp độ: Dễ → Trung bình → Khó
+- Tự động điều chỉnh theo kết quả
+
+**3. Lộ trình học**
+
+| Giai đoạn | Nội dung |
+|---|---|
+| Giai đoạn 1 | Ôn lại nền tảng |
+| Giai đoạn 2 | Củng cố kiến thức |
+| Giai đoạn 3 | Nâng cao |
+| Giai đoạn 4 | Luyện đề |
+
+**Giáo viên ảo (AI Tutor)**
+
+| Chức năng | Mô tả |
+|---|---|
+| Chatbox | Hỏi đáp trực tiếp |
+| Giải thích | Theo từng bước |
+| Phong cách | Thầy / Cô tùy chọn |
+| Cá nhân hóa | Theo trình độ học sinh |
+
+---
+
+## 36. Module: Tiến độ học (Dashboard)
+
+**Mục tiêu:** Giúp học sinh biết mình đang ở đâu.
+
+**Hiển thị:**
+
+| Thành phần | Mô tả |
+|---|---|
+| % hoàn thành | Theo lộ trình |
+| Buổi học đã học | Tổng số |
+| Buổi còn lại | Kế hoạch |
+| Điểm trung bình | Theo bài kiểm tra |
+| Nhóm kiến thức yếu | AI phân tích |
+
+**Gợi ý học hôm nay** — A.I dựa vào:
+- Giáo trình
+- Kết quả gần nhất
+- Thời gian học
+
+> 👉 Đưa ra: Bài học, Bài tập
+
+---
+
+## 37. Module: Kiểm tra cuối buổi
+
+> ⚠️ Nội dung chi tiết của module này chưa hiển thị đầy đủ trong sheet nguồn (bị cắt do giới hạn hiển thị). Cần bổ sung thêm khi có nội dung đầy đủ.
+
+---
+
+## 38. Tóm tắt yêu cầu cốt lõi
 
 **Toán AI =** Laravel + MySQL + Blade + Bootstrap 5 + Vanilla JS + Mobile-first + AI Tutor + hệ thống học Toán lớp 1–12 + Teacher + Parent + RBAC + Subscription + MoMo
 
