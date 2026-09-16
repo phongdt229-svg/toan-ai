@@ -28,6 +28,11 @@ class Grade extends Model
         return $this->hasMany(StudentProfile::class);
     }
 
+    public function subjects(): HasMany
+    {
+        return $this->hasMany(Subject::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);

@@ -30,7 +30,13 @@ class RegistrationTest extends TestCase
             'name' => 'Nguyễn Văn A',
             'email' => 'hs@example.com',
             'grade_id' => $grade->id,
-            'birth_year' => 2013,
+            'birth_date' => '2013-04-15',
+            'address' => 'Quận 3, TP. Hồ Chí Minh',
+            'school' => 'THCS Test',
+            'math_average_score' => 7.5,
+            'tutor_persona' => 'thay',
+            'favorite_color' => '#ff0000',
+            'interests' => 'bóng đá, vẽ',
             'password' => 'matkhau123',
             'password_confirmation' => 'matkhau123',
         ]);
@@ -40,8 +46,32 @@ class RegistrationTest extends TestCase
         $user = User::where('email', 'hs@example.com')->firstOrFail();
         $this->assertTrue($user->hasRole(Role::STUDENT));
         $this->assertSame(User::STATUS_ACTIVE, $user->status);
-        $this->assertNotNull($user->studentProfile);
-        $this->assertSame(8, strlen($user->studentProfile->link_code));
+
+        $profile = $user->studentProfile;
+        $this->assertNotNull($profile);
+        $this->assertSame(8, strlen($profile->link_code));
+        $this->assertSame('2013-04-15', $profile->birth_date->toDateString());
+        $this->assertSame('thay', $profile->tutor_persona);
+        $this->assertSame(['bóng đá', 'vẽ'], $profile->interests);
+        // Không tự đánh giá học lực → suy ra từ điểm TB 7.5 → "Khá" (§34).
+        $this->assertSame('good', $profile->self_assessed_level);
+    }
+
+    public function test_student_registration_works_without_optional_personalization(): void
+    {
+        $this->post(route('register.student'), [
+            'name' => 'Tối thiểu',
+            'email' => 'toithieu@example.com',
+            'grade_id' => Grade::where('level', 1)->value('id'),
+            'password' => 'matkhau123',
+            'password_confirmation' => 'matkhau123',
+        ])->assertRedirect(route('student.dashboard'));
+
+        $profile = User::where('email', 'toithieu@example.com')->firstOrFail()->studentProfile;
+
+        $this->assertSame('co', $profile->tutor_persona);
+        $this->assertNull($profile->self_assessed_level);
+        $this->assertNull($profile->interests);
     }
 
     public function test_teacher_registers_as_pending_and_cannot_enter_portal(): void

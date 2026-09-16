@@ -8,11 +8,31 @@ use Illuminate\Support\Str;
 
 class StudentProfile extends Model
 {
-    protected $fillable = ['user_id', 'grade_id', 'birth_year', 'link_code'];
+    /** Học lực tự đánh giá lúc đăng ký (§33) — thang phân loại theo §34. */
+    public const LEVELS = [
+        'average' => 'Trung bình',
+        'good' => 'Khá',
+        'excellent' => 'Giỏi',
+    ];
+
+    public const PERSONAS = [
+        'co' => 'Cô giáo',
+        'thay' => 'Thầy giáo',
+    ];
+
+    protected $fillable = [
+        'user_id', 'grade_id', 'birth_date', 'address', 'school',
+        'self_assessed_level', 'math_average_score', 'tutor_persona',
+        'favorite_color', 'interests', 'link_code',
+    ];
 
     protected function casts(): array
     {
-        return ['birth_year' => 'integer'];
+        return [
+            'birth_date' => 'date',
+            'math_average_score' => 'decimal:2',
+            'interests' => 'array',
+        ];
     }
 
     public function user(): BelongsTo
@@ -23,6 +43,32 @@ class StudentProfile extends Model
     public function grade(): BelongsTo
     {
         return $this->belongsTo(Grade::class);
+    }
+
+    public function levelLabel(): ?string
+    {
+        return self::LEVELS[$this->self_assessed_level] ?? null;
+    }
+
+    public function personaLabel(): string
+    {
+        return self::PERSONAS[$this->tutor_persona] ?? self::PERSONAS['co'];
+    }
+
+    /**
+     * Xếp loại học lực từ điểm trung bình (§34): ≤5 Trung bình · ≤8 Khá · >8 Giỏi.
+     */
+    public static function classifyLevel(?float $averageScore): ?string
+    {
+        if ($averageScore === null) {
+            return null;
+        }
+
+        return match (true) {
+            $averageScore <= 5 => 'average',
+            $averageScore <= 8 => 'good',
+            default => 'excellent',
+        };
     }
 
     /** Mã 8 ký tự, không gồm ký tự dễ nhầm (0/O, 1/I). */

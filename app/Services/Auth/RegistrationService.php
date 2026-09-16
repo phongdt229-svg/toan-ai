@@ -13,7 +13,10 @@ use Illuminate\Validation\ValidationException;
 class RegistrationService
 {
     /**
-     * @param  array{name: string, email: string, password: string, grade_id: int, birth_year: ?int}  $data
+     * Hồ sơ học sinh thu đủ dữ liệu cá nhân hóa ngay lúc đăng ký (§33) —
+     * AI dùng ngay các trường này để chọn giọng, độ khó và ngữ cảnh ví dụ.
+     *
+     * @param  array<string, mixed>  $data
      */
     public function registerStudent(array $data): User
     {
@@ -21,21 +24,50 @@ class RegistrationService
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
                 'password' => $data['password'],
                 'status' => User::STATUS_ACTIVE,
             ]);
 
             $user->assignRole(Role::STUDENT);
 
+            $score = isset($data['math_average_score']) && $data['math_average_score'] !== null
+                ? (float) $data['math_average_score']
+                : null;
+
             StudentProfile::create([
                 'user_id' => $user->id,
                 'grade_id' => $data['grade_id'],
-                'birth_year' => $data['birth_year'] ?? null,
+                'birth_date' => $data['birth_date'] ?? null,
+                'address' => $data['address'] ?? null,
+                'school' => $data['school'] ?? null,
+                // Không có tự đánh giá thì suy ra từ điểm trung bình (§34).
+                'self_assessed_level' => $data['self_assessed_level'] ?? StudentProfile::classifyLevel($score),
+                'math_average_score' => $score,
+                'tutor_persona' => $data['tutor_persona'] ?? 'co',
+                'favorite_color' => $data['favorite_color'] ?? null,
+                'interests' => $this->parseInterests($data['interests'] ?? null),
                 'link_code' => StudentProfile::generateLinkCode(),
             ]);
 
             return $user;
         });
+    }
+
+    /** "bóng đá, game" → ['bóng đá', 'game'] */
+    private function parseInterests(?string $raw): ?array
+    {
+        if (! $raw) {
+            return null;
+        }
+
+        $items = collect(explode(',', $raw))
+            ->map(fn ($s) => trim($s))
+            ->filter()
+            ->take(10)
+            ->values();
+
+        return $items->isEmpty() ? null : $items->all();
     }
 
     /**

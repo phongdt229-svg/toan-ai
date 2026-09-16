@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-16 · Trạng thái: **Phase 0 + Phase 1 đã xong** · Kế tiếp: Phase 2
+> Cập nhật: 2026-09-16 · Trạng thái: **Phase 0, 1, 2 đã xong** · Kế tiếp: Phase 3 (Question Bank)
 
 ---
 
@@ -108,6 +108,9 @@ users ──< role_user >── roles ──< permission_role >── permission
   ├──< subscriptions >── packages ──< package_features
   ├──< payments
   ├──< ai_conversations ──< ai_messages
+  ├──< placement_tests ──< placement_test_questions ──< placement_test_answers
+  ├──< learning_paths ──< learning_path_stages ──< learning_path_items
+  ├──< study_sessions
   └──< student_lesson_progress, student_topic_mastery, recommendations
 
 grades ──< subjects ──< chapters ──< topics ──< lessons ──< lesson_sections
@@ -139,7 +142,7 @@ Thứ tự quan trọng vì ràng buộc khoá ngoại. Mỗi bảng đều có 
 | 04 | `permission_role` | `permission_id`, `role_id` |
 | 05 | `users` | `name`, `email`(unique), `phone`, `password`, `status`(pending/active/suspended/rejected), `avatar`, `last_login_at`, `email_verified_at`, softDeletes |
 | 06 | `grades` | `name`, `level`(1..12, unique), `slug`, `sort_order`, `is_active` |
-| 07 | `student_profiles` | `user_id`(unique), `grade_id`, `birth_year`, `link_code`(unique, để phụ huynh liên kết) |
+| 07 | `student_profiles` | `user_id`(unique), `grade_id`, `birth_date`, `address`, `school`, `self_assessed_level`(average/good/excellent), `math_average_score`decimal(4,2), `tutor_persona`(thay/co), `favorite_color`, `interests`json, `link_code`(unique, để phụ huynh liên kết) — các trường cá nhân hóa theo §33 |
 | 08 | `teacher_profiles` | `user_id`(unique), `school`, `subject`, `approved_at`, `approved_by`, `reject_reason` |
 | 09 | `parent_children` | `parent_id`, `student_id`, `status`(pending/linked/revoked), `linked_at`, unique(parent_id,student_id) |
 | 10 | `audit_logs` | `user_id`, `action`, `auditable_type`, `auditable_id`, `old_values`json, `new_values`json, `ip`, `user_agent` |
@@ -192,17 +195,31 @@ Thứ tự quan trọng vì ràng buộc khoá ngoại. Mỗi bảng đều có 
 | 37 | `ai_generation_drafts` | `user_id`, `type`(questions/lesson/exam), `input`json, `output`json, `status`(draft/accepted/rejected), `reviewed_by`, `reviewed_at` |
 | 38 | `recommendations` | `user_id`, `type`(review_lesson/practice_topic/take_exam), `target_type`, `target_id`, `reason`, `score`, `status`(new/seen/done/expired), `expires_at` |
 
+### Nhóm 6b — Kiểm tra đầu vào & Giáo trình cá nhân hóa (Phase 7, §34–36)
+| # | Bảng | Cột chính |
+|---|---|---|
+| 39 | `placement_tests` | `user_id`, `grade_id`, `status`(generated/in_progress/submitted/graded), `score`, `total_points`, `duration_seconds`, `level_result`(average/good/excellent), `weak_topics`json, `analysis`json, `generated_by`(ai/manual), `started_at`, `submitted_at`. Index: (user_id, status) |
+| 40 | `placement_test_questions` | `placement_test_id`, `question_id`(null nếu AI sinh tạm), `content`, `type`, `options`json, `correct_answer`json, `topic_hint`, `points`, `sort_order` |
+| 41 | `placement_test_answers` | `placement_test_id`, `placement_test_question_id`, `answer_text`, `selected_option_ids`json, `is_correct`, `score`, `ai_feedback`, unique(placement_test_id, placement_test_question_id) |
+| 42 | `learning_paths` | `user_id`, `grade_id`, `placement_test_id`(null), `status`(active/completed/archived), `total_sessions`, `completed_sessions`, `progress_percent`, `generated_at`, `meta`json. Index: (user_id, status) |
+| 43 | `learning_path_stages` | `learning_path_id`, `stage`(foundation/consolidation/advanced/exam_practice), `name`, `sort_order`, `status`(locked/in_progress/done), `progress_percent` |
+| 44 | `learning_path_items` | `learning_path_stage_id`, `item_type`(lesson/practice_set/exam), `item_id`, `sort_order`, `status`(pending/in_progress/done/skipped), `due_date`, `completed_at`. Index: (learning_path_stage_id, status) |
+| 45 | `study_sessions` | `user_id`, `learning_path_id`, `session_date`, `planned_items`json, `completed_items`json, `duration_seconds`, `status`(planned/in_progress/done/missed), unique(user_id, session_date) |
+
+> **§37 "Kiểm tra cuối buổi" chưa đủ dữ kiện** — spec ghi rõ nội dung bị cắt. Dự kiến dùng lại
+> `exams` type=`quiz` gắn vào `study_sessions`, chốt lại khi có nội dung đầy đủ.
+
 ### Nhóm 7 — Subscription & Payment (Phase 8–9)
 | # | Bảng | Cột chính |
 |---|---|---|
-| 39 | `packages` | `name`, `slug`(unique), `tier`(free/pro/premium), `price`decimal(12,2), `currency`(VND), `duration_days`, `description`, `is_active`, `sort_order` |
-| 40 | `package_features` | `package_id`, `key`(vd `ai.daily_requests`), `label`, `value`, `limit_value`(int, null = không giới hạn) |
-| 41 | `subscriptions` | `user_id`, `package_id`, `status`(pending/active/expired/cancelled), `starts_at`, `ends_at`, `payment_id`, `auto_renew`, `cancelled_at`. Index: (user_id, status, ends_at) |
-| 42 | `payments` | `user_id`, `package_id`, `subscription_id`, `order_code`(unique), `amount`decimal(12,2), `currency`, `method`(momo), `status`(pending/paid/failed/cancelled/refunded), `gateway_request_id`, `gateway_transaction_id`, `gateway_response`json, `paid_at`, `client_ip` |
-| 43 | `payment_webhook_logs` | `provider`, `order_code`, `signature_valid`, `payload`json, `headers`json, `result`, `processed_at` — **bắt buộc**, để truy vết IPN |
-| 44 | `notifications` | bảng chuẩn Laravel |
+| 46 | `packages` | `name`, `slug`(unique), `tier`(free/pro/premium), `price`decimal(12,2), `currency`(VND), `duration_days`, `description`, `is_active`, `sort_order` |
+| 47 | `package_features` | `package_id`, `key`(vd `ai.daily_requests`), `label`, `value`, `limit_value`(int, null = không giới hạn) |
+| 48 | `subscriptions` | `user_id`, `package_id`, `status`(pending/active/expired/cancelled), `starts_at`, `ends_at`, `payment_id`, `auto_renew`, `cancelled_at`. Index: (user_id, status, ends_at) |
+| 49 | `payments` | `user_id`, `package_id`, `subscription_id`, `order_code`(unique), `amount`decimal(12,2), `currency`, `method`(momo), `status`(pending/paid/failed/cancelled/refunded), `gateway_request_id`, `gateway_transaction_id`, `gateway_response`json, `paid_at`, `client_ip` |
+| 50 | `payment_webhook_logs` | `provider`, `order_code`, `signature_valid`, `payload`json, `headers`json, `result`, `processed_at` — **bắt buộc**, để truy vết IPN |
+| 51 | `notifications` | bảng chuẩn Laravel |
 
-**Tổng: 44 migration.**
+**Tổng: 51 bảng.**
 
 ---
 
@@ -422,17 +439,26 @@ interface AiProviderInterface {
 
 **DoD:** ✅ đăng ký 3 role chạy được, admin duyệt teacher được, mỗi role thấy đúng layout, landing responsive.
 
-### Phase 2 — Learning content & Progress
-- [ ] Migration nhóm 2 (11–16)
-- [ ] Model + Service `LessonService`, `ProgressService`
-- [ ] Admin/Teacher CRUD: Grade → Subject → Chapter → Topic → Lesson → Sections
-- [ ] Editor lesson có preview KaTeX
-- [ ] Trang học sinh: cây chương trình, trang lesson theo 9 khối §8
-- [ ] Ghi tiến độ (thời gian học, section hoàn thành)
-- [ ] Seeder mẫu: 1 lớp đầy đủ (Lớp 6 → Phân số) để demo
-- [ ] `AccessControlService` bản đầu (chưa có subscription → tier free)
+### ✅ Phase 2 — Learning content & Progress
+- [x] Migration bổ sung `student_profiles` theo §33 (ngày sinh, địa chỉ, trường, học lực, điểm TB, avatar thầy/cô, màu, sở thích)
+- [x] Form đăng ký học sinh thu đủ trường cá nhân hóa §33 + suy ra học lực từ điểm TB
+- [x] Migration nhóm 2 (11–16)
+- [x] Model + Service `LessonService`, `ProgressService`
+- [x] Admin CRUD cây chương trình: Grade → Subject → Chapter → Topic
+- [x] Teacher CRUD bài học + sections + xuất bản/gỡ xuất bản (`LessonPolicy`: chỉ sửa bài của mình)
+- [x] Editor lesson có preview KaTeX
+- [x] **HtmlSanitizer (HTMLPurifier)** lọc nội dung lúc lưu — view render `{!! !!}`
+- [x] Trang học sinh: cây chương trình, trang lesson theo 9 khối §8
+- [x] Ghi tiến độ (thời gian học có trần 300s/ping, section hoàn thành, % tính server-side)
+- [x] Seeder mẫu: Lớp 6 → Phân số, 2 bài học đầy đủ section
+- [x] `AccessControlService` + trang paywall 402 (chưa có subscription → tier free)
+- [x] Test: 40 test xanh
 
-**DoD:** học sinh mở được 1 lesson thật, đọc lý thuyết có công thức, tiến độ lưu vào DB.
+**DoD:** ✅ học sinh mở được lesson thật, đọc lý thuyết có công thức, tiến độ lưu vào DB;
+giáo viên soạn + xuất bản được bài; admin dựng được cây chương trình.
+
+> **Nợ kỹ thuật ghi nhận:** chưa có màn hình chuyển bài học sang chủ đề khác,
+> chưa có import CSV nội dung, chưa có quên mật khẩu (cần cấu hình mail).
 
 ### Phase 3 — Question Bank & Luyện tập
 - [ ] Migration nhóm 3 (17–21)
@@ -463,18 +489,29 @@ interface AiProviderInterface {
 - [ ] Dashboard §14: tiến độ, điểm TB, thời gian học, mạnh/yếu
 - [ ] Xem nhận xét GV + báo cáo tuần (job + mail)
 
-### Phase 7 — AI
+### Phase 7A — AI Tutor
 - [ ] Migration nhóm 6 (34–38)
 - [ ] `AiProviderInterface` + `OpenAiProvider` + `FakeProvider`
 - [ ] 6 endpoint AI Tutor §10
 - [ ] Widget chat nổi trên trang lesson/bài tập, render KaTeX
+- [ ] Giọng AI theo `tutor_persona` (thầy/cô) của học sinh — §35
 - [ ] AI cho GV: tạo câu hỏi theo tỉ lệ độ khó, tạo lesson → draft → duyệt
 - [ ] `RecommendationService` + hiển thị đề xuất ở dashboard HS & PH
 - [ ] `AiUsageGuard` + log usage + trang admin xem chi phí
 - [ ] Test bằng `FakeProvider`, không gọi API thật trong CI
 
+### Phase 7B — Kiểm tra đầu vào & Giáo trình cá nhân hóa (§34–36)
+- [ ] Migration nhóm 6b (39–45)
+- [ ] `PlacementTestService`: AI sinh đề 5–10 câu theo lớp + học lực + điểm TB
+- [ ] Chấm + phân loại học lực (≤5 Trung bình · ≤8 Khá · >8 Giỏi) + trích chủ đề yếu
+- [ ] `LearningPathService`: sinh lộ trình 4 giai đoạn (nền tảng → củng cố → nâng cao → luyện đề)
+- [ ] Tự điều chỉnh độ khó theo kết quả gần nhất
+- [ ] Dashboard §36: % theo lộ trình, buổi đã học / còn lại, "Gợi ý học hôm nay"
+- [ ] `study_sessions` + kiểm tra cuối buổi (chờ §37 đủ nội dung)
+- [ ] Test: học sinh mới → làm placement → nhận lộ trình → học buổi 1
+
 ### Phase 8 — Package & Subscription
-- [ ] Migration nhóm 7 (39–41)
+- [ ] Migration nhóm 7 (46–48)
 - [ ] Seeder 3 gói Free/Pro/Premium + feature (giá trong DB)
 - [ ] `SubscriptionService` + `AccessControlService` bản đầy đủ
 - [ ] Middleware `subscription:pro|premium` + trang paywall
@@ -482,7 +519,7 @@ interface AiProviderInterface {
 - [ ] Job `ExpireSubscriptions` hằng đêm
 
 ### Phase 9 — Thanh toán MoMo
-- [ ] Migration 42–43
+- [ ] Migration 49–50
 - [ ] `PaymentGatewayInterface` + `PaymentService` + `MomoPaymentService`
 - [ ] Checkout → payUrl
 - [ ] IPN: chữ ký, order, amount, idempotency, transaction, log
@@ -534,4 +571,5 @@ interface AiProviderInterface {
 
 Phase 1 → 2 → 3 → 4 là **trục xương sống**, phải xong và chắc trước khi đụng tới AI hay thanh toán.
 Phase 8 (subscription) nên làm **trước** Phase 9 (MoMo) — cấp quyền phải đúng trước khi thu tiền.
-Phase 7 (AI) có thể chạy song song với 5–6 nếu có người thứ hai, vì phụ thuộc ít.
+Phase 7A (AI Tutor) có thể chạy song song với 5–6 nếu có người thứ hai, vì phụ thuộc ít.
+Phase 7B (placement test + giáo trình) **phải sau 3 và 7A** — cần ngân hàng câu hỏi để sinh đề và cần provider AI để chấm.

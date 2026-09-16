@@ -86,7 +86,14 @@ class DemoUserSeeder extends Seeder
             ['user_id' => $student->id],
             [
                 'grade_id' => $grade6?->id,
-                'birth_year' => now()->year - 12,
+                'birth_date' => now()->subYears(12)->startOfYear()->addMonths(4),
+                'address' => 'Quận 1, TP. Hồ Chí Minh',
+                'school' => 'THCS Demo',
+                'self_assessed_level' => 'good',
+                'math_average_score' => 7.50,
+                'tutor_persona' => 'co',
+                'favorite_color' => '#2563eb',
+                'interests' => ['bóng đá', 'game'],
                 'link_code' => $existingProfile?->link_code ?? StudentProfile::generateLinkCode(),
             ],
         );

@@ -12,7 +12,7 @@ return [
 
     'student' => [
         ['label' => 'Trang chủ', 'icon' => 'bi-house', 'route' => 'student.dashboard', 'bottom' => true],
-        ['label' => 'Học', 'icon' => 'bi-journal-text', 'route' => null, 'bottom' => true],
+        ['label' => 'Học', 'icon' => 'bi-journal-text', 'route' => 'student.learn.index', 'bottom' => true],
         ['label' => 'Bài tập', 'icon' => 'bi-pencil-square', 'route' => null, 'bottom' => true],
         ['label' => 'AI', 'icon' => 'bi-robot', 'route' => null, 'bottom' => true],
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => null, 'bottom' => false],
@@ -22,7 +22,7 @@ return [
     'teacher' => [
         ['label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'route' => 'teacher.dashboard', 'bottom' => true],
         ['label' => 'Lớp học', 'icon' => 'bi-people', 'route' => null, 'bottom' => true],
-        ['label' => 'Bài học', 'icon' => 'bi-journal-text', 'route' => null, 'bottom' => true],
+        ['label' => 'Bài học', 'icon' => 'bi-journal-text', 'route' => 'teacher.lessons.index', 'bottom' => true],
         ['label' => 'Câu hỏi', 'icon' => 'bi-question-circle', 'route' => null, 'bottom' => true],
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => null, 'bottom' => false],
         ['label' => 'Bài tập', 'icon' => 'bi-pencil-square', 'route' => null, 'bottom' => false],
@@ -41,7 +41,7 @@ return [
         ['label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'route' => 'admin.dashboard', 'bottom' => true],
         ['label' => 'Duyệt giáo viên', 'icon' => 'bi-person-check', 'route' => 'admin.teachers.pending', 'bottom' => true],
         ['label' => 'Người dùng', 'icon' => 'bi-people', 'route' => null, 'bottom' => true],
-        ['label' => 'Nội dung', 'icon' => 'bi-journal-text', 'route' => null, 'bottom' => true],
+        ['label' => 'Chương trình', 'icon' => 'bi-diagram-3', 'route' => 'admin.curriculum.index', 'bottom' => true],
         ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => null, 'bottom' => false],
         ['label' => 'Giao dịch', 'icon' => 'bi-credit-card', 'route' => null, 'bottom' => false],
         ['label' => 'AI usage', 'icon' => 'bi-robot', 'route' => null, 'bottom' => false],
