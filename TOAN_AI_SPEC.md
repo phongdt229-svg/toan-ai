@@ -532,7 +532,7 @@ Tất cả API bắt đầu bằng `/api/v1/`
 | Tên hệ thống | Nền tảng học toán online cá nhân hóa bằng A.I |
 | Mục tiêu | Giúp học sinh cải thiện tư duy và điểm số thông qua lộ trình cá nhân hóa |
 | Công nghệ lõi | A.I tạo bài tập, hướng dẫn/gợi ý giải bài tập, phân tích học lực, gợi ý lộ trình, cá nhân hóa giáo án |
-| Đối tượng | Học sinh từ lớp 6 → 12 |
+| Đối tượng | Học sinh từ lớp 1 → 12 |
 
 ---
 
