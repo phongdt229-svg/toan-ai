@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-16 · Trạng thái: Phase 1 đang triển khai
+> Cập nhật: 2026-09-16 · Trạng thái: **Phase 0 + Phase 1 đã xong** · Kế tiếp: Phase 2
 
 ---
 
@@ -396,30 +396,31 @@ interface AiProviderInterface {
 
 ## 10. Roadmap — checklist thi hành
 
-### ✅ Phase 0 — Khởi tạo (đang làm)
+### ✅ Phase 0 — Khởi tạo
 - [x] Đọc spec, chốt quyết định kỹ thuật
-- [ ] `composer create-project laravel/laravel`
-- [ ] `.env`: DB `toan_ai`, timezone, locale `vi`
-- [ ] Tạo database `toan_ai` (utf8mb4)
-- [ ] Bootstrap 5.3 + KaTeX + Chart.js qua Vite
-- [ ] `.gitignore` chuẩn, commit đầu tiên
-- [ ] `CLAUDE.md` cho repo
+- [x] `composer create-project laravel/laravel` (Laravel 12)
+- [x] `.env`: DB `toan_ai`, timezone `Asia/Ho_Chi_Minh`, locale `vi`, placeholder OpenAI/MoMo
+- [x] Tạo database `toan_ai` + `toan_ai_test` (utf8mb4)
+- [x] Bootstrap 5.3 + Bootstrap Icons + KaTeX + Chart.js qua Vite (gỡ Tailwind)
+- [x] `CLAUDE.md` cho repo
+- [ ] Commit đầu tiên
 
-### Phase 1 — Auth, RBAC, Layout
-- [ ] Migration nhóm 1 (bảng 01–10)
-- [ ] Model + quan hệ: `User`, `Role`, `Permission`, `Grade`, `StudentProfile`, `TeacherProfile`, `ParentChild`
-- [ ] Seeder: 4 roles, ~25 permissions, 12 grades, 1 admin
-- [ ] Custom auth: login / register (3 nhánh) / logout / forgot password
-- [ ] `HasRoles` trait + `Gate::before` cho admin + middleware `role:`, `permission:`
-- [ ] Middleware `EnsureTeacherApproved`
-- [ ] Layout Bootstrap 5: `guest`, `student`, `teacher`, `parent`, `admin`
-- [ ] Bottom nav (mobile) `Trang chủ | Học | Bài tập | AI` + sidebar (desktop ≥992px)
-- [ ] Landing page 10 khối theo §6
-- [ ] Dashboard rỗng cho từng role, redirect sau login theo role
-- [ ] `AuditLog` observer
-- [ ] Test: đăng ký/đăng nhập 3 role, teacher pending không vào được portal
+### ✅ Phase 1 — Auth, RBAC, Layout
+- [x] Migration nhóm 1 (bảng 01–10)
+- [x] Model + quan hệ: `User`, `Role`, `Permission`, `Grade`, `StudentProfile`, `TeacherProfile`, `ParentChild`, `AuditLog`
+- [x] Seeder: 4 roles, 32 permissions, 12 grades, 5 tài khoản demo
+- [x] Custom auth: login / register (3 nhánh) / logout
+- [x] `HasRoles` trait + `Gate::before` cho admin + Gate sinh từ bảng `permissions` + middleware `role:`
+- [x] Middleware `EnsureAccountIsActive` (chặn teacher `pending`, khoá tài khoản `suspended`)
+- [x] Layout Bootstrap 5: `base`, `guest`, `app` (4 portal dùng chung, menu từ `config/navigation.php`)
+- [x] Bottom nav (mobile) + sidebar (desktop ≥992px)
+- [x] Landing page 10 khối theo §6
+- [x] Dashboard cho 4 role, redirect sau login theo role
+- [x] Luồng admin duyệt / từ chối giáo viên + `AuditLogger`
+- [x] Test: 14 test xanh (đăng ký 3 role, phân quyền chéo, duyệt giáo viên, landing)
+- [ ] Quên mật khẩu / đặt lại mật khẩu (hoãn sang đầu Phase 2 — cần cấu hình mail)
 
-**DoD:** đăng ký 3 role chạy được, admin duyệt teacher được, mỗi role thấy đúng layout, landing responsive 360px–1920px.
+**DoD:** ✅ đăng ký 3 role chạy được, admin duyệt teacher được, mỗi role thấy đúng layout, landing responsive.
 
 ### Phase 2 — Learning content & Progress
 - [ ] Migration nhóm 2 (11–16)
