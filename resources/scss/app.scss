@@ -1,0 +1,9 @@
+// Thứ tự bắt buộc: biến ghi đè → Bootstrap → CSS thư viện → style riêng.
+@import "variables";
+
+@import "../../node_modules/bootstrap/scss/bootstrap";
+@import "../../node_modules/bootstrap-icons/font/bootstrap-icons.css";
+@import "../../node_modules/katex/dist/katex.min.css";
+
+@import "layout";
+@import "landing";

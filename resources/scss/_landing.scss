@@ -1,0 +1,112 @@
+// ---------------------------------------------------------------------------
+// Landing page (§6)
+// ---------------------------------------------------------------------------
+
+.hero {
+    padding: 3rem 0 2.5rem;
+    background: linear-gradient(160deg, rgba($primary, .08), rgba($info, .06) 60%, #fff);
+
+    &__title {
+        font-size: clamp(1.75rem, 6vw, 3.25rem);
+        font-weight: 800;
+        line-height: 1.15;
+    }
+
+    &__lead {
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
+        color: $secondary;
+    }
+}
+
+.btn-accent {
+    background: $accent;
+    border-color: $accent;
+    color: #fff;
+
+    &:hover,
+    &:focus {
+        background: shade-color($accent, 12%);
+        border-color: shade-color($accent, 12%);
+        color: #fff;
+    }
+}
+
+.section {
+    padding: 3rem 0;
+
+    &--muted {
+        background: $light;
+    }
+
+    &__title {
+        font-size: clamp(1.375rem, 4vw, 2rem);
+        font-weight: 700;
+    }
+
+    &__subtitle {
+        color: $secondary;
+        max-width: 40rem;
+    }
+}
+
+.feature-card {
+    height: 100%;
+    padding: 1.25rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        margin-bottom: .75rem;
+        border-radius: $border-radius;
+        background: rgba($primary, .1);
+        color: $primary;
+        font-size: 1.375rem;
+    }
+}
+
+.grade-pill {
+    display: block;
+    padding: .875rem .5rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    background: #fff;
+    color: $body-color;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+
+    &:hover {
+        border-color: $primary;
+        color: $primary;
+    }
+}
+
+.price-card {
+    height: 100%;
+    padding: 1.5rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+
+    &--featured {
+        border-color: $primary;
+        box-shadow: 0 8px 24px rgba($primary, .12);
+    }
+
+    &__price {
+        font-size: 1.75rem;
+        font-weight: 800;
+    }
+}
+
+.cta-band {
+    padding: 3rem 0;
+    background: $primary;
+    color: #fff;
+}

@@ -1,0 +1,26 @@
+// Ghi đè biến Bootstrap TRƯỚC khi import bootstrap.
+// Bảng màu TOÁN AI: xanh dương (tin cậy, học thuật) + cam (hành động).
+
+$primary:   #2563eb;
+$secondary: #64748b;
+$success:   #16a34a;
+$info:      #0ea5e9;
+$warning:   #f59e0b;
+$danger:    #dc2626;
+$light:     #f8fafc;
+$dark:      #0f172a;
+
+$accent:    #f97316; // CTA
+
+$font-family-sans-serif: "Be Vietnam Pro", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+
+$border-radius:    .625rem;
+$border-radius-sm: .375rem;
+$border-radius-lg: 1rem;
+
+$body-bg:    #ffffff;
+$body-color: #1e293b;
+
+// Mobile-first: bottom nav cao 60px, cần chừa chỗ ở cuối trang.
+$bottom-nav-height: 60px;
+$sidebar-width:     260px;

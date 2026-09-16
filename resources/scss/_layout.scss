@@ -1,0 +1,146 @@
+// ---------------------------------------------------------------------------
+// Layout mobile-first (§3): mobile = bottom nav, desktop (>= lg) = sidebar.
+// ---------------------------------------------------------------------------
+
+body {
+    -webkit-tap-highlight-color: transparent;
+}
+
+// Chừa chỗ cho bottom nav trên mobile.
+.app-shell {
+    padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0px) + 1rem);
+}
+
+@include media-breakpoint-up(lg) {
+    .app-shell {
+        padding-bottom: 2rem;
+        margin-left: $sidebar-width;
+    }
+}
+
+// --- Bottom navigation (mobile) -------------------------------------------
+.bottom-nav {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: $zindex-fixed;
+    display: flex;
+    height: $bottom-nav-height;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: #fff;
+    border-top: 1px solid $border-color;
+
+    &__item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        min-height: 48px; // vùng chạm đủ lớn
+        color: $secondary;
+        font-size: .6875rem;
+        text-decoration: none;
+
+        i {
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        &.is-active {
+            color: $primary;
+            font-weight: 600;
+        }
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .bottom-nav {
+        display: none;
+    }
+}
+
+// --- Sidebar (desktop) -----------------------------------------------------
+.sidebar {
+    display: none;
+}
+
+@include media-breakpoint-up(lg) {
+    .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: $zindex-fixed;
+        display: flex;
+        flex-direction: column;
+        width: $sidebar-width;
+        padding: 1.25rem 1rem;
+        background: $dark;
+        color: rgba(#fff, .8);
+        overflow-y: auto;
+
+        &__brand {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            font-size: 1.125rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        &__item {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .625rem .75rem;
+            border-radius: $border-radius;
+            color: rgba(#fff, .75);
+            text-decoration: none;
+
+            &:hover {
+                background: rgba(#fff, .08);
+                color: #fff;
+            }
+
+            &.is-active {
+                background: $primary;
+                color: #fff;
+                font-weight: 600;
+            }
+        }
+    }
+}
+
+// --- Thẻ thống kê ----------------------------------------------------------
+.stat-card {
+    height: 100%;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+    padding: 1rem;
+
+    &__label {
+        color: $secondary;
+        font-size: .8125rem;
+    }
+
+    &__value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+}
+
+// --- Nút lớn cho học sinh (§3) --------------------------------------------
+.btn-touch {
+    min-height: 48px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+// Công thức Toán dài không làm vỡ layout mobile.
+.katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: .25rem 0;
+}
