@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\AiUsageController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\TeacherApprovalController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ParentPortal\ChildController as ParentChildController;
@@ -35,6 +37,7 @@ use App\Http\Controllers\Teacher\LessonController as TeacherLessonController;
 use App\Http\Controllers\Teacher\LessonSectionController;
 use App\Http\Controllers\Teacher\QuestionController;
 use App\Http\Controllers\Teacher\QuestionImportController;
+use App\Http\Controllers\Teacher\ReportController as TeacherReportController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\LandingController;
@@ -203,6 +206,9 @@ Route::middleware('auth')->group(function () {
             Route::delete('giao-bai/{assignment}', [TeacherAssignmentController::class, 'destroy'])
                 ->name('assignments.destroy');
 
+            Route::get('bao-cao', [TeacherReportController::class, 'index'])->name('reports.index');
+            Route::get('bao-cao/lop/{class}/csv', [TeacherReportController::class, 'export'])->name('reports.export');
+
             Route::get('hoc-sinh', [TeacherStudentController::class, 'index'])->name('students.index');
             Route::get('hoc-sinh/{student}', [TeacherStudentController::class, 'show'])->name('students.show');
             Route::post('hoc-sinh/{student}/nhan-xet', [TeacherStudentController::class, 'storeComment'])
@@ -283,6 +289,15 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('quan-tri')->name('admin.')->middleware('role:admin')->group(function () {
             Route::get('/', [AdminDashboard::class, 'index'])->name('dashboard');
+            Route::post('lam-moi-so-lieu', [AdminDashboard::class, 'refresh'])->name('dashboard.refresh');
+
+            Route::get('nguoi-dung', [AdminUserController::class, 'index'])->name('users.index');
+            Route::get('nguoi-dung/{user}', [AdminUserController::class, 'show'])->name('users.show');
+            Route::post('nguoi-dung/{user}/khoa', [AdminUserController::class, 'suspend'])->name('users.suspend');
+            Route::post('nguoi-dung/{user}/mo-khoa', [AdminUserController::class, 'reactivate'])->name('users.reactivate');
+
+            Route::get('audit-log', [AuditLogController::class, 'index'])->name('audit-logs.index');
+            Route::get('audit-log/xuat-csv', [AuditLogController::class, 'export'])->name('audit-logs.export');
 
             Route::get('giao-vien/cho-duyet', [TeacherApprovalController::class, 'index'])
                 ->name('teachers.pending');

@@ -7,7 +7,7 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 1. [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md) — yêu cầu sản phẩm (nguồn sự thật về **làm gì**)
 2. [PROJECT_PLAN.md](PROJECT_PLAN.md) — kiến trúc, schema, API, RBAC matrix, roadmap (**làm thế nào**)
 
-Đang ở **Phase 9 (xong)**. Phase kế tiếp: Phase 10 — Hạ tầng & tối ưu.
+Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Nguyên tắc không được phá
 
@@ -35,6 +35,9 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
   Thêm khoá tính năng mới → thêm vào `PackageFeature::KEYS` + `KEY_TYPES` **và** chỗ kiểm tra trong code.
 - Thanh toán: chỉ `PaymentService` đổi trạng thái đơn. Không bao giờ kích hoạt gói từ return URL / query string / dữ liệu client.
   Local dùng `PAYMENT_GATEWAY=fake` → nút "Xác nhận thanh toán" ở trang giả lập; chạy MoMo sandbox cần key + URL IPN public (ngrok).
+- Header bảo mật do `SecurityHeaders` gửi; CSP chưa chặn script inline — đừng thêm nguồn script ngoài (CDN) mà không cập nhật CSP.
+- Sửa `public/sw.js` → tăng `VERSION` để trình duyệt bỏ cache cũ. Không cho service worker cache API, làm bài, thanh toán.
+- Số liệu dashboard admin cache 10 phút (`AnalyticsService`) — test/thao tác cần số mới thì gọi `forget()`.
 - Kích hoạt gói chỉ qua `SubscriptionService::activate()` (idempotent, cộng nối) — không `update(['status' => 'active'])` tay.
 - Câu hỏi trong kiểm tra đầu vào là **bản chụp**; chấm qua `PlacementTestQuestion::toQuestion()` để dùng lại `GradingService`.
 

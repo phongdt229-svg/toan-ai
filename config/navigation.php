@@ -32,7 +32,7 @@ return [
         ['label' => 'Giao bài', 'icon' => 'bi-send-check', 'route' => 'teacher.assignments.index', 'bottom' => false],
         ['label' => 'Học sinh', 'icon' => 'bi-mortarboard', 'route' => 'teacher.students.index', 'bottom' => false],
         ['label' => 'AI soạn bài', 'icon' => 'bi-robot', 'route' => 'teacher.ai.index', 'bottom' => false],
-        ['label' => 'Báo cáo', 'icon' => 'bi-bar-chart', 'route' => null, 'bottom' => false],
+        ['label' => 'Báo cáo', 'icon' => 'bi-bar-chart', 'route' => 'teacher.reports.index', 'bottom' => false],
     ],
 
     'parent' => [
@@ -45,13 +45,13 @@ return [
     'admin' => [
         ['label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'route' => 'admin.dashboard', 'bottom' => true],
         ['label' => 'Duyệt giáo viên', 'icon' => 'bi-person-check', 'route' => 'admin.teachers.pending', 'bottom' => true],
-        ['label' => 'Người dùng', 'icon' => 'bi-people', 'route' => null, 'bottom' => true],
+        ['label' => 'Người dùng', 'icon' => 'bi-people', 'route' => 'admin.users.index', 'bottom' => true],
         ['label' => 'Chương trình', 'icon' => 'bi-diagram-3', 'route' => 'admin.curriculum.index', 'bottom' => true],
         ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => 'admin.packages.index', 'bottom' => false],
         ['label' => 'Đăng ký gói', 'icon' => 'bi-person-vcard', 'route' => 'admin.subscriptions.index', 'bottom' => false],
         ['label' => 'Giao dịch', 'icon' => 'bi-credit-card', 'route' => 'admin.payments.index', 'bottom' => false],
         ['label' => 'AI usage', 'icon' => 'bi-robot', 'route' => 'admin.ai-usage.index', 'bottom' => false],
-        ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => null, 'bottom' => false],
+        ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => 'admin.audit-logs.index', 'bottom' => false],
     ],
 
 ];

@@ -34,8 +34,26 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMath();
     initAiTutor();
 
+    registerServiceWorker();
+
     // Tự ẩn thông báo sau 5 giây.
     document.querySelectorAll('[data-auto-dismiss]').forEach((el) => {
         setTimeout(() => bootstrap.Alert.getOrCreateInstance(el).close(), 5000);
     });
 });
+
+/**
+ * PWA: service worker chỉ chạy trên HTTPS (hoặc localhost). Đăng xuất → xoá bài học đã lưu offline
+ * để người sau trên máy dùng chung không đọc được trang có tên học sinh.
+ */
+function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+
+    navigator.serviceWorker.register('/sw.js').catch(() => { /* trình duyệt chặn — web vẫn chạy bình thường */ });
+
+    document.querySelectorAll('form[action$="/dang-xuat"]').forEach((form) => {
+        form.addEventListener('submit', () => {
+            navigator.serviceWorker.controller?.postMessage('clear-user-cache');
+        });
+    });
+}

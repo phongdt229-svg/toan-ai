@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\Payment\Gateways\FakeMomoGateway;
 use App\Services\Payment\Gateways\MomoGateway;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -71,6 +72,17 @@ class AppServiceProvider extends ServiceProvider
                 'message' => 'Bạn hỏi hơi nhanh, đợi một chút rồi hỏi tiếp nhé.',
                 'reason' => 'rate_limited',
             ], 429)));
+
+        // Trần chung cho mọi request web/api: đủ rộng cho người dùng thật (autosave làm bài ~1 lần/giây),
+        // chặn script cào dữ liệu. Theo user khi đã đăng nhập để nhiều học sinh chung IP trường không bị chặn oan.
+        RateLimiter::for('global', fn (Request $request) => $request->user()
+            ? Limit::perMinute(300)->by('u'.$request->user()->id)
+            : Limit::perMinute(240)->by('ip'.$request->ip()));
+
+        // Production sau proxy HTTPS: sinh link https (route(), asset()) dù PHP thấy request là http.
+        if ($this->app->isProduction() && str_starts_with((string) config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
 
         $this->registerPermissionGates();
     }

@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureUserHasRole;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -26,6 +27,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));
+
+        $middleware->append(SecurityHeaders::class);
+
+        // Giới hạn chung chống cào dữ liệu / spam — các route nhạy cảm có throttle riêng chặt hơn.
+        $middleware->appendToGroup('web', 'throttle:global');
+        $middleware->appendToGroup('api', 'throttle:global');
+
+        // Sau load balancer / Cloudflare: tin header X-Forwarded-* để biết request là HTTPS và IP thật.
+        // Chỉ đặt TRUSTED_PROXIES khi server không nhận kết nối trực tiếp từ internet.
+        if ($proxies = env('TRUSTED_PROXIES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

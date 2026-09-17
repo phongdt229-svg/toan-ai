@@ -1,0 +1,21 @@
+{
+    "name": "TOÁN AI — Học Toán thông minh",
+    "short_name": "TOÁN AI",
+    "description": "Học Toán lớp 1–12 cùng AI Tutor.",
+    "lang": "vi",
+    "start_url": "/?source=pwa",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#ffffff",
+    "theme_color": "#2563eb",
+    "icons": [
+        { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+        { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ],
+    "shortcuts": [
+        { "name": "Học bài", "url": "/hoc-sinh/hoc", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+        { "name": "Luyện tập", "url": "/hoc-sinh/luyen-tap", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+    ]
+}

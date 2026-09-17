@@ -9,10 +9,13 @@ import {
     CategoryScale,
     Legend,
     LinearScale,
+    LineController,
+    LineElement,
+    PointElement,
     Tooltip,
 } from 'chart.js';
 
-Chart.register(BarController, BarElement, CategoryScale, Legend, LinearScale, Tooltip);
+Chart.register(BarController, BarElement, CategoryScale, Legend, LinearScale, LineController, LineElement, PointElement, Tooltip);
 
 /**
  * Biểu đồ cột ngang % đúng theo chủ đề. Đọc dữ liệu từ data-chart (JSON).
@@ -100,7 +103,45 @@ function renderDailyActivity(canvas) {
     });
 }
 
+/**
+ * Dashboard admin: cột = học sinh hoạt động, đường = người dùng mới (trục trái),
+ * đường doanh thu dùng trục phải vì khác đơn vị (₫).
+ */
+function renderAdminDaily(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    canvas.parentElement.style.height = '280px';
+    const vnd = (v) => `${Number(v).toLocaleString('vi-VN')}₫`;
+
+    new Chart(canvas, {
+        data: {
+            labels: rows.map((r) => r.label),
+            datasets: [
+                { type: 'bar', label: 'Học sinh hoạt động', data: rows.map((r) => r.active), backgroundColor: '#93c5fd', borderRadius: 4, yAxisID: 'y' },
+                { type: 'line', label: 'Người dùng mới', data: rows.map((r) => r.signups), borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, pointRadius: 2, yAxisID: 'y' },
+                { type: 'line', label: 'Doanh thu', data: rows.map((r) => r.revenue), borderColor: '#a50064', backgroundColor: '#a50064', tension: 0.3, pointRadius: 2, yAxisID: 'money' },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { ticks: { maxTicksLimit: 10 } },
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+                money: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: (v) => (v >= 1000 ? `${v / 1000}k` : v) } },
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.dataset.yAxisID === 'money' ? vnd(ctx.parsed.y) : ctx.parsed.y}` } },
+            },
+        },
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('canvas[data-chart-type="admin-daily"]').forEach(renderAdminDaily);
     document.querySelectorAll('canvas[data-chart-type="topic-bars"]').forEach(renderTopicBars);
     document.querySelectorAll('canvas[data-chart-type="daily-activity"]').forEach(renderDailyActivity);
 });

@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–9 đã xong** · Kế tiếp: Phase 10 (Hạ tầng & tối ưu)
+> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–10 đã xong** — roadmap hoàn tất · Hướng dẫn triển khai: [docs/DEPLOY.md](docs/DEPLOY.md)
 
 ---
 
@@ -673,14 +673,45 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 > - `MOMO_ENDPOINT` chỉ là host (`https://test-payment.momo.vn`), path do code ghép.
 > - Chưa làm hoàn tiền tự động: admin huỷ đăng ký ở trang Đăng ký gói, hoàn tiền thao tác trên cổng MoMo.
 
-### Phase 10 — Hạ tầng & tối ưu
-- [ ] predis + Redis cho cache/session/queue
-- [ ] Queue worker + Scheduler (supervisor/task scheduler)
-- [ ] Index & query tuning, eager loading
-- [ ] Analytics dashboard admin
-- [ ] PWA: manifest, service worker, offline lý thuyết đã tải
-- [ ] Rate limiting toàn hệ thống, security headers, HTTPS
-- [ ] Backup DB, log rotation, deploy checklist
+### ✅ Phase 10 — Hạ tầng, tối ưu & hoàn thiện quản trị
+- [x] `predis/predis` — production bật Redis bằng env (`CACHE_STORE`/`SESSION_DRIVER`/`QUEUE_CONNECTION=redis`); local giữ database/file
+- [x] Queue worker + Scheduler: mẫu Supervisor [deploy/supervisor](deploy/supervisor/toan-ai-worker.conf), cron, hướng dẫn Task Scheduler Windows
+- [x] Index cho truy vấn nóng (migration `add_reporting_indexes`): đếm câu luyện tập/ngày, người dùng mới, doanh thu, log IPN, tiến độ bài học.
+      Eager loading được `Model::shouldBeStrict()` ép từ Phase 1
+- [x] **Analytics dashboard admin** (`AnalyticsService`, cache 10 phút + nút làm mới): doanh thu tháng, học sinh hoạt động 7/30 ngày,
+      người dùng mới, gói trả phí theo hạng, chi phí AI, nội dung đã xuất bản, biểu đồ 30 ngày, chủ đề học sinh yếu nhất
+- [x] **PWA**: `manifest.webmanifest` + icon, `sw.js` (asset cache-first; trang bài học network-first lưu 30 bài gần nhất để đọc offline;
+      không cache API/làm bài/thanh toán), `offline.html` liệt kê bài đã lưu, đăng xuất xoá cache bài học
+- [x] **Bảo mật HTTP**: middleware `SecurityHeaders` (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy, CSP cơ bản,
+      HSTS khi HTTPS, `Cache-Control: no-store` cho trang đã đăng nhập) · rate limit chung `throttle:global`
+      (240/phút theo IP khách, 300/phút theo user) · `TRUSTED_PROXIES` · `URL::forceScheme('https')` ở production
+- [x] **Sao lưu**: `backup:database` (mysqldump `--single-transaction` → `.sql.gz`, mật khẩu qua `MYSQL_PWD`, xoá bản cũ) chạy 02:00 ở production;
+      log xoay vòng `LOG_STACK=daily`; dọn `failed_jobs`, token Sanctum hết hạn
+- [x] Deploy checklist + mẫu Nginx: [docs/DEPLOY.md](docs/DEPLOY.md), [deploy/nginx](deploy/nginx/toan-ai.conf)
+- [x] **Quản trị người dùng** `/quan-tri/nguoi-dung`: tìm theo tên/email/SĐT, lọc vai trò/trạng thái; hồ sơ theo vai trò
+      (gói học, phụ huynh, lớp, thanh toán, nhật ký liên quan); **khoá / mở khoá** có lý do, thu hồi token + xoá phiên, không tự khoá mình
+      và luôn còn ≥ 1 admin hoạt động
+- [x] **Audit log** `/quan-tri/audit-log`: chỉ đọc, lọc theo hành động / email người làm / khoảng ngày, xem giá trị trước–sau, xuất CSV
+- [x] **Báo cáo lớp cho giáo viên** `/giao-vien/bao-cao`: tỉ lệ nộp bài, điểm TB, học sinh cần hỗ trợ, tiến độ từng bài giao,
+      chủ đề cả lớp còn yếu (biểu đồ), bảng học sinh, xuất CSV
+- [x] Test: 313 test xanh (16 test mới: header bảo mật, rate limit, PWA, backup, analytics, người dùng/audit, báo cáo lớp)
+
+> **Quyết định trong phase:**
+> - CSP **chưa** siết `script-src`: nhiều view còn `<script>` inline (autosave làm bài, biểu đồ…). Muốn siết phải chuyển sang file JS + nonce.
+> - Analytics cache 10 phút thay vì bảng tổng hợp riêng — đủ nhanh ở quy mô hiện tại; khi dữ liệu lớn chuyển sang job tổng hợp hằng đêm.
+> - PWA chỉ lưu **trang bài học đã mở**, không tải trước toàn bộ chương trình (tốn dung lượng máy học sinh, lộ nội dung Pro).
+> - Không có chức năng đổi vai trò người dùng trên giao diện (rủi ro leo quyền) — cần thì làm qua seeder/tinker có audit.
+
+---
+
+## 11b. Kết quả rà checklist bảo mật — 2026-09-17 (Phase 10)
+
+- CSRF: chỉ loại trừ `api/v1/payment/momo/ipn` (`bootstrap/app.php`) ✓
+- `{!! !!}`: chỉ dùng cho nội dung bài học/câu hỏi/đề/bài giao (lọc HTMLPurifier khi lưu ở model/request), SVG QR do server sinh, output AI qua `AiText::toHtml` ✓
+- Raw SQL: toàn chuỗi tĩnh hoặc binding `?` — không nối input người dùng ✓
+- Throttle: đăng nhập 5/phút, AI 10/phút + quota ngày theo gói, IPN 60/phút/IP, chung 240–300/phút ✓
+- Audit log: duyệt GV, khoá/mở khoá tài khoản, đổi giá/gói, cấp/huỷ gói, thanh toán thành công ✓ — chưa có chức năng đổi quyền (không cần log)
+- `APP_DEBUG=false`, key chỉ ở server: nằm trong checklist triển khai [docs/DEPLOY.md](docs/DEPLOY.md) — kiểm lại mỗi lần phát hành
 
 ---
 
@@ -708,7 +739,7 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 | AI đưa lời giải sai | Hiển thị cảnh báo "AI có thể sai"; nội dung sinh ra phải người duyệt; log để rà |
 | MoMo sandbox khác production | Tách config theo env; `payment_webhook_logs` để đối soát |
 | MariaDB 10.4 + index utf8mb4 quá 767 byte | `Schema::defaultStringLength(191)` trong `AppServiceProvider` |
-| Không có ext `redis` | Dùng `predis/predis` (pure PHP) ở Phase 10 |
+| Không có ext `redis` | Đã cài `predis/predis` (pure PHP) ở Phase 10 |
 | Đếm giờ thi bị gian lận | `expires_at` lưu server, kiểm lại lúc submit |
 
 ---

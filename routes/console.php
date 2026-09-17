@@ -30,3 +30,14 @@ Schedule::command('payments:expire-pending')
 Schedule::command('reports:weekly-parents')
     ->weeklyOn(0, '19:00')
     ->withoutOverlapping();
+
+// Sao lưu DB lúc ít người học nhất; giữ BACKUP_KEEP_DAYS ngày. Chỉ chạy trên máy chủ thật.
+Schedule::command('backup:database')
+    ->dailyAt('02:00')
+    ->environments(['production', 'staging'])
+    ->withoutOverlapping()
+    ->onOneServer();
+
+// Dọn job lỗi cũ và token Sanctum hết hạn để bảng không phình.
+Schedule::command('queue:prune-failed --hours=720')->weekly();
+Schedule::command('sanctum:prune-expired --hours=168')->daily();

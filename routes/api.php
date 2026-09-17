@@ -81,5 +81,5 @@ Route::middleware(['web', 'auth', 'active', 'throttle:ai'])
 | Căn cứ duy nhất là chữ ký; luôn trả 204.
 */
 Route::post('payment/momo/ipn', MomoIpnController::class)
-    ->middleware('throttle:120,1')
+    ->middleware('throttle:60,1')
     ->name('api.payment.momo.ipn');
