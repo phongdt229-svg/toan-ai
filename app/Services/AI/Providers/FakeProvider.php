@@ -96,6 +96,7 @@ class FakeProvider implements AiProviderInterface
                 ['type' => 'common_mistake', 'title' => 'Lỗi thường gặp', 'content' => '<p>Quên quy đồng.</p>'],
             ]],
             'rewrite' => '<p>Nội dung đã được viết lại cho dễ hiểu hơn.</p>',
+            'placement_analysis' => 'Em nắm khá chắc phần tính toán cơ bản. Phần cần củng cố là **quy đồng mẫu số** — cô đã xếp các bài đó vào giai đoạn đầu của lộ trình. Cứ học đều mỗi ngày một buổi, em sẽ tiến bộ nhanh thôi!',
             default => 'Chào em! Cô là trợ lý Toán. Em đang vướng ở bước nào?',
         };
     }

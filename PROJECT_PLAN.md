@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–7A đã xong** · Kế tiếp: Phase 7B (Kiểm tra đầu vào & Giáo trình)
+> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–7B đã xong** · Kế tiếp: Phase 8 (Package & Subscription)
 
 ---
 
@@ -199,16 +199,15 @@ Thứ tự quan trọng vì ràng buộc khoá ngoại. Mỗi bảng đều có 
 ### Nhóm 6b — Kiểm tra đầu vào & Giáo trình cá nhân hóa (Phase 7, §34–36)
 | # | Bảng | Cột chính |
 |---|---|---|
-| 39 | `placement_tests` | `user_id`, `grade_id`, `status`(generated/in_progress/submitted/graded), `score`, `total_points`, `duration_seconds`, `level_result`(average/good/excellent), `weak_topics`json, `analysis`json, `generated_by`(ai/manual), `started_at`, `submitted_at`. Index: (user_id, status) |
-| 40 | `placement_test_questions` | `placement_test_id`, `question_id`(null nếu AI sinh tạm), `content`, `type`, `options`json, `correct_answer`json, `topic_hint`, `points`, `sort_order` |
-| 41 | `placement_test_answers` | `placement_test_id`, `placement_test_question_id`, `answer_text`, `selected_option_ids`json, `is_correct`, `score`, `ai_feedback`, unique(placement_test_id, placement_test_question_id) |
-| 42 | `learning_paths` | `user_id`, `grade_id`, `placement_test_id`(null), `status`(active/completed/archived), `total_sessions`, `completed_sessions`, `progress_percent`, `generated_at`, `meta`json. Index: (user_id, status) |
+| 39 | `placement_tests` | `user_id`, `grade_id`, `status`(in_progress/graded), `started_at`, `expires_at`, `submitted_at`, `auto_submitted`, `total_questions`, `correct_count`, `score`(thang 10), `level_result`, `understanding_percent`, `avg_seconds_per_question`, `weak_topics`json, `analysis`text. Index: (user_id, status) |
+| 40 | `placement_test_questions` | `placement_test_id`, `question_id`(null nếu AI sinh bù), `topic_id`, `type`, `difficulty`, `content`, `options`json, `correct_answer`json, `explanation`, `points`, `sort_order` — bản chụp |
+| 41 | `placement_test_answers` | `placement_test_id`, `placement_test_question_id`, `answer`json, `is_correct`, `score`, `time_spent_seconds`, unique |
+| 42 | `learning_paths` | `user_id`, `grade_id`, `placement_test_id`(null), `status`(active/completed/archived), `items_per_session`, `total_sessions`, `completed_sessions`, `progress_percent`, `generated_at`. Index: (user_id, status) |
 | 43 | `learning_path_stages` | `learning_path_id`, `stage`(foundation/consolidation/advanced/exam_practice), `name`, `sort_order`, `status`(locked/in_progress/done), `progress_percent` |
-| 44 | `learning_path_items` | `learning_path_stage_id`, `item_type`(lesson/practice_set/exam), `item_id`, `sort_order`, `status`(pending/in_progress/done/skipped), `due_date`, `completed_at`. Index: (learning_path_stage_id, status) |
-| 45 | `study_sessions` | `user_id`, `learning_path_id`, `session_date`, `planned_items`json, `completed_items`json, `duration_seconds`, `status`(planned/in_progress/done/missed), unique(user_id, session_date) |
+| 44 | `learning_path_items` | `learning_path_stage_id`, `study_session_id`, `item_type`(lesson/practice/exam), `topic_id`, `target_id`, `difficulty`, `origin`(plan/review), `title`, `sort_order`, `status`(pending/done), `completed_at` |
+| 45 | `study_sessions` | `user_id`, `learning_path_id`, `session_no`, `status`(planned/quiz_pending/done), `quiz_question_ids`json, `quiz_percent`, `quiz_submitted_at`, `completed_at`, unique(learning_path_id, session_no) |
 
-> **§37 "Kiểm tra cuối buổi" chưa đủ dữ kiện** — spec ghi rõ nội dung bị cắt. Dự kiến dùng lại
-> `exams` type=`quiz` gắn vào `study_sessions`, chốt lại khi có nội dung đầy đủ.
+> **§37 "Kiểm tra cuối buổi"**: đã làm bản mặc định ở Phase 7B (spec nguồn bị cắt) — xem Phase 7B.
 
 ### Nhóm 7 — Subscription & Payment (Phase 8–9)
 | # | Bảng | Cột chính |
@@ -594,15 +593,34 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 >
 > **Chưa làm:** tạo đề kiểm tra bằng AI (§16) — hiện giáo viên dùng AI tạo câu hỏi rồi bốc vào đề.
 
-### Phase 7B — Kiểm tra đầu vào & Giáo trình cá nhân hóa (§34–36)
-- [ ] Migration nhóm 6b (39–45)
-- [ ] `PlacementTestService`: AI sinh đề 5–10 câu theo lớp + học lực + điểm TB
-- [ ] Chấm + phân loại học lực (≤5 Trung bình · ≤8 Khá · >8 Giỏi) + trích chủ đề yếu
-- [ ] `LearningPathService`: sinh lộ trình 4 giai đoạn (nền tảng → củng cố → nâng cao → luyện đề)
-- [ ] Tự điều chỉnh độ khó theo kết quả gần nhất
-- [ ] Dashboard §36: % theo lộ trình, buổi đã học / còn lại, "Gợi ý học hôm nay"
-- [ ] `study_sessions` + kiểm tra cuối buổi (chờ §37 đủ nội dung)
-- [ ] Test: học sinh mới → làm placement → nhận lộ trình → học buổi 1
+### ✅ Phase 7B — Kiểm tra đầu vào & Giáo trình cá nhân hóa (§34–37)
+- [x] Migration nhóm 6b (39–45) + mở rộng `question_attempts.context` thêm `placement`, `session_quiz`
+- [x] `PlacementTestService` §34: 8 câu, 20 phút, bấm giờ server-side, tự nộp khi hết giờ (chung lệnh `exams:finalize-expired`)
+  - Đề **lấy từ ngân hàng câu hỏi** (người dùng chốt), tỉ lệ độ khó theo học lực tự đánh giá: TB 4/3/1 · Khá 2/4/2 · Giỏi 1/3/4, trải đều chủ đề
+  - Ngân hàng < 5 câu → **AI sinh bù**; AI lỗi → báo "chưa đủ câu hỏi", không bao giờ đưa đề hỏng
+  - **Chụp nội dung câu hỏi** lúc ra đề — giáo viên sửa/xoá câu trong ngân hàng không làm đổi bài đã làm
+- [x] Chấm bằng `GradingService` → điểm thang 10 → học lực (≤5 TB · ≤8 Khá · >8 Giỏi), **mức độ hiểu** (% đúng có trọng số độ khó),
+      **tốc độ** (giây/câu), **nhóm kiến thức yếu** (chủ đề < 50%), nhận xét bằng AI (lỗi AI không chặn kết quả)
+- [x] `LearningPathService` §35: lộ trình 4 giai đoạn
+  - **Nền tảng**: chủ đề yếu + chủ đề đứng ngay trước nó (kiến thức nền); học sinh Giỏi bắt đầu từ mức TB
+  - **Củng cố**: các chủ đề còn lại · **Nâng cao**: câu Khó · **Luyện đề**: đề đã xuất bản của lớp
+  - Chỉ tạo mục luyện tập khi có câu để luyện; bài đã học từ trước tính là xong
+- [x] Chia thành **buổi học** 3 mục/buổi (§36)
+- [x] **Tự điều chỉnh** qua event: học xong bài / luyện ≥ 5 câu / làm đề → mục tự xong; chủ đề đã học mà tụt xuống yếu → chèn mục ôn tập
+- [x] **Kiểm tra cuối buổi §37** (bản mặc định): 5 câu về chủ đề của buổi; ≥ 50% hoàn thành; chưa đạt vẫn sang buổi mới
+      nhưng buổi sau có thêm mục ôn đúng chủ đề còn sai
+- [x] Dashboard §36: % hoàn thành lộ trình · buổi đã học / còn lại · điểm TB · kiến thức cần củng cố · **Gợi ý học hôm nay = buổi hiện tại**
+- [x] Báo cáo phụ huynh: tiến độ lộ trình theo giai đoạn + kết quả đầu vào
+- [x] Test: 249 test xanh (34 test riêng cho 7B)
+
+> **Quyết định trong phase:**
+> - Học sinh học **theo nhịp riêng**: buổi học là tuần tự (buổi 1, 2, 3…), không gắn cứng vào ngày lịch —
+>   bỏ ràng buộc `unique(user_id, session_date)` của plan cũ, thay bằng `unique(learning_path_id, session_no)`.
+> - Làm lại kiểm tra đầu vào → lộ trình cũ **lưu trữ** (không xoá), sinh lộ trình mới.
+> - Lượt AI hệ thống dùng cho đầu vào (sinh câu bù, nhận xét) **ghi chi phí nhưng không trừ quota** hỏi AI của học sinh.
+> - Giai đoạn không có mục nào chỉ tính "xong" khi các giai đoạn trước đã xong.
+>
+> **§37 là bản mặc định** vì spec nguồn bị cắt nội dung — cần chỉnh lại khi có đặc tả đầy đủ.
 
 ### Phase 8 — Package & Subscription
 - [ ] Migration nhóm 7 (46–48)

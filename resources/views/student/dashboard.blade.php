@@ -15,25 +15,87 @@
         </p>
     </div>
 
-    <div class="row g-3 mb-4">
+    {{-- §36 Dashboard tiến độ: % theo lộ trình · buổi đã học / còn lại · điểm TB · kiến thức yếu --}}
+    @if (! $path)
+        <div class="card border-primary mb-4">
+            <div class="card-body d-flex flex-wrap align-items-center gap-3">
+                <i class="bi bi-compass text-primary" style="font-size:2.5rem"></i>
+                <div class="flex-grow-1">
+                    <div class="fw-bold">{{ $hasPlacement ? 'Em chưa có lộ trình học' : 'Làm kiểm tra đầu vào để nhận lộ trình riêng' }}</div>
+                    <div class="text-secondary small">Khoảng 20 phút. Hệ thống sẽ biết em vững phần nào, yếu phần nào và xếp các buổi học cho em.</div>
+                </div>
+                <a href="{{ route('student.placement.intro') }}" class="btn btn-primary btn-touch">Bắt đầu</a>
+            </div>
+        </div>
+    @else
+        <div class="row g-3 mb-3">
+            @foreach ([
+                ['Hoàn thành lộ trình', $path->progress_percent . '%', 'bi-graph-up'],
+                ['Buổi đã học', $path->completed_sessions, 'bi-check2-square'],
+                ['Buổi còn lại', $path->remainingSessions(), 'bi-calendar3'],
+                ['Điểm trung bình', $averageScore !== null ? \App\Support\Score::format($averageScore) . '/10' : '—', 'bi-star'],
+            ] as [$label, $value, $icon])
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="stat-card__label">{{ $label }}</div>
+                            <i class="bi {{ $icon }} text-primary"></i>
+                        </div>
+                        <div class="stat-card__value">{{ $value }}</div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="progress mb-3" style="height:8px" role="progressbar"
+             aria-valuenow="{{ $path->progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="width:{{ $path->progress_percent }}%"></div>
+        </div>
+
+        @if ($weakTopics->isNotEmpty())
+            <div class="small mb-4">
+                <span class="text-secondary"><i class="bi bi-exclamation-circle me-1"></i>Kiến thức cần củng cố:</span>
+                @foreach ($weakTopics as $m)
+                    <span class="badge text-bg-light border">{{ $m->topic->name }} · {{ $m->mastery_score }}%</span>
+                @endforeach
+            </div>
+        @endif
+    @endif
+
+    <div class="row g-2 mb-4">
         @foreach ([
             ['Bài đang học', $stats['lessons_started'], 'bi-journal-text'],
             ['Bài hoàn thành', $stats['lessons_completed'], 'bi-journal-check'],
             ['Thời gian học', $stats['study_minutes'] . ' phút', 'bi-clock'],
         ] as [$label, $value, $icon])
-            <div class="col-6 col-lg-4">
-                <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="stat-card__label">{{ $label }}</div>
-                        <i class="bi {{ $icon }} text-primary"></i>
-                    </div>
-                    <div class="stat-card__value">{{ $value }}</div>
+            <div class="col-4">
+                <div class="border rounded-3 px-2 py-1 small">
+                    <div class="text-secondary"><i class="bi {{ $icon }} me-1"></i>{{ $label }}</div>
+                    <div class="fw-semibold">{{ $value }}</div>
                 </div>
             </div>
         @endforeach
     </div>
 
-    @if ($recommendations->isNotEmpty())
+    {{-- Gợi ý học hôm nay: buổi học hiện tại của lộ trình, hoặc đề xuất §11 khi chưa có lộ trình --}}
+    @if ($currentSession)
+        <div class="card border-primary mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <h3 class="h6 fw-bold mb-0"><i class="bi bi-stars text-primary me-1"></i>Gợi ý học hôm nay · Buổi {{ $currentSession->session_no }}</h3>
+                    <a href="{{ route('student.path.show') }}" class="small">Xem lộ trình</a>
+                </div>
+                @foreach ($currentSession->items as $item)
+                    @include('student.path.partials.item', ['item' => $item, 'service' => $pathService])
+                @endforeach
+                @if ($currentSession->status === 'quiz_pending')
+                    <a href="{{ route('student.path.quiz', $currentSession) }}" class="btn btn-success w-100 btn-touch mt-2">
+                        <i class="bi bi-clipboard-check me-1"></i>Kiểm tra cuối buổi
+                    </a>
+                @endif
+            </div>
+        </div>
+    @elseif ($recommendations->isNotEmpty())
         <h3 class="h6 fw-bold mb-2"><i class="bi bi-stars text-primary me-1"></i>Gợi ý học hôm nay</h3>
         <div class="mb-4">
             @include('components.recommendation-list', ['recommendations' => $recommendations, 'actionable' => true])

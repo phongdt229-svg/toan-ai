@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
                 DemoUserSeeder::class,
                 SampleCurriculumSeeder::class,
                 SampleQuestionSeeder::class,
+                SamplePathSeeder::class,
                 SampleExamSeeder::class,
                 SampleClassSeeder::class,
             ]);

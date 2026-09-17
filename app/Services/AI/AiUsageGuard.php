@@ -28,11 +28,18 @@ class AiUsageGuard
         };
     }
 
+    /**
+     * Lượt AI do hệ thống tự gọi thay học sinh (kiểm tra đầu vào) — vẫn ghi chi phí cho admin,
+     * nhưng không trừ vào lượt hỏi AI của học sinh.
+     */
+    public const SYSTEM_FEATURES = ['placement_generate', 'placement_analysis'];
+
     public function usedToday(User $user): int
     {
         return (int) AiUsage::query()
             ->where('user_id', $user->id)
             ->whereDate('usage_date', today())
+            ->whereNotIn('feature', self::SYSTEM_FEATURES)
             ->sum('request_count');
     }
 

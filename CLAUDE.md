@@ -7,7 +7,7 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 1. [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md) — yêu cầu sản phẩm (nguồn sự thật về **làm gì**)
 2. [PROJECT_PLAN.md](PROJECT_PLAN.md) — kiến trúc, schema, API, RBAC matrix, roadmap (**làm thế nào**)
 
-Đang ở **Phase 7A (xong)**. Phase kế tiếp: Phase 7B — Kiểm tra đầu vào & Giáo trình cá nhân hóa.
+Đang ở **Phase 7B (xong)**. Phase kế tiếp: Phase 8 — Package & Subscription.
 
 ## Nguyên tắc không được phá
 
@@ -30,6 +30,8 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 - AI: mọi lời gọi đi qua `AiProviderInterface`; test dùng `FakeProvider` (`push()`, `failNext()`, `lastRequest()`), không gọi API thật.
 - AI không bao giờ quyết định đúng/sai hay tự xuất bản nội dung. Output AI hiển thị qua `AiText::toHtml` (escape).
 - `.env`: `AI_PROVIDER=fake` khi dev; chạy thật cần `AI_PROVIDER=openai` + `OPENAI_API_KEY`.
+- Lộ trình học (`LearningPathService`) tự cập nhật qua listener `SyncLearningPath` — đừng đánh dấu mục lộ trình bằng tay trong controller.
+- Câu hỏi trong kiểm tra đầu vào là **bản chụp**; chấm qua `PlacementTestQuestion::toQuestion()` để dùng lại `GradingService`.
 
 ## Lệnh hay dùng
 

@@ -42,6 +42,9 @@ class StudentReportService
             'strong_topics' => $this->mastery->strongTopics($student, 3),
             'weak_topics' => $this->mastery->weakTopics($student, 3),
             'recommendations' => $this->recommendations->current($student, 4),
+            // §36: lộ trình cá nhân hóa (nếu con đã làm kiểm tra đầu vào).
+            'path' => \App\Models\LearningPath::where('user_id', $student->id)
+                ->whereIn('status', ['active', 'completed'])->with('stages', 'placementTest')->latest('id')->first(),
             'comments' => TeacherComment::query()
                 ->where('student_id', $student->id)
                 ->where('visible_to_parent', true)

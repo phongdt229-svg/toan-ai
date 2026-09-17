@@ -17,6 +17,7 @@ class PromptBuilder
         'explain' => 'Giải thích lời giải từng bước, đánh số bước. Mỗi bước nói rõ VÌ SAO làm vậy, không chỉ làm gì.',
         'check_answer' => 'Hệ thống đã chấm đúng/sai (kết quả ghi trong tin nhắn). KHÔNG tự chấm lại. Nhận xét cách làm: chỉ ra bước đúng, bước sai nếu có, và cách sửa. Không đưa đáp án cuối nếu học sinh làm sai.',
         'similar_exercise' => 'Tạo MỘT bài tập mới cùng dạng, cùng độ khó, khác số liệu. Trả về JSON: {"problem": string, "answer": string, "solution": string}.',
+        'placement_analysis' => 'Viết nhận xét 3–4 câu về kết quả kiểm tra đầu vào: điểm mạnh, chỗ cần củng cố, và nên bắt đầu học từ đâu. Giọng động viên, không chê. Không lặp lại toàn bộ số liệu.',
         'analyze_mistake' => 'Phân tích câu trả lời sai. Trả về JSON: {"misconception": string (học sinh hiểu sai điều gì), "knowledge_gap": string (tên kiến thức nền cần ôn, ngắn gọn), "explanation": string (giải thích lại đúng, từng bước), "hint": string (gợi ý để tự làm lại)}.',
     ];
 

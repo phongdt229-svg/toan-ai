@@ -86,6 +86,37 @@
                 </div>
             </div>
 
+            {{-- Lộ trình cá nhân hóa (§35–36) --}}
+            <div class="card border mb-4">
+                <div class="card-body">
+                    <div class="fw-semibold mb-2"><i class="bi bi-signpost-split text-primary me-1"></i>Lộ trình học</div>
+                    @if ($r['path'])
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>Đã học {{ $r['path']->completed_sessions }}/{{ $r['path']->total_sessions }} buổi</span>
+                            <span class="fw-semibold">{{ $r['path']->progress_percent }}%</span>
+                        </div>
+                        <div class="progress mb-3" style="height:8px" role="progressbar"
+                             aria-valuenow="{{ $r['path']->progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" style="width:{{ $r['path']->progress_percent }}%"></div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach ($r['path']->stages as $stage)
+                                <span class="badge text-bg-{{ ['done' => 'success', 'in_progress' => 'primary', 'locked' => 'light border'][$stage->status] }}">
+                                    {{ $stage->sort_order }}. {{ $stage->name }} · {{ $stage->progress_percent }}%
+                                </span>
+                            @endforeach
+                        </div>
+                        @if ($r['path']->placementTest)
+                            <div class="small text-secondary mt-2">
+                                Kiểm tra đầu vào: {{ \App\Support\Score::format($r['path']->placementTest->score) }}/10 · {{ $r['path']->placementTest->levelLabel() }}
+                            </div>
+                        @endif
+                    @else
+                        <p class="text-secondary small mb-0">Con chưa làm kiểm tra đầu vào nên chưa có lộ trình riêng.</p>
+                    @endif
+                </div>
+            </div>
+
             {{-- Đề xuất học tập (§11) --}}
             @if ($r['recommendations']->isNotEmpty())
                 <div class="fw-semibold mb-1"><i class="bi bi-stars text-primary me-1"></i>Đề xuất cho con</div>

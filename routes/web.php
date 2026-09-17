@@ -15,8 +15,10 @@ use App\Http\Controllers\Student\AssignmentController as StudentAssignmentContro
 use App\Http\Controllers\Student\ClassController as StudentClassController;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Student\LearnController;
+use App\Http\Controllers\Student\LearningPathController;
 use App\Http\Controllers\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Student\ParentConnectionController;
+use App\Http\Controllers\Student\PlacementController;
 use App\Http\Controllers\Student\PracticeController;
 use App\Http\Controllers\Teacher\AiContentController;
 use App\Http\Controllers\Teacher\AssignmentController as TeacherAssignmentController;
@@ -81,6 +83,17 @@ Route::middleware('auth')->group(function () {
             Route::get('luyen-tap/lam-bai', [PracticeController::class, 'show'])->name('practice.show');
             Route::post('luyen-tap/nop', [PracticeController::class, 'submit'])->name('practice.submit');
             Route::get('luyen-tap/ket-qua', [PracticeController::class, 'result'])->name('practice.result');
+
+            // §34 Kiểm tra đầu vào · §35 Lộ trình · §37 Kiểm tra cuối buổi.
+            Route::get('kiem-tra-dau-vao', [PlacementController::class, 'intro'])->name('placement.intro');
+            Route::post('kiem-tra-dau-vao', [PlacementController::class, 'start'])->name('placement.start');
+            Route::get('kiem-tra-dau-vao/{test}/lam-bai', [PlacementController::class, 'take'])->name('placement.take');
+            Route::post('kiem-tra-dau-vao/{test}/nop', [PlacementController::class, 'submit'])->name('placement.submit');
+            Route::get('kiem-tra-dau-vao/{test}/ket-qua', [PlacementController::class, 'result'])->name('placement.result');
+
+            Route::get('lo-trinh', [LearningPathController::class, 'show'])->name('path.show');
+            Route::get('lo-trinh/buoi/{session}/kiem-tra', [LearningPathController::class, 'quiz'])->name('path.quiz');
+            Route::post('lo-trinh/buoi/{session}/kiem-tra', [LearningPathController::class, 'submitQuiz'])->name('path.quiz.submit');
 
             Route::get('ai', [AiTutorController::class, 'index'])->name('ai.index');
 

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  */
 class MasteryService
 {
-    private const WEIGHTS = ['easy' => 1.0, 'medium' => 1.5, 'hard' => 2.0];
+    public const WEIGHTS = ['easy' => 1.0, 'medium' => 1.5, 'hard' => 2.0];
 
     /** Cần tối thiểu số lần làm mới coi điểm là đáng tin. */
     public const MIN_ATTEMPTS_FOR_CONFIDENCE = 5;
