@@ -138,6 +138,36 @@ body {
     font-weight: 600;
 }
 
+// --- AI Tutor ------------------------------------------------------------
+.ai-fab {
+    position: fixed;
+    right: 1rem;
+    // Trên mobile nổi phía trên bottom nav.
+    bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0px) + 1rem);
+    z-index: $zindex-fixed + 1;
+    width: 56px;
+    height: 56px;
+}
+
+@include media-breakpoint-up(lg) {
+    .ai-fab {
+        bottom: 1.5rem;
+    }
+}
+
+.ai-panel {
+    // Mobile chiếm trọn chiều ngang cho dễ đọc; desktop là panel bên phải.
+    --bs-offcanvas-width: 100%;
+
+    @include media-breakpoint-up(md) {
+        --bs-offcanvas-width: 420px;
+    }
+}
+
+.ai-bubble .katex-display {
+    margin: .5rem 0;
+}
+
 // Công thức Toán dài không làm vỡ layout mobile.
 .katex-display {
     overflow-x: auto;

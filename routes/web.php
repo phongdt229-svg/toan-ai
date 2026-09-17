@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AiUsageController;
 use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\TeacherApprovalController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\ParentPortal\ChildController as ParentChildController;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\ParentPortal\SettingsController as ParentSettingsController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
+use App\Http\Controllers\Student\AiTutorController;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\Student\ClassController as StudentClassController;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
@@ -16,6 +18,7 @@ use App\Http\Controllers\Student\LearnController;
 use App\Http\Controllers\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Student\ParentConnectionController;
 use App\Http\Controllers\Student\PracticeController;
+use App\Http\Controllers\Teacher\AiContentController;
 use App\Http\Controllers\Teacher\AssignmentController as TeacherAssignmentController;
 use App\Http\Controllers\Teacher\ClassController as TeacherClassController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
@@ -79,6 +82,8 @@ Route::middleware('auth')->group(function () {
             Route::post('luyen-tap/nop', [PracticeController::class, 'submit'])->name('practice.submit');
             Route::get('luyen-tap/ket-qua', [PracticeController::class, 'result'])->name('practice.result');
 
+            Route::get('ai', [AiTutorController::class, 'index'])->name('ai.index');
+
             Route::get('phu-huynh', [ParentConnectionController::class, 'index'])->name('parents.index');
             Route::post('phu-huynh/doi-ma', [ParentConnectionController::class, 'regenerate'])->name('parents.regenerate');
             Route::delete('phu-huynh/{parent}', [ParentConnectionController::class, 'revoke'])->name('parents.revoke');
@@ -115,6 +120,25 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('giao-vien')->name('teacher.')->middleware('role:teacher,admin')->group(function () {
             Route::get('/', [TeacherDashboard::class, 'index'])->name('dashboard');
+
+            // AI soạn nội dung (§12) — mọi output là nháp, giáo viên duyệt từng mục.
+            Route::get('ai', [AiContentController::class, 'index'])->name('ai.index');
+            Route::post('ai/cau-hoi', [AiContentController::class, 'storeQuestions'])
+                ->middleware('throttle:ai')->name('ai.questions');
+            Route::post('ai/bai-hoc', [AiContentController::class, 'storeLesson'])
+                ->middleware('throttle:ai')->name('ai.lesson');
+            Route::post('ai/viet-lai', [AiContentController::class, 'rewrite'])
+                ->middleware('throttle:ai')->name('ai.rewrite');
+            Route::get('ai/nhap/{draft}', [AiContentController::class, 'show'])->name('ai.show');
+            Route::post('ai/nhap/{draft}/muc/{index}/chap-nhan', [AiContentController::class, 'accept'])
+                ->whereNumber('index')->name('ai.accept');
+            Route::post('ai/nhap/{draft}/muc/{index}/bo', [AiContentController::class, 'reject'])
+                ->whereNumber('index')->name('ai.reject');
+            Route::post('ai/nhap/{draft}/muc/{index}/tao-lai', [AiContentController::class, 'regenerate'])
+                ->whereNumber('index')->middleware('throttle:ai')->name('ai.regenerate');
+            Route::get('ai/nhap/{draft}/muc/{index}/sua', [AiContentController::class, 'edit'])
+                ->whereNumber('index')->name('ai.edit');
+            Route::post('ai/nhap/{draft}/tao-bai-hoc', [AiContentController::class, 'createLesson'])->name('ai.create-lesson');
 
             Route::get('lop-hoc', [TeacherClassController::class, 'index'])->name('classes.index');
             Route::get('lop-hoc/tao-moi', [TeacherClassController::class, 'create'])->name('classes.create');
@@ -224,6 +248,8 @@ Route::middleware('auth')->group(function () {
                 ->name('teachers.approve');
             Route::post('giao-vien/{user}/tu-choi', [TeacherApprovalController::class, 'reject'])
                 ->name('teachers.reject');
+
+            Route::get('ai-usage', [AiUsageController::class, 'index'])->name('ai-usage.index');
 
             Route::get('chuong-trinh', [CurriculumController::class, 'index'])->name('curriculum.index');
             Route::post('chuong-trinh/lop/{grade}/mon', [CurriculumController::class, 'storeSubject'])

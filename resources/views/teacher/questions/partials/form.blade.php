@@ -202,6 +202,13 @@
     @error('explanation') <div class="invalid-feedback">{{ $message }}</div> @enderror
 </div>
 
+@if (old('source') === 'ai')
+    <input type="hidden" name="source" value="ai">
+    <input type="hidden" name="ai_draft_id" value="{{ old('ai_draft_id') }}">
+    <input type="hidden" name="ai_item_index" value="{{ old('ai_item_index') }}">
+    <div class="alert alert-info small"><i class="bi bi-robot me-1"></i>Câu hỏi do AI soạn — kiểm tra kỹ đáp án trước khi lưu.</div>
+@endif
+
 <div class="mb-3" style="max-width:20rem">
     <label for="status" class="form-label">Trạng thái</label>
     <select id="status" name="status" class="form-select">

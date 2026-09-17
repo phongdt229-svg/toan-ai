@@ -3,6 +3,10 @@
 @section('title', $lesson->title . ' — TOÁN AI')
 @section('page_title', $lesson->title)
 
+@push('ai-context')
+    data-context-type="lesson" data-context-id="{{ $lesson->id }}"
+@endpush
+
 @section('content')
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb small">

@@ -81,6 +81,13 @@
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-preview-toggle>
                             Xem trước
                         </button>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="AI hỗ trợ">
+                            <button type="button" class="btn btn-outline-primary" data-ai-rewrite="simplify">
+                                <i class="bi bi-stars me-1"></i>Viết lại dễ hiểu
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-ai-rewrite="summarize">Tóm tắt</button>
+                            <button type="button" class="btn btn-outline-secondary" data-ai-undo hidden>Hoàn tác</button>
+                        </div>
                         <span class="text-secondary small ms-auto">
                             Công thức: <code>$...$</code> hoặc <code>$$...$$</code>
                         </span>
@@ -137,6 +144,13 @@
                     <button type="button" class="btn btn-outline-secondary btn-touch" data-preview-toggle>
                         Xem trước
                     </button>
+                        <div class="btn-group " role="group" aria-label="AI hỗ trợ">
+                            <button type="button" class="btn btn-outline-primary" data-ai-rewrite="simplify">
+                                <i class="bi bi-stars me-1"></i>Viết lại dễ hiểu
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-ai-rewrite="summarize">Tóm tắt</button>
+                            <button type="button" class="btn btn-outline-secondary" data-ai-undo hidden>Hoàn tác</button>
+                        </div>
                 </div>
             </form>
 
@@ -147,6 +161,51 @@
 
 @push('scripts')
 <script>
+// AI viết lại / tóm tắt (§12): chỉ thay nội dung trong ô soạn, KHÔNG lưu — giáo viên đọc lại rồi tự bấm Lưu.
+document.querySelectorAll('[data-ai-rewrite]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        const card = btn.closest('.card-body');
+        const editor = card.querySelector('[data-math-editor]');
+        const undo = card.querySelector('[data-ai-undo]');
+        if (!editor || !editor.value.trim()) return;
+
+        const original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        try {
+            const res = await fetch(@json(route('teacher.ai.rewrite')), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify({ content: editor.value, mode: btn.dataset.aiRewrite }),
+            });
+            const json = await res.json();
+            if (!json.success) throw new Error(json.message || 'AI chưa xử lý được.');
+
+            undo.dataset.previous = editor.value;
+            undo.hidden = false;
+            editor.value = json.data.html;
+        } catch (e) {
+            alert(e.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = original;
+        }
+    });
+});
+
+document.querySelectorAll('[data-ai-undo]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const editor = btn.closest('.card-body').querySelector('[data-math-editor]');
+        editor.value = btn.dataset.previous ?? editor.value;
+        btn.hidden = true;
+    });
+});
+
 // Xem trước KaTeX: đổ nội dung textarea vào khối preview rồi render lại công thức.
 document.querySelectorAll('[data-preview-toggle]').forEach((btn) => {
     btn.addEventListener('click', () => {

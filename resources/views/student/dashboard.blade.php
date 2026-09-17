@@ -33,6 +33,13 @@
         @endforeach
     </div>
 
+    @if ($recommendations->isNotEmpty())
+        <h3 class="h6 fw-bold mb-2"><i class="bi bi-stars text-primary me-1"></i>Gợi ý học hôm nay</h3>
+        <div class="mb-4">
+            @include('components.recommendation-list', ['recommendations' => $recommendations, 'actionable' => true])
+        </div>
+    @endif
+
     @if ($pendingAssignments->isNotEmpty())
         <div class="d-flex align-items-center justify-content-between mb-2">
             <h3 class="h6 fw-bold mb-0">Bài được giao</h3>

@@ -131,7 +131,7 @@ class ParentReportTest extends ParentTestCase
         $this->assertSame(0, collect($activity)->firstWhere('date', now()->toDateString())['answered']);
     }
 
-    public function test_review_suggestions_point_to_unfinished_lesson_of_weak_topic(): void
+    public function test_recommendation_points_to_unfinished_lesson_of_weak_topic(): void
     {
         $child = $this->makeStudent();
         $topic = Topic::where('slug', 'phep-cong-phan-so')->firstOrFail();
@@ -148,10 +148,10 @@ class ParentReportTest extends ParentTestCase
         ]);
 
         $report = app(StudentReportService::class)->summary($child);
-        $suggestion = $report['review_suggestions']->first();
+        $lessonRec = $report['recommendations']->firstWhere('type', 'review_lesson');
 
-        $this->assertSame('Phép cộng phân số', $suggestion['topic']);
-        $this->assertSame('cong-hai-phan-so-khac-mau-so', $suggestion['lesson']->slug);
+        $this->assertSame('Phép cộng phân số', $lessonRec->topic->name);
+        $this->assertSame(Lesson::where('slug', 'cong-hai-phan-so-khac-mau-so')->value('id'), $lessonRec->target_id);
     }
 
     public function test_report_page_shows_only_parent_visible_comments(): void

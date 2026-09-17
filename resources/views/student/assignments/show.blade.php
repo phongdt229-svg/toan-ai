@@ -114,6 +114,7 @@
                                 <div class="mb-3" data-math>{!! $question->content !!}</div>
 
                                 @include('student.practice.partials.input', ['question' => $question, 'answers' => []])
+                                @include('components.ai-question-actions', ['question' => $question, 'modes' => ['hint']])
 
                                 <input type="hidden" name="time_spent[{{ $question->id }}]" value="0"
                                        data-time-for="{{ $question->id }}">

@@ -8,6 +8,7 @@ use App\Http\Requests\Student\SubmitPracticeRequest;
 use App\Models\Grade;
 use App\Models\Question;
 use App\Models\Topic;
+use App\Services\Learning\GradingService;
 use App\Services\Learning\MasteryService;
 use App\Services\Learning\PracticeService;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,7 @@ class PracticeController extends Controller
     public function __construct(
         private readonly PracticeService $practice,
         private readonly MasteryService $mastery,
+        private readonly GradingService $grading,
     ) {}
 
     /** Chọn chủ đề để luyện. */
@@ -144,6 +146,10 @@ class PracticeController extends Controller
             'topic' => Topic::find($data['topic_id']),
             'questions' => $questions,
             'answers' => $data['answers'],
+            // Chấm lại từ DB (rẻ, không gọi AI) thay vì lưu kết quả từng câu vào session.
+            'correctness' => $questions->mapWithKeys(fn ($q) => [
+                $q->id => $this->grading->grade($q, $data['answers'][$q->id] ?? null)->isCorrect,
+            ])->all(),
             'score' => $data['score'],
             'maxScore' => $data['max_score'],
             'correct' => $data['correct'],

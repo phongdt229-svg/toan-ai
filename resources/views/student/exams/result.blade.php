@@ -139,6 +139,12 @@
                         </div>
                     @endif
 
+                    @include('components.ai-question-actions', [
+                        'question' => $question,
+                        'modes' => $answer?->is_correct ? ['explain', 'similar_exercise'] : ['analyze_mistake', 'explain', 'similar_exercise'],
+                        'answer' => $given,
+                    ])
+
                     @if ($question->explanation)
                         <div class="border-start border-3 border-primary ps-3 mt-3" data-math>
                             <div class="fw-semibold small mb-1">

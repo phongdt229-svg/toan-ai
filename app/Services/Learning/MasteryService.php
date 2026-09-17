@@ -2,6 +2,7 @@
 
 namespace App\Services\Learning;
 
+use App\Events\MasteryUpdated;
 use App\Models\QuestionAttempt;
 use App\Models\StudentTopicMastery;
 use App\Models\User;
@@ -66,6 +67,8 @@ class MasteryService
                 $this->recalculateForTopic($user, $topicId);
             }
         });
+
+        MasteryUpdated::dispatch($user);
     }
 
     /**

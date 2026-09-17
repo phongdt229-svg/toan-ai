@@ -4,8 +4,14 @@ namespace App\Providers;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Services\AI\Contracts\AiProviderInterface;
+use App\Services\AI\Providers\FakeProvider;
+use App\Services\AI\Providers\OpenAiProvider;
 use App\Support\HtmlSanitizer;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\Paginator;
@@ -19,6 +25,23 @@ class AppServiceProvider extends ServiceProvider
     {
         // Khởi tạo HTMLPurifier khá nặng — dùng chung một instance cho cả request.
         $this->app->singleton(HtmlSanitizer::class);
+
+        // Singleton để test lấy đúng instance FakeProvider mà service đang dùng (push/calls).
+        $this->app->singleton(FakeProvider::class);
+
+        $this->app->singleton(AiProviderInterface::class, function ($app) {
+            $config = $app['config']['ai'];
+
+            return match ($config['provider']) {
+                'openai' => new OpenAiProvider(
+                    apiKey: $config['openai']['api_key'],
+                    model: $config['openai']['model'],
+                    baseUrl: $config['openai']['base_url'],
+                    timeout: $config['openai']['timeout'],
+                ),
+                default => $app->make(FakeProvider::class),
+            };
+        });
     }
 
     public function boot(): void
@@ -30,6 +53,14 @@ class AppServiceProvider extends ServiceProvider
         Model::shouldBeStrict($this->app->isLocal());
 
         Paginator::useBootstrapFive();
+
+        // Mỗi lượt AI tốn tiền thật — chặn bấm liên tục. Quota theo ngày kiểm riêng ở AiUsageGuard.
+        RateLimiter::for('ai', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip())
+            ->response(fn () => response()->json([
+                'success' => false,
+                'message' => 'Bạn hỏi hơi nhanh, đợi một chút rồi hỏi tiếp nhé.',
+                'reason' => 'rate_limited',
+            ], 429)));
 
         $this->registerPermissionGates();
     }

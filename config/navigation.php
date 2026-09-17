@@ -14,7 +14,7 @@ return [
         ['label' => 'Trang chủ', 'icon' => 'bi-house', 'route' => 'student.dashboard', 'bottom' => true],
         ['label' => 'Học', 'icon' => 'bi-journal-text', 'route' => 'student.learn.index', 'bottom' => true],
         ['label' => 'Bài tập', 'icon' => 'bi-pencil-square', 'route' => 'student.practice.index', 'bottom' => true],
-        ['label' => 'AI', 'icon' => 'bi-robot', 'route' => null, 'bottom' => true],
+        ['label' => 'AI', 'icon' => 'bi-robot', 'route' => 'student.ai.index', 'bottom' => true],
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'student.exams.index', 'bottom' => false],
         ['label' => 'Bài được giao', 'icon' => 'bi-list-check', 'route' => 'student.assignments.index', 'bottom' => false],
         ['label' => 'Lớp của tôi', 'icon' => 'bi-people', 'route' => 'student.classes.index', 'bottom' => false],
@@ -30,6 +30,7 @@ return [
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'teacher.exams.index', 'bottom' => false],
         ['label' => 'Giao bài', 'icon' => 'bi-send-check', 'route' => 'teacher.assignments.index', 'bottom' => false],
         ['label' => 'Học sinh', 'icon' => 'bi-mortarboard', 'route' => 'teacher.students.index', 'bottom' => false],
+        ['label' => 'AI soạn bài', 'icon' => 'bi-robot', 'route' => 'teacher.ai.index', 'bottom' => false],
         ['label' => 'Báo cáo', 'icon' => 'bi-bar-chart', 'route' => null, 'bottom' => false],
     ],
 
@@ -47,7 +48,7 @@ return [
         ['label' => 'Chương trình', 'icon' => 'bi-diagram-3', 'route' => 'admin.curriculum.index', 'bottom' => true],
         ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => null, 'bottom' => false],
         ['label' => 'Giao dịch', 'icon' => 'bi-credit-card', 'route' => null, 'bottom' => false],
-        ['label' => 'AI usage', 'icon' => 'bi-robot', 'route' => null, 'bottom' => false],
+        ['label' => 'AI usage', 'icon' => 'bi-robot', 'route' => 'admin.ai-usage.index', 'bottom' => false],
         ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => null, 'bottom' => false],
     ],
 

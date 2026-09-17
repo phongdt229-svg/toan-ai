@@ -86,24 +86,12 @@
                 </div>
             </div>
 
-            {{-- Đề xuất ôn lại --}}
-            @if ($r['review_suggestions']->isNotEmpty())
-                <div class="card border-primary mb-4">
-                    <div class="card-body">
-                        <div class="fw-semibold mb-1"><i class="bi bi-lightbulb text-primary me-1"></i>Đề xuất ôn lại</div>
-                        <p class="text-secondary small">Dựa trên các chủ đề con làm sai nhiều nhất.</p>
-                        <ul class="list-unstyled d-grid gap-2 mb-0">
-                            @foreach ($r['review_suggestions'] as $s)
-                                <li class="d-flex align-items-center gap-2">
-                                    <span class="badge text-bg-light border">{{ $s['mastery'] }}%</span>
-                                    <span class="fw-semibold">{{ $s['topic'] }}</span>
-                                    @if ($s['lesson'])
-                                        <span class="text-secondary small">→ bài “{{ $s['lesson']->title }}”</span>
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+            {{-- Đề xuất học tập (§11) --}}
+            @if ($r['recommendations']->isNotEmpty())
+                <div class="fw-semibold mb-1"><i class="bi bi-stars text-primary me-1"></i>Đề xuất cho con</div>
+                <p class="text-secondary small">Tính từ kết quả làm bài thật của con, cập nhật sau mỗi lần con nộp bài.</p>
+                <div class="mb-4">
+                    @include('components.recommendation-list', ['recommendations' => $r['recommendations'], 'actionable' => false])
                 </div>
             @endif
 

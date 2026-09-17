@@ -30,6 +30,10 @@ class QuestionRequest extends FormRequest
             'difficulty' => ['required', Rule::in(array_keys(Question::DIFFICULTIES))],
             'points' => ['required', 'numeric', 'min:0.25', 'max:100'],
             'status' => ['required', Rule::in(['draft', 'published'])],
+            'source' => ['nullable', Rule::in(['manual', 'ai'])],
+            // Đến từ nút "Sửa" ở trang nháp AI.
+            'ai_draft_id' => ['nullable', 'integer'],
+            'ai_item_index' => ['nullable', 'integer', 'min:0'],
 
             // Loại trắc nghiệm.
             'options' => ['nullable', 'array', 'max:10'],

@@ -47,6 +47,11 @@
         </main>
     </div>
 
+    {{-- AI Tutor: chỉ cho học sinh, và ẩn hẳn trên trang làm bài kiểm tra (server cũng chặn). --}}
+    @if ($portal === 'student' && ! request()->routeIs('student.exams.take'))
+        @include('components.ai-tutor-panel')
+    @endif
+
     <nav class="bottom-nav">
         @foreach ($bottomItems as $item)
             @include('components.nav-item', ['item' => $item, 'style' => 'bottom'])

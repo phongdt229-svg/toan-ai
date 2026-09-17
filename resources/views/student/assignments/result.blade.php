@@ -57,6 +57,12 @@
                     'readonly' => true,
                 ])
 
+                @include('components.ai-question-actions', [
+                    'question' => $question,
+                    'modes' => $ok ? ['explain', 'similar_exercise'] : ['analyze_mistake', 'explain', 'similar_exercise'],
+                    'answer' => $row['value'] ?? null,
+                ])
+
                 @if ($question->explanation)
                     <div class="border-start border-3 border-primary ps-3 mt-3" data-math>
                         <div class="fw-semibold small mb-1"><i class="bi bi-lightbulb text-primary me-1"></i>Giải thích</div>

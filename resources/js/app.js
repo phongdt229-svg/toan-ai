@@ -2,6 +2,7 @@ import './bootstrap';
 
 import * as bootstrap from 'bootstrap';
 import renderMathInElement from 'katex/contrib/auto-render';
+import { initAiTutor } from './ai-tutor';
 
 window.bootstrap = bootstrap;
 
@@ -31,6 +32,7 @@ window.renderMath = renderMath;
 
 document.addEventListener('DOMContentLoaded', () => {
     renderMath();
+    initAiTutor();
 
     // Tự ẩn thông báo sau 5 giây.
     document.querySelectorAll('[data-auto-dismiss]').forEach((el) => {

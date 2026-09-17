@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\QuestionRequest;
+use App\Models\AiGenerationDraft;
 use App\Models\Grade;
 use App\Models\Question;
+use App\Services\AI\ContentGeneratorService;
 use App\Services\AuditLogger;
 use App\Services\Teaching\QuestionService;
 use Illuminate\Http\RedirectResponse;
@@ -17,6 +19,7 @@ class QuestionController extends Controller
     public function __construct(
         private readonly QuestionService $questions,
         private readonly AuditLogger $audit,
+        private readonly ContentGeneratorService $generator,
     ) {}
 
     public function index(Request $request): View
@@ -56,7 +59,16 @@ class QuestionController extends Controller
     {
         $question = $this->questions->create($request->validated(), $request->user());
 
-        $this->audit->log('question.created', $question, null, ['type' => $question->type]);
+        $this->audit->log('question.created', $question, null, ['type' => $question->type, 'source' => $question->source]);
+
+        if ($request->filled('ai_draft_id')) {
+            $draft = AiGenerationDraft::where('user_id', $request->user()->id)->find($request->integer('ai_draft_id'));
+            if ($draft) {
+                $this->generator->linkEditedQuestion($draft, $request->integer('ai_item_index'), $question);
+
+                return redirect()->route('teacher.ai.show', $draft)->with('status', 'Đã lưu câu hỏi đã sửa.');
+            }
+        }
 
         return redirect()
             ->route('teacher.questions.index')

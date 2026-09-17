@@ -22,7 +22,10 @@ use Illuminate\Support\Facades\DB;
  */
 class StudentReportService
 {
-    public function __construct(private readonly MasteryService $mastery) {}
+    public function __construct(
+        private readonly MasteryService $mastery,
+        private readonly RecommendationService $recommendations,
+    ) {}
 
     /** @return array<string, mixed> */
     public function summary(User $student): array
@@ -37,8 +40,8 @@ class StudentReportService
             'average_score' => $this->averageScoreOutOf10($student),
             'study_seconds' => $this->studySeconds($student),
             'strong_topics' => $this->mastery->strongTopics($student, 3),
-            'weak_topics' => $weak = $this->mastery->weakTopics($student, 3),
-            'review_suggestions' => $this->reviewSuggestions($student, $weak),
+            'weak_topics' => $this->mastery->weakTopics($student, 3),
+            'recommendations' => $this->recommendations->current($student, 4),
             'comments' => TeacherComment::query()
                 ->where('student_id', $student->id)
                 ->where('visible_to_parent', true)
@@ -122,43 +125,6 @@ class StudentReportService
     {
         return (int) StudentLessonProgress::where('user_id', $student->id)->sum('time_spent_seconds')
             + (int) QuestionAttempt::where('user_id', $student->id)->sum('time_spent_seconds');
-    }
-
-    /**
-     * Đề xuất ôn lại theo chủ đề yếu: gợi ý bài học đầu tiên chưa hoàn thành của chủ đề đó.
-     * Đây là quy tắc cố định — Phase 7 sẽ thay bằng RecommendationService có AI.
-     *
-     * @param  Collection<int, StudentTopicMastery>  $weakTopics
-     * @return Collection<int, array{topic: string, mastery: int, lesson: ?Lesson}>
-     */
-    public function reviewSuggestions(User $student, Collection $weakTopics): Collection
-    {
-        if ($weakTopics->isEmpty()) {
-            return collect();
-        }
-
-        $completedIds = StudentLessonProgress::query()
-            ->where('user_id', $student->id)
-            ->where('status', StudentLessonProgress::STATUS_COMPLETED)
-            ->pluck('lesson_id');
-
-        $lessonsByTopic = Lesson::query()
-            ->published()
-            ->whereIn('topic_id', $weakTopics->pluck('topic_id'))
-            ->ordered()
-            ->get()
-            ->groupBy('topic_id');
-
-        return $weakTopics->map(function (StudentTopicMastery $m) use ($lessonsByTopic, $completedIds) {
-            $lessons = $lessonsByTopic->get($m->topic_id, collect());
-
-            return [
-                'topic' => $m->topic->name,
-                'mastery' => $m->mastery_score,
-                // Ưu tiên bài chưa học; học hết rồi thì gợi ý đọc lại bài đầu.
-                'lesson' => $lessons->first(fn ($l) => ! $completedIds->contains($l->id)) ?? $lessons->first(),
-            ];
-        });
     }
 
     /** @return array{pending: int, overdue: int} */

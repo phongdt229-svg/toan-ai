@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\AssignmentStudent;
 use App\Models\StudentLessonProgress;
 use App\Services\Learning\ProgressService;
+use App\Services\Learning\RecommendationService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __construct(private readonly ProgressService $progress) {}
+    public function __construct(
+        private readonly ProgressService $progress,
+        private readonly RecommendationService $recommendations,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -31,6 +35,8 @@ class DashboardController extends Controller
             'stats' => $this->progress->summaryFor($user),
             'topicProgress' => $this->progress->progressByTopic($user, 5),
             'continueLearning' => $recent,
+            // §36 "Gợi ý học hôm nay".
+            'recommendations' => $this->recommendations->current($user, 3),
             // Bài giao chưa làm, hạn gần nhất lên đầu — việc học sinh cần làm ngay.
             'pendingAssignments' => AssignmentStudent::query()
                 ->where('student_id', $user->id)
