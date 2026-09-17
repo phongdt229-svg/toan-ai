@@ -7,7 +7,7 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 1. [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md) — yêu cầu sản phẩm (nguồn sự thật về **làm gì**)
 2. [PROJECT_PLAN.md](PROJECT_PLAN.md) — kiến trúc, schema, API, RBAC matrix, roadmap (**làm thế nào**)
 
-Đang ở **Phase 3 (xong)**. Phase kế tiếp: Phase 4 — Đề kiểm tra (Exam).
+Đang ở **Phase 4 (xong)**. Phase kế tiếp: Phase 5 — Teacher Portal (lớp học, giao bài).
 
 ## Nguyên tắc không được phá
 
@@ -20,6 +20,9 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 - `Model::shouldBeStrict()` đang bật ở local → lazy loading sẽ **nổ exception**. Luôn eager load.
 - Nội dung HTML do người dùng soạn phải qua `HtmlSanitizer` **lúc lưu**, không lọc lúc hiển thị.
 - Đáp án đúng chỉ đọc từ DB; bộ câu hỏi phát cho học sinh phải giữ phía server (session/DB), không tin id client gửi.
+- Thời gian làm bài do server quyết (`expires_at`). Client chỉ hiển thị.
+- Relation có `orderByPivot` đừng gọi `count()`/`max()` trực tiếp — MariaDB strict mode từ chối; query thẳng bảng pivot.
+- Cột thời gian NOT NULL thứ hai trong một bảng dùng `dateTime`, không dùng `timestamp` (MariaDB 10.4).
 
 ## Lệnh hay dùng
 
@@ -29,6 +32,7 @@ php artisan test                   # chạy trên DB toan_ai_test (MariaDB)
 npm run dev                        # Vite dev server
 npm run build                      # build assets
 php artisan serve                  # http://localhost:8000
+php artisan schedule:work          # chạy lịch định kỳ ở local (tự nộp bài hết giờ)
 ```
 
 MariaDB của XAMPP phải đang chạy. DB dev: `toan_ai`, DB test: `toan_ai_test`.

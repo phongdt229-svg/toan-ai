@@ -14,10 +14,11 @@ class GradingService
 {
     /**
      * @param  mixed  $answer  dữ liệu học sinh gửi lên (id option, chuỗi, mảng chuỗi…)
+     * @param  float|null  $points  điểm ghi đè — câu hỏi trong đề có thể mang điểm khác ngân hàng
      */
-    public function grade(Question $question, mixed $answer): GradingResult
+    public function grade(Question $question, mixed $answer, ?float $points = null): GradingResult
     {
-        $points = (float) $question->points;
+        $points ??= (float) $question->points;
 
         return match ($question->type) {
             Question::TYPE_SINGLE_CHOICE => $this->gradeSingleChoice($question, $answer, $points),
@@ -25,7 +26,10 @@ class GradingService
             Question::TYPE_TRUE_FALSE => $this->gradeTrueFalse($question, $answer, $points),
             Question::TYPE_FILL_BLANK => $this->gradeFillBlank($question, $answer, $points),
             Question::TYPE_SHORT_ANSWER => $this->gradeShortAnswer($question, $answer, $points),
-            Question::TYPE_ESSAY => GradingResult::pending($points),
+            // Bỏ trắng thì 0 điểm luôn, không bắt giáo viên chấm tay một bài rỗng.
+            Question::TYPE_ESSAY => blank(is_array($answer) ? ($answer[0] ?? null) : $answer)
+                ? GradingResult::wrong($points)
+                : GradingResult::pending($points),
             default => GradingResult::wrong($points),
         };
     }

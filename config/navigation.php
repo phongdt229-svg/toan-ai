@@ -15,7 +15,7 @@ return [
         ['label' => 'Học', 'icon' => 'bi-journal-text', 'route' => 'student.learn.index', 'bottom' => true],
         ['label' => 'Bài tập', 'icon' => 'bi-pencil-square', 'route' => 'student.practice.index', 'bottom' => true],
         ['label' => 'AI', 'icon' => 'bi-robot', 'route' => null, 'bottom' => true],
-        ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => null, 'bottom' => false],
+        ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'student.exams.index', 'bottom' => false],
         ['label' => 'Tiến độ', 'icon' => 'bi-graph-up', 'route' => null, 'bottom' => false],
     ],
 
@@ -24,7 +24,7 @@ return [
         ['label' => 'Lớp học', 'icon' => 'bi-people', 'route' => null, 'bottom' => true],
         ['label' => 'Bài học', 'icon' => 'bi-journal-text', 'route' => 'teacher.lessons.index', 'bottom' => true],
         ['label' => 'Câu hỏi', 'icon' => 'bi-question-circle', 'route' => 'teacher.questions.index', 'bottom' => true],
-        ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => null, 'bottom' => false],
+        ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'teacher.exams.index', 'bottom' => false],
         ['label' => 'Bài tập', 'icon' => 'bi-pencil-square', 'route' => null, 'bottom' => false],
         ['label' => 'Học sinh', 'icon' => 'bi-mortarboard', 'route' => null, 'bottom' => false],
         ['label' => 'Báo cáo', 'icon' => 'bi-bar-chart', 'route' => null, 'bottom' => false],

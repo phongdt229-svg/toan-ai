@@ -1,8 +1,16 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+/*
+|--------------------------------------------------------------------------
+| Lịch chạy định kỳ
+|--------------------------------------------------------------------------
+| Local chạy bằng `php artisan schedule:work`.
+| Production cần cron: * * * * * php artisan schedule:run
+*/
+
+// Lượt làm đề quá giờ mà không nộp → tự nộp (§16, PROJECT_PLAN Phase 4).
+Schedule::command('exams:finalize-expired')
+    ->everyMinute()
+    ->withoutOverlapping();

@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–3 đã xong** · Kế tiếp: Phase 4 (Exam)
+> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–4 đã xong** · Kế tiếp: Phase 5 (Teacher Portal: lớp học, giao bài)
 
 ---
 
@@ -22,7 +22,7 @@
 | Cache/Session | `file` → `redis` (Phase 10) | Như trên |
 | Toán học | **KaTeX** (nhanh hơn MathJax, đủ dùng) | Render `$...$` / `$$...$$` phía client |
 | Tiền tệ | Lưu `decimal(12,2)` VND, MoMo nhận **integer VND** | Tránh lỗi float |
-| Múi giờ | `Asia/Ho_Chi_Minh`, lưu DB theo UTC | Chuẩn Laravel |
+| Múi giờ | `Asia/Ho_Chi_Minh` cho cả lưu DB lẫn hiển thị | Chỉ phục vụ VN; input `datetime-local` không mang múi giờ nên lưu UTC dễ lệch 7 tiếng ở giờ mở/đóng đề |
 
 **Extension PHP còn thiếu cần bật trong `php.ini`:** `intl` (định dạng số/ngày tiếng Việt). Không bắt buộc Phase 1.
 
@@ -172,8 +172,8 @@ Thứ tự quan trọng vì ràng buộc khoá ngoại. Mỗi bảng đều có 
 |---|---|---|
 | 22 | `exams` | `title`, `slug`, `grade_id`, `subject_id`, `type`(practice/quiz/test), `duration_minutes`, `total_questions`, `total_points`, `difficulty`, `access_level`, `max_attempts`, `shuffle_questions`, `shuffle_options`, `available_from`, `available_to`, `status`, `created_by`, softDeletes |
 | 23 | `exam_questions` | `exam_id`, `question_id`, `sort_order`, `points`, unique(exam_id,question_id) |
-| 24 | `exam_attempts` | `exam_id`, `user_id`, `attempt_no`, `started_at`, `expires_at`, `submitted_at`, `score`, `total_points`, `correct_count`, `status`(in_progress/submitted/graded/expired). Index: (user_id, exam_id) |
-| 25 | `student_answers` | `attempt_id`, `question_id`, `selected_option_ids`json, `answer_text`, `is_correct`, `score`, `time_spent_seconds`, `graded_by`, `feedback`, unique(attempt_id,question_id) |
+| 24 | `exam_attempts` | `exam_id`, `user_id`, `attempt_no`, `started_at`, `expires_at`, `submitted_at`, `score`, `total_points`, `correct_count`, `status`(in_progress/submitted/graded), `auto_submitted`, `question_order`json, `option_order`json. Index: (user_id, exam_id, status), (status, expires_at) |
+| 25 | `student_answers` | `exam_attempt_id`, `question_id`, `answer`json, `is_correct`, `score`(null = chờ chấm), `max_score`, `time_spent_seconds`, `graded_by`, `feedback`, `graded_at`, unique(exam_attempt_id,question_id) |
 
 ### Nhóm 5 — Teacher (Phase 5)
 | # | Bảng | Cột chính |
@@ -479,13 +479,29 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 > §11 yêu cầu theo dõi từng câu hỏi, đúng/sai, thời gian, số lần làm — không có bảng chi tiết thì
 > Phase 7 không có dữ liệu để AI phân tích lỗi.
 
-### Phase 4 — Exam
-- [ ] Migration nhóm 4 (22–25)
-- [ ] `ExamService`: start → answer → submit → review
-- [ ] Đếm ngược + **server-side `expires_at`** (client chỉ hiển thị)
-- [ ] Tự nộp khi hết giờ (job + kiểm tra lúc submit)
-- [ ] Trang kết quả + review, Chart.js
-- [ ] Chống gian lận cơ bản: 1 attempt in_progress/exam, shuffle
+### ✅ Phase 4 — Exam
+- [x] Migration nhóm 4 (22–25)
+- [x] `ExamService`: start → autosave → submit → review
+- [x] Đếm ngược từ **số giây còn lại do server gửi** (không từ đồng hồ máy học sinh), `expires_at` là nguồn sự thật
+- [x] Ân hạn 30 giây cho độ trễ mạng; quá ân hạn server từ chối lưu và tự chốt bài
+- [x] Tự nộp khi hết giờ: lệnh `exams:finalize-expired` chạy mỗi phút + chốt ngay khi học sinh mở lại trang
+- [x] Tự nộp ghi `submitted_at = expires_at`, không phải lúc cron phát hiện
+- [x] Chống gian lận: 1 lượt đang làm/đề (khoá theo user), giới hạn số lượt, thứ tự câu/lựa chọn xáo một lần và lưu lại, nộp hai lần vô hại
+- [x] Đáp án chỉ lộ khi giáo viên cho phép **và** đề đã đóng — tránh chuyền đáp án cho người làm sau
+- [x] Trang kết quả: điểm, thời gian làm, biểu đồ % đúng theo chủ đề (Chart.js, bundle riêng)
+- [x] Giáo viên soạn đề §16: chọn tay từ ngân hàng, bốc ngẫu nhiên theo tỉ lệ độ khó (vd 30/50/20), chỉnh điểm/thứ tự
+- [x] **Khoá bộ câu hỏi khi đề đã có lượt làm** — đổi câu/điểm lúc này làm sai lệch điểm đã chấm
+- [x] Chấm tay câu tự luận: nhận xét, chấm lại được, đồng bộ `question_attempts` + mastery
+- [x] Tự luận bỏ trắng tự động 0 điểm, không bắt giáo viên chấm bài rỗng
+- [x] Test: 98 test xanh (32 test riêng cho Exam)
+
+> **Quyết định trong phase:**
+> - Bỏ trạng thái `expired` khỏi plan ban đầu → lượt quá giờ được **chốt và chấm luôn** (`submitted`/`graded` + cờ `auto_submitted`), để học sinh vẫn có điểm cho phần đã làm.
+> - Tự luận đạt ≥ 50% điểm được tính là "đúng" khi tổng hợp mastery — tự luận không có đúng/sai tuyệt đối.
+> - Sửa `config/app.php` đọc `APP_TIMEZONE` (trước đó hard-code UTC, giờ mở/đóng đề sẽ lệch 7 tiếng).
+> - Đề bị xoá là soft delete — học sinh vẫn xem lại được điểm.
+>
+> **Nợ kỹ thuật:** tạo đề bằng AI (§16) chờ Phase 7A. Production cần cron `schedule:run` mỗi phút.
 
 ### Phase 5 — Teacher Portal
 - [ ] Migration nhóm 5 (26–33)

@@ -7,10 +7,13 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
+use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Student\LearnController;
 use App\Http\Controllers\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Student\PracticeController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
+use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
+use App\Http\Controllers\Teacher\ExamGradingController;
 use App\Http\Controllers\Teacher\LessonController as TeacherLessonController;
 use App\Http\Controllers\Teacher\LessonSectionController;
 use App\Http\Controllers\Teacher\QuestionController;
@@ -68,6 +71,17 @@ Route::middleware('auth')->group(function () {
             Route::post('luyen-tap/nop', [PracticeController::class, 'submit'])->name('practice.submit');
             Route::get('luyen-tap/ket-qua', [PracticeController::class, 'result'])->name('practice.result');
 
+            Route::get('de-kiem-tra', [StudentExamController::class, 'index'])->name('exams.index');
+            Route::get('de-kiem-tra/{exam}', [StudentExamController::class, 'show'])->name('exams.show');
+            Route::post('de-kiem-tra/{exam}/bat-dau', [StudentExamController::class, 'start'])->name('exams.start');
+            Route::get('lam-bai/{attempt}', [StudentExamController::class, 'take'])->name('exams.take');
+            // Autosave gọi liên tục khi làm bài — nới rate limit nhưng vẫn chặn spam.
+            Route::post('lam-bai/{attempt}/tra-loi', [StudentExamController::class, 'saveAnswer'])
+                ->middleware('throttle:120,1')
+                ->name('exams.answer');
+            Route::post('lam-bai/{attempt}/nop', [StudentExamController::class, 'submit'])->name('exams.submit');
+            Route::get('lam-bai/{attempt}/ket-qua', [StudentExamController::class, 'result'])->name('exams.result');
+
             Route::get('bai-hoc/{lesson}', [StudentLessonController::class, 'show'])->name('lesson.show');
             Route::post('bai-hoc/{lesson}/tien-do', [StudentLessonController::class, 'trackProgress'])
                 ->name('lesson.progress');
@@ -98,6 +112,28 @@ Route::middleware('auth')->group(function () {
             Route::post('cau-hoi-nhap', [QuestionImportController::class, 'store'])->name('questions.import.store');
             Route::get('cau-hoi-nhap/mau', [QuestionImportController::class, 'template'])
                 ->name('questions.import.template');
+
+            Route::get('de-kiem-tra', [TeacherExamController::class, 'index'])->name('exams.index');
+            Route::get('de-kiem-tra/tao-moi', [TeacherExamController::class, 'create'])->name('exams.create');
+            Route::post('de-kiem-tra', [TeacherExamController::class, 'store'])->name('exams.store');
+            Route::get('de-kiem-tra/{exam}/sua', [TeacherExamController::class, 'edit'])->name('exams.edit');
+            Route::put('de-kiem-tra/{exam}', [TeacherExamController::class, 'update'])->name('exams.update');
+            Route::post('de-kiem-tra/{exam}/xuat-ban', [TeacherExamController::class, 'togglePublish'])
+                ->name('exams.publish');
+            Route::delete('de-kiem-tra/{exam}', [TeacherExamController::class, 'destroy'])->name('exams.destroy');
+            Route::post('de-kiem-tra/{exam}/cau-hoi', [TeacherExamController::class, 'addQuestions'])
+                ->name('exams.questions.add');
+            Route::post('de-kiem-tra/{exam}/cau-hoi-ngau-nhien', [TeacherExamController::class, 'addRandom'])
+                ->name('exams.questions.random');
+            Route::put('de-kiem-tra/{exam}/cau-hoi/{question}', [TeacherExamController::class, 'updateQuestion'])
+                ->name('exams.questions.update');
+            Route::delete('de-kiem-tra/{exam}/cau-hoi/{question}', [TeacherExamController::class, 'removeQuestion'])
+                ->name('exams.questions.remove');
+
+            Route::get('de-kiem-tra/{exam}/bai-lam', [ExamGradingController::class, 'index'])->name('exams.attempts');
+            Route::get('bai-lam/{attempt}/cham', [ExamGradingController::class, 'show'])->name('exams.grade');
+            Route::post('cau-tra-loi/{answer}/cham', [ExamGradingController::class, 'grade'])
+                ->name('exams.grade.answer');
 
             Route::post('bai-hoc/{lesson}/phan', [LessonSectionController::class, 'store'])->name('sections.store');
             Route::put('bai-hoc/{lesson}/phan/{section}', [LessonSectionController::class, 'update'])

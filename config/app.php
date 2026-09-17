@@ -65,7 +65,9 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // Sản phẩm chỉ phục vụ Việt Nam: lưu và hiển thị cùng một múi giờ, tránh lệch 7 tiếng
+    // ở giờ mở/đóng đề và hạn nộp bài (input datetime-local không mang múi giờ).
+    'timezone' => env('APP_TIMEZONE', 'Asia/Ho_Chi_Minh'),
 
     /*
     |--------------------------------------------------------------------------

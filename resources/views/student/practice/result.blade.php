@@ -19,7 +19,7 @@
             <div class="display-6 fw-bold mt-2">{{ $percent }}%</div>
             <p class="text-secondary mb-3">
                 Đúng {{ $correct }}/{{ $questions->count() }} câu ·
-                {{ rtrim(rtrim(number_format($score, 2, ',', '.'), '0'), ',') }}/{{ rtrim(rtrim(number_format($maxScore, 2, ',', '.'), '0'), ',') }} điểm
+                {{ \App\Support\Score::format($score) }}/{{ \App\Support\Score::format($maxScore) }} điểm
             </p>
             <p class="fw-semibold mb-3">{{ $tone[2] }}</p>
 
