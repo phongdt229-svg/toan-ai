@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–6 đã xong** · Kế tiếp: Phase 7A (AI Tutor)
+> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–7A đã xong** · Kế tiếp: Phase 7B (Kiểm tra đầu vào & Giáo trình)
 
 ---
 
@@ -563,16 +563,36 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 >
 > **Lỗi phát hiện khi test:** Mailable không được có thuộc tính `$from` / `$to` — trùng tên người gửi / người nhận của Laravel.
 
-### Phase 7A — AI Tutor
-- [ ] Migration nhóm 6 (34–38)
-- [ ] `AiProviderInterface` + `OpenAiProvider` + `FakeProvider`
-- [ ] 6 endpoint AI Tutor §10
-- [ ] Widget chat nổi trên trang lesson/bài tập, render KaTeX
-- [ ] Giọng AI theo `tutor_persona` (thầy/cô) của học sinh — §35
-- [ ] AI cho GV: tạo câu hỏi theo tỉ lệ độ khó, tạo lesson → draft → duyệt
-- [ ] `RecommendationService` + hiển thị đề xuất ở dashboard HS & PH
-- [ ] `AiUsageGuard` + log usage + trang admin xem chi phí
-- [ ] Test bằng `FakeProvider`, không gọi API thật trong CI
+### ✅ Phase 7A — AI Tutor
+- [x] Migration nhóm 6 (34–38)
+- [x] `AiProviderInterface` + `OpenAiProvider` (timeout, thử lại 1 lần khi 429/5xx) + `FakeProvider` (xếp sẵn câu trả lời cho test)
+- [x] 6 endpoint AI Tutor §10 dưới `/api/v1/ai/*` (session + CSRF, dùng từ widget)
+- [x] Widget chat nổi (panel phải, full màn hình trên mobile) + nút AI cạnh từng câu ở luyện tập / kết quả / bài giao, render KaTeX
+- [x] Trang "AI Tutor" cho học sinh: lượt còn lại, xem lại hội thoại cũ
+- [x] Giọng AI theo `tutor_persona` (thầy/cô), lớp, học lực, sở thích — §33, §35
+- [x] AI cho GV §12: tạo câu hỏi theo tỉ lệ độ khó (chạy nền) → nháp → **Chấp nhận / Sửa / Tạo lại / Xoá** từng câu
+- [x] AI cho GV: soạn bài học → tạo **bài NHÁP**; nút "Viết lại dễ hiểu" / "Tóm tắt" trong trình soạn (có hoàn tác)
+- [x] `RecommendationService` (§11) + "Gợi ý học hôm nay" ở dashboard HS và "Đề xuất cho con" ở báo cáo PH
+- [x] `AiUsageGuard`: quota/ngày theo vai trò + gói, throttle 10 lượt/phút, ước tính chi phí; trang admin AI usage
+- [x] Test bằng `FakeProvider` + `Http::fake` cho OpenAI — không gọi API thật: 215 test xanh (47 test riêng cho AI)
+
+> **Quy tắc sư phạm / chống gian lận** (`TutorAccessGuard`):
+> 1. Đang làm đề kiểm tra → **khoá toàn bộ AI**, kể cả chat tự do (dán đề vào chat là ra đáp án).
+> 2. Câu thuộc bài giao chưa nộp, hoặc thuộc đề chưa công bố đáp án → **chỉ được Gợi ý**.
+> 3. Giải thích / Phân tích lỗi → phải **tự làm câu đó ít nhất một lần** trước.
+> 4. Gợi ý: prompt cấm nêu đáp án cuối, và **không gửi đáp án đúng lên AI** ở chế độ này.
+>
+> **Quyết định trong phase:**
+> - **Kiểm tra đáp án: đúng/sai do `GradingService` chấm từ DB**, AI chỉ nhận xét cách làm — model có thể chấm sai, DB thì không.
+> - Output AI **luôn escape** (`AiText::toHtml`) — chỉ bật lại in đậm và xuống dòng. HTML AI soạn cho bài học qua `HtmlSanitizer`.
+> - Nội dung học sinh gõ luôn ở role `user`, không nối vào system prompt (chống prompt injection).
+> - Lỗi provider **không trừ quota** của học sinh nhưng vẫn ghi `failed_count` cho admin.
+> - "AI cá nhân hóa" §11 là **thuật toán quy tắc trên dữ liệu làm bài thật**, không gọi LLM: miễn phí, chạy sau mỗi lần nộp
+>   (event `MasteryUpdated`), giải thích được. Chuỗi: điểm yếu → kiến thức nền → bài học → bài tập → tăng độ khó → kiểm tra lại.
+> - AI soạn cho giáo viên chạy qua queue → **cần `php artisan queue:work`**; admin thấy cảnh báo nếu nháp kẹt > 5 phút.
+> - Quota tạm lấy từ `config/ai.php` (Free 20 · Pro 100 · Premium 300 · GV 60/ngày) — Phase 8 chuyển sang `package_features`.
+>
+> **Chưa làm:** tạo đề kiểm tra bằng AI (§16) — hiện giáo viên dùng AI tạo câu hỏi rồi bốc vào đề.
 
 ### Phase 7B — Kiểm tra đầu vào & Giáo trình cá nhân hóa (§34–36)
 - [ ] Migration nhóm 6b (39–45)

@@ -7,7 +7,7 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 1. [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md) — yêu cầu sản phẩm (nguồn sự thật về **làm gì**)
 2. [PROJECT_PLAN.md](PROJECT_PLAN.md) — kiến trúc, schema, API, RBAC matrix, roadmap (**làm thế nào**)
 
-Đang ở **Phase 6 (xong)**. Phase kế tiếp: Phase 7A — AI Tutor.
+Đang ở **Phase 7A (xong)**. Phase kế tiếp: Phase 7B — Kiểm tra đầu vào & Giáo trình cá nhân hóa.
 
 ## Nguyên tắc không được phá
 
@@ -27,6 +27,9 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 - Relation có `withTrashed` (vd `AssignmentStudent::assignment`) — khi thống kê nhớ thêm `whereNull('deleted_at')`.
 - Mailable: không đặt thuộc tính `$from`, `$to`, `$subject` — trùng thuộc tính có sẵn của Laravel.
 - Không viết `?>` trong comment `//` của file PHP — PHP coi đó là thẻ đóng.
+- AI: mọi lời gọi đi qua `AiProviderInterface`; test dùng `FakeProvider` (`push()`, `failNext()`, `lastRequest()`), không gọi API thật.
+- AI không bao giờ quyết định đúng/sai hay tự xuất bản nội dung. Output AI hiển thị qua `AiText::toHtml` (escape).
+- `.env`: `AI_PROVIDER=fake` khi dev; chạy thật cần `AI_PROVIDER=openai` + `OPENAI_API_KEY`.
 
 ## Lệnh hay dùng
 
@@ -37,6 +40,7 @@ npm run dev                        # Vite dev server
 npm run build                      # build assets
 php artisan serve                  # http://localhost:8000
 php artisan schedule:work          # chạy lịch định kỳ ở local (tự nộp bài hết giờ)
+php artisan queue:work             # bắt buộc cho AI soạn bài của giáo viên và email báo cáo tuần
 ```
 
 MariaDB của XAMPP phải đang chạy. DB dev: `toan_ai`, DB test: `toan_ai_test`.
