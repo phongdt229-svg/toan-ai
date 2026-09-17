@@ -7,7 +7,7 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 1. [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md) — yêu cầu sản phẩm (nguồn sự thật về **làm gì**)
 2. [PROJECT_PLAN.md](PROJECT_PLAN.md) — kiến trúc, schema, API, RBAC matrix, roadmap (**làm thế nào**)
 
-Đang ở **Phase 7B (xong)**. Phase kế tiếp: Phase 8 — Package & Subscription.
+Đang ở **Phase 8 (xong)**. Phase kế tiếp: Phase 9 — Thanh toán MoMo.
 
 ## Nguyên tắc không được phá
 
@@ -31,6 +31,9 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 - AI không bao giờ quyết định đúng/sai hay tự xuất bản nội dung. Output AI hiển thị qua `AiText::toHtml` (escape).
 - `.env`: `AI_PROVIDER=fake` khi dev; chạy thật cần `AI_PROVIDER=openai` + `OPENAI_API_KEY`.
 - Lộ trình học (`LearningPathService`) tự cập nhật qua listener `SyncLearningPath` — đừng đánh dấu mục lộ trình bằng tay trong controller.
+- Gói học: hỏi `SubscriptionService::limit()/allows()` hoặc `AccessControlService`, đừng tự query `subscriptions`.
+  Thêm khoá tính năng mới → thêm vào `PackageFeature::KEYS` + `KEY_TYPES` **và** chỗ kiểm tra trong code.
+- Kích hoạt gói chỉ qua `SubscriptionService::activate()` (idempotent, cộng nối) — không `update(['status' => 'active'])` tay.
 - Câu hỏi trong kiểm tra đầu vào là **bản chụp**; chấm qua `PlacementTestQuestion::toQuestion()` để dùng lại `GradingService`.
 
 ## Lệnh hay dùng
@@ -41,7 +44,7 @@ php artisan test                   # chạy trên DB toan_ai_test (MariaDB)
 npm run dev                        # Vite dev server
 npm run build                      # build assets
 php artisan serve                  # http://localhost:8000
-php artisan schedule:work          # chạy lịch định kỳ ở local (tự nộp bài hết giờ)
+php artisan schedule:work          # chạy lịch định kỳ ở local (tự nộp bài hết giờ, hết hạn gói)
 php artisan queue:work             # bắt buộc cho AI soạn bài của giáo viên và email báo cáo tuần
 ```
 

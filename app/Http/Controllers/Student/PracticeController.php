@@ -8,6 +8,7 @@ use App\Http\Requests\Student\SubmitPracticeRequest;
 use App\Models\Grade;
 use App\Models\Question;
 use App\Models\Topic;
+use App\Services\FeatureLockedException;
 use App\Services\Learning\GradingService;
 use App\Services\Learning\MasteryService;
 use App\Services\Learning\PracticeService;
@@ -57,10 +58,18 @@ class PracticeController extends Controller
     {
         $topic = Topic::findOrFail($request->integer('topic_id'));
 
+        try {
+            $remaining = $this->practice->ensureDailyLimit($request->user());
+        } catch (FeatureLockedException $e) {
+            return redirect()->route('packages.index')->with('error', $e->getMessage());
+        }
+
+        $limit = $request->integer('limit') ?: 10;
+
         $questions = $this->practice->buildSet(
             $topic->id,
             $request->input('difficulty'),
-            $request->integer('limit') ?: 10,
+            $remaining === null ? $limit : min($limit, $remaining),
         );
 
         if ($questions->isEmpty()) {

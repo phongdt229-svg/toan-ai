@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AiController;
+use App\Models\Package;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -8,10 +10,10 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | API v1  (prefix 'api/v1' được đặt trong bootstrap/app.php)
 |--------------------------------------------------------------------------
-| Các nhóm endpoint đầy đủ xem PROJECT_PLAN.md §6. Phase 1 mới có /me.
+| Các nhóm endpoint đầy đủ xem PROJECT_PLAN.md §6. 
 */
 
-Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/me', function (Request $request, SubscriptionService $subscriptions) {
     $user = $request->user()->load('roles:id,name,display_name', 'studentProfile.grade');
 
     return response()->json([
@@ -23,10 +25,34 @@ Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
             'status' => $user->status,
             'roles' => $user->roles->pluck('name'),
             'grade' => $user->studentProfile?->grade?->name,
-            // Phase 8: bổ sung 'subscription' => tier hiện tại.
+            'subscription' => $user->isStudent() ? [
+                'tier' => $subscriptions->tier($user),
+                'package' => $subscriptions->effective($user)?->package->slug,
+                'ends_at' => $subscriptions->effective($user)?->ends_at?->toIso8601String(),
+            ] : null,
         ],
     ]);
 })->name('api.me');
+
+// Bảng giá công khai (§18) — app mobile/PWA đọc giá từ đây, không hard-code.
+Route::get('/packages', function () {
+    return response()->json([
+        'success' => true,
+        'data' => Package::active()->ordered()->with('features')->get()->map(fn (Package $p) => [
+            'slug' => $p->slug,
+            'name' => $p->name,
+            'tier' => $p->tier,
+            'price' => (int) $p->price,
+            'currency' => $p->currency,
+            'duration_days' => $p->duration_days,
+            'description' => $p->description,
+            'highlighted' => $p->is_highlighted,
+            'features' => $p->features->where('show_on_pricing', true)->values()->map(fn ($f) => [
+                'key' => $f->key, 'label' => $f->label, 'enabled' => $f->isEnabled(), 'limit' => $f->limit_value,
+            ]),
+        ]),
+    ]);
+})->name('api.packages');
 
 /*
 | AI Tutor (§10). Nhóm `web` để widget trên trang gọi bằng session + CSRF, không cần token riêng.

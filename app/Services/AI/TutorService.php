@@ -7,7 +7,10 @@ use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\User;
 use App\Services\AI\Contracts\AiProviderInterface;
+use App\Services\AccessControlService;
+use App\Services\FeatureLockedException;
 use App\Services\Learning\GradingService;
+use App\Services\SubscriptionService;
 use App\Support\AiText;
 
 /**
@@ -18,12 +21,17 @@ use App\Support\AiText;
  */
 class TutorService
 {
+    /** Các chế độ thuộc "AI nâng cao" (§18). */
+    public const ADVANCED_MODES = ['analyze_mistake', 'similar_exercise'];
+
     public function __construct(
         private readonly AiProviderInterface $provider,
         private readonly PromptBuilder $prompts,
         private readonly AiUsageGuard $usage,
         private readonly TutorAccessGuard $access,
         private readonly GradingService $grading,
+        private readonly AccessControlService $plans,
+        private readonly SubscriptionService $subscriptions,
     ) {}
 
     /** @return array{conversation_id: int, reply_html: string} */
@@ -194,6 +202,14 @@ class TutorService
         if ($question && $mode) {
             $question->loadMissing('options', 'topic');
             $this->access->ensureQuestionMode($user, $question, $mode);
+        }
+
+        // §18: "AI nâng cao" thuộc gói trả phí.
+        if (in_array($mode, self::ADVANCED_MODES, true) && ! $this->plans->allows($user, 'ai.advanced_modes')) {
+            throw new FeatureLockedException(
+                'Phân tích lỗi và Bài tương tự là tính năng AI nâng cao. Nâng cấp gói để dùng nhé.',
+                $this->subscriptions->cheapestPackageAllowing('ai.advanced_modes'),
+            );
         }
 
         $this->usage->ensureAllowed($user);

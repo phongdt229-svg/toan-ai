@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ParentPortal;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AccessControlService;
 use App\Services\Learning\StudentReportService;
 use App\Services\Parenting\ChildLinkService;
 use Illuminate\Http\RedirectResponse;
@@ -15,6 +16,7 @@ class ChildController extends Controller
     public function __construct(
         private readonly ChildLinkService $links,
         private readonly StudentReportService $reports,
+        private readonly AccessControlService $access,
     ) {}
 
     public function linkForm(): View
@@ -69,6 +71,9 @@ class ChildController extends Controller
         return view('parent.children.show', [
             'student' => $student,
             'report' => $this->reports->summary($student),
+            // §18 Premium: "Báo cáo nâng cao" — theo gói của CON (người được dùng gói).
+            'advancedReports' => $this->access->allows($student, 'reports.advanced'),
+            'tier' => $this->access->currentTier($student),
         ]);
     }
 

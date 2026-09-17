@@ -11,10 +11,10 @@
 
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
-                <li class="nav-item"><a class="nav-link" href="#tinh-nang">Tính năng</a></li>
-                <li class="nav-item"><a class="nav-link" href="#ai-tutor">AI Tutor</a></li>
-                <li class="nav-item"><a class="nav-link" href="#chuong-trinh">Chương trình</a></li>
-                <li class="nav-item"><a class="nav-link" href="#goi-hoc">Gói học</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#tinh-nang">Tính năng</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#ai-tutor">AI Tutor</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#chuong-trinh">Chương trình</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('packages.index') }}">Gói học</a></li>
             </ul>
 
             <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-3 mt-3 mt-lg-0">

@@ -26,17 +26,9 @@
             </div>
         @else
             <div class="row g-3">
-                @foreach ($packages as $package)
+                @foreach ($packages as $t)
                     <div class="col-12 col-md-4">
-                        <div class="price-card {{ $package->tier === 'pro' ? 'price-card--featured' : '' }}">
-                            <h3 class="h5 fw-bold">{{ $package->name }}</h3>
-                            <div class="price-card__price">
-                                {{ number_format((float) $package->price, 0, ',', '.') }}₫
-                                <span class="fs-6 fw-normal text-secondary">/ {{ $package->duration_days }} ngày</span>
-                            </div>
-                            <p class="text-secondary small">{{ $package->description }}</p>
-                            <a href="{{ route('register') }}" class="btn btn-outline-primary w-100 btn-touch">Chọn gói</a>
-                        </div>
+                        @include('public.packages._tier', ['t' => $t, 'compact' => true])
                     </div>
                 @endforeach
             </div>

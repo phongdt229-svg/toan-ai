@@ -131,6 +131,12 @@ class User extends Authenticatable
         return $this->parents()->wherePivot('status', ParentChild::STATUS_LINKED);
     }
 
+    /** Gói học của học sinh này (kể cả do phụ huynh mua). */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;

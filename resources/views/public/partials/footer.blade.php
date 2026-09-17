@@ -14,9 +14,9 @@
             <div class="col-6 col-lg-2">
                 <div class="fw-semibold mb-2">Sản phẩm</div>
                 <ul class="list-unstyled small d-grid gap-1 mb-0">
-                    <li><a class="link-secondary text-decoration-none" href="#tinh-nang">Tính năng</a></li>
-                    <li><a class="link-secondary text-decoration-none" href="#ai-tutor">AI Tutor</a></li>
-                    <li><a class="link-secondary text-decoration-none" href="#goi-hoc">Gói học</a></li>
+                    <li><a class="link-secondary text-decoration-none" href="{{ route('home') }}#tinh-nang">Tính năng</a></li>
+                    <li><a class="link-secondary text-decoration-none" href="{{ route('home') }}#ai-tutor">AI Tutor</a></li>
+                    <li><a class="link-secondary text-decoration-none" href="{{ route('packages.index') }}">Gói học</a></li>
                 </ul>
             </div>
 

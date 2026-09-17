@@ -2,9 +2,12 @@
 
 namespace App\Services\Learning;
 
+use App\Models\Package;
 use App\Models\Question;
 use App\Models\QuestionAttempt;
 use App\Models\User;
+use App\Services\FeatureLockedException;
+use App\Services\SubscriptionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +16,48 @@ class PracticeService
     public function __construct(
         private readonly GradingService $grading,
         private readonly MasteryService $mastery,
+        private readonly SubscriptionService $subscriptions,
     ) {}
+
+    /**
+     * §18 Free: "một số bài tập" — giới hạn số câu luyện tập mỗi ngày theo package_features.
+     * Trả số câu còn được làm hôm nay (null = không giới hạn) để bộ đề không vượt quá phần còn lại.
+     *
+     * @throws FeatureLockedException
+     */
+    public function ensureDailyLimit(User $user): ?int
+    {
+        ['limit' => $limit, 'remaining' => $remaining] = $this->dailyStatus($user);
+
+        if ($remaining === 0) {
+            throw new FeatureLockedException(
+                "Hôm nay em đã luyện đủ {$limit} câu của gói miễn phí. Mai luyện tiếp, hoặc nâng cấp để luyện không giới hạn.",
+                // Gói trả phí rẻ nhất — mọi gói trả phí đều bỏ giới hạn luyện tập.
+                Package::active()->where('price', '>', 0)->orderBy('price')->first(),
+            );
+        }
+
+        return $remaining;
+    }
+
+    /** @return array{used: int, limit: ?int, remaining: ?int} */
+    public function dailyStatus(User $user): array
+    {
+        $limit = $this->subscriptions->limit($user, 'practice.daily_questions');
+        $limit = $limit === false ? null : $limit;
+        $used = $this->usedToday($user);
+
+        return ['used' => $used, 'limit' => $limit, 'remaining' => $limit === null ? null : max(0, $limit - $used)];
+    }
+
+    public function usedToday(User $user): int
+    {
+        return QuestionAttempt::query()
+            ->where('user_id', $user->id)
+            ->where('context', QuestionAttempt::CONTEXT_PRACTICE)
+            ->where('created_at', '>=', today())
+            ->count();
+    }
 
     /**
      * Bốc ngẫu nhiên một bộ câu hỏi đã xuất bản.

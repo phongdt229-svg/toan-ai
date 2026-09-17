@@ -5,6 +5,7 @@ namespace App\Services\AI;
 use App\Models\AiUsage;
 use App\Models\User;
 use App\Services\AccessControlService;
+use App\Services\SubscriptionService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -13,19 +14,34 @@ use Illuminate\Support\Facades\DB;
  */
 class AiUsageGuard
 {
-    public function __construct(private readonly AccessControlService $access) {}
+    public function __construct(
+        private readonly AccessControlService $access,
+        private readonly SubscriptionService $subscriptions,
+    ) {}
 
     /** null = không giới hạn. */
     public function limitFor(User $user): ?int
     {
         $limits = config('ai.daily_limits');
 
-        return match (true) {
-            $user->isAdmin() => null,
-            $user->isTeacher() => $limits['teacher'],
-            $user->isStudent() => $limits['student'][$this->access->currentTier($user)] ?? $limits['student']['free'],
-            default => 0,
-        };
+        if ($user->isAdmin()) {
+            return null;
+        }
+
+        if ($user->isTeacher()) {
+            return $limits['teacher'];
+        }
+
+        if (! $user->isStudent()) {
+            return 0;
+        }
+
+        // Giới hạn lấy từ package_features của gói đang dùng (§18); DB chưa có gói thì dùng config.
+        $fromPackage = $this->subscriptions->limit($user, 'ai.daily_requests');
+
+        return $fromPackage !== false
+            ? $fromPackage
+            : ($limits['student'][$this->access->currentTier($user)] ?? $limits['student']['free']);
     }
 
     /**

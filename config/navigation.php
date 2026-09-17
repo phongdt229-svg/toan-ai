@@ -20,6 +20,7 @@ return [
         ['label' => 'Lớp của tôi', 'icon' => 'bi-people', 'route' => 'student.classes.index', 'bottom' => false],
         ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false],
         ['label' => 'Lộ trình', 'icon' => 'bi-signpost-split', 'route' => 'student.path.show', 'bottom' => false],
+        ['label' => 'Gói của tôi', 'icon' => 'bi-gem', 'route' => 'student.subscription.index', 'bottom' => false],
     ],
 
     'teacher' => [
@@ -37,7 +38,7 @@ return [
     'parent' => [
         ['label' => 'Con của tôi', 'icon' => 'bi-house-heart', 'route' => 'parent.dashboard', 'bottom' => true],
         ['label' => 'Liên kết con', 'icon' => 'bi-person-plus', 'route' => 'parent.children.link', 'bottom' => true],
-        ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => null, 'bottom' => true],
+        ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => 'parent.subscriptions.index', 'bottom' => true],
         ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'parent.settings', 'bottom' => true],
     ],
 
@@ -46,7 +47,8 @@ return [
         ['label' => 'Duyệt giáo viên', 'icon' => 'bi-person-check', 'route' => 'admin.teachers.pending', 'bottom' => true],
         ['label' => 'Người dùng', 'icon' => 'bi-people', 'route' => null, 'bottom' => true],
         ['label' => 'Chương trình', 'icon' => 'bi-diagram-3', 'route' => 'admin.curriculum.index', 'bottom' => true],
-        ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => null, 'bottom' => false],
+        ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => 'admin.packages.index', 'bottom' => false],
+        ['label' => 'Đăng ký gói', 'icon' => 'bi-person-vcard', 'route' => 'admin.subscriptions.index', 'bottom' => false],
         ['label' => 'Giao dịch', 'icon' => 'bi-credit-card', 'route' => null, 'bottom' => false],
         ['label' => 'AI usage', 'icon' => 'bi-robot', 'route' => 'admin.ai-usage.index', 'bottom' => false],
         ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => null, 'bottom' => false],

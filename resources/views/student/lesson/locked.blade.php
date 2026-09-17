@@ -38,13 +38,12 @@
         <div class="card-body text-center p-4">
             <i class="bi bi-lock text-warning" style="font-size:2.5rem"></i>
 
-            <h2 class="h5 fw-bold mt-3 mb-2">Bài học này thuộc gói {{ strtoupper($requiredTier) }}</h2>
+            <h2 class="h5 fw-bold mt-3 mb-2">Bài học này thuộc gói {{ \App\Models\Package::TIER_LABELS[$requiredTier] ?? $requiredTier }}</h2>
             <p class="text-secondary mb-4">
                 Nâng cấp để mở toàn bộ bài học, bài tập và AI Tutor.
             </p>
 
-            {{-- Phase 8 sẽ trỏ về trang chọn gói; hiện chưa có route nên tạm về bảng giá landing. --}}
-            <a href="{{ route('home') }}#goi-hoc" class="btn btn-warning btn-touch">Xem các gói học</a>
+            <a href="{{ route('packages.index') }}" class="btn btn-warning btn-touch">Xem các gói học</a>
         </div>
     </div>
 @endsection

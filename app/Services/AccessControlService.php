@@ -3,44 +3,36 @@
 namespace App\Services;
 
 use App\Models\Lesson;
+use App\Models\Package;
 use App\Models\User;
 
 /**
  * Tầng thứ ba của phân quyền (PROJECT_PLAN.md §5): user có gói đủ cao để xem
  * nội dung này không. Permission và Policy trả lời "được làm hành động gì",
  * service này trả lời "được xem nội dung nào".
- *
- * Phase 2: chưa có bảng subscriptions nên mọi user đều ở tier `free`.
- * Phase 8 sẽ thay `currentTier()` bằng truy vấn subscription đang active.
  */
 class AccessControlService
 {
-    /** Thứ bậc gói — số lớn hơn bao trùm số nhỏ hơn. */
-    private const TIER_RANK = [
-        Lesson::ACCESS_FREE => 0,
-        Lesson::ACCESS_PRO => 1,
-        Lesson::ACCESS_PREMIUM => 2,
-    ];
+    public function __construct(private readonly SubscriptionService $subscriptions) {}
 
     public function currentTier(?User $user): string
     {
         if (! $user) {
-            return Lesson::ACCESS_FREE;
+            return Package::TIER_FREE;
         }
 
         // Admin và giáo viên phải xem được toàn bộ nội dung để soạn và kiểm duyệt.
         if ($user->isAdmin() || $user->isTeacher()) {
-            return Lesson::ACCESS_PREMIUM;
+            return Package::TIER_PREMIUM;
         }
 
-        // TODO(Phase 8): đọc subscription active của user.
-        return Lesson::ACCESS_FREE;
+        return $this->subscriptions->tier($user);
     }
 
     public function canAccessLevel(?User $user, string $requiredLevel): bool
     {
-        $userRank = self::TIER_RANK[$this->currentTier($user)] ?? 0;
-        $requiredRank = self::TIER_RANK[$requiredLevel] ?? 0;
+        $userRank = Package::TIER_RANK[$this->currentTier($user)] ?? 0;
+        $requiredRank = Package::TIER_RANK[$requiredLevel] ?? 0;
 
         return $userRank >= $requiredRank;
     }
@@ -48,5 +40,19 @@ class AccessControlService
     public function canAccessLesson(?User $user, Lesson $lesson): bool
     {
         return $this->canAccessLevel($user, $lesson->access_level);
+    }
+
+    /** Tính năng bật/tắt theo gói (package_features). Giáo viên/admin luôn được. */
+    public function allows(?User $user, string $featureKey): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->isAdmin() || $user->isTeacher()) {
+            return true;
+        }
+
+        return $this->subscriptions->allows($user, $featureKey);
     }
 }

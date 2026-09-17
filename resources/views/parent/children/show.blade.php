@@ -21,7 +21,10 @@
 
     <div class="mt-2 mb-3">
         <h2 class="h4 fw-bold mb-0">{{ $student->name }}</h2>
-        <div class="text-secondary small">{{ $r['grade']?->name ?? 'Chưa chọn lớp' }}</div>
+        <div class="text-secondary small">
+            {{ $r['grade']?->name ?? 'Chưa chọn lớp' }} ·
+            gói <span class="badge text-bg-{{ $tier === 'free' ? 'light border' : 'warning text-dark' }}">{{ \App\Models\Package::TIER_LABELS[$tier] }}</span>
+        </div>
     </div>
 
     {{-- §14: Tiến độ · Điểm trung bình · Thời gian học · Bài hoàn thành --}}
@@ -117,29 +120,43 @@
                 </div>
             </div>
 
-            {{-- Đề xuất học tập (§11) --}}
-            @if ($r['recommendations']->isNotEmpty())
-                <div class="fw-semibold mb-1"><i class="bi bi-stars text-primary me-1"></i>Đề xuất cho con</div>
-                <p class="text-secondary small">Tính từ kết quả làm bài thật của con, cập nhật sau mỗi lần con nộp bài.</p>
-                <div class="mb-4">
-                    @include('components.recommendation-list', ['recommendations' => $r['recommendations'], 'actionable' => false])
+            @if ($advancedReports)
+                {{-- Đề xuất học tập (§11) --}}
+                @if ($r['recommendations']->isNotEmpty())
+                    <div class="fw-semibold mb-1"><i class="bi bi-stars text-primary me-1"></i>Đề xuất cho con</div>
+                    <p class="text-secondary small">Tính từ kết quả làm bài thật của con, cập nhật sau mỗi lần con nộp bài.</p>
+                    <div class="mb-4">
+                        @include('components.recommendation-list', ['recommendations' => $r['recommendations'], 'actionable' => false])
+                    </div>
+                @endif
+
+                {{-- Hoạt động 7 ngày --}}
+                <div class="card border mb-4">
+                    <div class="card-body">
+                        <div class="fw-semibold mb-3">Số câu đã làm 7 ngày qua</div>
+                        @if (collect($r['activity'])->sum('answered') === 0)
+                            <p class="text-secondary small mb-0">Con chưa làm câu hỏi nào trong 7 ngày qua.</p>
+                        @else
+                            <div class="position-relative">
+                                <canvas data-chart-type="daily-activity" data-chart='@json($r['activity'])'
+                                        role="img" aria-label="Biểu đồ số câu đã làm mỗi ngày"></canvas>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @else
+                {{-- Báo cáo nâng cao thuộc gói Premium (§18). --}}
+                <div class="card border-warning mb-4">
+                    <div class="card-body d-flex flex-wrap align-items-center gap-3">
+                        <i class="bi bi-graph-up-arrow text-warning fs-2"></i>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">Báo cáo nâng cao</div>
+                            <div class="small text-secondary">Biểu đồ học tập từng ngày và đề xuất học riêng cho con có trong gói Premium.</div>
+                        </div>
+                        <a href="{{ route('packages.index') }}" class="btn btn-sm btn-warning">Xem gói học</a>
+                    </div>
                 </div>
             @endif
-
-            {{-- Hoạt động 7 ngày --}}
-            <div class="card border mb-4">
-                <div class="card-body">
-                    <div class="fw-semibold mb-3">Số câu đã làm 7 ngày qua</div>
-                    @if (collect($r['activity'])->sum('answered') === 0)
-                        <p class="text-secondary small mb-0">Con chưa làm câu hỏi nào trong 7 ngày qua.</p>
-                    @else
-                        <div class="position-relative">
-                            <canvas data-chart-type="daily-activity" data-chart='@json($r['activity'])'
-                                    role="img" aria-label="Biểu đồ số câu đã làm mỗi ngày"></canvas>
-                        </div>
-                    @endif
-                </div>
-            </div>
 
             {{-- Đề kiểm tra gần đây --}}
             <div class="fw-semibold mb-2">Đề kiểm tra gần đây</div>

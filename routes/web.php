@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\AiUsageController;
 use App\Http\Controllers\Admin\CurriculumController;
+use App\Http\Controllers\Admin\PackageController as AdminPackageController;
+use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Auth\LoginController;
@@ -9,6 +11,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ParentPortal\ChildController as ParentChildController;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\ParentPortal\SettingsController as ParentSettingsController;
+use App\Http\Controllers\ParentPortal\SubscriptionController as ParentSubscriptionController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 use App\Http\Controllers\Student\AiTutorController;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
@@ -20,6 +23,7 @@ use App\Http\Controllers\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Student\ParentConnectionController;
 use App\Http\Controllers\Student\PlacementController;
 use App\Http\Controllers\Student\PracticeController;
+use App\Http\Controllers\Student\SubscriptionController as StudentSubscriptionController;
 use App\Http\Controllers\Teacher\AiContentController;
 use App\Http\Controllers\Teacher\AssignmentController as TeacherAssignmentController;
 use App\Http\Controllers\Teacher\ClassController as TeacherClassController;
@@ -33,6 +37,7 @@ use App\Http\Controllers\Teacher\QuestionImportController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\LandingController;
+use App\Http\Controllers\Web\PackageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +46,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [LandingController::class, 'index'])->name('home');
+// Bảng giá công khai (§18) — đã đăng nhập vẫn dùng chung trang này.
+Route::get('goi-hoc', [PackageController::class, 'index'])->name('packages.index');
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +79,9 @@ Route::middleware('auth')->group(function () {
     Route::get('tai-khoan/cho-duyet', [AccountController::class, 'pending'])->name('account.pending');
 
     Route::middleware('active')->group(function () {
+        // Học sinh mua cho mình, phụ huynh mua cho con — controller tự kiểm tra role.
+        Route::get('goi-hoc/{package}/mua', [PackageController::class, 'checkout'])->name('packages.checkout');
+
         Route::prefix('hoc-sinh')->name('student.')->middleware('role:student')->group(function () {
             Route::get('/', [StudentDashboard::class, 'index'])->name('dashboard');
 
@@ -96,6 +106,8 @@ Route::middleware('auth')->group(function () {
             Route::post('lo-trinh/buoi/{session}/kiem-tra', [LearningPathController::class, 'submitQuiz'])->name('path.quiz.submit');
 
             Route::get('ai', [AiTutorController::class, 'index'])->name('ai.index');
+
+            Route::get('goi-cua-toi', [StudentSubscriptionController::class, 'index'])->name('subscription.index');
 
             Route::get('phu-huynh', [ParentConnectionController::class, 'index'])->name('parents.index');
             Route::post('phu-huynh/doi-ma', [ParentConnectionController::class, 'regenerate'])->name('parents.regenerate');
@@ -248,6 +260,8 @@ Route::middleware('auth')->group(function () {
             Route::get('con/{student}', [ParentChildController::class, 'show'])->name('children.show');
             Route::delete('con/{student}', [ParentChildController::class, 'unlink'])->name('children.unlink');
 
+            Route::get('goi-hoc', [ParentSubscriptionController::class, 'index'])->name('subscriptions.index');
+
             Route::get('cai-dat', [ParentSettingsController::class, 'edit'])->name('settings');
             Route::put('cai-dat', [ParentSettingsController::class, 'update'])->name('settings.update');
         });
@@ -263,6 +277,14 @@ Route::middleware('auth')->group(function () {
                 ->name('teachers.reject');
 
             Route::get('ai-usage', [AiUsageController::class, 'index'])->name('ai-usage.index');
+
+            Route::resource('goi-hoc', AdminPackageController::class)
+                ->except('show')
+                ->parameters(['goi-hoc' => 'package'])
+                ->names('packages');
+            Route::get('dang-ky-goi', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');
+            Route::post('dang-ky-goi/cap', [AdminSubscriptionController::class, 'grant'])->name('subscriptions.grant');
+            Route::post('dang-ky-goi/{subscription}/huy', [AdminSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
 
             Route::get('chuong-trinh', [CurriculumController::class, 'index'])->name('curriculum.index');
             Route::post('chuong-trinh/lop/{grade}/mon', [CurriculumController::class, 'storeSubject'])

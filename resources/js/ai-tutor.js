@@ -80,7 +80,9 @@ export function initAiTutor() {
         const json = await res.json().catch(() => ({}));
         if (!res.ok || !json.success) {
             const message = json.message || (json.errors && Object.values(json.errors)[0]?.[0]) || 'Có lỗi xảy ra, thử lại sau nhé.';
-            throw new Error(message);
+            const error = new Error(message);
+            error.upgrade = json.upgrade || null; // 402: gợi ý gói nâng cấp
+            throw error;
         }
         updateUsage(json.meta?.usage);
         return json.data;
@@ -139,7 +141,10 @@ export function initAiTutor() {
             renderResult(action, data);
         } catch (e) {
             wait.remove();
-            bubble('assistant', escapeText(e.message), 'border-warning');
+            const upsell = e.upgrade
+                ? `<div class="mt-2"><a class="btn btn-sm btn-warning" href="${encodeURI(e.upgrade.url)}">Xem gói ${escapeText(e.upgrade.name)} · ${escapeText(e.upgrade.price)}</a></div>`
+                : '';
+            bubble('assistant', escapeText(e.message) + upsell, 'border-warning');
         } finally {
             busy = false;
         }

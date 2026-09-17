@@ -14,6 +14,7 @@ use App\Services\AI\AiQuotaExceededException;
 use App\Services\AI\AiUsageGuard;
 use App\Services\AI\TutorBlockedException;
 use App\Services\AI\TutorService;
+use App\Services\FeatureLockedException;
 use App\Support\AiText;
 use Closure;
 use Illuminate\Http\JsonResponse;
@@ -151,6 +152,17 @@ class AiController extends Controller
             $data = $action();
         } catch (TutorBlockedException $e) {
             return $this->error($e->getMessage(), 'blocked', 403);
+        } catch (FeatureLockedException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'reason' => 'upgrade_required',
+                'upgrade' => $e->upgradeTo ? [
+                    'name' => $e->upgradeTo->name,
+                    'price' => $e->upgradeTo->priceLabel(),
+                    'url' => route('packages.index'),
+                ] : null,
+            ], 402);
         } catch (AiQuotaExceededException $e) {
             return $this->error($e->getMessage(), 'quota_exceeded', 429);
         } catch (AiProviderException $e) {

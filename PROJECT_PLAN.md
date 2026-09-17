@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–7B đã xong** · Kế tiếp: Phase 8 (Package & Subscription)
+> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–8 đã xong** · Kế tiếp: Phase 9 (Thanh toán MoMo)
 
 ---
 
@@ -212,9 +212,9 @@ Thứ tự quan trọng vì ràng buộc khoá ngoại. Mỗi bảng đều có 
 ### Nhóm 7 — Subscription & Payment (Phase 8–9)
 | # | Bảng | Cột chính |
 |---|---|---|
-| 46 | `packages` | `name`, `slug`(unique), `tier`(free/pro/premium), `price`decimal(12,2), `currency`(VND), `duration_days`, `description`, `is_active`, `sort_order` |
-| 47 | `package_features` | `package_id`, `key`(vd `ai.daily_requests`), `label`, `value`, `limit_value`(int, null = không giới hạn) |
-| 48 | `subscriptions` | `user_id`, `package_id`, `status`(pending/active/expired/cancelled), `starts_at`, `ends_at`, `payment_id`, `auto_renew`, `cancelled_at`. Index: (user_id, status, ends_at) |
+| 46 | `packages` | `name`, `slug`(unique), `tier`(free/pro/premium), `price`decimal(12,2), `currency`(VND), `duration_days`(null = vô thời hạn), `description`, `is_default`, `is_active`, `is_highlighted`, `sort_order` |
+| 47 | `package_features` | `package_id`, `key`(vd `ai.daily_requests`), `label`, `value`('1'/'0'), `limit_value`(int, null = không giới hạn), `show_on_pricing`, `sort_order`, unique(package_id, key) |
+| 48 | `subscriptions` | `user_id`(người dùng gói), `purchased_by`(người trả tiền), `package_id`, `status`(pending/active/expired/cancelled), `price_paid`, `duration_days`, `starts_at`, `ends_at`, `activated_at`, `cancelled_at`, `cancel_reason`, `source`(payment/manual). Index: (user_id, status, ends_at) |
 | 49 | `payments` | `user_id`, `package_id`, `subscription_id`, `order_code`(unique), `amount`decimal(12,2), `currency`, `method`(momo), `status`(pending/paid/failed/cancelled/refunded), `gateway_request_id`, `gateway_transaction_id`, `gateway_response`json, `paid_at`, `client_ip` |
 | 50 | `payment_webhook_logs` | `provider`, `order_code`, `signature_valid`, `payload`json, `headers`json, `result`, `processed_at` — **bắt buộc**, để truy vết IPN |
 | 51 | `notifications` | bảng chuẩn Laravel |
@@ -622,13 +622,35 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 >
 > **§37 là bản mặc định** vì spec nguồn bị cắt nội dung — cần chỉnh lại khi có đặc tả đầy đủ.
 
-### Phase 8 — Package & Subscription
-- [ ] Migration nhóm 7 (46–48)
-- [ ] Seeder 3 gói Free/Pro/Premium + feature (giá trong DB)
-- [ ] `SubscriptionService` + `AccessControlService` bản đầy đủ
-- [ ] Middleware `subscription:pro|premium` + trang paywall
-- [ ] Trang bảng giá (public + trong app)
-- [ ] Job `ExpireSubscriptions` hằng đêm
+### ✅ Phase 8 — Package & Subscription (§18–19)
+- [x] Migration nhóm 7 (46–48)
+- [x] `PackageSeeder`: Free (mặc định) · Pro 1/12 tháng · Premium 1/12 tháng — giá chỉ là giá khởi tạo, chạy lại không ghi đè giá admin đã sửa
+- [x] Khoá tính năng trong `package_features` (hệ thống đọc thật):
+  | Khoá | Free | Pro | Premium |
+  |---|---|---|---|
+  | `ai.daily_requests` | 10 | 50 | 200 |
+  | `practice.daily_questions` | 30 | ∞ | ∞ |
+  | `ai.advanced_modes` (Phân tích lỗi, Bài tương tự) | ✗ | ✗ | ✓ |
+  | `reports.advanced` (biểu đồ + đề xuất trong báo cáo phụ huynh) | ✗ | ✗ | ✓ |
+  Dòng `display.*` chỉ để hiện trên bảng giá.
+- [x] `SubscriptionService`: gói hiệu lực (tier cao nhất), `limit()`/`allows()`, `createPending` (chụp giá từ DB), `activate` (idempotent, **cộng nối** sau gói cùng hạng còn hạn), `grant`/`cancel` (audit log)
+- [x] `AccessControlService` đọc tier từ subscription; giáo viên/admin luôn xem được mọi nội dung
+- [x] Paywall: bài học khoá → trang bảng giá; AI nâng cao → `402 {reason: upgrade_required, upgrade}` + nút nâng cấp trong widget; hết lượt luyện tập → về bảng giá kèm thông báo
+- [x] Trang bảng giá `/goi-hoc` (public, dùng chung khi đã đăng nhập) + landing đọc giá từ DB · trang xác nhận mua `/goi-hoc/{slug}/mua`
+- [x] Học sinh "Gói của tôi" (lượt AI/luyện tập hôm nay, lịch sử) · Phụ huynh "Gói học" (gói từng con, gói đã mua cho con)
+- [x] Admin: CRUD gói + quyền lợi (audit đổi giá, không xoá gói mặc định / gói đã bán) · danh sách đăng ký, cấp tay, huỷ
+- [x] Lệnh `subscriptions:expire` 00:05 hằng ngày: quá hạn → `expired`, chờ thanh toán > 24h → `cancelled`
+- [x] API `GET /api/v1/packages`, `/api/v1/me` thêm `subscription`
+- [x] Test: 278 test xanh (29 test riêng cho Phase 8)
+
+> **Quyết định trong phase:**
+> - Quyền truy cập dựa vào `ends_at`, **không chờ job** — job hết hạn chạy trễ cũng không cho dùng lố.
+> - Gói thuộc **học sinh** (`user_id`); phụ huynh là `purchased_by`. Báo cáo nâng cao của phụ huynh theo gói của con.
+> - Không làm middleware `subscription:pro|premium` theo route: không có route nào cần hạng cố định — khoá ở mức nội dung
+>   (`lessons.access_level`) và tính năng (`package_features`), kiểm tra trong service để API và web dùng chung.
+> - DB chưa có gói nào → không khoá gì, quota AI dùng `config/ai.php` (tránh khoá cứng hệ thống mới cài).
+> - Hết lượt luyện tập: bộ câu phát ra bị cắt bằng số lượt còn lại, không để vượt giới hạn giữa chừng.
+> - Chưa tự gia hạn (bỏ cột `auto_renew`): luồng MoMo `captureWallet` là thanh toán một lần; trừ tiền định kỳ cần tích hợp liên kết ví riêng.
 
 ### Phase 9 — Thanh toán MoMo
 - [ ] Migration 49–50

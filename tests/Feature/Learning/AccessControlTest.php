@@ -42,7 +42,7 @@ class AccessControlTest extends TestCase
         $this->actingAs($this->student)
             ->get(route('student.lesson.show', $lesson))
             ->assertOk()
-            ->assertSee('thuộc gói PRO')
+            ->assertSee('thuộc gói Pro')
             ->assertDontSee('Hoàn thành bài học');
     }
 
