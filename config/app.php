@@ -125,4 +125,9 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    | Mật khẩu tài khoản demo (DemoUserSeeder) — chỉ hiện trên màn hình đăng nhập khi APP_ENV=local.
+    */
+    'demo_password' => env('DEMO_PASSWORD', 'password'),
+
 ];

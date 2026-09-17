@@ -1,0 +1,164 @@
+// Trình soạn thảo bài học (resources/js/lesson-editor.js) + hộp thoại công thức.
+
+.rich-editor {
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    background: #fff;
+
+    &:focus-within {
+        border-color: $primary;
+        box-shadow: 0 0 0 .2rem rgba($primary, .15);
+    }
+}
+
+// Mobile: thanh công cụ cuộn ngang thay vì xuống nhiều dòng chiếm màn hình.
+.rich-editor__toolbar {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+    padding: .375rem;
+    border-bottom: 1px solid $border-color;
+    background: $gray-100;
+    overflow-x: auto;
+    border-radius: $border-radius $border-radius 0 0;
+    position: sticky;
+    top: 56px; // dưới header app
+    z-index: 5;
+
+    @include media-breakpoint-up(lg) {
+        flex-wrap: wrap;
+        overflow-x: visible;
+    }
+
+    &--table {
+        background: rgba($primary, .06);
+        border-radius: 0;
+        top: auto;
+        position: static;
+    }
+}
+
+.rich-editor__btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    min-width: 2.25rem;
+
+    &.is-active {
+        background: rgba($primary, .15);
+        border-color: rgba($primary, .4);
+        color: $primary;
+    }
+}
+
+.rich-editor__sep {
+    flex-shrink: 0;
+    width: 1px;
+    height: 1.5rem;
+    background: $border-color;
+    margin: 0 .125rem;
+}
+
+.rich-editor__surface .ProseMirror {
+    min-height: 180px;
+    padding: .75rem 1rem;
+    outline: none;
+    font-size: 1rem;
+    line-height: 1.6;
+
+    > * + * { margin-top: .5rem; }
+    p { margin-bottom: 0; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0; }
+
+    blockquote {
+        border-left: 4px solid $primary;
+        background: rgba($primary, .05);
+        padding: .5rem .75rem;
+        margin: 0;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+
+        th, td {
+            border: 1px solid $border-color;
+            padding: .375rem .5rem;
+            vertical-align: top;
+            position: relative;
+        }
+        th { background: $gray-100; font-weight: 600; }
+        .selectedCell { background: rgba($primary, .1); }
+    }
+
+    // Placeholder khi rỗng.
+    p.is-editor-empty:first-child::before {
+        content: attr(data-placeholder);
+        color: $gray-500;
+        float: left;
+        height: 0;
+        pointer-events: none;
+    }
+}
+
+.rich-editor__source {
+    border: 0;
+    border-radius: 0;
+    min-height: 220px;
+    font-family: $font-family-monospace;
+    font-size: .875rem;
+}
+
+.rich-editor__hint {
+    padding: .25rem .75rem;
+    border-top: 1px solid $border-color;
+    font-size: .75rem;
+    color: $gray-600;
+}
+
+// Công thức trong trình soạn thảo: bấm để sửa.
+.math-node {
+    cursor: pointer;
+    border-radius: .25rem;
+    padding: 0 .125rem;
+
+    &:hover { background: rgba($primary, .08); }
+
+    &.ProseMirror-selectednode {
+        outline: 2px solid $primary;
+        background: rgba($primary, .08);
+    }
+
+    &--block {
+        display: block;
+        text-align: center;
+        padding: .5rem;
+        margin: .25rem 0;
+    }
+}
+
+// Hộp thoại công thức.
+.math-dialog__field {
+    display: block;
+    width: 100%;
+    font-size: 1.6rem;
+    padding: .5rem .75rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+
+    &:focus-within { border-color: $primary; }
+}
+
+.math-dialog__key {
+    min-width: 2.75rem;
+    min-height: 2.5rem;
+    padding: .25rem .5rem;
+
+    .katex { font-size: 1.05em; }
+}
+
+// Bàn phím ảo MathLive nằm trên modal Bootstrap (z-index 1055).
+body > .ML__keyboard {
+    --keyboard-zindex: 2000;
+    z-index: 2000;
+}

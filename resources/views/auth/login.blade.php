@@ -44,4 +44,50 @@
             </p>
         </div>
     </div>
+
+    {{-- Chỉ render khi APP_ENV=local (controller trả mảng rỗng ở môi trường khác). --}}
+    @if (! empty($demoAccounts))
+        <div class="card border-warning mt-3">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-cone-striped text-warning"></i>
+                    <span class="fw-semibold small">Tài khoản demo — chỉ hiện ở môi trường local</span>
+                </div>
+                <div class="small text-secondary mb-2">
+                    Mật khẩu chung: <code>{{ config('app.demo_password') }}</code> · Bấm để điền sẵn, bấm đúp để đăng nhập luôn.
+                </div>
+
+                <div class="d-grid gap-2">
+                    @foreach ($demoAccounts as $account)
+                        {{-- .btn mặc định nowrap → cho xuống dòng để không tràn khung trên màn hẹp. --}}
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-start w-100"
+                                style="white-space:normal"
+                                data-demo-email="{{ $account['email'] }}" data-demo-password="{{ config('app.demo_password') }}">
+                            <span class="d-flex align-items-center gap-2">
+                                <span class="fw-semibold">{{ $account['role'] }}</span>
+                                <span class="text-secondary small text-truncate" style="min-width:0">{{ $account['name'] }}</span>
+                                @if ($account['status'] !== 'active')
+                                    <span class="badge text-bg-warning ms-auto">{{ $account['status'] }}</span>
+                                @endif
+                            </span>
+                            <code class="d-block small text-break">{{ $account['email'] }}</code>
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        @push('scripts')
+            <script>
+                document.querySelectorAll('[data-demo-email]').forEach((btn) => {
+                    const fill = () => {
+                        document.getElementById('email').value = btn.dataset.demoEmail;
+                        document.getElementById('password').value = btn.dataset.demoPassword;
+                    };
+                    btn.addEventListener('click', fill);
+                    btn.addEventListener('dblclick', () => { fill(); btn.closest('body').querySelector('form[action$="/dang-nhap"]').submit(); });
+                });
+            </script>
+        @endpush
+    @endif
 @endsection

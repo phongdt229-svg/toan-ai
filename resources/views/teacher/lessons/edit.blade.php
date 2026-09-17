@@ -3,6 +3,11 @@
 @section('title', 'Sửa: ' . $lesson->title . ' — TOÁN AI')
 @section('page_title', 'Sửa bài học')
 
+@push('head')
+    {{-- Trình soạn thảo trực quan + công thức (TipTap, MathLive) — chỉ nạp ở trang soạn bài. --}}
+    @vite('resources/js/lesson-editor.js')
+@endpush
+
 @section('content')
     <a href="{{ route('teacher.lessons.index') }}" class="small text-decoration-none">
         <i class="bi bi-chevron-left"></i> Danh sách bài học
@@ -73,13 +78,14 @@
                         </div>
                     </div>
 
-                    <textarea name="content" rows="5" class="form-control font-monospace mb-2"
-                              data-math-editor>{{ $section->content }}</textarea>
+                    <div class="mb-2">
+                        <textarea name="content" rows="8" class="form-control" data-math-editor data-rich-editor>{{ $section->content }}</textarea>
+                    </div>
 
                     <div class="d-flex flex-wrap gap-2 align-items-center">
                         <button class="btn btn-sm btn-primary">Lưu</button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-preview-toggle>
-                            Xem trước
+                            Xem như học sinh
                         </button>
                         <div class="btn-group btn-group-sm" role="group" aria-label="AI hỗ trợ">
                             <button type="button" class="btn btn-outline-primary" data-ai-rewrite="simplify">
@@ -88,9 +94,6 @@
                             <button type="button" class="btn btn-outline-primary" data-ai-rewrite="summarize">Tóm tắt</button>
                             <button type="button" class="btn btn-outline-secondary" data-ai-undo hidden>Hoàn tác</button>
                         </div>
-                        <span class="text-secondary small ms-auto">
-                            Công thức: <code>$...$</code> hoặc <code>$$...$$</code>
-                        </span>
                     </div>
                 </form>
 
@@ -134,15 +137,17 @@
                     </div>
                 </div>
 
-                <textarea name="content" rows="5" required data-math-editor
-                          class="form-control font-monospace mb-2 @error('content') is-invalid @enderror"
-                          placeholder="<p>Nội dung… $$\frac{1}{2}$$</p>">{{ old('content') }}</textarea>
+                <div class="mb-2">
+                    <textarea name="content" rows="8" required data-math-editor data-rich-editor
+                              class="form-control @error('content') is-invalid @enderror"
+                              placeholder="Soạn nội dung phần này… Bấm ∑ Công thức để chèn công thức toán.">{{ old('content') }}</textarea>
+                </div>
                 @error('content') <div class="text-danger small mb-2">{{ $message }}</div> @enderror
 
-                <div class="d-flex gap-2">
+                <div class="d-flex flex-wrap gap-2">
                     <button class="btn btn-primary btn-touch">Thêm phần</button>
                     <button type="button" class="btn btn-outline-secondary btn-touch" data-preview-toggle>
-                        Xem trước
+                        Xem như học sinh
                     </button>
                         <div class="btn-group " role="group" aria-label="AI hỗ trợ">
                             <button type="button" class="btn btn-outline-primary" data-ai-rewrite="simplify">
@@ -189,6 +194,7 @@ document.querySelectorAll('[data-ai-rewrite]').forEach((btn) => {
             undo.dataset.previous = editor.value;
             undo.hidden = false;
             editor.value = json.data.html;
+            editor.dispatchEvent(new Event('rich:refresh')); // cập nhật trình soạn thảo trực quan
         } catch (e) {
             alert(e.message);
         } finally {
@@ -202,6 +208,7 @@ document.querySelectorAll('[data-ai-undo]').forEach((btn) => {
     btn.addEventListener('click', () => {
         const editor = btn.closest('.card-body').querySelector('[data-math-editor]');
         editor.value = btn.dataset.previous ?? editor.value;
+        editor.dispatchEvent(new Event('rich:refresh'));
         btn.hidden = true;
     });
 });
@@ -216,7 +223,7 @@ document.querySelectorAll('[data-preview-toggle]').forEach((btn) => {
 
         if (!target.classList.contains('d-none')) {
             target.classList.add('d-none');
-            btn.textContent = 'Xem trước';
+            btn.textContent = 'Xem như học sinh';
             return;
         }
 

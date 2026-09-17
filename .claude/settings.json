@@ -4,7 +4,12 @@
       "Bash(\"C:/xampp/mysql/bin/mysqld.exe\" --defaults-file=\"C:/xampp/mysql/bin/my.ini\" --standalone)",
       "Bash(gh auth *)",
       "Bash(\"C:/xampp/mysql/bin/mysql.exe\" -u root -e \"SELECT 1\")",
-      "Bash(\"C:/xampp/mysql/bin/mysql.exe\" -u root -N -e \"SELECT c.code, \\(SELECT COUNT\\(*\\) FROM toan_ai.class_students\\) s, \\(SELECT COUNT\\(*\\) FROM toan_ai.assignments\\) a, \\(SELECT COUNT\\(*\\) FROM toan_ai.assignment_students\\) r FROM toan_ai.classes c\")"
+      "Bash(\"C:/xampp/mysql/bin/mysql.exe\" -u root -N -e \"SELECT c.code, \\(SELECT COUNT\\(*\\) FROM toan_ai.class_students\\) s, \\(SELECT COUNT\\(*\\) FROM toan_ai.assignments\\) a, \\(SELECT COUNT\\(*\\) FROM toan_ai.assignment_students\\) r FROM toan_ai.classes c\")",
+      "Bash(python \"C:/Users/PHONG/AppData/Local/Temp/claude/c--xampp-htdocs-toan-ai/066531ed-fa4f-4831-8165-3dd72101281e/scratchpad/p8parent.py\")",
+      "Bash(python -)",
+      "Bash(php -l bootstrap/app.php)",
+      "Bash(php -l app/Providers/AppServiceProvider.php)",
+      "Bash(curl -sI http://127.0.0.1:8000/)"
     ]
   }
 }

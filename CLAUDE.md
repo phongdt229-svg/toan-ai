@@ -65,6 +65,9 @@ MariaDB của XAMPP phải đang chạy. DB dev: `toan_ai`, DB test: `toan_ai_te
 | Học sinh | `student@toan-ai.local` | `password` |
 | Phụ huynh | `parent@toan-ai.local` | `password` |
 
+Ở `APP_ENV=local`, màn hình đăng nhập liệt kê các tài khoản này (bấm để điền, bấm đúp để đăng nhập) — danh sách lấy từ
+`DemoUserSeeder::ACCOUNTS`, mật khẩu từ `config('app.demo_password')` (env `DEMO_PASSWORD`). Môi trường khác không hiện.
+
 Lớp mẫu `6A1 — Toán`, mã tham gia **`TOAN6A`**, đã có học sinh demo và 3 bài giao (bộ câu hỏi, học bài, đề).
 
 ## Quy ước

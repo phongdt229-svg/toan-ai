@@ -16,9 +16,18 @@ use Illuminate\Support\Facades\Hash;
  */
 class DemoUserSeeder extends Seeder
 {
+    /** Email → vai trò. Màn hình đăng nhập ở local đọc danh sách này để hiện nút đăng nhập nhanh. */
+    public const ACCOUNTS = [
+        'admin@toan-ai.local' => 'Quản trị',
+        'teacher@toan-ai.local' => 'Giáo viên',
+        'teacher-pending@toan-ai.local' => 'Giáo viên chờ duyệt',
+        'student@toan-ai.local' => 'Học sinh',
+        'parent@toan-ai.local' => 'Phụ huynh',
+    ];
+
     public function run(): void
     {
-        $password = Hash::make(env('DEMO_PASSWORD', 'password'));
+        $password = Hash::make(config('app.demo_password'));
 
         $admin = User::updateOrCreate(
             ['email' => 'admin@toan-ai.local'],
