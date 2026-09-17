@@ -14,3 +14,8 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('exams:finalize-expired')
     ->everyMinute()
     ->withoutOverlapping();
+
+// Báo cáo tuần cho phụ huynh — tối Chủ nhật, lúc phụ huynh thường ngồi xem lại tuần học của con (§14).
+Schedule::command('reports:weekly-parents')
+    ->weeklyOn(0, '19:00')
+    ->withoutOverlapping();

@@ -7,7 +7,7 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 1. [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md) — yêu cầu sản phẩm (nguồn sự thật về **làm gì**)
 2. [PROJECT_PLAN.md](PROJECT_PLAN.md) — kiến trúc, schema, API, RBAC matrix, roadmap (**làm thế nào**)
 
-Đang ở **Phase 5 (xong)**. Phase kế tiếp: Phase 6 — Parent Portal.
+Đang ở **Phase 6 (xong)**. Phase kế tiếp: Phase 7A — AI Tutor.
 
 ## Nguyên tắc không được phá
 
@@ -25,6 +25,8 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 - Cột thời gian NOT NULL thứ hai trong một bảng dùng `dateTime`, không dùng `timestamp` (MariaDB 10.4).
 - Module khác cần phản ứng khi học sinh làm đề/học xong bài → nghe event `ExamAttemptFinished` / `LessonCompleted`, đừng gọi thẳng từ `ExamService`/`ProgressService`.
 - Relation có `withTrashed` (vd `AssignmentStudent::assignment`) — khi thống kê nhớ thêm `whereNull('deleted_at')`.
+- Mailable: không đặt thuộc tính `$from`, `$to`, `$subject` — trùng thuộc tính có sẵn của Laravel.
+- Không viết `?>` trong comment `//` của file PHP — PHP coi đó là thẻ đóng.
 
 ## Lệnh hay dùng
 

@@ -101,12 +101,34 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    /** Con đang liên kết (bỏ các liên kết đã bị thu hồi). */
+    public function linkedChildren(): BelongsToMany
+    {
+        return $this->children()->wherePivot('status', ParentChild::STATUS_LINKED);
+    }
+
+    public function parentProfile(): HasOne
+    {
+        return $this->hasOne(ParentProfile::class);
+    }
+
+    /** Chặn phụ huynh xem báo cáo của học sinh không phải con mình (đoán id trên URL). */
+    public function isParentOf(User $student): bool
+    {
+        return $this->linkedChildren()->where('users.id', $student->id)->exists();
+    }
+
     /** Phụ huynh của học sinh này. */
     public function parents(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'parent_children', 'student_id', 'parent_id')
             ->withPivot('status', 'linked_at')
             ->withTimestamps();
+    }
+
+    public function linkedParents(): BelongsToMany
+    {
+        return $this->parents()->wherePivot('status', ParentChild::STATUS_LINKED);
     }
 
     public function isActive(): bool

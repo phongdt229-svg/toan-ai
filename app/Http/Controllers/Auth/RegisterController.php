@@ -72,7 +72,8 @@ class RegisterController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('parent.dashboard')
+        // intended: phụ huynh mở link liên kết của con khi chưa có tài khoản → đăng ký xong quay lại đúng link đó.
+        return redirect()->intended(route('parent.dashboard'))
             ->with('status', 'Tạo tài khoản thành công.');
     }
 }

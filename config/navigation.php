@@ -18,6 +18,7 @@ return [
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'student.exams.index', 'bottom' => false],
         ['label' => 'Bài được giao', 'icon' => 'bi-list-check', 'route' => 'student.assignments.index', 'bottom' => false],
         ['label' => 'Lớp của tôi', 'icon' => 'bi-people', 'route' => 'student.classes.index', 'bottom' => false],
+        ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false],
         ['label' => 'Tiến độ', 'icon' => 'bi-graph-up', 'route' => null, 'bottom' => false],
     ],
 
@@ -33,10 +34,10 @@ return [
     ],
 
     'parent' => [
-        ['label' => 'Tổng quan', 'icon' => 'bi-house', 'route' => 'parent.dashboard', 'bottom' => true],
-        ['label' => 'Con của tôi', 'icon' => 'bi-people', 'route' => null, 'bottom' => true],
-        ['label' => 'Báo cáo', 'icon' => 'bi-bar-chart', 'route' => null, 'bottom' => true],
+        ['label' => 'Con của tôi', 'icon' => 'bi-house-heart', 'route' => 'parent.dashboard', 'bottom' => true],
+        ['label' => 'Liên kết con', 'icon' => 'bi-person-plus', 'route' => 'parent.children.link', 'bottom' => true],
         ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => null, 'bottom' => true],
+        ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'parent.settings', 'bottom' => true],
     ],
 
     'admin' => [

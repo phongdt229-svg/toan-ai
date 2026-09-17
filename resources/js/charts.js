@@ -7,11 +7,12 @@ import {
     BarController,
     BarElement,
     CategoryScale,
+    Legend,
     LinearScale,
     Tooltip,
 } from 'chart.js';
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip);
+Chart.register(BarController, BarElement, CategoryScale, Legend, LinearScale, Tooltip);
 
 /**
  * Biểu đồ cột ngang % đúng theo chủ đề. Đọc dữ liệu từ data-chart (JSON).
@@ -53,6 +54,53 @@ function renderTopicBars(canvas) {
     });
 }
 
+/**
+ * Số câu làm mỗi ngày (§14 phụ huynh). Cột xếp chồng: phần đúng + phần sai,
+ * để phụ huynh thấy cả "con có học không" lẫn "học có hiệu quả không".
+ */
+function renderDailyActivity(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    canvas.parentElement.style.height = '220px';
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: rows.map((r) => r.label),
+            datasets: [
+                {
+                    label: 'Đúng',
+                    data: rows.map((r) => r.correct),
+                    backgroundColor: '#16a34a',
+                    borderRadius: 4,
+                    stack: 'answers',
+                },
+                {
+                    label: 'Chưa đúng',
+                    data: rows.map((r) => r.answered - r.correct),
+                    backgroundColor: '#fca5a5',
+                    borderRadius: 4,
+                    stack: 'answers',
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } },
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { mode: 'index', intersect: false },
+            },
+        },
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="topic-bars"]').forEach(renderTopicBars);
+    document.querySelectorAll('canvas[data-chart-type="daily-activity"]').forEach(renderDailyActivity);
 });

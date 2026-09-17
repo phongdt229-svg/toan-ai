@@ -5,13 +5,16 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ParentPortal\ChildController as ParentChildController;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
+use App\Http\Controllers\ParentPortal\SettingsController as ParentSettingsController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\Student\ClassController as StudentClassController;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Student\LearnController;
 use App\Http\Controllers\Student\LessonController as StudentLessonController;
+use App\Http\Controllers\Student\ParentConnectionController;
 use App\Http\Controllers\Student\PracticeController;
 use App\Http\Controllers\Teacher\AssignmentController as TeacherAssignmentController;
 use App\Http\Controllers\Teacher\ClassController as TeacherClassController;
@@ -75,6 +78,10 @@ Route::middleware('auth')->group(function () {
             Route::get('luyen-tap/lam-bai', [PracticeController::class, 'show'])->name('practice.show');
             Route::post('luyen-tap/nop', [PracticeController::class, 'submit'])->name('practice.submit');
             Route::get('luyen-tap/ket-qua', [PracticeController::class, 'result'])->name('practice.result');
+
+            Route::get('phu-huynh', [ParentConnectionController::class, 'index'])->name('parents.index');
+            Route::post('phu-huynh/doi-ma', [ParentConnectionController::class, 'regenerate'])->name('parents.regenerate');
+            Route::delete('phu-huynh/{parent}', [ParentConnectionController::class, 'revoke'])->name('parents.revoke');
 
             Route::get('lop-cua-toi', [StudentClassController::class, 'index'])->name('classes.index');
             Route::post('lop-cua-toi/tham-gia', [StudentClassController::class, 'join'])
@@ -191,6 +198,21 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('phu-huynh')->name('parent.')->middleware('role:parent')->group(function () {
             Route::get('/', [ParentDashboard::class, 'index'])->name('dashboard');
+
+            Route::get('lien-ket', [ParentChildController::class, 'linkForm'])->name('children.link');
+            // Mã liên kết mở quyền xem điểm của một đứa trẻ — chặn dò mã.
+            Route::post('lien-ket', [ParentChildController::class, 'link'])
+                ->middleware('throttle:5,1')
+                ->name('children.link.store');
+            Route::get('lien-ket/xac-nhan', [ParentChildController::class, 'accept'])
+                ->middleware('signed')
+                ->name('children.accept');
+
+            Route::get('con/{student}', [ParentChildController::class, 'show'])->name('children.show');
+            Route::delete('con/{student}', [ParentChildController::class, 'unlink'])->name('children.unlink');
+
+            Route::get('cai-dat', [ParentSettingsController::class, 'edit'])->name('settings');
+            Route::put('cai-dat', [ParentSettingsController::class, 'update'])->name('settings.update');
         });
 
         Route::prefix('quan-tri')->name('admin.')->middleware('role:admin')->group(function () {

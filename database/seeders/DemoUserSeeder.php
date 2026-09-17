@@ -109,6 +109,7 @@ class DemoUserSeeder extends Seeder
             ],
         );
         $parent->assignRole(Role::PARENT);
+        \App\Models\ParentProfile::firstOrCreate(['user_id' => $parent->id], ['weekly_report_enabled' => true]);
         $parent->children()->syncWithoutDetaching([
             $student->id => ['status' => 'linked', 'linked_at' => now()],
         ]);

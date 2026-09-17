@@ -2,16 +2,17 @@
 
 namespace App\Services\Auth;
 
-use App\Models\ParentChild;
 use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
 use App\Models\User;
+use App\Services\Parenting\ChildLinkService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class RegistrationService
 {
+    public function __construct(private readonly ChildLinkService $childLinks) {}
+
     /**
      * Hồ sơ học sinh thu đủ dữ liệu cá nhân hóa ngay lúc đăng ký (§33) —
      * AI dùng ngay các trường này để chọn giọng, độ khó và ngữ cảnh ví dụ.
@@ -113,35 +114,13 @@ class RegistrationService
             ]);
 
             $user->assignRole(Role::PARENT);
+            $this->childLinks->ensureProfile($user);
 
             if (! empty($data['link_code'])) {
-                $this->linkChildByCode($user, $data['link_code']);
+                $this->childLinks->linkByCode($user, $data['link_code']);
             }
 
             return $user;
         });
-    }
-
-    /** Liên kết phụ huynh với học sinh bằng mã trên hồ sơ học sinh (§5). */
-    public function linkChildByCode(User $parent, string $code): User
-    {
-        $profile = StudentProfile::with('user')
-            ->where('link_code', strtoupper(trim($code)))
-            ->first();
-
-        if (! $profile || ! $profile->user) {
-            throw ValidationException::withMessages([
-                'link_code' => 'Mã liên kết không tồn tại.',
-            ]);
-        }
-
-        $parent->children()->syncWithoutDetaching([
-            $profile->user_id => [
-                'status' => ParentChild::STATUS_LINKED,
-                'linked_at' => now(),
-            ],
-        ]);
-
-        return $profile->user;
     }
 }

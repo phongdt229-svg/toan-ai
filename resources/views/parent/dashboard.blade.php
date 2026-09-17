@@ -1,54 +1,74 @@
 @extends('layouts.app', ['portal' => 'parent'])
 
-@section('title', 'Tổng quan — TOÁN AI')
-@section('page_title', 'Tổng quan')
+@section('title', 'Con của tôi — TOÁN AI')
+@section('page_title', 'Con của tôi')
+
+@php
+    use App\Support\Duration;
+    use App\Support\Score;
+@endphp
 
 @section('content')
-    <h2 class="h5 fw-bold mb-3">Con của tôi</h2>
+    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+        <h2 class="h5 fw-bold mb-0">Con của tôi</h2>
+        @if ($children->isNotEmpty())
+            <a href="{{ route('parent.children.link') }}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-person-plus me-1"></i>Liên kết thêm
+            </a>
+        @endif
+    </div>
 
     @if ($children->isEmpty())
         <div class="card border">
             <div class="card-body text-center p-4">
-                <i class="bi bi-person-plus text-secondary" style="font-size:2.5rem"></i>
+                <i class="bi bi-person-plus text-primary" style="font-size:2.5rem"></i>
                 <p class="mt-3 mb-1 fw-semibold">Chưa liên kết với con nào</p>
-                <p class="text-secondary small mb-0">
-                    Lấy mã liên kết 8 ký tự trong tài khoản của con để kết nối.
-                    Chức năng liên kết trong portal sẽ có ở Phase 6.
+                <p class="text-secondary small mb-3">
+                    Nhờ con mở mục <strong>Phụ huynh</strong> trong tài khoản học sinh để lấy mã, link hoặc mã QR.
                 </p>
+                <a href="{{ route('parent.children.link') }}" class="btn btn-primary btn-touch">Nhập mã liên kết</a>
             </div>
         </div>
     @else
         <div class="row g-3">
-            @foreach ($children as $child)
+            @foreach ($children as $row)
+                @php $child = $row['student']; @endphp
                 <div class="col-12 col-lg-6">
-                    <div class="card border h-100">
+                    <a href="{{ route('parent.children.show', $child) }}" class="card border h-100 text-decoration-none text-body">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-2 mb-3">
-                                <i class="bi bi-person-circle fs-4 text-primary"></i>
-                                <div>
-                                    <div class="fw-semibold">{{ $child->name }}</div>
-                                    <div class="text-secondary small">
-                                        {{ $child->studentProfile?->grade?->name ?? 'Chưa chọn lớp' }}
-                                    </div>
+                                <i class="bi bi-person-circle fs-3 text-primary"></i>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">{{ $child->name }}</div>
+                                    <div class="text-secondary small">{{ $child->studentProfile?->grade?->name ?? 'Chưa chọn lớp' }}</div>
                                 </div>
+                                <i class="bi bi-chevron-right text-secondary"></i>
                             </div>
 
                             <div class="row g-2">
-                                @foreach ([['Tiến độ', '—'], ['Điểm TB', '—'], ['Thời gian học', '—'], ['Bài hoàn thành', '—']] as [$label, $value])
+                                @foreach ([
+                                    ['Tiến độ', $row['curriculum_percent'] !== null ? $row['curriculum_percent'] . '%' : '—'],
+                                    ['Điểm TB', $row['average_score'] !== null ? Score::format($row['average_score']) : '—'],
+                                    ['Thời gian học', Duration::human($row['study_seconds'])],
+                                    ['Bài chưa làm', $row['assignments']['pending']],
+                                ] as [$label, $value])
                                     <div class="col-6">
                                         <div class="stat-card">
                                             <div class="stat-card__label">{{ $label }}</div>
-                                            <div class="stat-card__value">{{ $value }}</div>
+                                            <div class="stat-card__value fs-5">{{ $value }}</div>
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
 
-                            <p class="text-secondary small mb-0 mt-3">
-                                Số liệu thật sẽ hiển thị khi hệ thống tiến độ hoàn thiện (Phase 6).
-                            </p>
+                            @if ($row['assignments']['overdue'] > 0)
+                                <div class="alert alert-warning small mt-3 mb-0 py-2">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    {{ $row['assignments']['overdue'] }} bài quá hạn chưa nộp
+                                </div>
+                            @endif
                         </div>
-                    </div>
+                    </a>
                 </div>
             @endforeach
         </div>

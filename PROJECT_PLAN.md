@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–5 đã xong** · Kế tiếp: Phase 6 (Parent Portal)
+> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–6 đã xong** · Kế tiếp: Phase 7A (AI Tutor)
 
 ---
 
@@ -537,10 +537,31 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 > chưa làm bài = có bài quá hạn chưa nộp · cần hỗ trợ = điểm thấp hoặc ≥ 2 bài quá hạn hoặc ≥ 2 chủ đề yếu ·
 > tiến bộ = TB 3 bài gần nhất cao hơn các bài trước ≥ 10 điểm % (cần ≥ 4 bài có điểm).
 
-### Phase 6 — Parent Portal
-- [ ] Liên kết con bằng `link_code` / link / QR
-- [ ] Dashboard §14: tiến độ, điểm TB, thời gian học, mạnh/yếu
-- [ ] Xem nhận xét GV + báo cáo tuần (job + mail)
+### ✅ Phase 6 — Parent Portal
+- [x] Liên kết con bằng **mã** (throttle 5 lần/phút) / **link ký số** hết hạn sau 7 ngày / **QR** (SVG tự vẽ, không gửi mã ra dịch vụ ngoài)
+- [x] Link mở khi chưa đăng nhập → đăng nhập/đăng ký xong quay lại đúng link
+- [x] Trang xác nhận "Liên kết với [tên con]?" trước khi liên kết
+- [x] Học sinh thấy ai đang xem kết quả của mình, **thu hồi được** — thu hồi thì đổi mã luôn
+- [x] Học sinh tự đổi mã → mã, link, QR cũ đều mất hiệu lực
+- [x] Phụ huynh huỷ liên kết / liên kết lại
+- [x] Dashboard §14 mỗi con: tiến độ chương trình, điểm TB thang 10, thời gian học, bài chưa làm, cảnh báo quá hạn
+- [x] Báo cáo chi tiết: chủ đề mạnh/yếu, đề xuất ôn lại, biểu đồ số câu đúng/sai 7 ngày, đề gần đây
+- [x] Nhận xét giáo viên — chỉ hiện nhận xét `visible_to_parent`
+- [x] Báo cáo tuần qua email: lệnh `reports:weekly-parents` tối Chủ nhật → 1 job/phụ huynh
+- [x] Không gửi tuần trống, không gửi trùng trong 6 ngày, tắt được trong Cài đặt
+- [x] Bảng `parent_profiles` (cài đặt báo cáo tuần; Phase 8 dùng cho gói học)
+- [x] Test: 168 test xanh (29 test riêng cho Phase 6)
+
+> **Định nghĩa số liệu cho phụ huynh** (ghi tại `StudentReportService`):
+> - **Tiến độ** = bài học đã hoàn thành / tổng bài đã xuất bản của lớp con đang học. Lớp chưa có bài → "—", không hiện 0%.
+> - **Điểm TB (thang 10)** = trung bình % của đề kiểm tra đã chấm xong + bài tập được giao. **Không** tính luyện tập tự do — lúc tập sai là bình thường.
+> - **Thời gian học** = thời gian đọc bài + thời gian làm từng câu, chỉ khi có tương tác.
+>
+> **Quyết định trong phase:**
+> - "AI đề xuất ôn lại" ở §14 hiện là **quy tắc cố định** (chủ đề yếu → bài chưa học của chủ đề đó). Trang ghi rõ; Phase 7A thay bằng `RecommendationService`.
+> - Gom logic liên kết vào `ChildLinkService` (trước nằm tạm trong `RegistrationService`).
+>
+> **Lỗi phát hiện khi test:** Mailable không được có thuộc tính `$from` / `$to` — trùng tên người gửi / người nhận của Laravel.
 
 ### Phase 7A — AI Tutor
 - [ ] Migration nhóm 6 (34–38)
