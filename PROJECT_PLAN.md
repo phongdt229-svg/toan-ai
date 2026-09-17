@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-16 · Trạng thái: **Phase 0, 1, 2 đã xong** · Kế tiếp: Phase 3 (Question Bank)
+> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–3 đã xong** · Kế tiếp: Phase 4 (Exam)
 
 ---
 
@@ -164,6 +164,7 @@ Thứ tự quan trọng vì ràng buộc khoá ngoại. Mỗi bảng đều có 
 | 18 | `question_options` | `question_id`, `content`, `is_correct`, `sort_order` |
 | 19 | `tags` | `name`, `slug`(unique) |
 | 20 | `question_tags` | `question_id`, `tag_id` |
+| 21b | `question_attempts` | `user_id`, `question_id`, `topic_id`, `context`(practice/exam/assignment), `context_id`, `difficulty`, `answer`json, `is_correct`(null = chờ chấm), `score`, `time_spent_seconds`, `attempt_no`. Index: (user_id, topic_id, created_at) — lịch sử chi tiết cho §11 |
 | 21 | `student_topic_mastery` | `user_id`, `topic_id`, `correct_count`, `wrong_count`, `avg_time_seconds`, `mastery_score`(0–100), `last_practiced_at`, unique(user_id,topic_id) |
 
 ### Nhóm 4 — Exam (Phase 4)
@@ -460,13 +461,23 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 > **Nợ kỹ thuật ghi nhận:** chưa có màn hình chuyển bài học sang chủ đề khác,
 > chưa có import CSV nội dung, chưa có quên mật khẩu (cần cấu hình mail).
 
-### Phase 3 — Question Bank & Luyện tập
-- [ ] Migration nhóm 3 (17–21)
-- [ ] CRUD câu hỏi 6 loại + import CSV
-- [ ] `PracticeService` + `GradingService` (chấm tự động 5 loại, essay chờ người chấm)
-- [ ] UI làm bài mobile-first, hiện giải thích sau khi trả lời
-- [ ] Cập nhật `student_topic_mastery`
-- [ ] Test chấm điểm từng loại câu hỏi
+### ✅ Phase 3 — Question Bank & Luyện tập
+- [x] Migration nhóm 3 (17–21) + bảng bổ sung `question_attempts` (21b)
+- [x] CRUD câu hỏi 6 loại (`QuestionPolicy`: chỉ sửa câu của mình) + form đáp án đổi theo loại
+- [x] Import CSV: tệp mẫu tải về, bỏ BOM Excel, báo lỗi theo số dòng, rollback dòng hỏng
+- [x] `GradingService`: chấm tự động 5 loại, essay trả "chờ người chấm"
+  - Nhiều đáp án: điểm từng phần, **chọn thừa bị trừ** (chặn "chọn hết cho chắc")
+  - Điền chỗ trống: điểm chia theo chỗ, nhiều cách viết cho một đáp án
+  - Text: bỏ qua hoa/thường, khoảng trắng, dấu phẩy thập phân kiểu Việt
+- [x] `PracticeService`: bốc ngẫu nhiên, **bộ câu hỏi giữ ở session** (client không đổi được)
+- [x] UI làm bài mobile-first, trang kết quả hiện đáp án đúng + giải thích từng câu
+- [x] `MasteryService`: điểm nắm vững có trọng số độ khó, chủ đề yếu cần ≥5 lần làm mới tính
+- [x] Gợi ý "Nên ôn lại" ở trang luyện tập từ chủ đề yếu
+- [x] Test: 66 test xanh (10 test riêng cho chấm điểm từng loại)
+
+> **Lệch so với plan ban đầu:** thêm bảng `question_attempts`. `student_topic_mastery` chỉ là số tổng hợp;
+> §11 yêu cầu theo dõi từng câu hỏi, đúng/sai, thời gian, số lần làm — không có bảng chi tiết thì
+> Phase 7 không có dữ liệu để AI phân tích lỗi.
 
 ### Phase 4 — Exam
 - [ ] Migration nhóm 4 (22–25)

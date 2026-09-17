@@ -9,9 +9,12 @@ use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 use App\Http\Controllers\Student\LearnController;
 use App\Http\Controllers\Student\LessonController as StudentLessonController;
+use App\Http\Controllers\Student\PracticeController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 use App\Http\Controllers\Teacher\LessonController as TeacherLessonController;
 use App\Http\Controllers\Teacher\LessonSectionController;
+use App\Http\Controllers\Teacher\QuestionController;
+use App\Http\Controllers\Teacher\QuestionImportController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\LandingController;
 use Illuminate\Support\Facades\Route;
@@ -59,6 +62,12 @@ Route::middleware('auth')->group(function () {
             Route::get('hoc', [LearnController::class, 'index'])->name('learn.index');
             Route::get('hoc/chu-de/{topic}', [LearnController::class, 'topic'])->name('learn.topic');
 
+            Route::get('luyen-tap', [PracticeController::class, 'index'])->name('practice.index');
+            Route::post('luyen-tap/bat-dau', [PracticeController::class, 'start'])->name('practice.start');
+            Route::get('luyen-tap/lam-bai', [PracticeController::class, 'show'])->name('practice.show');
+            Route::post('luyen-tap/nop', [PracticeController::class, 'submit'])->name('practice.submit');
+            Route::get('luyen-tap/ket-qua', [PracticeController::class, 'result'])->name('practice.result');
+
             Route::get('bai-hoc/{lesson}', [StudentLessonController::class, 'show'])->name('lesson.show');
             Route::post('bai-hoc/{lesson}/tien-do', [StudentLessonController::class, 'trackProgress'])
                 ->name('lesson.progress');
@@ -77,6 +86,18 @@ Route::middleware('auth')->group(function () {
             Route::post('bai-hoc/{lesson}/xuat-ban', [TeacherLessonController::class, 'togglePublish'])
                 ->name('lessons.publish');
             Route::delete('bai-hoc/{lesson}', [TeacherLessonController::class, 'destroy'])->name('lessons.destroy');
+
+            Route::get('cau-hoi', [QuestionController::class, 'index'])->name('questions.index');
+            Route::get('cau-hoi/tao-moi', [QuestionController::class, 'create'])->name('questions.create');
+            Route::post('cau-hoi', [QuestionController::class, 'store'])->name('questions.store');
+            Route::get('cau-hoi/{question}/sua', [QuestionController::class, 'edit'])->name('questions.edit');
+            Route::put('cau-hoi/{question}', [QuestionController::class, 'update'])->name('questions.update');
+            Route::delete('cau-hoi/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
+
+            Route::get('cau-hoi-nhap', [QuestionImportController::class, 'create'])->name('questions.import');
+            Route::post('cau-hoi-nhap', [QuestionImportController::class, 'store'])->name('questions.import.store');
+            Route::get('cau-hoi-nhap/mau', [QuestionImportController::class, 'template'])
+                ->name('questions.import.template');
 
             Route::post('bai-hoc/{lesson}/phan', [LessonSectionController::class, 'store'])->name('sections.store');
             Route::put('bai-hoc/{lesson}/phan/{section}', [LessonSectionController::class, 'update'])

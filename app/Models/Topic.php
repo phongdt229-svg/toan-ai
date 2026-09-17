@@ -26,6 +26,11 @@ class Topic extends Model
         return $this->hasMany(Lesson::class);
     }
 
+    public function questions(): HasMany
+    {
+        return $this->hasMany(Question::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
