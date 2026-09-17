@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AiController;
+use App\Http\Controllers\Api\V1\MomoIpnController;
 use App\Models\Package;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
@@ -74,3 +75,11 @@ Route::middleware(['web', 'auth', 'active', 'throttle:ai'])
         Route::get('conversations', 'conversations')->name('conversations')->withoutMiddleware('throttle:ai');
         Route::get('conversations/{id}', 'conversation')->whereNumber('id')->name('conversation')->withoutMiddleware('throttle:ai');
     });
+
+/*
+| IPN MoMo (§8) — server-to-server, không auth, không CSRF (loại trừ trong bootstrap/app.php).
+| Căn cứ duy nhất là chữ ký; luôn trả 204.
+*/
+Route::post('payment/momo/ipn', MomoIpnController::class)
+    ->middleware('throttle:120,1')
+    ->name('api.payment.momo.ipn');

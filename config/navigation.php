@@ -49,7 +49,7 @@ return [
         ['label' => 'Chương trình', 'icon' => 'bi-diagram-3', 'route' => 'admin.curriculum.index', 'bottom' => true],
         ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => 'admin.packages.index', 'bottom' => false],
         ['label' => 'Đăng ký gói', 'icon' => 'bi-person-vcard', 'route' => 'admin.subscriptions.index', 'bottom' => false],
-        ['label' => 'Giao dịch', 'icon' => 'bi-credit-card', 'route' => null, 'bottom' => false],
+        ['label' => 'Giao dịch', 'icon' => 'bi-credit-card', 'route' => 'admin.payments.index', 'bottom' => false],
         ['label' => 'AI usage', 'icon' => 'bi-robot', 'route' => 'admin.ai-usage.index', 'bottom' => false],
         ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => null, 'bottom' => false],
     ],

@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–8 đã xong** · Kế tiếp: Phase 9 (Thanh toán MoMo)
+> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–9 đã xong** · Kế tiếp: Phase 10 (Hạ tầng & tối ưu)
 
 ---
 
@@ -215,8 +215,8 @@ Thứ tự quan trọng vì ràng buộc khoá ngoại. Mỗi bảng đều có 
 | 46 | `packages` | `name`, `slug`(unique), `tier`(free/pro/premium), `price`decimal(12,2), `currency`(VND), `duration_days`(null = vô thời hạn), `description`, `is_default`, `is_active`, `is_highlighted`, `sort_order` |
 | 47 | `package_features` | `package_id`, `key`(vd `ai.daily_requests`), `label`, `value`('1'/'0'), `limit_value`(int, null = không giới hạn), `show_on_pricing`, `sort_order`, unique(package_id, key) |
 | 48 | `subscriptions` | `user_id`(người dùng gói), `purchased_by`(người trả tiền), `package_id`, `status`(pending/active/expired/cancelled), `price_paid`, `duration_days`, `starts_at`, `ends_at`, `activated_at`, `cancelled_at`, `cancel_reason`, `source`(payment/manual). Index: (user_id, status, ends_at) |
-| 49 | `payments` | `user_id`, `package_id`, `subscription_id`, `order_code`(unique), `amount`decimal(12,2), `currency`, `method`(momo), `status`(pending/paid/failed/cancelled/refunded), `gateway_request_id`, `gateway_transaction_id`, `gateway_response`json, `paid_at`, `client_ip` |
-| 50 | `payment_webhook_logs` | `provider`, `order_code`, `signature_valid`, `payload`json, `headers`json, `result`, `processed_at` — **bắt buộc**, để truy vết IPN |
+| 49 | `payments` | `user_id`(người trả), `package_id`, `subscription_id`, `order_code`(unique), `amount`decimal(12,2), `currency`, `method`(momo), `status`(pending/paid/failed/cancelled), `gateway_request_id`, `gateway_transaction_id`(unique), `gateway_result_code`, `gateway_message`, `pay_url`, `gateway_response`json, `flag_reason`, `paid_at`, `expires_at`, `client_ip` |
+| 50 | `payment_webhook_logs` | `provider`(momo/momo-query), `order_code`, `signature_valid`, `payload`json, `headers`json, `result`, `message`, `ip_address`, `processed_at` — **bắt buộc**, để truy vết IPN |
 | 51 | `notifications` | bảng chuẩn Laravel |
 
 **Tổng: 51 bảng.**
@@ -360,7 +360,7 @@ AccessControlService::canAccess(User $user, string $accessLevel): bool
 ## 8. Payment — luồng bắt buộc
 
 ```
-POST /subscriptions/checkout  { package_id, payment_method }
+POST /goi-hoc/{slug}/mua  { con? }        ← không nhận số tiền từ client
   └─ PaymentService::checkout()
        ├─ $package = Package::where('is_active',1)->findOrFail($id)
        ├─ $amount  = $package->price                ← giá LẤY TỪ DB
@@ -652,14 +652,26 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 > - Hết lượt luyện tập: bộ câu phát ra bị cắt bằng số lượt còn lại, không để vượt giới hạn giữa chừng.
 > - Chưa tự gia hạn (bỏ cột `auto_renew`): luồng MoMo `captureWallet` là thanh toán một lần; trừ tiền định kỳ cần tích hợp liên kết ví riêng.
 
-### Phase 9 — Thanh toán MoMo
-- [ ] Migration 49–50
-- [ ] `PaymentGatewayInterface` + `PaymentService` + `MomoPaymentService`
-- [ ] Checkout → payUrl
-- [ ] IPN: chữ ký, order, amount, idempotency, transaction, log
-- [ ] Return URL chỉ hiển thị trạng thái
-- [ ] Lịch sử thanh toán (user) + quản lý giao dịch (admin)
-- [ ] Test: IPN gọi 2 lần chỉ cấp gói 1 lần; chữ ký sai bị từ chối; amount lệch bị chặn
+### ✅ Phase 9 — Thanh toán MoMo (§20–25)
+- [x] Migration 49–50
+- [x] `PaymentGatewayInterface` + `PaymentService` + `MomoGateway` (API v2 `captureWallet`, HMAC-SHA256) + `FakeMomoGateway`
+- [x] Checkout → payUrl: giá lấy từ DB, bấm nhiều lần dùng lại đơn còn hạn, lỗi cổng → đơn `failed` + báo lỗi
+- [x] IPN `POST /api/v1/payment/momo/ipn`: log thô trước → chữ ký (+ partnerCode) → tìm đơn (`lockForUpdate`) → idempotency
+      → so số tiền nguyên VND (lệch: gắn `flag_reason`, không cấp) → cập nhật đơn + `SubscriptionService::activate` trong một transaction
+      → audit log + email `PaymentSucceeded` (queue). Luôn trả 204.
+- [x] Return URL `/payment/momo/return` chỉ chuyển tới trang kết quả đọc DB; trang kết quả tự hỏi trạng thái mỗi 3 giây
+- [x] **Đối soát**: IPN không tới (localhost, sự cố mạng) → hỏi MoMo `/v2/gateway/api/query` khi mở trang kết quả, khi admin bấm,
+      và trước khi huỷ đơn quá hạn (`payments:expire-pending` 5 phút/lần, đơn sống 30 phút)
+- [x] Lịch sử thanh toán `/thanh-toan` (học sinh/phụ huynh) · Admin `/quan-tri/giao-dich`: doanh thu tháng, đơn nghi vấn, IPN sai chữ ký, log IPN từng đơn, nút đối soát
+- [x] **Giả lập MoMo ở local** (`PAYMENT_GATEWAY=fake`): trang `/thanh-toan/{order}/gia-lap` tạo IPN ký đúng chuẩn và đi qua đúng `handleNotification` — bị chặn ở production
+- [x] Test: 19 test — IPN 2 lần chỉ cấp 1 lần; chữ ký sai / sửa payload sau khi ký / sai partnerCode bị từ chối; lệch tiền bị chặn;
+      return URL không tin query string; người khác không xem được đơn; giả lập chạy luồng IPN thật (297 test xanh)
+
+> **Quyết định trong phase:**
+> - IPN thất bại rồi sau đó IPN thành công (hoặc đơn đã huỷ vì hết hạn mà MoMo báo đã trả) → **vẫn cấp gói**: tiền đã trừ thì phải giao hàng.
+> - Mã MoMo 1000/7000/7002 là "đang xử lý" — không đánh dấu thất bại.
+> - `MOMO_ENDPOINT` chỉ là host (`https://test-payment.momo.vn`), path do code ghép.
+> - Chưa làm hoàn tiền tự động: admin huỷ đăng ký ở trang Đăng ký gói, hoàn tiền thao tác trên cổng MoMo.
 
 ### Phase 10 — Hạ tầng & tối ưu
 - [ ] predis + Redis cho cache/session/queue

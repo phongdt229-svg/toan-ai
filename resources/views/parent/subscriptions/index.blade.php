@@ -45,7 +45,10 @@
     @endif
 
     @if ($purchases->isNotEmpty())
-        <h2 class="h6 fw-bold mb-2">Gói bạn đã mua</h2>
+        <div class="d-flex align-items-center mb-2">
+            <h2 class="h6 fw-bold mb-0">Gói bạn đã mua</h2>
+            <a href="{{ route('payment.history') }}" class="small ms-auto">Lịch sử thanh toán</a>
+        </div>
         <div class="table-responsive">
             <table class="table table-sm align-middle small">
                 <thead><tr><th>Ngày</th><th>Cho</th><th>Gói</th><th>Trạng thái</th><th class="text-end">Giá</th></tr></thead>

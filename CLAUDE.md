@@ -7,7 +7,7 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 1. [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md) — yêu cầu sản phẩm (nguồn sự thật về **làm gì**)
 2. [PROJECT_PLAN.md](PROJECT_PLAN.md) — kiến trúc, schema, API, RBAC matrix, roadmap (**làm thế nào**)
 
-Đang ở **Phase 8 (xong)**. Phase kế tiếp: Phase 9 — Thanh toán MoMo.
+Đang ở **Phase 9 (xong)**. Phase kế tiếp: Phase 10 — Hạ tầng & tối ưu.
 
 ## Nguyên tắc không được phá
 
@@ -33,6 +33,8 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 - Lộ trình học (`LearningPathService`) tự cập nhật qua listener `SyncLearningPath` — đừng đánh dấu mục lộ trình bằng tay trong controller.
 - Gói học: hỏi `SubscriptionService::limit()/allows()` hoặc `AccessControlService`, đừng tự query `subscriptions`.
   Thêm khoá tính năng mới → thêm vào `PackageFeature::KEYS` + `KEY_TYPES` **và** chỗ kiểm tra trong code.
+- Thanh toán: chỉ `PaymentService` đổi trạng thái đơn. Không bao giờ kích hoạt gói từ return URL / query string / dữ liệu client.
+  Local dùng `PAYMENT_GATEWAY=fake` → nút "Xác nhận thanh toán" ở trang giả lập; chạy MoMo sandbox cần key + URL IPN public (ngrok).
 - Kích hoạt gói chỉ qua `SubscriptionService::activate()` (idempotent, cộng nối) — không `update(['status' => 'active'])` tay.
 - Câu hỏi trong kiểm tra đầu vào là **bản chụp**; chấm qua `PlacementTestQuestion::toQuestion()` để dùng lại `GradingService`.
 
@@ -45,7 +47,7 @@ npm run dev                        # Vite dev server
 npm run build                      # build assets
 php artisan serve                  # http://localhost:8000
 php artisan schedule:work          # chạy lịch định kỳ ở local (tự nộp bài hết giờ, hết hạn gói)
-php artisan queue:work             # bắt buộc cho AI soạn bài của giáo viên và email báo cáo tuần
+php artisan queue:work             # bắt buộc cho AI soạn bài của giáo viên, email báo cáo tuần, email thanh toán
 ```
 
 MariaDB của XAMPP phải đang chạy. DB dev: `toan_ai`, DB test: `toan_ai_test`.

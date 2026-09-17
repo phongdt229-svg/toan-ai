@@ -21,6 +21,11 @@ Schedule::command('subscriptions:expire')
     ->dailyAt('00:05')
     ->withoutOverlapping();
 
+// Đơn MoMo quá hạn chưa trả: hỏi lại MoMo rồi mới huỷ (không huỷ nhầm đơn IPN bị lạc).
+Schedule::command('payments:expire-pending')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
 // Báo cáo tuần cho phụ huynh — tối Chủ nhật, lúc phụ huynh thường ngồi xem lại tuần học của con (§14).
 Schedule::command('reports:weekly-parents')
     ->weeklyOn(0, '19:00')

@@ -50,7 +50,7 @@
                                 <select name="con" id="con" class="form-select" onchange="this.form.submit()">
                                     <option value="">— Chọn con —</option>
                                     @foreach ($children as $child)
-                                        <option value="{{ $child->id }}" @selected($beneficiary?->id === $child->id)>
+                                        <option value="{{ $child->id }}" @selected($beneficiary?->id == $child->id)>
                                             {{ $child->name }} · {{ $child->studentProfile?->grade?->name ?? 'chưa chọn lớp' }}
                                         </option>
                                     @endforeach
@@ -81,8 +81,17 @@
                         </div>
                     </div>
 
-                    {{-- Phase 9 nối nút này với MoMo. --}}
-                    <button class="btn btn-secondary btn-lg w-100" disabled>Thanh toán MoMo — sắp mở</button>
+                    {{-- Chỉ gửi gói + con; số tiền server lấy từ DB. --}}
+                    <form method="POST" action="{{ route('packages.pay', $package) }}">
+                        @csrf
+                        @if ($payer->isParent())
+                            <input type="hidden" name="con" value="{{ $beneficiary->id }}">
+                        @endif
+                        <button class="btn btn-lg w-100 text-white" style="background:#a50064">
+                            <i class="bi bi-wallet2 me-1"></i>Thanh toán bằng MoMo
+                        </button>
+                    </form>
+                    <p class="small text-secondary text-center mt-2 mb-0">Gói được kích hoạt ngay khi MoMo xác nhận thanh toán.</p>
                 @endif
             @endif
         </div>

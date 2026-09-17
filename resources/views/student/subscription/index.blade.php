@@ -70,7 +70,10 @@
         </div>
     </div>
 
-    <h2 class="h6 fw-bold mb-2">Lịch sử gói</h2>
+    <div class="d-flex align-items-center mb-2">
+        <h2 class="h6 fw-bold mb-0">Lịch sử gói</h2>
+        <a href="{{ route('payment.history') }}" class="small ms-auto">Lịch sử thanh toán</a>
+    </div>
     @if ($history->isEmpty())
         <div class="text-secondary small">Chưa có gói nào.</div>
     @else

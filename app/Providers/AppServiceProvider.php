@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
+use App\Services\Payment\Contracts\PaymentGatewayInterface;
+use App\Services\Payment\Gateways\FakeMomoGateway;
+use App\Services\Payment\Gateways\MomoGateway;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -41,6 +44,13 @@ class AppServiceProvider extends ServiceProvider
                 ),
                 default => $app->make(FakeProvider::class),
             };
+        });
+
+        // Cổng thanh toán (§20). `fake` chỉ dùng ở local/testing — production luôn gọi MoMo thật.
+        $this->app->bind(PaymentGatewayInterface::class, function ($app) {
+            $useFake = $app['config']['payment.gateway'] === 'fake' && ! $app->environment('production');
+
+            return $useFake ? new FakeMomoGateway : new MomoGateway;
         });
     }
 

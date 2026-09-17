@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AiUsageController;
 use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\TeacherApprovalController;
@@ -38,6 +39,7 @@ use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\PackageController;
+use App\Http\Controllers\Web\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -81,6 +83,19 @@ Route::middleware('auth')->group(function () {
     Route::middleware('active')->group(function () {
         // Học sinh mua cho mình, phụ huynh mua cho con — controller tự kiểm tra role.
         Route::get('goi-hoc/{package}/mua', [PackageController::class, 'checkout'])->name('packages.checkout');
+        Route::post('goi-hoc/{package}/mua', [PaymentController::class, 'store'])
+            ->middleware('throttle:10,1') // mỗi lần bấm là một lượt gọi MoMo
+            ->name('packages.pay');
+
+        // §8: return URL chỉ hiển thị trạng thái đọc từ DB.
+        Route::get('payment/momo/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
+        Route::get('thanh-toan', [PaymentController::class, 'history'])->name('payment.history');
+        Route::get('thanh-toan/{payment}', [PaymentController::class, 'show'])->name('payment.show');
+        Route::get('thanh-toan/{payment}/trang-thai', [PaymentController::class, 'status'])
+            ->middleware('throttle:60,1')->name('payment.status');
+        // Giả lập MoMo — controller trả 404 nếu không phải PAYMENT_GATEWAY=fake hoặc đang production.
+        Route::get('thanh-toan/{payment}/gia-lap', [PaymentController::class, 'simulator'])->name('payment.simulator');
+        Route::post('thanh-toan/{payment}/gia-lap', [PaymentController::class, 'simulate'])->name('payment.simulate');
 
         Route::prefix('hoc-sinh')->name('student.')->middleware('role:student')->group(function () {
             Route::get('/', [StudentDashboard::class, 'index'])->name('dashboard');
@@ -284,6 +299,9 @@ Route::middleware('auth')->group(function () {
                 ->names('packages');
             Route::get('dang-ky-goi', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');
             Route::post('dang-ky-goi/cap', [AdminSubscriptionController::class, 'grant'])->name('subscriptions.grant');
+            Route::get('giao-dich', [AdminPaymentController::class, 'index'])->name('payments.index');
+            Route::get('giao-dich/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
+            Route::post('giao-dich/{payment}/doi-soat', [AdminPaymentController::class, 'reconcile'])->name('payments.reconcile');
             Route::post('dang-ky-goi/{subscription}/huy', [AdminSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
 
             Route::get('chuong-trinh', [CurriculumController::class, 'index'])->name('curriculum.index');
