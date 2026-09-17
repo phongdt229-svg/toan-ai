@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
                 SampleCurriculumSeeder::class,
                 SampleQuestionSeeder::class,
                 SampleExamSeeder::class,
+                SampleClassSeeder::class,
             ]);
         }
     }

@@ -2,7 +2,7 @@
 
 > Tài liệu thi hành của [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md). Spec nói **làm gì**, tài liệu này nói **làm thế nào, theo thứ tự nào, xong thì trông ra sao**.
 >
-> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–4 đã xong** · Kế tiếp: Phase 5 (Teacher Portal: lớp học, giao bài)
+> Cập nhật: 2026-09-17 · Trạng thái: **Phase 0–5 đã xong** · Kế tiếp: Phase 6 (Parent Portal)
 
 ---
 
@@ -181,10 +181,10 @@ Thứ tự quan trọng vì ràng buộc khoá ngoại. Mỗi bảng đều có 
 | 26 | `classes` | `name`, `code`(unique, để HS join), `grade_id`, `description`, `owner_teacher_id`, `status`, softDeletes |
 | 27 | `teacher_classes` | `class_id`, `teacher_id`, `role`(owner/assistant) |
 | 28 | `class_students` | `class_id`, `student_id`, `status`(active/removed), `joined_at`, unique(class_id,student_id) |
-| 29 | `assignments` | `class_id`, `teacher_id`, `title`, `description`, `type`(question_set/exam/lesson), `exam_id`(null), `lesson_id`(null), `due_at`, `allow_retry`, `max_attempts`, `status`(draft/published/closed), `published_at` |
+| 29 | `assignments` | `class_id`, `teacher_id`, `title`, `description`, `type`(question_set/exam/lesson), `exam_id`(null), `lesson_id`(null), `assign_to_all`, `due_at`, `allow_retry`, `max_attempts`, `status`(published/closed), `published_at`, softDeletes |
 | 30 | `assignment_questions` | `assignment_id`, `question_id`, `sort_order`, `points` |
-| 31 | `assignment_students` | `assignment_id`, `student_id`, `status`(assigned/in_progress/submitted/graded/late), unique(assignment_id,student_id) |
-| 32 | `assignment_submissions` | `assignment_id`, `student_id`, `attempt_id`(null), `submitted_at`, `score`, `feedback`, `graded_by`, `graded_at` |
+| 31 | `assignment_students` | `assignment_id`, `student_id`, `status`(assigned/submitted/completed), `score`, `max_score`, `percent`, `attempts_count`, `time_spent_seconds`, `is_late`, `completed_at`, unique(assignment_id,student_id) — bảng tổng hợp cho bộ lọc |
+| 32 | `assignment_submissions` | `assignment_id`, `student_id`, `attempt_no`, `answers`json, `score`, `max_score`, `correct_count`, `time_spent_seconds`, `is_late`, `submitted_at` — chỉ cho loại bộ câu hỏi |
 | 33 | `teacher_comments` | `teacher_id`, `student_id`, `class_id`(null), `lesson_id`(null), `content`, `visible_to_parent` |
 
 ### Nhóm 6 — AI (Phase 7)
@@ -503,13 +503,39 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 >
 > **Nợ kỹ thuật:** tạo đề bằng AI (§16) chờ Phase 7A. Production cần cron `schedule:run` mỗi phút.
 
-### Phase 5 — Teacher Portal
-- [ ] Migration nhóm 5 (26–33)
-- [ ] Lớp học: tạo, mã tham gia, thêm/xoá HS
-- [ ] Giao bài §17 + theo dõi Đã làm/Chưa làm
-- [ ] Dashboard GV §13 + bộ lọc học sinh 5 trạng thái
-- [ ] Nhận xét học sinh (`visible_to_parent`)
-- [ ] Policy: GV chỉ thao tác trên lớp/HS của mình
+### ✅ Phase 5 — Teacher Portal
+- [x] Migration nhóm 5 (26–33)
+- [x] Lớp học: tạo, mã 6 ký tự (bỏ ký tự dễ nhầm 0/O/1/I/L), đổi mã, lưu trữ lớp
+- [x] Học sinh tự vào lớp bằng mã (không phân biệt hoa/thường, khoảng trắng; throttle 10 lần/phút chống dò mã)
+- [x] Giáo viên thêm/xoá học sinh bằng email — xoá giữ nguyên lịch sử bài làm và điểm
+- [x] Giáo viên phụ: quản lý học sinh và giao bài được; chỉ chủ nhiệm đổi mã / lưu trữ
+- [x] Giao bài §17 đủ 3 loại: bộ câu hỏi (bài tập về nhà) · đề kiểm tra · học bài
+- [x] Giao cả lớp hoặc chọn học sinh; học sinh vào lớp sau tự nhận bài "cả lớp" còn mở
+- [x] Hạn nộp, cho phép làm lại (điểm lấy lượt cao nhất), đóng/mở bài
+- [x] Nộp trễ vẫn nhận nhưng gắn cờ; dời hạn thì tính lại cờ trễ
+- [x] Theo dõi: Đã làm / Chưa làm / Quá hạn, Điểm, Thời gian, Số lượt — chưa làm xếp trước
+- [x] Dashboard GV §13: số lớp, số học sinh, bài đang giao, điểm TB, học sinh cần hỗ trợ, bài sắp đến hạn
+- [x] Bộ lọc học sinh 5 trạng thái, ngưỡng hiển thị ngay trên trang
+- [x] Nhận xét học sinh (`visible_to_parent`), chỉ người viết xoá được
+- [x] Policy: GV chỉ thao tác trên lớp/HS của mình; số liệu chỉ tính bài trong lớp mình
+- [x] Test: 139 test xanh (41 test riêng cho Phase 5)
+
+> **Quyết định trong phase:**
+> - **Đồng bộ qua event** `ExamAttemptFinished` / `LessonCompleted` → listener `SyncAssignmentProgress` (chạy sau commit).
+>   `ExamService` và `ProgressService` không cần biết gì về giao bài.
+> - `assignment_students.status` rút gọn còn `assigned / submitted / completed` + cờ `is_late` riêng
+>   (plan cũ có `late` là một trạng thái — nhưng "trễ" và "đã xong" xảy ra đồng thời).
+> - Thêm cột `percent` để so sánh được giữa bộ câu hỏi và đề có tổng điểm khác nhau.
+> - Bỏ trạng thái `draft` của bài giao: §17 kết thúc bằng "Giao bài" — giao là có hiệu lực ngay.
+> - **Bộ câu hỏi không nhận câu tự luận** — tự luận giao qua đề kiểm tra (đã có chấm tay).
+> - **Bài dạng đề dùng số lượt của chính đề**, không chồng thêm giới hạn của bài giao.
+> - Bài dạng đề: chỉ tính lượt làm **sau** khi giao. Bài dạng học bài: học xong từ trước **vẫn tính** —
+>   làm lại đề có ý nghĩa, đọc lại lý thuyết đã nắm thì không.
+> - Trễ hạn tính theo **lần nộp đầu**: làm lại sau hạn để nâng điểm không bị gắn cờ trễ.
+>
+> **Ngưỡng bộ lọc** (hằng số trong `StudentInsightService`): điểm thấp < 50% ·
+> chưa làm bài = có bài quá hạn chưa nộp · cần hỗ trợ = điểm thấp hoặc ≥ 2 bài quá hạn hoặc ≥ 2 chủ đề yếu ·
+> tiến bộ = TB 3 bài gần nhất cao hơn các bài trước ≥ 10 điểm % (cần ≥ 4 bài có điểm).
 
 ### Phase 6 — Parent Portal
 - [ ] Liên kết con bằng `link_code` / link / QR

@@ -7,7 +7,7 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 1. [TOAN_AI_SPEC.md](TOAN_AI_SPEC.md) — yêu cầu sản phẩm (nguồn sự thật về **làm gì**)
 2. [PROJECT_PLAN.md](PROJECT_PLAN.md) — kiến trúc, schema, API, RBAC matrix, roadmap (**làm thế nào**)
 
-Đang ở **Phase 4 (xong)**. Phase kế tiếp: Phase 5 — Teacher Portal (lớp học, giao bài).
+Đang ở **Phase 5 (xong)**. Phase kế tiếp: Phase 6 — Parent Portal.
 
 ## Nguyên tắc không được phá
 
@@ -23,6 +23,8 @@ Nền tảng học Toán lớp 1–12 (Laravel 12 + Blade + Bootstrap 5 + MariaD
 - Thời gian làm bài do server quyết (`expires_at`). Client chỉ hiển thị.
 - Relation có `orderByPivot` đừng gọi `count()`/`max()` trực tiếp — MariaDB strict mode từ chối; query thẳng bảng pivot.
 - Cột thời gian NOT NULL thứ hai trong một bảng dùng `dateTime`, không dùng `timestamp` (MariaDB 10.4).
+- Module khác cần phản ứng khi học sinh làm đề/học xong bài → nghe event `ExamAttemptFinished` / `LessonCompleted`, đừng gọi thẳng từ `ExamService`/`ProgressService`.
+- Relation có `withTrashed` (vd `AssignmentStudent::assignment`) — khi thống kê nhớ thêm `whereNull('deleted_at')`.
 
 ## Lệnh hay dùng
 
@@ -46,6 +48,8 @@ MariaDB của XAMPP phải đang chạy. DB dev: `toan_ai`, DB test: `toan_ai_te
 | Giáo viên (chờ duyệt) | `teacher-pending@toan-ai.local` | `password` |
 | Học sinh | `student@toan-ai.local` | `password` |
 | Phụ huynh | `parent@toan-ai.local` | `password` |
+
+Lớp mẫu `6A1 — Toán`, mã tham gia **`TOAN6A`**, đã có học sinh demo và 3 bài giao (bộ câu hỏi, học bài, đề).
 
 ## Quy ước
 

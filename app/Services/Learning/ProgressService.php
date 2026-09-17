@@ -2,6 +2,7 @@
 
 namespace App\Services\Learning;
 
+use App\Events\LessonCompleted;
 use App\Models\Lesson;
 use App\Models\StudentLessonProgress;
 use App\Models\User;
@@ -40,6 +41,8 @@ class ProgressService
                 ->first()
                 ?? new StudentLessonProgress(['user_id' => $user->id, 'lesson_id' => $lesson->id]);
 
+            $wasCompleted = $progress->completed_at !== null;
+
             $completed = collect($progress->sections_completed ?? [])
                 ->push($sectionId)
                 ->unique()
@@ -65,6 +68,10 @@ class ProgressService
 
             $progress->save();
 
+            if (! $wasCompleted && $progress->completed_at !== null) {
+                LessonCompleted::dispatch($user, $lesson);
+            }
+
             return $progress;
         });
     }
@@ -75,6 +82,12 @@ class ProgressService
         $sectionIds = $lesson->sections()->pluck('id')->all();
 
         return DB::transaction(function () use ($user, $lesson, $sectionIds) {
+            $wasCompleted = StudentLessonProgress::query()
+                ->where('user_id', $user->id)
+                ->where('lesson_id', $lesson->id)
+                ->whereNotNull('completed_at')
+                ->exists();
+
             $progress = StudentLessonProgress::updateOrCreate(
                 ['user_id' => $user->id, 'lesson_id' => $lesson->id],
                 [
@@ -87,6 +100,10 @@ class ProgressService
 
             $progress->completed_at ??= now();
             $progress->save();
+
+            if (! $wasCompleted) {
+                LessonCompleted::dispatch($user, $lesson);
+            }
 
             return $progress;
         });

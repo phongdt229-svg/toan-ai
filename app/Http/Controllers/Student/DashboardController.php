@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssignmentStudent;
 use App\Models\StudentLessonProgress;
 use App\Services\Learning\ProgressService;
 use Illuminate\Http\Request;
@@ -30,6 +31,16 @@ class DashboardController extends Controller
             'stats' => $this->progress->summaryFor($user),
             'topicProgress' => $this->progress->progressByTopic($user, 5),
             'continueLearning' => $recent,
+            // Bài giao chưa làm, hạn gần nhất lên đầu — việc học sinh cần làm ngay.
+            'pendingAssignments' => AssignmentStudent::query()
+                ->where('student_id', $user->id)
+                ->where('status', AssignmentStudent::STATUS_ASSIGNED)
+                ->whereHas('assignment', fn ($q) => $q->whereNull('deleted_at')->where('status', 'published'))
+                ->with('assignment.schoolClass')
+                ->get()
+                ->sortBy(fn ($r) => $r->assignment->due_at?->timestamp ?? PHP_INT_MAX)
+                ->take(3)
+                ->values(),
         ]);
     }
 }

@@ -62,6 +62,37 @@ class User extends Authenticatable
         return $this->hasMany(StudentLessonProgress::class);
     }
 
+    /** Lớp giáo viên này dạy (chủ nhiệm hoặc phụ). */
+    public function teachingClasses(): BelongsToMany
+    {
+        return $this->belongsToMany(SchoolClass::class, 'teacher_classes', 'teacher_id', 'class_id')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
+    /** Lớp học sinh này đang học. */
+    public function joinedClasses(): BelongsToMany
+    {
+        return $this->belongsToMany(SchoolClass::class, 'class_students', 'student_id', 'class_id')
+            ->withPivot('status', 'joined_at')
+            ->wherePivot('status', 'active')
+            ->withTimestamps();
+    }
+
+    public function assignmentRecords(): HasMany
+    {
+        return $this->hasMany(AssignmentStudent::class, 'student_id');
+    }
+
+    /** Giáo viên và học sinh có chung ít nhất một lớp đang hoạt động không. */
+    public function teachesStudent(User $student): bool
+    {
+        return SchoolClass::query()
+            ->taughtBy($this)
+            ->whereHas('activeStudents', fn ($q) => $q->where('users.id', $student->id))
+            ->exists();
+    }
+
     /** Con của phụ huynh này. */
     public function children(): BelongsToMany
     {

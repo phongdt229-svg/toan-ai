@@ -33,6 +33,18 @@
         @endforeach
     </div>
 
+    @if ($pendingAssignments->isNotEmpty())
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h3 class="h6 fw-bold mb-0">Bài được giao</h3>
+            <a href="{{ route('student.assignments.index') }}" class="small">Xem tất cả</a>
+        </div>
+        <div class="d-grid gap-2 mb-4">
+            @foreach ($pendingAssignments as $record)
+                @include('student.assignments.partials.card', ['record' => $record])
+            @endforeach
+        </div>
+    @endif
+
     @if ($continueLearning->isNotEmpty())
         <h3 class="h6 fw-bold mb-2">Học tiếp</h3>
         <div class="d-grid gap-2 mb-4">

@@ -2,6 +2,7 @@
 
 namespace App\Services\Learning;
 
+use App\Events\ExamAttemptFinished;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Question;
@@ -198,6 +199,8 @@ class ExamService
             ])->save();
 
             $this->mastery->recalculateForTopics($locked->user, array_filter($topicIds));
+
+            ExamAttemptFinished::dispatch($locked);
 
             return $locked;
         });

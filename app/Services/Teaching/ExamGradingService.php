@@ -2,6 +2,7 @@
 
 namespace App\Services\Teaching;
 
+use App\Events\ExamAttemptFinished;
 use App\Models\ExamAttempt;
 use App\Models\QuestionAttempt;
 use App\Models\StudentAnswer;
@@ -62,7 +63,11 @@ class ExamGradingService
                 $this->mastery->recalculateForTopic($attempt->user, (int) $topicId);
             }
 
-            return $attempt->refresh();
+            $attempt->refresh();
+            // Điểm đổi → bài giao dạng đề cần cập nhật trạng thái "đã chấm xong".
+            ExamAttemptFinished::dispatch($attempt);
+
+            return $attempt;
         });
     }
 
