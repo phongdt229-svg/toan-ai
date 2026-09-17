@@ -124,9 +124,12 @@ function build() {
             // Giữ focus trong ô công thức: MathLive bỏ qua lệnh chèn khi ô vừa mất focus vì bấm nút.
             btn.addEventListener('mousedown', (e) => e.preventDefault());
             btn.addEventListener('click', () => {
-                els.field.executeCommand(['insert', template, { selectionMode: 'placeholder' }]);
                 els.field.focus();
-                els.source.value = els.field.value;
+                // Chèn ở khung hình kế tiếp: MathLive cần nhận lại focus trước khi nhận lệnh chèn.
+                requestAnimationFrame(() => {
+                    els.field.insert(template, { format: 'latex', selectionMode: 'placeholder', focus: true });
+                    els.source.value = els.field.value;
+                });
             });
             row.appendChild(btn);
         }
