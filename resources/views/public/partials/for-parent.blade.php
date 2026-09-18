@@ -1,6 +1,6 @@
 <section class="section">
     <div class="container">
-        <div class="row g-5 align-items-center">
+        <div class="row g-4 g-lg-5 align-items-center">
             <div class="col-12 col-lg-6 order-lg-2">
                 <span class="section__eyebrow"><i class="bi bi-house-heart"></i>Dành cho phụ huynh</span>
                 <h2 class="section__title mb-2">Biết con đang học tới đâu, yếu ở đâu</h2>

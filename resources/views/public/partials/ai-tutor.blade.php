@@ -10,7 +10,7 @@
 
 <section class="section section--muted" id="ai-tutor">
     <div class="container">
-        <div class="row g-5 align-items-center">
+        <div class="row g-4 g-lg-5 align-items-center">
             <div class="col-12 col-lg-6">
                 <span class="section__eyebrow"><i class="bi bi-robot"></i>AI Tutor</span>
                 <h2 class="section__title mb-2">AI không đưa đáp án. AI giúp hiểu.</h2>

@@ -131,8 +131,15 @@
         font-weight: 600;
         white-space: nowrap;
 
-        &--score { top: 12%; left: -12%; }
-        &--streak { bottom: 18%; right: -10%; }
+        // Mobile: ẩn hẳn — đây chỉ là chi tiết trang trí, để lại thì che mất nội dung bài học.
+        display: none;
+
+        @include media-breakpoint-up(md) {
+            display: flex;
+
+            &--score { top: 12%; left: -12%; }
+            &--streak { bottom: 18%; right: -10%; }
+        }
 
         @media (prefers-reduced-motion: no-preference) {
             animation: float 5s ease-in-out infinite;

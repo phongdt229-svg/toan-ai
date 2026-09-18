@@ -11,7 +11,7 @@
 
 <section class="section section--muted">
     <div class="container">
-        <div class="row g-5 align-items-center">
+        <div class="row g-4 g-lg-5 align-items-center">
             <div class="col-12 col-lg-6">
                 <span class="section__eyebrow"><i class="bi bi-person-video3"></i>Dành cho giáo viên</span>
                 <h2 class="section__title mb-2">Soạn bài nhanh hơn, nắm lớp rõ hơn</h2>

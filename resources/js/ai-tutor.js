@@ -24,11 +24,13 @@ const ACTION_LABELS = {
 
 export function initAiTutor() {
     const root = document.getElementById('ai-tutor');
-    if (!root) return;
+    const panelEl = document.getElementById('ai-tutor-panel');
+
+    // Trang chủ cũng có khối #ai-tutor (mục giới thiệu) nhưng không có widget — chỉ chạy khi đủ cả hai phần.
+    if (!root || !panelEl || !root.dataset.apiBase) return;
 
     const apiBase = root.dataset.apiBase;
     const token = document.querySelector('meta[name="csrf-token"]').content;
-    const panelEl = document.getElementById('ai-tutor-panel');
     const panel = window.bootstrap.Offcanvas.getOrCreateInstance(panelEl);
     const log = panelEl.querySelector('[data-ai-log]');
     const form = panelEl.querySelector('[data-ai-form]');

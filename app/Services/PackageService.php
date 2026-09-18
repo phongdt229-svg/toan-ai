@@ -21,7 +21,7 @@ class PackageService
         return DB::transaction(function () use ($package, $data) {
             $isNew = $package === null;
             $package ??= new Package;
-            $old = $isNew ? null : $package->only(['name', 'tier', 'price', 'duration_days', 'is_active', 'is_default']);
+            $old = $isNew ? null : $package->only(['name', 'tier', 'price', 'duration_days', 'is_active', 'is_default', 'is_highlighted']);
 
             $package->fill([
                 'name' => $data['name'],
@@ -48,7 +48,7 @@ class PackageService
             $this->syncFeatures($package, $data);
 
             $this->audit->log($isNew ? 'package.created' : 'package.updated', $package, $old,
-                $package->only(['name', 'tier', 'price', 'duration_days', 'is_active', 'is_default']));
+                $package->only(['name', 'tier', 'price', 'duration_days', 'is_active', 'is_default', 'is_highlighted']));
 
             return $package->load('features');
         });

@@ -3,7 +3,7 @@
     <span class="hero__blob hero__blob--2" aria-hidden="true"></span>
 
     <div class="container hero__content">
-        <div class="row align-items-center g-5">
+        <div class="row align-items-center g-4 g-lg-5">
             <div class="col-12 col-lg-6">
                 <span class="section__eyebrow">
                     <i class="bi bi-stars"></i>Lớp 1 → Lớp 12 · Bám sát chương trình
