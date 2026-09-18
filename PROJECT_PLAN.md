@@ -420,7 +420,7 @@ interface AiProviderInterface {
 - [x] Tạo database `toan_ai` + `toan_ai_test` (utf8mb4)
 - [x] Bootstrap 5.3 + Bootstrap Icons + KaTeX + Chart.js qua Vite (gỡ Tailwind)
 - [x] `CLAUDE.md` cho repo
-- [ ] Commit đầu tiên
+- [x] Commit đầu tiên
 
 ### ✅ Phase 1 — Auth, RBAC, Layout
 - [x] Migration nhóm 1 (bảng 01–10)
@@ -435,7 +435,7 @@ interface AiProviderInterface {
 - [x] Dashboard cho 4 role, redirect sau login theo role
 - [x] Luồng admin duyệt / từ chối giáo viên + `AuditLogger`
 - [x] Test: 14 test xanh (đăng ký 3 role, phân quyền chéo, duyệt giáo viên, landing)
-- [ ] Quên mật khẩu / đặt lại mật khẩu (hoãn sang đầu Phase 2 — cần cấu hình mail)
+- [ ] **Quên mật khẩu / đặt lại mật khẩu** — CHƯA làm (mục duy nhất của roadmap còn nợ; cần SMTP thật để gửi link đặt lại)
 
 **DoD:** ✅ đăng ký 3 role chạy được, admin duyệt teacher được, mỗi role thấy đúng layout, landing responsive.
 

@@ -31,8 +31,8 @@ return [
     ],
 
     /*
-    | Số lượt AI mỗi ngày theo gói. Phase 8 sẽ đọc từ package_features ('ai.daily_requests');
-    | tới lúc đó dùng bảng này. null = không giới hạn.
+    | Dự phòng khi DB chưa cấu hình gói nào: quota thật lấy từ package_features ('ai.daily_requests').
+    | Xem AiUsageGuard::limitFor(). null = không giới hạn.
     */
     'daily_limits' => [
         'student' => ['free' => 20, 'pro' => 100, 'premium' => 300],
