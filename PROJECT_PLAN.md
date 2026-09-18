@@ -694,7 +694,9 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 - [x] **Audit log** `/quan-tri/audit-log`: chỉ đọc, lọc theo hành động / email người làm / khoảng ngày, xem giá trị trước–sau, xuất CSV
 - [x] **Báo cáo lớp cho giáo viên** `/giao-vien/bao-cao`: tỉ lệ nộp bài, điểm TB, học sinh cần hỗ trợ, tiến độ từng bài giao,
       chủ đề cả lớp còn yếu (biểu đồ), bảng học sinh, xuất CSV
-- [x] Test: 313 test xanh (16 test mới: header bảo mật, rate limit, PWA, backup, analytics, người dùng/audit, báo cáo lớp)
+- [x] `SampleAnalyticsSeeder` (chỉ local/testing): 12 học sinh demo + 8 chủ đề Lớp 6 + câu hỏi tự sinh (tự tính đáp án nên luôn đúng)
+      + lịch sử luyện tập 30 ngày + kết quả bài giao → dashboard quản trị và báo cáo lớp có dữ liệu để xem ngay
+- [x] Test: 317 test xanh (18 test mới: header bảo mật, rate limit, PWA, backup, analytics, người dùng/audit, báo cáo lớp, dữ liệu demo)
 
 > **Quyết định trong phase:**
 > - CSP **chưa** siết `script-src`: nhiều view còn `<script>` inline (autosave làm bài, biểu đồ…). Muốn siết phải chuyển sang file JS + nonce.

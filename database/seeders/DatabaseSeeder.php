@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
                 SamplePathSeeder::class,
                 SampleExamSeeder::class,
                 SampleClassSeeder::class,
+                SampleAnalyticsSeeder::class,
             ]);
         }
     }

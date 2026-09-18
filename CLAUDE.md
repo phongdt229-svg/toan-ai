@@ -70,6 +70,10 @@ MariaDB của XAMPP phải đang chạy. DB dev: `toan_ai`, DB test: `toan_ai_te
 
 Lớp mẫu `6A1 — Toán`, mã tham gia **`TOAN6A`**, đã có học sinh demo và 3 bài giao (bộ câu hỏi, học bài, đề).
 
+`SampleAnalyticsSeeder` (local) thêm 12 học sinh `hs01@toan-ai.local` … `hs12@toan-ai.local` (cùng mật khẩu demo),
+8 chủ đề Lớp 6 kèm câu hỏi tự sinh, lịch sử luyện tập 30 ngày và kết quả bài giao — để dashboard quản trị
+và báo cáo lớp của giáo viên có số liệu. Mastery **không** ghi thẳng mà tính lại qua `MasteryService`.
+
 ## Quy ước
 
 - Route web dùng tiếng Việt không dấu: `/dang-nhap`, `/hoc-sinh`, `/quan-tri`.

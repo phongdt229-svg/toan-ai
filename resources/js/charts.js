@@ -115,6 +115,9 @@ function renderAdminDaily(canvas) {
     const vnd = (v) => `${Number(v).toLocaleString('vi-VN')}₫`;
 
     new Chart(canvas, {
+        // Bắt buộc có type ở cấp ngoài: thiếu nó Chart.js coi trục x là trục số,
+        // nhãn ngày "20/08" thành NaN và mọi cột dồn về mép trái.
+        type: 'bar',
         data: {
             labels: rows.map((r) => r.label),
             datasets: [
@@ -128,7 +131,7 @@ function renderAdminDaily(canvas) {
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             scales: {
-                x: { ticks: { maxTicksLimit: 10 } },
+                x: { type: 'category', ticks: { maxTicksLimit: 10 } },
                 y: { beginAtZero: true, ticks: { precision: 0 } },
                 money: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: (v) => (v >= 1000 ? `${v / 1000}k` : v) } },
             },
