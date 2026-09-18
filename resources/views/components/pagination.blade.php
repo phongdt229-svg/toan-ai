@@ -12,6 +12,11 @@
         <div class="table-pagination__info">
             Hiển thị <strong>{{ $paginator->firstItem() }}–{{ $paginator->lastItem() }}</strong>
             trong <strong>{{ number_format($paginator->total(), 0, ',', '.') }}</strong> {{ $label }}
+
+            {{-- Điện thoại ẩn số trang trong thanh phân trang nên nhắc lại ở đây. --}}
+            @if ($paginator->hasPages())
+                <span class="d-sm-none">· trang {{ $paginator->currentPage() }}/{{ $paginator->lastPage() }}</span>
+            @endif
         </div>
 
         @if ($paginator->hasPages())
