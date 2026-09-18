@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\AssignmentStudent;
+use App\Models\Package;
 use App\Models\PlacementTest;
 use App\Models\StudentLessonProgress;
 use App\Services\Learning\LearningPathService;
@@ -11,6 +12,7 @@ use App\Services\Learning\MasteryService;
 use App\Services\Learning\ProgressService;
 use App\Services\Learning\RecommendationService;
 use App\Services\Learning\StudentReportService;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -22,6 +24,7 @@ class DashboardController extends Controller
         private readonly LearningPathService $paths,
         private readonly StudentReportService $reports,
         private readonly MasteryService $mastery,
+        private readonly SubscriptionService $subscriptions,
     ) {}
 
     public function index(Request $request): View
@@ -40,6 +43,10 @@ class DashboardController extends Controller
 
         return view('student.dashboard', [
             'user' => $user,
+
+            // Gói đang dùng: học sinh gói Free thấy thẻ mời nâng cấp ngay trên trang chủ.
+            'subscription' => $this->subscriptions->effective($user),
+            'upgradePackage' => Package::active()->where('price', '>', 0)->orderBy('price')->first(),
             'grade' => $user->studentProfile?->grade,
             'stats' => $this->progress->summaryFor($user),
             'topicProgress' => $this->progress->progressByTopic($user, 5),

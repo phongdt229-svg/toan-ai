@@ -108,6 +108,35 @@ class FeatureGatingTest extends SubscriptionTestCase
             ->assertDontSee('thuộc gói Pro');
     }
 
+    public function test_free_student_and_parent_see_a_way_to_buy(): void
+    {
+        $parent = $this->makeParent();
+        $student = $this->makeStudent('Bé Na');
+        $this->link($parent, $student);
+
+        // Học sinh gói Free: thẻ mời nâng cấp ngay trên trang chủ.
+        $this->actingAs($student)->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertSee('Em đang dùng gói Free')
+            ->assertSee(route('packages.index'));
+
+        // Phụ huynh: nút mua gói cho con ngay trên thẻ của con.
+        $this->actingAs($parent)->get(route('parent.dashboard'))
+            ->assertOk()
+            ->assertSee('Mua gói cho con');
+
+        $this->subscribe($student, 'pro-thang', $parent);
+
+        $this->actingAs($student)->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertDontSee('Em đang dùng gói Free');
+
+        $this->actingAs($parent)->get(route('parent.dashboard'))
+            ->assertOk()
+            ->assertSee('Pro 1 tháng')
+            ->assertSee('Gia hạn');
+    }
+
     public function test_parent_advanced_report_follows_the_childs_package(): void
     {
         $parent = $this->makeParent();

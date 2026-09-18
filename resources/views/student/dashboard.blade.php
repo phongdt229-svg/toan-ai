@@ -15,6 +15,23 @@
         </p>
     </div>
 
+    {{-- Gói Free: mời nâng cấp ngay trên trang chủ, vì đây là nơi học sinh vào mỗi ngày. --}}
+    @if (! $subscription && $upgradePackage)
+        <div class="card border-warning mb-4">
+            <div class="card-body d-flex flex-wrap align-items-center gap-3">
+                <i class="bi bi-gem text-warning" style="font-size:2.25rem"></i>
+                <div class="flex-grow-1">
+                    <div class="fw-bold">Em đang dùng gói Free</div>
+                    <div class="text-secondary small">
+                        Nâng cấp để luyện tập không giới hạn, mở toàn bộ bài học và hỏi AI nhiều hơn mỗi ngày —
+                        từ {{ $upgradePackage->priceLabel() }}/{{ $upgradePackage->durationLabel() }}.
+                    </div>
+                </div>
+                <a href="{{ route('packages.index') }}" class="btn btn-warning btn-touch">Xem gói học</a>
+            </div>
+        </div>
+    @endif
+
     {{-- §36 Dashboard tiến độ: % theo lộ trình · buổi đã học / còn lại · điểm TB · kiến thức yếu --}}
     @if (! $path)
         <div class="card border-primary mb-4">
