@@ -67,5 +67,5 @@
         <div class="card border"><div class="card-body text-center text-secondary">Không có bản ghi phù hợp.</div></div>
     @endforelse
 
-    <div class="mt-3">{{ $logs->links() }}</div>
+    <x-pagination :paginator="$logs" label="bản ghi" class="mt-3" />
 @endsection

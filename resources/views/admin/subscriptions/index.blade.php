@@ -97,5 +97,5 @@
         </table>
     </div>
 
-    {{ $subscriptions->links() }}
+    <x-pagination :paginator="$subscriptions" label="đăng ký" />
 @endsection

@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="{{ route('home') }}">
-            <i class="bi bi-calculator me-1"></i>TOÁN AI
+        <a class="navbar-brand p-0" href="{{ route('home') }}">
+            <x-brand size="md" />
         </a>
 
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"

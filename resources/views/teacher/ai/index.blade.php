@@ -138,7 +138,7 @@
         <p class="text-secondary small">Chưa có bản nháp nào.</p>
     @endforelse
 
-    <div class="mt-3">{{ $drafts->links() }}</div>
+    <x-pagination :paginator="$drafts" label="bản nháp" class="mt-3" />
 @endsection
 
 @push('scripts')

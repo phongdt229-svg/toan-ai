@@ -187,3 +187,43 @@
         border-color: $border-color;
     }
 }
+
+// --- Thanh phân trang dưới bảng -------------------------------------------
+.table-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+
+    &__info {
+        color: $secondary;
+        font-size: .8125rem;
+    }
+
+    .pagination {
+        margin: 0;
+    }
+
+    // Điện thoại: thông tin một dòng, nút trang xuống dòng dưới và căn giữa.
+    @include media-breakpoint-down(sm) {
+        justify-content: center;
+        text-align: center;
+
+        .pagination {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+}
+
+// Đặt ngay sau bảng → dính liền thành một khối, không còn khe hở giữa hai khung.
+.table-responsive + .table-pagination {
+    margin-top: -1px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}

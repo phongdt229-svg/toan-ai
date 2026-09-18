@@ -15,9 +15,7 @@
     <div class="app-shell">
         <header class="navbar bg-white border-bottom sticky-top px-3">
             <div class="d-flex align-items-center gap-2">
-                <span class="d-lg-none fw-bold text-primary">
-                    <i class="bi bi-calculator me-1"></i>TOÁN AI
-                </span>
+                <x-brand class="d-lg-none" size="sm" />
                 <h1 class="h6 mb-0 d-none d-lg-block">@yield('page_title', 'Trang chủ')</h1>
             </div>
 

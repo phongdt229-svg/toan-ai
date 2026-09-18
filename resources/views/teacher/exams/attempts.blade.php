@@ -68,6 +68,6 @@
             </table>
         </div>
 
-        {{ $attempts->links() }}
+        <x-pagination :paginator="$attempts" label="bài làm" class="mt-3" />
     @endif
 @endsection

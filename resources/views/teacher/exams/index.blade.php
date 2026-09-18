@@ -61,6 +61,6 @@
             @endforeach
         </div>
 
-        <div class="mt-3">{{ $exams->links() }}</div>
+        <x-pagination :paginator="$exams" label="đề kiểm tra" class="mt-3" />
     @endif
 @endsection

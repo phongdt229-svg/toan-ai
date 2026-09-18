@@ -66,5 +66,5 @@
         </table>
     </div>
 
-    {{ $payments->links() }}
+    <x-pagination :paginator="$payments" label="giao dịch" />
 @endsection

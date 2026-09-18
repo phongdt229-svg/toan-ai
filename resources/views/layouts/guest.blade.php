@@ -3,8 +3,8 @@
 @section('body')
     <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold text-primary" href="{{ route('home') }}">
-                <i class="bi bi-calculator me-1"></i>TOÁN AI
+            <a class="navbar-brand p-0" href="{{ route('home') }}">
+                <x-brand size="md" />
             </a>
 
             <div class="d-flex gap-2 ms-auto">

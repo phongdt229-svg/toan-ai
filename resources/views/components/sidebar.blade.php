@@ -8,9 +8,8 @@
 @endphp
 
 <aside class="sidebar">
-    <a href="{{ route('home') }}" class="sidebar__brand">
-        <i class="bi bi-calculator"></i>
-        <span>TOÁN AI</span>
+    <a href="{{ route('home') }}" class="sidebar__brand text-decoration-none">
+        <x-brand variant="light" size="md" />
     </a>
 
     <div class="text-uppercase small mb-2" style="letter-spacing:.06em;opacity:.6">

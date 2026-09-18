@@ -8,6 +8,9 @@
 
 return [
 
+    // Tên hiển thị trên logo. Đổi ở đây là đổi cả header, sidebar, footer.
+    'brand' => env('SITE_BRAND', 'Math AI'),
+
     'company' => env('SITE_COMPANY', 'TOÁN AI'),
     'email' => env('SITE_EMAIL', 'lienhe@toan-ai.vn'),
     'hotline' => env('SITE_HOTLINE', ''),
