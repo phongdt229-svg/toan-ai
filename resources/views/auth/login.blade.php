@@ -31,9 +31,12 @@
                     @enderror
                 </div>
 
-                <div class="form-check mb-4">
-                    <input class="form-check-input" type="checkbox" id="remember" name="remember" value="1">
-                    <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" id="remember" name="remember" value="1">
+                        <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
+                    </div>
+                    <a href="{{ route('password.request') }}" class="small">Quên mật khẩu?</a>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg w-100 btn-touch">Đăng nhập</button>

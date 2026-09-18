@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ParentPortal\ChildController as ParentChildController;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
@@ -62,6 +63,12 @@ Route::get('goi-hoc', [PackageController::class, 'index'])->name('packages.index
 Route::middleware('guest')->group(function () {
     Route::get('dang-nhap', [LoginController::class, 'create'])->name('login');
     Route::post('dang-nhap', [LoginController::class, 'store']);
+
+    // Quên mật khẩu (§29): throttle nằm trong ForgotPasswordRequest + broker chặn gửi lại trong 60 giây.
+    Route::get('quen-mat-khau', [PasswordResetController::class, 'request'])->name('password.request');
+    Route::post('quen-mat-khau', [PasswordResetController::class, 'email'])->name('password.email');
+    Route::get('dat-lai-mat-khau/{token}', [PasswordResetController::class, 'reset'])->name('password.reset');
+    Route::post('dat-lai-mat-khau', [PasswordResetController::class, 'update'])->name('password.update');
 
     Route::get('dang-ky', [RegisterController::class, 'choose'])->name('register');
     Route::get('dang-ky/hoc-sinh', [RegisterController::class, 'createStudent'])->name('register.student');

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasRoles;
+use App\Notifications\ResetPasswordLink;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -129,6 +130,12 @@ class User extends Authenticatable
     public function linkedParents(): BelongsToMany
     {
         return $this->parents()->wherePivot('status', ParentChild::STATUS_LINKED);
+    }
+
+    /** Mail đặt lại mật khẩu bản tiếng Việt thay cho mail mặc định của Laravel. */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordLink($token));
     }
 
     /** Gói học của học sinh này (kể cả do phụ huynh mua). */

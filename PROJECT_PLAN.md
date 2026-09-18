@@ -435,7 +435,10 @@ interface AiProviderInterface {
 - [x] Dashboard cho 4 role, redirect sau login theo role
 - [x] Luồng admin duyệt / từ chối giáo viên + `AuditLogger`
 - [x] Test: 14 test xanh (đăng ký 3 role, phân quyền chéo, duyệt giáo viên, landing)
-- [ ] **Quên mật khẩu / đặt lại mật khẩu** — CHƯA làm (mục duy nhất của roadmap còn nợ; cần SMTP thật để gửi link đặt lại)
+- [x] **Quên mật khẩu / đặt lại mật khẩu** (làm bù 18/09): `/quen-mat-khau` → mail tiếng Việt `ResetPasswordLink` (không qua queue)
+      → `/dat-lai-mat-khau/{token}`. Thông báo **giống hệt nhau** dù email có tài khoản hay không (chống dò email);
+      tài khoản `suspended`/`rejected` không nhận được link; throttle 5 lần/phút theo email+IP + broker chặn gửi lại trong 60 giây;
+      token sống 60 phút, dùng một lần; đổi xong **thu hồi token API và xoá phiên cũ**, ghi audit `user.password_reset`
 
 **DoD:** ✅ đăng ký 3 role chạy được, admin duyệt teacher được, mỗi role thấy đúng layout, landing responsive.
 
