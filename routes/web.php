@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
@@ -44,6 +45,7 @@ use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
+use App\Http\Controllers\Web\SupportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -58,6 +60,10 @@ Route::get('goi-hoc', [PackageController::class, 'index'])->name('packages.index
 // Trang pháp lý — tĩnh, ai cũng xem được (footer và trang đăng ký trỏ tới).
 Route::view('dieu-khoan-su-dung', 'public.legal.terms')->name('legal.terms');
 Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy');
+
+// Hỗ trợ / báo lỗi nội dung: khách chưa đăng nhập cũng gửi được (có captcha + throttle trong request).
+Route::get('ho-tro', [SupportController::class, 'create'])->name('support.create');
+Route::post('ho-tro', [SupportController::class, 'store'])->middleware('throttle:20,60')->name('support.store');
 
 /*
 |--------------------------------------------------------------------------
@@ -306,6 +312,10 @@ Route::middleware('auth')->group(function () {
             Route::get('nguoi-dung/{user}', [AdminUserController::class, 'show'])->name('users.show');
             Route::post('nguoi-dung/{user}/khoa', [AdminUserController::class, 'suspend'])->name('users.suspend');
             Route::post('nguoi-dung/{user}/mo-khoa', [AdminUserController::class, 'reactivate'])->name('users.reactivate');
+
+            Route::get('ho-tro', [SupportTicketController::class, 'index'])->name('support.index');
+            Route::get('ho-tro/{ticket}', [SupportTicketController::class, 'show'])->name('support.show');
+            Route::put('ho-tro/{ticket}', [SupportTicketController::class, 'update'])->name('support.update');
 
             Route::get('audit-log', [AuditLogController::class, 'index'])->name('audit-logs.index');
             Route::get('audit-log/xuat-csv', [AuditLogController::class, 'export'])->name('audit-logs.export');

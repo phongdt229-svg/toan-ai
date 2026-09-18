@@ -11,7 +11,8 @@
       "Bash(php -l app/Providers/AppServiceProvider.php)",
       "Bash(curl -sI http://127.0.0.1:8000/)",
       "Bash(timeout 150 node shot.mjs admin@toan-ai.local quan-tri/nguoi-dung table-users-before.png)",
-      "Bash(timeout 150 node shot.mjs teacher@toan-ai.local giao-vien/hoc-sinh table-students-before.png)"
+      "Bash(timeout 150 node shot.mjs teacher@toan-ai.local giao-vien/hoc-sinh table-students-before.png)",
+      "Bash(timeout 150 node shot.mjs admin@toan-ai.local quan-tri/ho-tro support-admin.png)"
     ]
   }
 }

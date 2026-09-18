@@ -709,6 +709,22 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 
 ---
 
+### ✅ Bổ sung sau roadmap (18/09)
+- [x] **Quên mật khẩu** (trả nợ Phase 1) — xem mục Phase 1
+- [x] **Trang chủ mới**: hero có khung điện thoại giả lập, minh hoạ SVG nội tuyến cho 3 nhóm người dùng,
+      chương trình nhóm theo Tiểu học / THCS / THPT
+- [x] **Điều khoản sử dụng** `/dieu-khoan-su-dung` và **Chính sách bảo mật** `/chinh-sach-bao-mat`
+      (nội dung mô tả đúng hệ thống đang chạy; thông tin đơn vị vận hành lấy từ `config/site.php`)
+- [x] **Logo mới** `<x-brand>` (chữ "Math AI") dùng chung cho header, sidebar, footer
+- [x] **Giao diện bảng**: `_tables.scss` + `<x-pagination>` ("Hiển thị 1–20 trong 49 câu hỏi"),
+      view phân trang tiếng Việt thay bản mặc định tiếng Anh của Laravel
+- [x] **Hỗ trợ & báo lỗi nội dung** `/ho-tro`: form có **captcha phép tính** (đáp án trong session, đọc được
+      bằng trình đọc màn hình, không gọi dịch vụ ngoài) + honeypot + throttle 5 yêu cầu/giờ;
+      email báo về hộp thư hỗ trợ; trang Quản trị → Hỗ trợ để lọc, xem và đổi trạng thái (có audit log);
+      link "Báo lỗi nội dung" đặt ngay dưới mỗi bài học
+
+---
+
 ## 11b. Kết quả rà checklist bảo mật — 2026-09-17 (Phase 10)
 
 - CSRF: chỉ loại trừ `api/v1/payment/momo/ipn` (`bootstrap/app.php`) ✓

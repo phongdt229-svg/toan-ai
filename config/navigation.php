@@ -51,6 +51,7 @@ return [
         ['label' => 'Đăng ký gói', 'icon' => 'bi-person-vcard', 'route' => 'admin.subscriptions.index', 'bottom' => false],
         ['label' => 'Giao dịch', 'icon' => 'bi-credit-card', 'route' => 'admin.payments.index', 'bottom' => false],
         ['label' => 'AI usage', 'icon' => 'bi-robot', 'route' => 'admin.ai-usage.index', 'bottom' => false],
+        ['label' => 'Hỗ trợ', 'icon' => 'bi-life-preserver', 'route' => 'admin.support.index', 'bottom' => false],
         ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => 'admin.audit-logs.index', 'bottom' => false],
     ],
 

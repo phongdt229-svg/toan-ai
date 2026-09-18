@@ -46,8 +46,8 @@
                 <div class="site-footer__heading">Hỗ trợ</div>
                 <ul class="list-unstyled small d-grid gap-2 mb-0">
                     <li><a href="{{ route('password.request') }}">Quên mật khẩu</a></li>
-                    <li><a href="mailto:{{ config('site.email') }}?subject=Hỗ%20trợ%20TOÁN%20AI">Gửi yêu cầu hỗ trợ</a></li>
-                    <li><a href="mailto:{{ config('site.email') }}?subject=Báo%20lỗi%20nội%20dung">Báo lỗi nội dung</a></li>
+                    <li><a href="{{ route('support.create') }}">Gửi yêu cầu hỗ trợ</a></li>
+                    <li><a href="{{ route('support.create', ['loai' => 'content_error']) }}">Báo lỗi nội dung</a></li>
                 </ul>
             </div>
 

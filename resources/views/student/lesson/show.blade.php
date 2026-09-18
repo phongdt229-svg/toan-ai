@@ -47,6 +47,14 @@
                     <i class="bi bi-check2-circle me-1"></i>Hoàn thành bài học
                 </button>
             </form>
+
+            {{-- Học sinh thấy bài sai thì báo ngay tại chỗ; form nhận sẵn link bài học này. --}}
+            <p class="text-center mt-3 mb-0">
+                <a href="{{ route('support.create', ['loai' => 'content_error', 'tu' => request()->fullUrl()]) }}"
+                   class="small text-secondary">
+                    <i class="bi bi-flag me-1"></i>Báo lỗi nội dung bài học này
+                </a>
+            </p>
         </div>
 
         <aside class="col-12 col-lg-4">
