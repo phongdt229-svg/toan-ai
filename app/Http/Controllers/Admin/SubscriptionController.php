@@ -31,7 +31,7 @@ class SubscriptionController extends Controller
                 ->when($search !== '', fn ($q) => $q->whereHas('user', fn ($u) => $u->where(fn ($w) => $w
                     ->where('email', 'like', "%{$search}%")->orWhere('name', 'like', "%{$search}%"))))
                 ->latest('id')
-                ->paginate(30)
+                ->paginate(config('site.per_page'))
                 ->withQueryString(),
             'packages' => Package::where('price', '>', 0)->ordered()->get(),
             'status' => $status,

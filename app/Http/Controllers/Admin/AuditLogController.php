@@ -16,7 +16,7 @@ class AuditLogController extends Controller
     public function index(Request $request): View
     {
         return view('admin.audit-logs.index', [
-            'logs' => $this->filtered($request)->with('user:id,name,email')->latest('id')->paginate(40)->withQueryString(),
+            'logs' => $this->filtered($request)->with('user:id,name,email')->latest('id')->paginate(config('site.per_page'))->withQueryString(),
             'actions' => AuditLog::query()->distinct()->orderBy('action')->pluck('action'),
             'filters' => $request->only(['action', 'actor', 'subject', 'from', 'to']),
         ]);

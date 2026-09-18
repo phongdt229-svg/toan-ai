@@ -50,7 +50,7 @@ class UserController extends Controller
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%")))
                 ->latest('id')
-                ->paginate(30)
+                ->paginate(config('site.per_page'))
                 ->withQueryString(),
             'role' => $role,
             'status' => $status,

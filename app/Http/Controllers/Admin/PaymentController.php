@@ -28,7 +28,7 @@ class PaymentController extends Controller
                     ->orWhere('gateway_transaction_id', $search)
                     ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$search}%"))))
                 ->latest('id')
-                ->paginate(30)
+                ->paginate(config('site.per_page'))
                 ->withQueryString(),
             'status' => $status,
             'search' => $search,

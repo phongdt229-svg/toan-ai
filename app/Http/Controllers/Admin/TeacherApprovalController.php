@@ -22,7 +22,7 @@ class TeacherApprovalController extends Controller
             ->where('status', User::STATUS_PENDING)
             ->with('teacherProfile')
             ->latest()
-            ->paginate(20);
+            ->paginate(config('site.per_page'));
 
         return view('admin.teachers.pending', ['teachers' => $teachers]);
     }

@@ -31,7 +31,7 @@ class SupportTicketController extends Controller
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('subject', 'like', "%{$search}%")))
                 ->latest('id')
-                ->paginate(20)
+                ->paginate(config('site.per_page'))
                 ->withQueryString(),
             'type' => $type,
             'status' => $status,
