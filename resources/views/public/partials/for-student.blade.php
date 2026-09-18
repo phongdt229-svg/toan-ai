@@ -12,7 +12,7 @@
         <div class="row g-4 g-lg-5 align-items-center">
             <div class="col-12 col-lg-5">
                 <span class="section__eyebrow"><i class="bi bi-mortarboard"></i>Dành cho học sinh</span>
-                <h2 class="section__title mb-2">Một chu trình học rõ ràng, không lan man</h2>
+                <h2 class="section__title mb-2">Một chu trình học <span class="hl">rõ ràng</span>, không lan man</h2>
                 <p class="section__subtitle mb-4">
                     Giao diện ít chữ, nút to, mở điện thoại ra là học được ngay. Hệ thống tự nhớ
                     em đang học tới đâu và nhắc đúng phần còn yếu.

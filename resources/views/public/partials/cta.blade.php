@@ -1,6 +1,6 @@
 <section class="cta-band">
     <div class="container text-center">
-        <h2 class="section__title mb-2">Bắt đầu buổi học đầu tiên hôm nay</h2>
+        <h2 class="section__title mb-2">Bắt đầu buổi học đầu tiên <span class="hl">hôm nay</span></h2>
         <p class="mb-4 opacity-75">Miễn phí, không cần thẻ. Vài phút là con có thể vào học.</p>
 
         <div class="d-grid d-sm-flex justify-content-sm-center gap-2">

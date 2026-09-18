@@ -12,7 +12,7 @@
     <div class="container">
         <div class="text-center mb-4">
             <span class="section__eyebrow"><i class="bi bi-diagram-3"></i>Chương trình</span>
-            <h2 class="section__title mb-2">Chương trình Toán lớp 1 → 12</h2>
+            <h2 class="section__title mb-2">Chương trình Toán <span class="hl">lớp 1 → 12</span></h2>
             <p class="section__subtitle mx-auto">
                 Mỗi lớp được chia theo chương → chủ đề → bài học, đi từ dễ đến khó.
             </p>

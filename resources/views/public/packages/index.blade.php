@@ -10,7 +10,7 @@
         <div class="container">
             @include('components.flash')
 
-            <h1 class="section__title mb-2">Gói học</h1>
+            <h1 class="section__title mb-2">Gói <span class="hl">học</span></h1>
             <p class="section__subtitle mb-4">
                 Bắt đầu miễn phí. Nâng cấp khi cần luyện nhiều hơn và dùng AI Tutor thoải mái.
             </p>

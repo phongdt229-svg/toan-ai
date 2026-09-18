@@ -1,6 +1,6 @@
 <section class="section" id="goi-hoc">
     <div class="container">
-        <h2 class="section__title mb-2">Gói học</h2>
+        <h2 class="section__title mb-2">Gói <span class="hl">học</span></h2>
         <p class="section__subtitle mb-4">Bắt đầu miễn phí. Nâng cấp khi cần thêm bài tập và AI.</p>
 
         @if ($packages->isEmpty())

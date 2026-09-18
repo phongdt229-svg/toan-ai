@@ -13,7 +13,7 @@
     <div class="container">
         <div class="text-center mb-4">
             <span class="section__eyebrow"><i class="bi bi-grid-1x2"></i>Tính năng</span>
-            <h2 class="section__title mb-2">Đủ mọi thứ cho một buổi học Toán</h2>
+            <h2 class="section__title mb-2">Đủ mọi thứ cho <span class="hl">một buổi học Toán</span></h2>
             <p class="section__subtitle mx-auto">Từ đọc lý thuyết đến kiểm tra — tất cả trong một chỗ.</p>
         </div>
 

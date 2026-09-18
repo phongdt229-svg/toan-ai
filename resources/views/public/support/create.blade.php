@@ -11,7 +11,7 @@
             @include('components.flash')
 
             <span class="section__eyebrow"><i class="bi bi-life-preserver"></i>Hỗ trợ</span>
-            <h1 class="section__title mb-2">Chúng tôi giúp gì được cho bạn?</h1>
+            <h1 class="section__title mb-2">Chúng tôi <span class="hl">giúp gì</span> được cho bạn?</h1>
             <p class="section__subtitle mb-4">
                 Gặp trục trặc khi học, thấy bài giảng hay câu hỏi bị sai, hoặc thanh toán chưa lên gói —
                 hãy mô tả giúp chúng tôi. Phản hồi gửi qua email trong vòng 7 ngày làm việc.

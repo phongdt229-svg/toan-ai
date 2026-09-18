@@ -14,7 +14,7 @@
         <div class="row g-4 g-lg-5 align-items-center">
             <div class="col-12 col-lg-6">
                 <span class="section__eyebrow"><i class="bi bi-person-video3"></i>Dành cho giáo viên</span>
-                <h2 class="section__title mb-2">Soạn bài nhanh hơn, nắm lớp rõ hơn</h2>
+                <h2 class="section__title mb-2">Soạn bài <span class="hl">nhanh hơn</span>, nắm lớp <span class="hl">rõ hơn</span></h2>
                 <p class="section__subtitle mb-4">
                     AI chỉ tạo bản nháp. Nội dung nào lên hệ thống vẫn do giáo viên quyết định.
                 </p>
