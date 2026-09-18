@@ -6,7 +6,7 @@
 @section('page_title', 'Người dùng')
 
 @section('content')
-    <form method="GET" class="d-flex flex-wrap gap-2 mb-3">
+    <form method="GET" class="filter-bar">
         <input name="q" class="form-control" style="max-width:280px" placeholder="Tên, email, số điện thoại" value="{{ $search }}">
         <select name="role" class="form-select" style="max-width:170px">
             <option value="">Mọi vai trò</option>
@@ -23,7 +23,7 @@
         <button class="btn btn-outline-primary">Lọc</button>
     </form>
 
-    <div class="small text-secondary mb-2">{{ number_format($users->total(), 0, ',', '.') }} người dùng</div>
+    <div class="table-meta">{{ number_format($users->total(), 0, ',', '.') }} người dùng</div>
 
     <div class="table-responsive">
         <table class="table table-sm align-middle small">

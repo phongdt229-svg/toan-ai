@@ -1,0 +1,189 @@
+// ---------------------------------------------------------------------------
+// Bảng và khối nội dung trong 4 portal.
+// Đặt ở đây (không sửa từng view) để mọi bảng có cùng khoảng cách và cách đọc:
+// tiêu đề cột nhạt, dòng thoáng, hover rõ, khung bo góc như một thẻ.
+// ---------------------------------------------------------------------------
+
+// Bọc bảng: .table-responsive sẵn có trong các view → biến luôn thành "thẻ" chứa bảng.
+.table-responsive {
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+
+    > .table {
+        margin-bottom: 0;
+    }
+}
+
+.table {
+    --bs-table-hover-bg: #{rgba($primary, .045)};
+    color: $body-color;
+    vertical-align: middle;
+
+    > :not(caption) > * > * {
+        padding: .875rem 1rem;
+    }
+
+    thead th {
+        position: relative;
+        background: $gray-100;
+        color: $secondary;
+        font-size: .75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        white-space: nowrap;
+        border-bottom: 1px solid $border-color;
+    }
+
+    // Bo góc theo khung bọc ngoài.
+    thead tr:first-child th {
+        &:first-child { border-top-left-radius: $border-radius-lg; }
+        &:last-child { border-top-right-radius: $border-radius-lg; }
+    }
+
+    tbody tr:last-child > * {
+        border-bottom-width: 0;
+    }
+
+    tbody tr {
+        transition: background-color .12s ease;
+    }
+
+    // Dòng phụ mở ra từ nút (form huỷ, form lý do…) không cần kẻ trên.
+    tbody tr.collapse > td,
+    tbody tr.collapsing > td {
+        background: $gray-100;
+    }
+
+    a:not(.btn) {
+        font-weight: 600;
+        text-decoration: none;
+
+        &:hover { text-decoration: underline; }
+    }
+
+    code {
+        font-size: .8125em;
+        color: $body-color;
+        background: $gray-100;
+        padding: .125rem .375rem;
+        border-radius: $border-radius-sm;
+    }
+
+    .badge {
+        font-weight: 600;
+    }
+}
+
+// Mobile: bảng cuộn ngang trong thẻ thay vì ngắt dòng lởm chởm ở mọi ô.
+// Ô nào cần xuống dòng (ghi chú dài) thì thêm class .text-wrap.
+@include media-breakpoint-down(md) {
+    .table-responsive > .table {
+        white-space: nowrap;
+    }
+}
+
+// Bảng dày đặc số liệu (báo cáo, giao dịch) vẫn cần thoáng hơn mặc định của Bootstrap.
+.table-sm {
+    > :not(caption) > * > * {
+        padding: .625rem .75rem;
+    }
+}
+
+// Cột thao tác: nút nhỏ, không xuống dòng.
+.table .text-end .btn,
+.table td .btn-sm {
+    white-space: nowrap;
+}
+
+// --- Thanh lọc phía trên bảng ---------------------------------------------
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: end;
+    padding: .875rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+
+    .form-control,
+    .form-select {
+        min-width: 0;
+    }
+
+    @include media-breakpoint-down(sm) {
+        .form-control,
+        .form-select,
+        .btn {
+            width: 100%;
+        }
+    }
+}
+
+// Số lượng kết quả ở trên bảng.
+.table-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: .5rem;
+    color: $secondary;
+    font-size: .8125rem;
+}
+
+// --- Khối rỗng -------------------------------------------------------------
+.empty-state {
+    padding: 2.5rem 1.25rem;
+    border: 1px dashed $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+    text-align: center;
+    color: $secondary;
+
+    i {
+        display: block;
+        margin-bottom: .5rem;
+        font-size: 1.75rem;
+        color: $gray-400;
+    }
+}
+
+// --- Thẻ nội dung chung ----------------------------------------------------
+.card {
+    border-radius: $border-radius-lg;
+}
+
+.stat-card {
+    transition: box-shadow .15s ease, transform .15s ease;
+
+    &:hover {
+        box-shadow: 0 10px 24px -18px rgba(15, 23, 42, .5);
+    }
+}
+
+// Tiêu đề khu vực trong trang app: canh cùng một nhịp với bảng bên dưới.
+.page-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 1rem;
+
+    h2, h3 { margin-bottom: 0; }
+}
+
+// Phân trang: thu nhỏ cho vừa màn hình điện thoại.
+.pagination {
+    margin-top: 1rem;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+    gap: .25rem;
+
+    .page-link {
+        border-radius: $border-radius-sm;
+        border-color: $border-color;
+    }
+}

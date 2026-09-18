@@ -16,7 +16,7 @@
             </div>
         </div>
     @else
-        <form method="GET" class="d-flex flex-wrap gap-2 align-items-center mb-3">
+        <form method="GET" class="filter-bar">
             <label for="lop" class="fw-semibold">Lớp</label>
             <select id="lop" name="lop" class="form-select" style="max-width:280px" onchange="this.form.submit()">
                 @foreach ($classes as $c)

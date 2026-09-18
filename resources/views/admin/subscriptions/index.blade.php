@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <form method="GET" class="d-flex flex-wrap gap-2 mb-3">
+    <form method="GET" class="filter-bar">
         <input name="q" class="form-control" style="max-width:260px" placeholder="Tên hoặc email" value="{{ $search }}">
         <select name="status" class="form-select" style="max-width:200px">
             <option value="">Mọi trạng thái</option>

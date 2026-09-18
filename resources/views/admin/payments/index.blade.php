@@ -20,7 +20,7 @@
         @endforeach
     </div>
 
-    <form method="GET" class="d-flex flex-wrap gap-2 mb-3">
+    <form method="GET" class="filter-bar">
         <input name="q" class="form-control" style="max-width:280px" placeholder="Mã đơn, mã MoMo, email" value="{{ $search }}">
         <select name="status" class="form-select" style="max-width:200px">
             <option value="">Mọi trạng thái</option>
