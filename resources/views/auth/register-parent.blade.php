@@ -63,6 +63,11 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg w-100 btn-touch">Tạo tài khoản</button>
+                <p class="small text-secondary text-center mt-3 mb-0">
+                    Bằng việc tạo tài khoản, bạn đồng ý với
+                    <a href="{{ route('legal.terms') }}">Điều khoản sử dụng</a> và
+                    <a href="{{ route('legal.privacy') }}">Chính sách bảo mật</a>.
+                </p>
             </form>
         </div>
     </div>

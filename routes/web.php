@@ -55,6 +55,10 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 // Bảng giá công khai (§18) — đã đăng nhập vẫn dùng chung trang này.
 Route::get('goi-hoc', [PackageController::class, 'index'])->name('packages.index');
 
+// Trang pháp lý — tĩnh, ai cũng xem được (footer và trang đăng ký trỏ tới).
+Route::view('dieu-khoan-su-dung', 'public.legal.terms')->name('legal.terms');
+Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy');
+
 /*
 |--------------------------------------------------------------------------
 | Khách (chưa đăng nhập)

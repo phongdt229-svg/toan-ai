@@ -1,78 +1,315 @@
 // ---------------------------------------------------------------------------
 // Landing page (§6)
+// Hình minh hoạ đều là SVG nội tuyến / gradient CSS — không tải ảnh từ CDN ngoài
+// (CSP chặn, và trang chủ phải mở nhanh trên 3G ở điện thoại học sinh).
 // ---------------------------------------------------------------------------
 
+// --- Nền trang trí dùng chung ---------------------------------------------
+@mixin blob($size, $color, $opacity: .35) {
+    position: absolute;
+    width: $size;
+    height: $size;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba($color, $opacity), rgba($color, 0) 70%);
+    pointer-events: none;
+}
+
 .hero {
-    padding: 3rem 0 2.5rem;
-    background: linear-gradient(160deg, rgba($primary, .08), rgba($info, .06) 60%, #fff);
+    position: relative;
+    overflow: hidden;
+    padding: 2.5rem 0 3rem;
+    background:
+        radial-gradient(1200px 500px at 85% -10%, rgba($info, .18), transparent 60%),
+        radial-gradient(900px 400px at 0% 0%, rgba($primary, .16), transparent 55%),
+        linear-gradient(180deg, #f8fbff 0%, #ffffff 70%);
+
+    @include media-breakpoint-up(lg) {
+        padding: 4.5rem 0 5rem;
+    }
+
+    // Lưới ô vuông mờ phía sau cho cảm giác "vở kẻ ô" của môn Toán.
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba($primary, .05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba($primary, .05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(70% 60% at 50% 0%, #000 40%, transparent 100%);
+        pointer-events: none;
+    }
+
+    &__blob {
+        &--1 { @include blob(420px, $primary, .5); top: -120px; right: -80px; }
+        &--2 { @include blob(320px, $accent, .35); bottom: -140px; left: -60px; }
+    }
+
+    &__content { position: relative; z-index: 1; }
 
     &__title {
-        font-size: clamp(1.75rem, 6vw, 3.25rem);
+        font-size: clamp(2rem, 6.5vw, 3.5rem);
         font-weight: 800;
-        line-height: 1.15;
+        line-height: 1.12;
+        letter-spacing: -.02em;
+    }
+
+    &__gradient-text {
+        background: linear-gradient(120deg, $primary 10%, $info 50%, $accent 95%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
     }
 
     &__lead {
-        font-size: clamp(1rem, 2.5vw, 1.25rem);
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
         color: $secondary;
+        max-width: 34rem;
+    }
+
+    &__stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .75rem;
+
+        @include media-breakpoint-up(md) {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    &__stat {
+        padding: .75rem .875rem;
+        border: 1px solid rgba($primary, .15);
+        border-radius: $border-radius;
+        background: rgba(#fff, .75);
+        backdrop-filter: blur(6px);
+
+        strong { display: block; font-size: 1.125rem; line-height: 1.2; }
+        span { font-size: .8125rem; color: $secondary; }
     }
 }
 
-.btn-accent {
-    background: $accent;
-    border-color: $accent;
-    color: #fff;
+// Khung điện thoại giả lập ở hero — cho thấy sản phẩm thật trông thế nào.
+.device {
+    position: relative;
+    z-index: 1;
+    max-width: 380px;
+    margin-inline: auto;
+    padding: .625rem;
+    border-radius: 2rem;
+    background: linear-gradient(160deg, #1e293b, #0f172a);
+    box-shadow: 0 30px 60px -20px rgba(15, 23, 42, .45);
 
-    &:hover,
-    &:focus {
-        background: shade-color($accent, 12%);
-        border-color: shade-color($accent, 12%);
-        color: #fff;
+    &__screen {
+        position: relative;
+        border-radius: 1.5rem;
+        background: #fff;
+        padding: 1rem;
+        overflow: hidden;
+    }
+
+    &__notch {
+        width: 34%;
+        height: 6px;
+        margin: 0 auto .75rem;
+        border-radius: 999px;
+        background: rgba(#fff, .35);
+    }
+
+    // Thẻ nổi quanh điện thoại: điểm số, chuỗi ngày học, tiến độ.
+    &__chip {
+        position: absolute;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .5rem .75rem;
+        border-radius: 999px;
+        background: #fff;
+        box-shadow: 0 12px 30px -12px rgba(15, 23, 42, .35);
+        font-size: .8125rem;
+        font-weight: 600;
+        white-space: nowrap;
+
+        &--score { top: 12%; left: -12%; }
+        &--streak { bottom: 18%; right: -10%; }
+
+        @media (prefers-reduced-motion: no-preference) {
+            animation: float 5s ease-in-out infinite;
+            &--streak { animation-delay: -2.5s; }
+        }
     }
 }
 
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+// --- Khối nội dung ---------------------------------------------------------
 .section {
     padding: 3rem 0;
 
+    @include media-breakpoint-up(lg) {
+        padding: 4.5rem 0;
+    }
+
     &--muted {
-        background: $light;
+        background:
+            radial-gradient(600px 300px at 90% 0%, rgba($info, .1), transparent 60%),
+            $light;
+    }
+
+    &__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: .375rem;
+        padding: .25rem .75rem;
+        margin-bottom: .75rem;
+        border-radius: 999px;
+        background: rgba($primary, .1);
+        color: $primary;
+        font-size: .8125rem;
+        font-weight: 600;
     }
 
     &__title {
-        font-size: clamp(1.375rem, 4vw, 2rem);
-        font-weight: 700;
+        font-size: clamp(1.5rem, 4vw, 2.25rem);
+        font-weight: 800;
+        letter-spacing: -.01em;
     }
 
     &__subtitle {
         color: $secondary;
-        max-width: 40rem;
+        max-width: 42rem;
     }
 }
 
 .feature-card {
+    position: relative;
+    height: 100%;
+    padding: 1.5rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        border-color: rgba($primary, .35);
+        box-shadow: 0 18px 40px -24px rgba(15, 23, 42, .45);
+    }
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        margin-bottom: .875rem;
+        border-radius: $border-radius;
+        background: linear-gradient(140deg, rgba($primary, .16), rgba($info, .16));
+        color: $primary;
+        font-size: 1.5rem;
+    }
+
+    // Biến thể màu cho từng nhóm đối tượng.
+    &--accent &__icon { background: linear-gradient(140deg, rgba($accent, .18), rgba($warning, .18)); color: $accent; }
+    &--success &__icon { background: linear-gradient(140deg, rgba($success, .16), rgba($info, .14)); color: $success; }
+}
+
+// Thẻ "dành cho ai" có hình minh hoạ.
+.audience-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+    overflow: hidden;
+
+    &__art {
+        padding: 1.25rem 1.25rem 0;
+        background: linear-gradient(180deg, rgba($primary, .08), rgba($primary, 0));
+
+        svg { display: block; width: 100%; height: auto; }
+    }
+
+    &--teacher &__art { background: linear-gradient(180deg, rgba($success, .1), rgba($success, 0)); }
+    &--parent &__art { background: linear-gradient(180deg, rgba($accent, .1), rgba($accent, 0)); }
+
+    &__body { padding: 1.25rem; display: flex; flex-direction: column; flex-grow: 1; }
+}
+
+// Bong bóng hội thoại mô phỏng AI Tutor.
+.chat-demo {
+    padding: 1rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+    box-shadow: 0 24px 50px -30px rgba(15, 23, 42, .5);
+
+    &__bubble {
+        max-width: 88%;
+        padding: .625rem .875rem;
+        border-radius: 1rem;
+        font-size: .9375rem;
+
+        &--me { align-self: flex-end; background: $primary; color: #fff; border-bottom-right-radius: .25rem; }
+        &--ai { align-self: flex-start; background: $light; border: 1px solid $border-color; border-bottom-left-radius: .25rem; }
+    }
+
+    &__typing span {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin-right: 3px;
+        border-radius: 50%;
+        background: $secondary;
+
+        @media (prefers-reduced-motion: no-preference) {
+            animation: blink 1.2s infinite;
+            &:nth-child(2) { animation-delay: .2s; }
+            &:nth-child(3) { animation-delay: .4s; }
+        }
+    }
+}
+
+@keyframes blink {
+    0%, 60%, 100% { opacity: .25; }
+    30% { opacity: 1; }
+}
+
+// --- Chương trình lớp 1–12 -------------------------------------------------
+.grade-group {
     height: 100%;
     padding: 1.25rem;
     border: 1px solid $border-color;
     border-radius: $border-radius-lg;
     background: #fff;
 
-    &__icon {
-        display: inline-flex;
+    &__label {
+        display: flex;
         align-items: center;
-        justify-content: center;
-        width: 44px;
-        height: 44px;
-        margin-bottom: .75rem;
-        border-radius: $border-radius;
-        background: rgba($primary, .1);
-        color: $primary;
-        font-size: 1.375rem;
+        gap: .5rem;
+        margin-bottom: .875rem;
+        font-weight: 700;
+    }
+
+    &__dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: $primary;
+
+        &--mid { background: $info; }
+        &--high { background: $accent; }
     }
 }
 
 .grade-pill {
     display: block;
-    padding: .875rem .5rem;
+    padding: .75rem .5rem;
     border: 1px solid $border-color;
     border-radius: $border-radius;
     background: #fff;
@@ -80,8 +317,10 @@
     font-weight: 600;
     text-align: center;
     text-decoration: none;
+    transition: transform .15s ease, border-color .15s ease, color .15s ease;
 
     &:hover {
+        transform: translateY(-2px);
         border-color: $primary;
         color: $primary;
     }
@@ -105,8 +344,81 @@
     }
 }
 
-.cta-band {
-    padding: 3rem 0;
-    background: $primary;
+.btn-accent {
+    background: $accent;
+    border-color: $accent;
     color: #fff;
+
+    &:hover,
+    &:focus {
+        background: shade-color($accent, 12%);
+        border-color: shade-color($accent, 12%);
+        color: #fff;
+    }
+}
+
+.cta-band {
+    position: relative;
+    overflow: hidden;
+    padding: 3.5rem 0;
+    background: linear-gradient(120deg, $primary 0%, #1d4ed8 45%, #0ea5e9 100%);
+    color: #fff;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(#fff, .18) 1px, transparent 1px);
+        background-size: 22px 22px;
+        opacity: .5;
+    }
+
+    > .container { position: relative; }
+}
+
+// --- Footer ----------------------------------------------------------------
+.site-footer {
+    background: $dark;
+    color: rgba(#fff, .72);
+
+    a {
+        color: rgba(#fff, .72);
+        text-decoration: none;
+
+        &:hover { color: #fff; }
+    }
+
+    &__brand { color: #fff; font-weight: 700; }
+    &__heading { color: #fff; font-weight: 600; margin-bottom: .75rem; }
+    &__bottom { border-top: 1px solid rgba(#fff, .12); }
+}
+
+// --- Trang pháp lý ---------------------------------------------------------
+.legal {
+    padding: 2.5rem 0 4rem;
+    background: linear-gradient(180deg, #f8fbff, #fff 40%);
+
+    &__paper {
+        max-width: 52rem;
+        margin-inline: auto;
+        padding: 1.5rem;
+        border: 1px solid $border-color;
+        border-radius: $border-radius-lg;
+        background: #fff;
+
+        @include media-breakpoint-up(md) {
+            padding: 2.5rem;
+        }
+
+        h2 {
+            margin-top: 2rem;
+            margin-bottom: .75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        ul { padding-left: 1.25rem; }
+        li { margin-bottom: .375rem; }
+        p, li { line-height: 1.7; }
+    }
 }

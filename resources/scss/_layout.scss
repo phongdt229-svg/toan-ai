@@ -133,9 +133,16 @@ body {
 
 // --- Nút lớn cho học sinh (§3) --------------------------------------------
 .btn-touch {
+    // min-height không tự căn giữa nội dung: chữ bị lệch lên trên, rõ nhất với dấu tiếng Việt
+    // (chữ "ụ", "ộ"…). inline-flex + align-items giữ chữ đúng giữa nút ở mọi cỡ.
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .375rem;
     min-height: 48px;
     font-size: 1rem;
     font-weight: 600;
+    line-height: 1.25;
 }
 
 // --- AI Tutor ------------------------------------------------------------
