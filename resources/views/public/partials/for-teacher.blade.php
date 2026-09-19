@@ -9,11 +9,14 @@
     ];
 @endphp
 
-<section class="section section--muted">
+<section class="section section--muted section--role section--role-teacher" id="giao-vien">
+    <span class="section__role-blob section__role-blob--1" aria-hidden="true"></span>
+    <span class="section__role-blob section__role-blob--2" aria-hidden="true"></span>
+
     <div class="container">
         <div class="row g-4 g-lg-5 align-items-center">
             <div class="col-12 col-lg-6">
-                <span class="section__eyebrow"><i class="bi bi-person-video3"></i>Dành cho giáo viên</span>
+                <span class="section__eyebrow section__eyebrow--success"><i class="bi bi-person-video3"></i>Dành cho giáo viên</span>
                 <h2 class="section__title mb-2">Soạn bài <span class="hl">nhanh hơn</span>, nắm lớp <span class="hl">rõ hơn</span></h2>
                 <p class="section__subtitle mb-4">
                     AI chỉ tạo bản nháp. Nội dung nào lên hệ thống vẫn do giáo viên quyết định.

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="@yield('html_class')">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -26,6 +26,7 @@
 <body>
     @yield('body')
 
+    @stack('widgets')
     @stack('scripts')
 </body>
 </html>

@@ -21,14 +21,14 @@
     <text x="160" y="146" text-anchor="middle" font-size="9" font-weight="700" fill="#15803d">Điểm TB 8.1</text>
 
     {{-- Thẻ nổi: liên kết con + thông báo --}}
-    <g>
+    <g class="illus-float illus-float--1">
         <rect x="18" y="52" width="86" height="34" rx="10" fill="#fff7ed" stroke="#fed7aa"/>
         <circle cx="36" cy="69" r="9" fill="#f97316"/>
         <text x="36" y="73" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">👪</text>
         <rect x="50" y="62" width="44" height="5" rx="2.5" fill="#fdba74"/>
         <rect x="50" y="72" width="30" height="5" rx="2.5" fill="#fed7aa"/>
     </g>
-    <g>
+    <g class="illus-float illus-float--2">
         <rect x="216" y="96" width="86" height="34" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
         <circle cx="234" cy="113" r="9" fill="#2563eb"/>
         <text x="234" y="117" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">✓</text>

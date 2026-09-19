@@ -1,4 +1,4 @@
-@extends('layouts.base')
+@extends('layouts.public')
 
 @section('title', 'Gửi yêu cầu hỗ trợ — TOÁN AI')
 @section('meta_description', 'Gửi yêu cầu hỗ trợ hoặc báo lỗi nội dung cho đội ngũ TOÁN AI.')

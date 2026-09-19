@@ -4,7 +4,7 @@
     Sửa tính năng nào có đụng tới dữ liệu cá nhân thì sửa trang này và cập nhật config('site.legal_updated_at').
     Trước khi phát hành thật: nhờ bộ phận pháp lý rà lại và điền thông tin đơn vị vận hành trong config/site.php.
 --}}
-@extends('layouts.base')
+@extends('layouts.public')
 
 @section('title', 'Chính sách bảo mật — TOÁN AI')
 @section('meta_description', 'TOÁN AI thu thập, sử dụng và bảo vệ dữ liệu của học sinh, phụ huynh, giáo viên như thế nào.')

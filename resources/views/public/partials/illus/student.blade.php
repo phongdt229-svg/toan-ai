@@ -28,10 +28,16 @@
     <path d="M248 104h8l-4-10z" fill="#065f46"/>
 
     {{-- Ký hiệu toán bay quanh --}}
-    <circle cx="60" cy="46" r="18" fill="#dbeafe"/>
-    <text x="60" y="53" text-anchor="middle" font-size="20" font-weight="700" fill="#2563eb">π</text>
-    <circle cx="262" cy="52" r="15" fill="#fef3c7"/>
-    <text x="262" y="58" text-anchor="middle" font-size="17" font-weight="700" fill="#d97706">+</text>
-    <circle cx="240" cy="22" r="11" fill="#dcfce7"/>
-    <text x="240" y="27" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a">√</text>
+    <g class="illus-float illus-float--1">
+        <circle cx="60" cy="46" r="18" fill="#dbeafe"/>
+        <text x="60" y="53" text-anchor="middle" font-size="20" font-weight="700" fill="#2563eb">π</text>
+    </g>
+    <g class="illus-float illus-float--2">
+        <circle cx="262" cy="52" r="15" fill="#fef3c7"/>
+        <text x="262" y="58" text-anchor="middle" font-size="17" font-weight="700" fill="#d97706">+</text>
+    </g>
+    <g class="illus-float illus-float--3">
+        <circle cx="240" cy="22" r="11" fill="#dcfce7"/>
+        <text x="240" y="27" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a">√</text>
+    </g>
 </svg>

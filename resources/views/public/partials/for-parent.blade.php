@@ -1,8 +1,11 @@
-<section class="section">
+<section class="section section--role section--role-parent" id="phu-huynh">
+    <span class="section__role-blob section__role-blob--1" aria-hidden="true"></span>
+    <span class="section__role-blob section__role-blob--2" aria-hidden="true"></span>
+
     <div class="container">
         <div class="row g-4 g-lg-5 align-items-center">
             <div class="col-12 col-lg-6 order-lg-2">
-                <span class="section__eyebrow"><i class="bi bi-house-heart"></i>Dành cho phụ huynh</span>
+                <span class="section__eyebrow section__eyebrow--accent"><i class="bi bi-house-heart"></i>Dành cho phụ huynh</span>
                 <h2 class="section__title mb-2">Biết con đang <span class="hl">học tới đâu</span>, <span class="hl">yếu ở đâu</span></h2>
                 <p class="section__subtitle mb-4">
                     Liên kết với tài khoản của con bằng một mã ngắn. Sau đó bạn xem được

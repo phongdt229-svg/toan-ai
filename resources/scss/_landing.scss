@@ -43,6 +43,13 @@
     &__blob {
         &--1 { @include blob(420px, $primary, .5); top: -120px; right: -80px; }
         &--2 { @include blob(320px, $accent, .35); bottom: -140px; left: -60px; }
+
+        // Nền "thở" nhẹ — chỉ dịch chuyển vài chục px, không gây phân tán khỏi nội dung.
+        @media (prefers-reduced-motion: no-preference) {
+            animation: drift 18s ease-in-out infinite;
+
+            &--2 { animation-duration: 22s; animation-delay: -9s; }
+        }
     }
 
     &__content { position: relative; z-index: 1; }
@@ -153,8 +160,32 @@
     50% { transform: translateY(-8px); }
 }
 
+@keyframes drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-24px, 20px) scale(1.06); }
+}
+
+// Cuộn "trôi nhẹ về đúng đầu section" khi gần hết một khối — proximity chứ không phải
+// mandatory: vẫn cuộn tự nhiên bằng chuột/vuốt tay, không bị ép dừng giữa chừng. Chỉ bật
+// ở trang chủ (class .landing-snap gắn trên <html>, xem layouts/base.blade.php), không
+// đụng .section/.hero/.cta-band ở trang khác (gói học, hỗ trợ, bài học…) dùng chung class.
+.landing-snap {
+    .hero,
+    .section,
+    .cta-band {
+        scroll-snap-align: start;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        scroll-snap-type: y proximity;
+    }
+}
+
 // --- Khối nội dung ---------------------------------------------------------
 .section {
+    // Neo #hoc-sinh/#giao-vien/#phu-huynh/#chuong-trinh… không bị thanh nav sticky che mất tiêu đề
+    // (cùng giá trị này còn dùng làm điểm dừng cho scroll-snap ở trên).
+    scroll-margin-top: 76px;
     padding: 3rem 0;
 
     @include media-breakpoint-up(lg) {
@@ -165,6 +196,38 @@
         background:
             radial-gradient(600px 300px at 90% 0%, rgba($info, .1), transparent 60%),
             $light;
+    }
+
+    // Nền màu riêng cho 3 khối "dành cho ai" (§6) — cùng kiểu blob với hero để
+    // trang có mạch hình ảnh xuyên suốt, không phải mỗi khối một kiểu.
+    &--role {
+        position: relative;
+        overflow: hidden;
+
+        > .container { position: relative; z-index: 1; }
+    }
+
+    &__role-blob {
+        @media (prefers-reduced-motion: no-preference) {
+            animation: drift 20s ease-in-out infinite;
+
+            &--2 { animation-duration: 26s; animation-delay: -11s; }
+        }
+    }
+
+    &--role-student &__role-blob {
+        &--1 { @include blob(420px, $primary, .22); top: -140px; right: -100px; }
+        &--2 { @include blob(300px, $info, .18); bottom: -120px; left: -80px; }
+    }
+
+    &--role-teacher &__role-blob {
+        &--1 { @include blob(420px, $success, .16); top: -120px; left: -110px; }
+        &--2 { @include blob(300px, $success, .14); bottom: -140px; right: -70px; }
+    }
+
+    &--role-parent &__role-blob {
+        &--1 { @include blob(420px, $accent, .18); top: -130px; right: -90px; }
+        &--2 { @include blob(300px, $warning, .16); bottom: -120px; left: -70px; }
     }
 
     &__eyebrow {
@@ -178,6 +241,10 @@
         color: $primary;
         font-size: .8125rem;
         font-weight: 600;
+
+        // Mỗi vai trò một màu — khác hẳn nhau khi lướt nhanh qua trang.
+        &--success { background: rgba($success, .12); color: $success; }
+        &--accent { background: rgba($accent, .14); color: $accent; }
     }
 
     &__title {
@@ -261,6 +328,16 @@
     border-radius: $border-radius-lg;
     background: #fff;
     overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+
+    &:hover {
+        transform: translateY(-6px);
+        border-color: rgba($primary, .4);
+        box-shadow: 0 22px 45px -28px rgba(15, 23, 42, .45);
+    }
+
+    &--teacher:hover { border-color: rgba($success, .4); }
+    &--parent:hover { border-color: rgba($accent, .4); }
 
     &__art {
         padding: 1.25rem 1.25rem 0;
@@ -273,6 +350,65 @@
     &--parent &__art { background: linear-gradient(180deg, rgba($accent, .1), rgba($accent, 0)); }
 
     &__body { padding: 1.25rem; display: flex; flex-direction: column; flex-grow: 1; }
+}
+
+// Vài chi tiết bay lơ lửng trong SVG minh hoạ (ký hiệu Toán, thẻ thông báo…) — cùng
+// nhịp @keyframes float với thẻ điểm số ở hero để cả trang thấy "cùng một nhịp thở".
+// transform-box: fill-box bắt buộc — thiếu nó SVG quay quanh gốc (0,0) của viewport
+// thay vì quanh chính hình, làm hình bay vòng cung lệch hẳn ra ngoài.
+.illus-float {
+    transform-box: fill-box;
+    transform-origin: center;
+
+    @media (prefers-reduced-motion: no-preference) {
+        animation: float 4.5s ease-in-out infinite;
+    }
+
+    &--2 { animation-delay: -1.5s; }
+    &--3 { animation-delay: -3s; }
+}
+
+// Thanh chọn nhanh "Bạn là ai?" phía trên 3 khối học sinh/giáo viên/phụ huynh —
+// gom 3 khối rời rạc thành một nhóm rõ ràng, bấm là nhảy thẳng tới đúng khối.
+.role-nav {
+    padding: .5rem 0 1.5rem;
+
+    &__inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem .625rem;
+    }
+
+    &__label {
+        font-weight: 700;
+        color: $secondary;
+        margin-right: .125rem;
+    }
+
+    &__pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .5rem 1.125rem;
+        border: 1px solid $border-color;
+        border-radius: 999px;
+        background: #fff;
+        color: $body-color;
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, color .15s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 26px -16px rgba(15, 23, 42, .35);
+        }
+
+        &--student:hover { border-color: rgba($primary, .5); color: $primary; }
+        &--teacher:hover { border-color: rgba($success, .5); color: $success; }
+        &--parent:hover { border-color: rgba($accent, .5); color: $accent; }
+    }
 }
 
 // Bong bóng hội thoại mô phỏng AI Tutor.
@@ -312,6 +448,25 @@
 @keyframes blink {
     0%, 60%, 100% { opacity: .25; }
     30% { opacity: 1; }
+}
+
+// Thẻ tự "nổi lên" khi cuộn tới — thuần CSS (animation-timeline: view()), không cần
+// JS/IntersectionObserver. Trình duyệt chưa hỗ trợ thì bỏ qua @supports, thẻ hiện bình
+// thường ngay từ đầu — không có nội dung nào phụ thuộc vào hiệu ứng này để hiển thị được.
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .audience-card,
+        .feature-card {
+            animation: rise-in linear both;
+            animation-timeline: view();
+            animation-range: entry 0% cover 30%;
+        }
+    }
+}
+
+@keyframes rise-in {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 // --- Chương trình lớp 1–12 -------------------------------------------------
@@ -394,6 +549,7 @@
 .cta-band {
     position: relative;
     overflow: hidden;
+    scroll-margin-top: 76px;
     padding: 3.5rem 0;
     background: linear-gradient(120deg, $primary 0%, #1d4ed8 45%, #0ea5e9 100%);
     color: #fff;
@@ -425,6 +581,57 @@
     &__brand { color: #fff; font-weight: 700; }
     &__heading { color: #fff; font-weight: 600; margin-bottom: .75rem; }
     &__bottom { border-top: 1px solid rgba(#fff, .12); }
+}
+
+// --- Nút nổi: chat Zalo/Facebook + chia sẻ trang (chỉ trang công khai, layouts.public) ----
+.floating-contact {
+    position: fixed;
+    right: 1rem;
+    // env(safe-area-inset-bottom): tránh vùng cử chỉ vuốt của điện thoại không viền.
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    z-index: $zindex-fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .625rem;
+
+    @include media-breakpoint-up(lg) {
+        right: 1.5rem;
+        bottom: 1.5rem;
+    }
+
+    &__btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        border: none;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 1.375rem;
+        box-shadow: 0 10px 24px -8px rgba(15, 23, 42, .45);
+        text-decoration: none;
+        transition: transform .15s ease, box-shadow .15s ease;
+
+        &:hover,
+        &:focus-visible {
+            transform: translateY(-3px) scale(1.06);
+            color: #fff;
+            box-shadow: 0 14px 28px -8px rgba(15, 23, 42, .5);
+        }
+    }
+
+    &__btn--facebook { background: #0866ff; }
+    &__btn--share { background: $dark; }
+
+    // Không có icon Zalo trong bộ Bootstrap Icons — dùng chữ thay vì tải logo từ CDN ngoài.
+    &__btn--zalo {
+        background: #0068ff;
+        font-weight: 800;
+        font-size: .8125rem;
+        letter-spacing: -.02em;
+    }
 }
 
 // --- Trang pháp lý ---------------------------------------------------------

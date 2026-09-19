@@ -7,7 +7,10 @@
     ];
 @endphp
 
-<section class="section">
+<section class="section section--role section--role-student" id="hoc-sinh">
+    <span class="section__role-blob section__role-blob--1" aria-hidden="true"></span>
+    <span class="section__role-blob section__role-blob--2" aria-hidden="true"></span>
+
     <div class="container">
         <div class="row g-4 g-lg-5 align-items-center">
             <div class="col-12 col-lg-5">
@@ -18,9 +21,21 @@
                     em đang học tới đâu và nhắc đúng phần còn yếu.
                 </p>
 
-                <div class="audience-card__art rounded-4 pb-3">
-                    @include('public.partials.illus.student')
+                <div class="audience-card">
+                    <div class="audience-card__art">
+                        @include('public.partials.illus.student')
+                    </div>
+                    <div class="audience-card__body">
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge text-bg-light border"><i class="bi bi-phone me-1"></i>Học được trên điện thoại</span>
+                            <span class="badge text-bg-light border"><i class="bi bi-graph-up-arrow me-1"></i>Tự nhớ tiến độ</span>
+                        </div>
+                    </div>
                 </div>
+
+                <a href="{{ route('register.student') }}" class="btn btn-primary btn-touch mt-4">
+                    <i class="bi bi-person-plus"></i>Tạo tài khoản học sinh
+                </a>
             </div>
 
             <div class="col-12 col-lg-7">

@@ -3,7 +3,7 @@
     AI Tutor §10). Đổi chính sách giá / hoàn tiền thì sửa trang này và config('site.legal_updated_at').
     Trước khi phát hành thật: nhờ bộ phận pháp lý rà lại và điền thông tin đơn vị vận hành trong config/site.php.
 --}}
-@extends('layouts.base')
+@extends('layouts.public')
 
 @section('title', 'Điều khoản sử dụng — TOÁN AI')
 @section('meta_description', 'Điều khoản sử dụng dịch vụ học Toán trực tuyến TOÁN AI: tài khoản, gói học, thanh toán, quyền và nghĩa vụ.')

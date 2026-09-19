@@ -1,6 +1,7 @@
-@extends('layouts.base')
+@extends('layouts.public')
 
 @section('title', 'TOÁN AI — Học Toán thông minh cùng AI')
+@section('html_class', 'landing-snap')
 
 @section('body')
     @include('public.partials.header')
@@ -9,6 +10,7 @@
         @include('public.partials.hero')
         @include('public.partials.features')
         @include('public.partials.ai-tutor')
+        @include('public.partials.role-nav')
         @include('public.partials.for-student')
         @include('public.partials.for-teacher')
         @include('public.partials.for-parent')

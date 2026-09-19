@@ -16,6 +16,13 @@ return [
     'hotline' => env('SITE_HOTLINE', ''),
     'address' => env('SITE_ADDRESS', ''),
 
+    // Nút chat nổi ở các trang công khai (landing, gói học, hỗ trợ...). Để trống thì ẩn nút
+    // tương ứng — KHÔNG bịa link, dán đúng URL Zalo/Facebook thật trước khi chạy production.
+    // Zalo: https://zalo.me/<số điện thoại hoặc id OA> — lấy ở phần "Liên kết Zalo" của OA.
+    // Facebook: https://m.me/<tên trang> — lấy ở phần cài đặt Messenger của trang.
+    'zalo_url' => env('SITE_ZALO_URL', ''),
+    'facebook_url' => env('SITE_FACEBOOK_URL', ''),
+
     // Số dòng mỗi trang ở khu quản trị (danh sách người dùng, giao dịch, hỗ trợ…).
     'per_page' => (int) env('SITE_PER_PAGE', 10),
 

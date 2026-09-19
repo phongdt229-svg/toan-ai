@@ -22,4 +22,10 @@
     <rect x="120" y="158" width="80" height="8" rx="4" fill="#cbd5e1"/>
     <rect x="236" y="126" width="34" height="8" rx="4" fill="#f8fafc"/>
     <rect x="262" y="126" width="12" height="8" rx="3" fill="#2563eb"/>
+
+    {{-- Thẻ nổi: AI vừa soạn xong, chờ duyệt --}}
+    <g class="illus-float illus-float--2">
+        <circle cx="292" cy="26" r="16" fill="#fff7ed" stroke="#fed7aa"/>
+        <text x="292" y="31" text-anchor="middle" font-size="14" fill="#ea580c">✎</text>
+    </g>
 </svg>

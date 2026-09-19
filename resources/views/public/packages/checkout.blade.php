@@ -1,4 +1,4 @@
-@extends('layouts.base')
+@extends('layouts.public')
 
 @section('title', 'Mua ' . $package->name . ' — TOÁN AI')
 
