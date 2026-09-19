@@ -7,6 +7,7 @@ use App\Models\AiGenerationDraft;
 use App\Models\AiUsage;
 use App\Models\AuditLog;
 use App\Services\AI\Contracts\AiProviderInterface;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -27,12 +28,7 @@ class AiUsageController extends Controller
                          COALESCE(SUM(cost_estimate),0) cost')
             ->first();
 
-        $daily = AiUsage::query()
-            ->whereDate('usage_date', '>=', today()->subDays(13))
-            ->groupBy('usage_date')
-            ->orderBy('usage_date')
-            ->selectRaw('usage_date, SUM(request_count) requests, SUM(failed_count) failed, SUM(cost_estimate) cost')
-            ->get();
+        $daily = $this->dailyForChart();
 
         return view('admin.ai-usage.index', [
             'providerName' => $provider->name(),
@@ -67,5 +63,33 @@ class AiUsageController extends Controller
                 ->where('created_at', '>=', $since30)
                 ->count(),
         ]);
+    }
+
+    /**
+     * Chuỗi 14 ngày cho biểu đồ. Ngày không có lượt gọi vẫn có mặt (giá trị 0) để trục thời gian liền mạch.
+     *
+     * @return list<array{label: string, requests: int, cost: float}>
+     */
+    private function dailyForChart(): array
+    {
+        $since = today()->subDays(13);
+
+        $rows = AiUsage::query()
+            ->whereDate('usage_date', '>=', $since)
+            ->groupBy('usage_date')
+            ->selectRaw('usage_date, SUM(request_count) requests, SUM(cost_estimate) cost')
+            ->get()
+            ->keyBy(fn ($r) => Carbon::parse($r->usage_date)->toDateString());
+
+        return collect(range(0, 13))->map(function (int $i) use ($since, $rows) {
+            $day = $since->copy()->addDays($i)->toDateString();
+            $row = $rows->get($day);
+
+            return [
+                'label' => Carbon::parse($day)->format('d/m'),
+                'requests' => (int) ($row->requests ?? 0),
+                'cost' => round((float) ($row->cost ?? 0), 4),
+            ];
+        })->all();
     }
 }

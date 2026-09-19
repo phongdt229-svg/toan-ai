@@ -3,6 +3,10 @@
 @section('title', 'AI usage — TOÁN AI')
 @section('page_title', 'AI usage')
 
+@push('head')
+    @vite('resources/js/charts.js')
+@endpush
+
 @php
     $features = [
         'chat' => 'Hỏi đáp', 'hint' => 'Gợi ý', 'explain' => 'Giải thích', 'check_answer' => 'Kiểm tra đáp án',
@@ -102,24 +106,14 @@
                 </table>
             </div>
 
-            <h3 class="h6 fw-bold mt-4 mb-2">14 ngày gần nhất</h3>
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead><tr><th>Ngày</th><th class="text-end">Lượt</th><th class="text-end">Lỗi</th><th class="text-end">Chi phí</th></tr></thead>
-                    <tbody>
-                        @forelse ($daily as $d)
-                            <tr>
-                                <td>{{ \Illuminate\Support\Carbon::parse($d->usage_date)->format('d/m') }}</td>
-                                <td class="text-end">{{ $d->requests }}</td>
-                                <td class="text-end">{{ $d->failed }}</td>
-                                <td class="text-end">{{ $usd($d->cost) }}</td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="4" class="text-secondary">Chưa có dữ liệu.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+        </div>
+    </div>
+
+    <div class="card border mt-4">
+        <div class="card-body">
+            <h3 class="h6 fw-bold mb-2">14 ngày gần nhất</h3>
+            <canvas data-chart-type="ai-usage-daily" data-chart='@json($daily)'
+                    role="img" aria-label="Biểu đồ số lượt gọi AI và chi phí ước tính theo ngày"></canvas>
         </div>
     </div>
 

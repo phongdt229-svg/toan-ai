@@ -9,6 +9,18 @@
 
 @php
     $money = fn ($v) => number_format($v, 0, ',', '.') . '₫';
+
+    // Học sinh không có gói trả phí hiệu lực → coi là Free, để donut thấy đủ 3 nhóm.
+    $freeStudents = max(0, $a['users']['students'] - array_sum($a['subscriptions']));
+    $subscriptionChart = [
+        ['label' => \App\Models\Package::TIER_LABELS[\App\Models\Package::TIER_FREE], 'count' => $freeStudents, 'color' => '#cbd5e1'],
+        ['label' => \App\Models\Package::TIER_LABELS[\App\Models\Package::TIER_PRO], 'count' => $a['subscriptions']['pro'], 'color' => '#3b82f6'],
+        ['label' => \App\Models\Package::TIER_LABELS[\App\Models\Package::TIER_PREMIUM], 'count' => $a['subscriptions']['premium'], 'color' => '#a855f7'],
+    ];
+
+    $weakTopicsChart = collect($a['weak_topics'])
+        ->map(fn ($t) => ['topic' => $t['topic'], 'percent' => $t['avg'], 'students' => $t['students']])
+        ->all();
 @endphp
 
 @section('content')
@@ -87,21 +99,31 @@
         </div>
     </div>
 
-    <div class="card border">
-        <div class="card-body">
-            <div class="fw-semibold mb-1">Chủ đề học sinh yếu nhất</div>
-            <p class="small text-secondary">Điểm thành thạo trung bình thấp nhất (chủ đề có từ 3 học sinh) — nên bổ sung bài giảng, câu hỏi.</p>
-            @forelse ($a['weak_topics'] as $row)
-                <div class="d-flex align-items-center gap-2 mb-2 small">
-                    <span class="flex-grow-1">{{ $row['topic'] }} <span class="text-secondary">· {{ $row['students'] }} học sinh</span></span>
-                    <div class="progress flex-shrink-0" style="width:120px;height:8px">
-                        <div class="progress-bar {{ $row['avg'] < 60 ? 'bg-danger' : ($row['avg'] < 80 ? 'bg-warning' : 'bg-success') }}" style="width: {{ $row['avg'] }}%"></div>
-                    </div>
-                    <strong style="width:3rem" class="text-end">{{ $row['avg'] }}%</strong>
+    <div class="row g-3">
+        <div class="col-12 col-xl-8">
+            <div class="card border h-100">
+                <div class="card-body">
+                    <div class="fw-semibold mb-1">Chủ đề học sinh yếu nhất</div>
+                    <p class="small text-secondary">Điểm thành thạo trung bình thấp nhất (chủ đề có từ 3 học sinh) — nên bổ sung bài giảng, câu hỏi.</p>
+                    @if ($weakTopicsChart)
+                        <canvas data-chart-type="topic-bars" data-chart='@json($weakTopicsChart)'
+                                role="img" aria-label="Biểu đồ điểm thành thạo trung bình theo chủ đề, thấp nhất trước"></canvas>
+                    @else
+                        <p class="small text-secondary mb-0">Chưa đủ dữ liệu.</p>
+                    @endif
                 </div>
-            @empty
-                <p class="small text-secondary mb-0">Chưa đủ dữ liệu.</p>
-            @endforelse
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card border h-100">
+                <div class="card-body">
+                    <div class="fw-semibold mb-1">Học sinh theo gói</div>
+                    <p class="small text-secondary">Free {{ $freeStudents }} · Pro {{ $a['subscriptions']['pro'] }} · Premium {{ $a['subscriptions']['premium'] }}</p>
+                    <canvas data-chart-type="subscription-donut" data-chart='@json($subscriptionChart)'
+                            role="img" aria-label="Biểu đồ phân bố học sinh theo gói Free, Pro, Premium"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -3,10 +3,12 @@
  * Dùng: @vite('resources/js/charts.js') trong @push('head').
  */
 import {
+    ArcElement,
     Chart,
     BarController,
     BarElement,
     CategoryScale,
+    DoughnutController,
     Legend,
     LinearScale,
     LineController,
@@ -15,7 +17,10 @@ import {
     Tooltip,
 } from 'chart.js';
 
-Chart.register(BarController, BarElement, CategoryScale, Legend, LinearScale, LineController, LineElement, PointElement, Tooltip);
+Chart.register(
+    ArcElement, BarController, BarElement, CategoryScale, DoughnutController,
+    Legend, LinearScale, LineController, LineElement, PointElement, Tooltip,
+);
 
 /**
  * Biểu đồ cột ngang % đúng theo chủ đề. Đọc dữ liệu từ data-chart (JSON).
@@ -51,7 +56,17 @@ function renderTopicBars(canvas) {
             },
             plugins: {
                 legend: { display: false },
-                tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.x}% đúng` } },
+                tooltip: {
+                    callbacks: {
+                        // Trang admin truyền kèm số học sinh mỗi chủ đề; trang khác chỉ có %.
+                        label: (ctx) => {
+                            const row = rows[ctx.dataIndex];
+                            const suffix = row.students != null ? ` · ${row.students} học sinh` : '';
+
+                            return ` ${ctx.parsed.x}% đúng${suffix}`;
+                        },
+                    },
+                },
             },
         },
     });
@@ -143,8 +158,74 @@ function renderAdminDaily(canvas) {
     });
 }
 
+/**
+ * Trang AI usage: cột = số lượt gọi AI, đường = chi phí ước tính (USD, trục phải —
+ * khác đơn vị với số lượt).
+ */
+function renderAiUsageDaily(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    canvas.parentElement.style.height = '240px';
+    const usd = (v) => `$${Number(v).toFixed(2)}`;
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: rows.map((r) => r.label),
+            datasets: [
+                { type: 'bar', label: 'Lượt gọi', data: rows.map((r) => r.requests), backgroundColor: '#93c5fd', borderRadius: 4, yAxisID: 'y' },
+                { type: 'line', label: 'Chi phí ước tính', data: rows.map((r) => r.cost), borderColor: '#a50064', backgroundColor: '#a50064', tension: 0.3, pointRadius: 2, yAxisID: 'money' },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { type: 'category', ticks: { maxTicksLimit: 10 } },
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+                money: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: usd } },
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.dataset.yAxisID === 'money' ? usd(ctx.parsed.y) : ctx.parsed.y}` } },
+            },
+        },
+    });
+}
+
+/**
+ * Phân bố học sinh theo gói (Free/Pro/Premium) — donut để thấy tỉ trọng, không cần trục.
+ */
+function renderSubscriptionDonut(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.every((r) => r.count === 0)) {
+        canvas.parentElement.style.height = '220px';
+
+        new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                labels: rows.map((r) => r.label),
+                datasets: [{
+                    data: rows.map((r) => r.count),
+                    backgroundColor: rows.map((r) => r.color),
+                    borderWidth: 0,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+            },
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="admin-daily"]').forEach(renderAdminDaily);
     document.querySelectorAll('canvas[data-chart-type="topic-bars"]').forEach(renderTopicBars);
     document.querySelectorAll('canvas[data-chart-type="daily-activity"]').forEach(renderDailyActivity);
+    document.querySelectorAll('canvas[data-chart-type="ai-usage-daily"]').forEach(renderAiUsageDaily);
+    document.querySelectorAll('canvas[data-chart-type="subscription-donut"]').forEach(renderSubscriptionDonut);
 });
