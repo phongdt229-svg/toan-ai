@@ -7,6 +7,9 @@
 @php
     $items = config("navigation.{$portal}", []);
     $bottomItems = collect($items)->where('bottom', true)->take(4);
+
+    $recentNotifications = auth()->user()->notifications()->latest()->take(8)->get();
+    $unreadNotificationCount = auth()->user()->unreadNotifications()->count();
 @endphp
 
 @section('body')
@@ -19,23 +22,67 @@
                 <h1 class="h6 mb-0 d-none d-lg-block">@yield('page_title', 'Trang chủ')</h1>
             </div>
 
-            <div class="dropdown ms-auto">
-                <button class="btn btn-sm btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-                    <i class="bi bi-person-circle"></i>
-                    <span class="d-none d-sm-inline">{{ auth()->user()->name }}</span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><span class="dropdown-item-text small text-secondary">{{ auth()->user()->email }}</span></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
-                            </button>
-                        </form>
-                    </li>
-                </ul>
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light position-relative" data-bs-toggle="dropdown" aria-label="Thông báo">
+                        <i class="bi bi-bell"></i>
+                        @if ($unreadNotificationCount > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.625rem">
+                                {{ $unreadNotificationCount > 9 ? '9+' : $unreadNotificationCount }}
+                                <span class="visually-hidden">thông báo chưa đọc</span>
+                            </span>
+                        @endif
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end p-0" style="width:320px;max-width:88vw">
+                        <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+                            <span class="fw-semibold small">Thông báo</span>
+                            @if ($unreadNotificationCount > 0)
+                                <form method="POST" action="{{ route('notifications.read_all') }}">
+                                    @csrf
+                                    <button class="btn btn-link btn-sm p-0 small">Đánh dấu đã đọc</button>
+                                </form>
+                            @endif
+                        </div>
+                        <div style="max-height:360px;overflow-y:auto">
+                            @forelse ($recentNotifications as $n)
+                                <a href="{{ route('notifications.open', $n) }}"
+                                   class="dropdown-item py-2 border-bottom {{ $n->read_at ? '' : 'bg-light' }}"
+                                   style="white-space:normal">
+                                    <div class="d-flex gap-2">
+                                        <i class="bi {{ $n->data['icon'] ?? 'bi-bell' }} text-primary mt-1"></i>
+                                        <div>
+                                            <div class="small fw-semibold">{{ $n->data['title'] }}</div>
+                                            <div class="small text-secondary">{{ $n->data['message'] }}</div>
+                                            <div class="text-secondary" style="font-size:.7rem">{{ $n->created_at->diffForHumans() }}</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            @empty
+                                <div class="text-secondary small text-center py-4">Chưa có thông báo nào.</div>
+                            @endforelse
+                        </div>
+                        <a href="{{ route('notifications.index') }}" class="dropdown-item text-center small py-2 border-top">Xem tất cả</a>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i>
+                        <span class="d-none d-sm-inline">{{ auth()->user()->name }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-secondary">{{ auth()->user()->email }}</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </header>
 

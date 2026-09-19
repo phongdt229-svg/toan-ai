@@ -18,7 +18,20 @@ class PaymentSucceeded extends Notification implements ShouldQueue
     /** @return list<string> */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
+    }
+
+    /** @return array<string, mixed> */
+    public function toArray(object $notifiable): array
+    {
+        $p = $this->payment->loadMissing('package');
+
+        return [
+            'title' => 'Thanh toán thành công',
+            'message' => "Đã nhận {$p->amountLabel()} cho gói {$p->package->name}.",
+            'url' => route('payment.show', $p),
+            'icon' => 'bi-cash-coin',
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

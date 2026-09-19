@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\SupportTicket;
 use App\Models\User;
 use App\Notifications\SupportTicketReceived;
+use App\Notifications\SupportTicketResolved;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 
@@ -43,6 +44,8 @@ class SupportTicketService
     public function update(SupportTicket $ticket, User $admin, string $status, ?string $note): SupportTicket
     {
         $old = $ticket->only(['status', 'admin_note']);
+        $wasOpen = $ticket->status !== $status
+            && in_array($status, [SupportTicket::STATUS_RESOLVED, SupportTicket::STATUS_CLOSED], true);
 
         $ticket->update([
             'status' => $status,
@@ -52,6 +55,11 @@ class SupportTicketService
         ]);
 
         $this->audit->log('support.updated', $ticket, $old, $ticket->only(['status', 'admin_note']));
+
+        // Khách vãng lai (không có tài khoản) thì không có gì "trong app" để nhận.
+        if ($wasOpen && $ticket->user_id) {
+            $ticket->user?->notify(new SupportTicketResolved($ticket));
+        }
 
         return $ticket;
     }

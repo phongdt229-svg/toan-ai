@@ -733,6 +733,16 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       ngờ 30 ngày, link sang nhật ký thao tác đã lọc sẵn
 - [x] Ghi chính thức yêu cầu "AI chỉ nói về Toán" vào `TOAN_AI_SPEC.md` §10/§12/§29 — trước đó chỉ tồn tại
       trong code, dễ bị bỏ sót khi đổi provider/model
+- [x] **Thông báo trong app** (bảng `notifications` chuẩn của `Illuminate\Notifications`, kênh database):
+      chuông + số chưa đọc trên header (`layouts/app.blade.php`), trang "Xem tất cả" (`/thong-bao`).
+      Sự kiện báo: học sinh có điểm đề kiểm tra (`ExamResultReady`, chỉ khi đã `graded` — còn tự luận chờ
+      chấm thì chưa báo), giáo viên có học sinh nộp bài giao (`AssignmentSubmittedByStudent`, cả đề lẫn bài
+      học), giáo viên được duyệt (`TeacherAccountApproved`), phụ huynh có con điểm thấp dưới 50%
+      (`ChildScoreLow`) hoặc báo cáo tuần đã gửi (`WeeklyReportReady`), yêu cầu hỗ trợ được xử lý xong
+      (`SupportTicketResolved`, chỉ tài khoản có đăng nhập), thanh toán thành công (`PaymentSucceeded` —
+      thêm kênh database vào thông báo email đã có). Bắn qua listener mới `SendActivityNotifications`
+      (nghe `ExamAttemptFinished`/`LessonCompleted`, cùng quy ước với `SyncAssignmentProgress`) — không gọi
+      thẳng từ `ExamService`.
 
 ---
 

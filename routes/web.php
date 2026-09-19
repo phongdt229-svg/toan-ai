@@ -42,6 +42,7 @@ use App\Http\Controllers\Teacher\QuestionImportController;
 use App\Http\Controllers\Teacher\ReportController as TeacherReportController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
+use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
@@ -101,6 +102,10 @@ Route::middleware('auth')->group(function () {
     Route::get('tai-khoan/cho-duyet', [AccountController::class, 'pending'])->name('account.pending');
 
     Route::middleware('active')->group(function () {
+        Route::get('thong-bao', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('thong-bao/{notification}/mo', [NotificationController::class, 'open'])->name('notifications.open');
+        Route::post('thong-bao/danh-dau-da-doc', [NotificationController::class, 'readAll'])->name('notifications.read_all');
+
         // Học sinh mua cho mình, phụ huynh mua cho con — controller tự kiểm tra role.
         Route::get('goi-hoc/{package}/mua', [PackageController::class, 'checkout'])->name('packages.checkout');
         Route::post('goi-hoc/{package}/mua', [PaymentController::class, 'store'])

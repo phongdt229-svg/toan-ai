@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Mail\WeeklyParentReport;
 use App\Models\ParentProfile;
 use App\Models\User;
+use App\Notifications\WeeklyReportReady;
 use App\Services\Learning\StudentReportService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -41,18 +42,18 @@ class SendWeeklyParentReport implements ShouldQueue
         $to = now();
         $from = $to->copy()->subDays(7);
 
-        $children = $parent->linkedChildren()->orderBy('name')->get()
-            ->map(fn (User $child) => $reports->weekly($child, $from, $to))
+        $rows = $parent->linkedChildren()->orderBy('name')->get()
+            ->map(fn (User $child) => ['child' => $child, 'week' => $reports->weekly($child, $from, $to)])
             // Tuần con không học gì và không có gì cần biết → không gửi thư rỗng.
-            ->filter(fn (array $week) => $reports->hasWeeklyActivity($week))
-            ->values()
-            ->all();
+            ->filter(fn (array $row) => $reports->hasWeeklyActivity($row['week']))
+            ->values();
 
-        if ($children === []) {
+        if ($rows->isEmpty()) {
             return;
         }
 
-        Mail::to($parent)->send(new WeeklyParentReport($parent, $children, $from, $to));
+        Mail::to($parent)->send(new WeeklyParentReport($parent, $rows->pluck('week')->all(), $from, $to));
+        $parent->notify(new WeeklyReportReady($rows->pluck('child')->all()));
 
         ParentProfile::whereKey($profile->id)->update(['last_weekly_report_at' => $to]);
     }

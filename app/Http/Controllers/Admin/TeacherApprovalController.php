@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\TeacherAccountApproved;
 use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,6 +43,8 @@ class TeacherApprovalController extends Controller
 
             $this->audit->log('teacher.approved', $user, ['status' => User::STATUS_PENDING], ['status' => User::STATUS_ACTIVE]);
         });
+
+        $user->notify(new TeacherAccountApproved);
 
         return back()->with('status', "Đã duyệt giáo viên {$user->name}.");
     }
