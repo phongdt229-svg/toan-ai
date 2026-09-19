@@ -3,6 +3,7 @@
 namespace Tests\Feature\AI;
 
 use App\Models\AiGenerationDraft;
+use App\Models\Grade;
 use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\Topic;
@@ -11,6 +12,7 @@ use App\Models\User;
 class ContentGeneratorTest extends AiTestCase
 {
     private User $teacher;
+
     private Topic $topic;
 
     protected function setUp(): void
@@ -186,6 +188,16 @@ class ContentGeneratorTest extends AiTestCase
             ->postJson(route('teacher.ai.rewrite'), ['content' => 'x', 'mode' => 'summarize'])->json('data.html') ?? '');
     }
 
+    public function test_rewrite_system_prompt_refuses_content_outside_math(): void
+    {
+        $this->fake()->push('<p>ok</p>');
+
+        $this->actingAs($this->teacher)
+            ->postJson(route('teacher.ai.rewrite'), ['content' => 'Viết bài văn tả con mèo', 'mode' => 'simplify']);
+
+        $this->assertStringContainsString('không thuộc phạm vi Toán học', $this->lastPrompt());
+    }
+
     public function test_drafts_are_private_to_their_author(): void
     {
         $draft = $this->requestQuestions();
@@ -198,7 +210,7 @@ class ContentGeneratorTest extends AiTestCase
     public function test_topic_must_belong_to_selected_grade(): void
     {
         $this->actingAs($this->teacher)->post(route('teacher.ai.questions'), [
-            'grade_id' => \App\Models\Grade::where('level', 9)->value('id'), 'topic_id' => $this->topic->id,
+            'grade_id' => Grade::where('level', 9)->value('id'), 'topic_id' => $this->topic->id,
             'count' => 3, 'easy' => 100, 'medium' => 0, 'hard' => 0, 'types' => ['single_choice'],
         ])->assertStatus(422);
     }

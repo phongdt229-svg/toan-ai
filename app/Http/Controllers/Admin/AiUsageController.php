@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AiGenerationDraft;
 use App\Models\AiUsage;
+use App\Models\AuditLog;
 use App\Services\AI\Contracts\AiProviderInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -59,6 +60,11 @@ class AiUsageController extends Controller
             'stuckDrafts' => AiGenerationDraft::query()
                 ->whereIn('status', [AiGenerationDraft::STATUS_PENDING, AiGenerationDraft::STATUS_PROCESSING])
                 ->where('created_at', '<', now()->subMinutes(5))
+                ->count(),
+            // ScopeGuard (§10): tin nhắn ngoài lề mà AI không từ chối đúng cách — cần người xem lại hội thoại.
+            'offTopicSuspected' => AuditLog::query()
+                ->where('action', 'ai.off_topic_suspected')
+                ->where('created_at', '>=', $since30)
                 ->count(),
         ]);
     }

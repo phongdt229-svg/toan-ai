@@ -723,6 +723,17 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       email báo về hộp thư hỗ trợ; trang Quản trị → Hỗ trợ để lọc, xem và đổi trạng thái (có audit log);
       link "Báo lỗi nội dung" đặt ngay dưới mỗi bài học
 
+### ✅ Bổ sung sau roadmap (19/09)
+- [x] **Giới hạn phạm vi AI về Toán học**: vá `ContentGeneratorService::rewrite()` thiếu câu chặn ngoài lề
+      (Tutor đã có sẵn, xem `PromptBuilder::system()`); thống nhất một cụm từ chối cố định
+      ("không thuộc phạm vi Toán học") để nhận diện được lượt từ chối đúng cách
+- [x] **`ScopeGuard`** (`app/Services/AI/ScopeGuard.php`): rào chắn thứ hai cho AI Tutor — không chặn câu
+      trả lời, chỉ ghi audit log `ai.off_topic_suspected` khi tin nhắn học sinh có vẻ ngoài lề mà AI không
+      từ chối đúng cách; cờ lưu kèm trong `ai_messages.meta`. Trang Quản trị → AI usage hiện số lượt nghi
+      ngờ 30 ngày, link sang nhật ký thao tác đã lọc sẵn
+- [x] Ghi chính thức yêu cầu "AI chỉ nói về Toán" vào `TOAN_AI_SPEC.md` §10/§12/§29 — trước đó chỉ tồn tại
+      trong code, dễ bị bỏ sót khi đổi provider/model
+
 ---
 
 ## 11b. Kết quả rà checklist bảo mật — 2026-09-17 (Phase 10)

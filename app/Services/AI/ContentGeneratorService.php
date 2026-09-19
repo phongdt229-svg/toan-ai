@@ -274,7 +274,7 @@ class ContentGeneratorService
             : 'Viết lại nội dung sau cho dễ hiểu hơn với học sinh, giữ nguyên kiến thức và công thức.';
 
         $response = $this->call($teacher, 'rewrite', [
-            ['role' => 'system', 'content' => 'Bạn là giáo viên Toán Việt Nam biên soạn học liệu. Trả về HTML đơn giản (<p>, <ul>, <li>, <strong>), công thức trong $...$. Không thêm lời dẫn.'],
+            ['role' => 'system', 'content' => 'Bạn là giáo viên Toán Việt Nam biên soạn học liệu. Trả về HTML đơn giản (<p>, <ul>, <li>, <strong>), công thức trong $...$. Không thêm lời dẫn. Nếu nội dung được đưa không liên quan tới Toán học, chỉ trả về đúng "<p>Nội dung này không thuộc phạm vi Toán học.</p>", không viết lại gì thêm.'],
             ['role' => 'user', 'content' => "{$instruction}\n\n{$content}"],
         ]);
 

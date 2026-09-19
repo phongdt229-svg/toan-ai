@@ -3,6 +3,7 @@
 namespace Tests\Feature\AI;
 
 use App\Models\AiConversation;
+use App\Models\AiMessage;
 use App\Models\AiUsage;
 use App\Models\Assignment;
 use App\Models\AssignmentStudent;
@@ -299,7 +300,7 @@ class TutorApiTest extends AiTestCase
     public function test_ai_output_html_is_escaped(): void
     {
         $student = $this->makeStudent();
-        $this->fake()->push("<script>alert(1)</script> **đậm** \$\\frac{1}{2}\$");
+        $this->fake()->push('<script>alert(1)</script> **đậm** $\\frac{1}{2}$');
 
         $html = $this->actingAs($student)->postJson(route('api.ai.chat'), ['message' => 'x'])->json('data.reply_html');
 
@@ -307,6 +308,52 @@ class TutorApiTest extends AiTestCase
         $this->assertStringContainsString('&lt;script&gt;', $html);
         $this->assertStringContainsString('<strong>đậm</strong>', $html);
         $this->assertStringContainsString('\frac{1}{2}', $html);
+    }
+
+    public function test_off_topic_message_without_proper_refusal_is_flagged_for_review(): void
+    {
+        $student = $this->makeStudent();
+        $this->fake()->push('Bóng đá là môn thể thao vua, đội bạn thích là đội nào?');
+
+        $this->actingAs($student)->postJson(route('api.ai.chat'), ['message' => 'Đội bóng đá yêu thích của cô là gì?'])->assertOk();
+
+        $this->assertDatabaseHas('audit_logs', ['action' => 'ai.off_topic_suspected']);
+        $meta = AiMessage::where('role', 'assistant')->latest('id')->value('meta');
+        $this->assertSame('bóng đá', $meta['scope_flag']['keyword']);
+    }
+
+    public function test_off_topic_message_with_proper_refusal_is_not_flagged(): void
+    {
+        $student = $this->makeStudent();
+        $this->fake()->push('Câu hỏi này không thuộc phạm vi Toán học, em quay lại bài học nhé.');
+
+        $this->actingAs($student)->postJson(route('api.ai.chat'), ['message' => 'Đội bóng đá yêu thích của cô là gì?'])->assertOk();
+
+        $this->assertDatabaseMissing('audit_logs', ['action' => 'ai.off_topic_suspected']);
+    }
+
+    public function test_ordinary_math_message_is_never_flagged(): void
+    {
+        $student = $this->makeStudent();
+        $this->fake()->push('Phân số là...');
+
+        $this->actingAs($student)->postJson(route('api.ai.chat'), ['message' => 'Phân số là gì?'])->assertOk();
+
+        $this->assertDatabaseMissing('audit_logs', ['action' => 'ai.off_topic_suspected']);
+    }
+
+    public function test_admin_ai_usage_page_shows_off_topic_warning(): void
+    {
+        $student = $this->makeStudent();
+        $this->fake()->push('Bóng đá là môn thể thao vua.');
+        $this->actingAs($student)->postJson(route('api.ai.chat'), ['message' => 'Đội bóng đá yêu thích của cô là gì?']);
+
+        $admin = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $admin->assignRole('admin');
+
+        $this->actingAs($admin)->get(route('admin.ai-usage.index'))
+            ->assertOk()
+            ->assertSee('lượt chat trong 30 ngày có tin nhắn ngoài lề');
     }
 
     public function test_guests_and_parents_cannot_use_ai(): void

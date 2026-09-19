@@ -38,6 +38,7 @@ class AuditLog extends Model
         'student.parent_revoked' => 'Học sinh gỡ phụ huynh',
         'ai.question_accepted' => 'Duyệt câu hỏi AI soạn',
         'ai.lesson_created' => 'Tạo bài học từ AI',
+        'ai.off_topic_suspected' => 'Nghi ngờ AI Tutor lạc đề khỏi Toán học',
     ];
 
     protected $fillable = [

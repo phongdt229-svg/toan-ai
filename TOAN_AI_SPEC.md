@@ -192,6 +192,14 @@ POST /api/v1/ai/similar-exercise
 POST /api/v1/ai/analyze-mistake
 ```
 
+**Giới hạn phạm vi (bắt buộc, mọi provider):** AI chỉ được trả lời nội dung liên quan tới học Toán.
+Câu hỏi ngoài lề → từ chối nhẹ nhàng, quay lại bài học — quy tắc này nằm trong system prompt
+(`PromptBuilder::system()`), không phải cấu hình có thể tắt. Vì model vẫn có thể bị dẫn lạc đề dù đã
+dặn trước, `ScopeGuard` (`app/Services/AI/ScopeGuard.php`) là rào chắn thứ hai: nhận diện tin nhắn có vẻ
+ngoài lề mà AI không từ chối đúng cách, ghi audit log `ai.off_topic_suspected` để quản trị xem lại — không
+tự chặn câu trả lời (tránh chặn nhầm câu hỏi Toán hợp lệ). Đổi provider hay nâng cấp model phải giữ nguyên
+quy tắc này trong system prompt.
+
 ---
 
 ## 11. AI cá nhân hóa
@@ -213,6 +221,9 @@ Phát hiện điểm yếu → Tìm kiến thức nền → Đề xuất bài h�
 **Tạo lesson** — AI hỗ trợ tạo lý thuyết, ví dụ, quiz, viết lại dễ hiểu, tóm tắt.
 
 > AI không tự động publish nội dung — Teacher/Admin phải kiểm duyệt.
+
+**Viết lại/tóm tắt** (`ContentGeneratorService::rewrite()`) cũng áp dụng giới hạn phạm vi ở §10: nội dung
+giáo viên dán vào không liên quan Toán học → AI trả về đúng một câu báo không thuộc phạm vi, không xử lý tiếp.
 
 ---
 
@@ -437,6 +448,7 @@ Tất cả API bắt đầu bằng `/api/v1/`
 - HTTPS (production)
 - Secret trong `.env`
 - AI API key không đưa ra frontend
+- AI chỉ trả lời nội dung Toán học (system prompt) + `ScopeGuard` giám sát lượt nghi ngờ lạc đề (§10)
 - MoMo signature verification
 - IPN idempotency
 - Audit log

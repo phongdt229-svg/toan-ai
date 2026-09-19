@@ -6,12 +6,14 @@ use App\Models\AiConversation;
 use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\User;
-use App\Services\AI\Contracts\AiProviderInterface;
 use App\Services\AccessControlService;
+use App\Services\AI\Contracts\AiProviderInterface;
+use App\Services\AuditLogger;
 use App\Services\FeatureLockedException;
 use App\Services\Learning\GradingService;
 use App\Services\SubscriptionService;
 use App\Support\AiText;
+use Illuminate\Support\Str;
 
 /**
  * AI Tutor — 6 chế độ theo §10: Chat · Gợi ý · Giải thích · Kiểm tra đáp án · Bài tương tự · Phân tích lỗi.
@@ -32,6 +34,8 @@ class TutorService
         private readonly GradingService $grading,
         private readonly AccessControlService $plans,
         private readonly SubscriptionService $subscriptions,
+        private readonly ScopeGuard $scope,
+        private readonly AuditLogger $audit,
     ) {}
 
     /** @return array{conversation_id: int, reply_html: string} */
@@ -73,7 +77,17 @@ class TutorService
             ['role' => 'user', 'content' => $message],
         ]);
 
-        $this->store($conversation, $message, $response);
+        // Rào chắn thứ hai (§10, ngoài prompt): ghi lại nếu tin nhắn có vẻ ngoài lề mà AI không từ chối đúng cách.
+        $flag = $this->scope->flag($message, $response->content);
+
+        $this->store($conversation, $message, $response, $flag ? ['scope_flag' => $flag] : []);
+
+        if ($flag) {
+            $this->audit->log('ai.off_topic_suspected', $conversation, null, [
+                'keyword' => $flag['keyword'],
+                'message_excerpt' => Str::limit($message, 200),
+            ]);
+        }
 
         return ['conversation_id' => $conversation->id, 'reply_html' => AiText::toHtml($response->content)];
     }
@@ -238,7 +252,8 @@ class TutorService
         return $response;
     }
 
-    private function store(AiConversation $conversation, string $userMessage, AiResponse $response): void
+    /** @param  array<string, mixed>  $meta  gắn vào tin nhắn assistant, vd cờ ScopeGuard */
+    private function store(AiConversation $conversation, string $userMessage, AiResponse $response, array $meta = []): void
     {
         $conversation->messages()->create(['role' => 'user', 'content' => $userMessage]);
         $conversation->messages()->create([
@@ -248,6 +263,7 @@ class TutorService
             'tokens_in' => $response->tokensIn,
             'tokens_out' => $response->tokensOut,
             'latency_ms' => $response->latencyMs,
+            'meta' => $meta ?: null,
         ]);
         $conversation->update(['last_message_at' => now()]);
     }

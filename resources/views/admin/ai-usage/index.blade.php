@@ -38,6 +38,14 @@
         </div>
     @endif
 
+    @if ($offTopicSuspected > 0)
+        <div class="alert alert-warning">
+            <i class="bi bi-shield-exclamation me-1"></i>
+            {{ $offTopicSuspected }} lượt chat trong 30 ngày có tin nhắn ngoài lề mà AI không từ chối đúng cách —
+            <a href="{{ route('admin.audit-logs.index', ['action' => 'ai.off_topic_suspected']) }}">xem lại trong nhật ký thao tác</a>.
+        </div>
+    @endif
+
     <div class="row g-3 mb-4">
         @foreach ([['Hôm nay', $today], ['7 ngày', $week], ['30 ngày', $month]] as [$label, $t])
             <div class="col-12 col-md-4">
