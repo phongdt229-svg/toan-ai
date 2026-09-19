@@ -20,8 +20,11 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_SUSPENDED = 'suspended';
+
     public const STATUS_REJECTED = 'rejected';
 
     protected $fillable = [
@@ -32,6 +35,7 @@ class User extends Authenticatable
         'status',
         'avatar',
         'last_login_at',
+        'notification_preferences',
     ];
 
     protected $hidden = [
@@ -45,7 +49,14 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
         ];
+    }
+
+    /** Loại thông báo (key = FQCN class, xem App\Support\NotificationType) đã bị người này tắt. */
+    public function hasMutedNotification(string $type): bool
+    {
+        return in_array($type, $this->notification_preferences ?? [], true);
     }
 
     public function studentProfile(): HasOne

@@ -17,7 +17,7 @@ class ExamResultReady extends Notification implements ShouldQueue
     /** @return list<string> */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $notifiable->hasMutedNotification(self::class) ? [] : ['database'];
     }
 
     /** @return array<string, mixed> */

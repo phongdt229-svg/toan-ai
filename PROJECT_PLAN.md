@@ -744,6 +744,27 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       (nghe `ExamAttemptFinished`/`LessonCompleted`, cùng quy ước với `SyncAssignmentProgress`) — không gọi
       thẳng từ `ExamService`.
 
+### ✅ Bổ sung sau roadmap (20/09)
+- [x] **Trang cài đặt tài khoản** cho cả 4 portal (`{student,teacher,parent,admin}.settings`) — đổi
+      tên/SĐT (`AccountService::updateProfile`) và đổi mật khẩu (validate `current_password` + độ mạnh
+      như lúc đăng ký). Dùng chung 1 service + 2 Form Request + 2 partial Blade
+      (`partials/profile-form.blade.php`, `partials/password-form.blade.php`) cho cả 4 nơi, mỗi portal chỉ
+      có 1 controller mỏng riêng. Trang cài đặt phụ huynh giữ nguyên phần bật/tắt báo cáo tuần đã có, chỉ
+      thêm 2 phần mới cạnh đó. **Chưa làm avatar** (cột `avatar` vẫn chưa gắn upload/Storage) — cố tình cắt
+      phạm vi, để riêng nếu cần.
+- [x] **Cài đặt thông báo theo loại**: cột `users.notification_preferences` (JSON, mảng key bị tắt —
+      opt-out nên user cũ mặc định bật hết). `App\Support\NotificationType::LABELS` là danh sách tập trung
+      7 loại; `via()` của từng Notification tự kiểm `User::hasMutedNotification()` trước khi thêm kênh
+      `database` — `PaymentSucceeded` cố tình chỉ cho tắt chuông trong app, **không cho tắt email biên
+      nhận** (bằng chứng giao dịch). Giao diện: `partials/notification-preferences-form.blade.php`, dùng
+      chung cả 4 trang cài đặt.
+- [x] **Ô tìm kiếm chung cho giáo viên** (`teacher.search`, `/giao-vien/tim-kiem`): tìm xuyên suốt bài học +
+      câu hỏi + học sinh trong một ô, thay vì mỗi trang một filter riêng. Bài học/câu hỏi lọc theo
+      `created_by` (không thấy nội dung giáo viên khác); học sinh tái dùng
+      `StudentInsightService::studentsFor()` để tự động giới hạn đúng học sinh trong lớp mình dạy. Hộp tìm
+      hiện trên header desktop của portal giáo viên (`layouts/app.blade.php`), mobile vào mục "Tìm kiếm"
+      trong menu.
+
 ---
 
 ## 11b. Kết quả rà checklist bảo mật — 2026-09-17 (Phase 10)

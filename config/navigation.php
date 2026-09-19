@@ -21,6 +21,7 @@ return [
         ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false],
         ['label' => 'Lộ trình', 'icon' => 'bi-signpost-split', 'route' => 'student.path.show', 'bottom' => false],
         ['label' => 'Gói của tôi', 'icon' => 'bi-gem', 'route' => 'student.subscription.index', 'bottom' => false],
+        ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'student.settings', 'bottom' => false],
     ],
 
     'teacher' => [
@@ -33,6 +34,8 @@ return [
         ['label' => 'Học sinh', 'icon' => 'bi-mortarboard', 'route' => 'teacher.students.index', 'bottom' => false],
         ['label' => 'AI soạn bài', 'icon' => 'bi-robot', 'route' => 'teacher.ai.index', 'bottom' => false],
         ['label' => 'Báo cáo', 'icon' => 'bi-bar-chart', 'route' => 'teacher.reports.index', 'bottom' => false],
+        ['label' => 'Tìm kiếm', 'icon' => 'bi-search', 'route' => 'teacher.search', 'bottom' => false],
+        ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'teacher.settings', 'bottom' => false],
     ],
 
     'parent' => [
@@ -53,6 +56,7 @@ return [
         ['label' => 'AI usage', 'icon' => 'bi-robot', 'route' => 'admin.ai-usage.index', 'bottom' => false],
         ['label' => 'Hỗ trợ', 'icon' => 'bi-life-preserver', 'route' => 'admin.support.index', 'bottom' => false],
         ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => 'admin.audit-logs.index', 'bottom' => false],
+        ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'admin.settings', 'bottom' => false],
     ],
 
 ];

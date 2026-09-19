@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Student\ParentConnectionController;
 use App\Http\Controllers\Student\PlacementController;
 use App\Http\Controllers\Student\PracticeController;
+use App\Http\Controllers\Student\SettingsController as StudentSettingsController;
 use App\Http\Controllers\Student\SubscriptionController as StudentSubscriptionController;
 use App\Http\Controllers\Teacher\AiContentController;
 use App\Http\Controllers\Teacher\AssignmentController as TeacherAssignmentController;
@@ -40,6 +42,8 @@ use App\Http\Controllers\Teacher\LessonSectionController;
 use App\Http\Controllers\Teacher\QuestionController;
 use App\Http\Controllers\Teacher\QuestionImportController;
 use App\Http\Controllers\Teacher\ReportController as TeacherReportController;
+use App\Http\Controllers\Teacher\SearchController as TeacherSearchController;
+use App\Http\Controllers\Teacher\SettingsController as TeacherSettingsController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\NotificationController;
@@ -105,6 +109,7 @@ Route::middleware('auth')->group(function () {
         Route::get('thong-bao', [NotificationController::class, 'index'])->name('notifications.index');
         Route::get('thong-bao/{notification}/mo', [NotificationController::class, 'open'])->name('notifications.open');
         Route::post('thong-bao/danh-dau-da-doc', [NotificationController::class, 'readAll'])->name('notifications.read_all');
+        Route::put('thong-bao/cai-dat', [NotificationController::class, 'updatePreferences'])->name('notifications.preferences.update');
 
         // Học sinh mua cho mình, phụ huynh mua cho con — controller tự kiểm tra role.
         Route::get('goi-hoc/{package}/mua', [PackageController::class, 'checkout'])->name('packages.checkout');
@@ -124,6 +129,10 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('hoc-sinh')->name('student.')->middleware('role:student')->group(function () {
             Route::get('/', [StudentDashboard::class, 'index'])->name('dashboard');
+
+            Route::get('cai-dat', [StudentSettingsController::class, 'edit'])->name('settings');
+            Route::put('cai-dat/ho-so', [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
+            Route::put('cai-dat/mat-khau', [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
 
             Route::get('hoc', [LearnController::class, 'index'])->name('learn.index');
             Route::get('hoc/chu-de/{topic}', [LearnController::class, 'topic'])->name('learn.topic');
@@ -185,6 +194,12 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('giao-vien')->name('teacher.')->middleware('role:teacher,admin')->group(function () {
             Route::get('/', [TeacherDashboard::class, 'index'])->name('dashboard');
+
+            Route::get('tim-kiem', [TeacherSearchController::class, 'index'])->name('search');
+
+            Route::get('cai-dat', [TeacherSettingsController::class, 'edit'])->name('settings');
+            Route::put('cai-dat/ho-so', [TeacherSettingsController::class, 'updateProfile'])->name('settings.profile');
+            Route::put('cai-dat/mat-khau', [TeacherSettingsController::class, 'updatePassword'])->name('settings.password');
 
             // AI soạn nội dung (§12) — mọi output là nháp, giáo viên duyệt từng mục.
             Route::get('ai', [AiContentController::class, 'index'])->name('ai.index');
@@ -307,11 +322,17 @@ Route::middleware('auth')->group(function () {
 
             Route::get('cai-dat', [ParentSettingsController::class, 'edit'])->name('settings');
             Route::put('cai-dat', [ParentSettingsController::class, 'update'])->name('settings.update');
+            Route::put('cai-dat/ho-so', [ParentSettingsController::class, 'updateProfile'])->name('settings.profile');
+            Route::put('cai-dat/mat-khau', [ParentSettingsController::class, 'updatePassword'])->name('settings.password');
         });
 
         Route::prefix('quan-tri')->name('admin.')->middleware('role:admin')->group(function () {
             Route::get('/', [AdminDashboard::class, 'index'])->name('dashboard');
             Route::post('lam-moi-so-lieu', [AdminDashboard::class, 'refresh'])->name('dashboard.refresh');
+
+            Route::get('cai-dat', [AdminSettingsController::class, 'edit'])->name('settings');
+            Route::put('cai-dat/ho-so', [AdminSettingsController::class, 'updateProfile'])->name('settings.profile');
+            Route::put('cai-dat/mat-khau', [AdminSettingsController::class, 'updatePassword'])->name('settings.password');
 
             Route::get('nguoi-dung', [AdminUserController::class, 'index'])->name('users.index');
             Route::get('nguoi-dung/{user}', [AdminUserController::class, 'show'])->name('users.show');

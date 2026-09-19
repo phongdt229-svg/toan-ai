@@ -6,8 +6,13 @@
 @section('content')
     <h2 class="h5 fw-bold mb-3">Cài đặt</h2>
 
-    <div class="card border" style="max-width:36rem">
+    @include('partials.profile-form', ['user' => auth()->user(), 'profileRoute' => route('parent.settings.profile')])
+    @include('partials.notification-preferences-form')
+    @include('partials.password-form', ['passwordRoute' => route('parent.settings.password')])
+
+    <div class="card border mt-3" style="max-width:36rem">
         <div class="card-body">
+            <h3 class="h6 fw-bold mb-3">Báo cáo tuần</h3>
             <form method="POST" action="{{ route('parent.settings.update') }}">
                 @csrf
                 @method('PUT')

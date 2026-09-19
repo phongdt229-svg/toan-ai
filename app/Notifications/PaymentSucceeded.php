@@ -15,10 +15,15 @@ class PaymentSucceeded extends Notification implements ShouldQueue
 
     public function __construct(public readonly Payment $payment) {}
 
-    /** @return list<string> */
+    /**
+     * Email biên nhận thanh toán luôn gửi (không cho tắt — bằng chứng giao dịch); chỉ chuông
+     * trong app theo được cài đặt bật/tắt.
+     *
+     * @return list<string>
+     */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return $notifiable->hasMutedNotification(self::class) ? ['mail'] : ['mail', 'database'];
     }
 
     /** @return array<string, mixed> */

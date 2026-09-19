@@ -22,6 +22,13 @@
                 <h1 class="h6 mb-0 d-none d-lg-block">@yield('page_title', 'Trang chủ')</h1>
             </div>
 
+            @if ($portal === 'teacher')
+                {{-- Tìm bài học/câu hỏi/học sinh từ bất kỳ đâu trong portal — chỉ hiện ở màn desktop, mobile vào mục "Tìm kiếm" trong menu. --}}
+                <form method="GET" action="{{ route('teacher.search') }}" class="d-none d-lg-flex ms-3" style="width:280px">
+                    <input type="search" name="q" class="form-control form-control-sm" placeholder="Tìm bài học, câu hỏi, học sinh...">
+                </form>
+            @endif
+
             <div class="d-flex align-items-center gap-2 ms-auto">
                 <div class="dropdown">
                     <button class="btn btn-sm btn-light position-relative" data-bs-toggle="dropdown" aria-label="Thông báo">

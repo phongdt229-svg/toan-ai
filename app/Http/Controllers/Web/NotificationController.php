@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateNotificationPreferencesRequest;
+use App\Support\NotificationType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
@@ -38,5 +40,16 @@ class NotificationController extends Controller
         $request->user()->unreadNotifications()->update(['read_at' => now()]);
 
         return back();
+    }
+
+    /** Lưu danh sách loại thông báo còn BẬT — phần còn lại (không gửi lên) bị coi là tắt. */
+    public function updatePreferences(UpdateNotificationPreferencesRequest $request): RedirectResponse
+    {
+        $enabled = $request->validated('enabled', []);
+        $muted = array_values(array_diff(array_keys(NotificationType::LABELS), $enabled));
+
+        $request->user()->update(['notification_preferences' => $muted]);
+
+        return back()->with('status', 'Đã lưu cài đặt thông báo.');
     }
 }
