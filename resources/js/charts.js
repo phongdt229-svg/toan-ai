@@ -247,6 +247,48 @@ function renderTicketsDaily(canvas) {
     });
 }
 
+/** Trang AI usage: số lượt gọi theo từng tính năng (30 ngày) — cam nếu có lượt lỗi, xanh nếu không. */
+function renderFeatureBars(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    canvas.parentElement.style.height = `${Math.max(140, rows.length * 40)}px`;
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: rows.map((r) => r.feature),
+            datasets: [{
+                data: rows.map((r) => r.requests),
+                backgroundColor: rows.map((r) => (r.failed > 0 ? '#f59e0b' : '#93c5fd')),
+                borderRadius: 6,
+                maxBarThickness: 28,
+            }],
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 } },
+                y: { ticks: { autoSkip: false } },
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => {
+                            const row = rows[ctx.dataIndex];
+
+                            return row.failed > 0 ? ` ${row.requests} lượt · ${row.failed} lỗi` : ` ${row.requests} lượt`;
+                        },
+                    },
+                },
+            },
+        },
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="admin-daily"]').forEach(renderAdminDaily);
     document.querySelectorAll('canvas[data-chart-type="topic-bars"]').forEach(renderTopicBars);
@@ -254,4 +296,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="ai-usage-daily"]').forEach(renderAiUsageDaily);
     document.querySelectorAll('canvas[data-chart-type="subscription-donut"]').forEach(renderSubscriptionDonut);
     document.querySelectorAll('canvas[data-chart-type="tickets-daily"]').forEach(renderTicketsDaily);
+    document.querySelectorAll('canvas[data-chart-type="feature-bars"]').forEach(renderFeatureBars);
 });

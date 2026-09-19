@@ -14,6 +14,12 @@
         'generate_questions' => 'GV: tạo câu hỏi', 'generate_lesson' => 'GV: tạo bài học', 'rewrite' => 'GV: viết lại',
     ];
     $usd = fn ($v) => '$' . number_format((float) $v, (float) $v < 1 ? 4 : 2);
+
+    $featureChart = $byFeature->map(fn ($row) => [
+        'feature' => $features[$row->feature] ?? $row->feature,
+        'requests' => (int) $row->requests,
+        'failed' => (int) $row->failed,
+    ])->values();
 @endphp
 
 @section('content')
@@ -68,6 +74,10 @@
     <div class="row g-4">
         <div class="col-12 col-lg-6">
             <h3 class="h6 fw-bold mb-2">Theo tính năng (30 ngày)</h3>
+            @if ($featureChart->isNotEmpty())
+                <canvas data-chart-type="feature-bars" data-chart='@json($featureChart)'
+                        role="img" aria-label="Biểu đồ số lượt gọi AI theo từng tính năng, 30 ngày qua" class="mb-3"></canvas>
+            @endif
             <div class="table-responsive">
                 <table class="table table-sm align-middle">
                     <thead><tr><th>Tính năng</th><th class="text-end">Lượt</th><th class="text-end">Lỗi</th><th class="text-end">Chi phí</th></tr></thead>
