@@ -17,12 +17,14 @@ class DatabaseSeeder extends Seeder
         if (app()->environment('local', 'testing')) {
             $this->call([
                 DemoUserSeeder::class,
+                SampleTeachersSeeder::class,
                 SampleCurriculumSeeder::class,
                 SampleQuestionSeeder::class,
                 SamplePathSeeder::class,
                 SampleExamSeeder::class,
                 SampleClassSeeder::class,
                 SampleAnalyticsSeeder::class,
+                SampleReportsSeeder::class,
             ]);
         }
     }

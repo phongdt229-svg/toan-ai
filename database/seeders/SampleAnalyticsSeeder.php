@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Hash;
 class SampleAnalyticsSeeder extends Seeder
 {
     /** Số học sinh demo tạo thêm. */
-    private const STUDENTS = 12;
+    private const STUDENTS = 22;
 
     /** Hồ sơ năng lực từng chủ đề: [slug => [tên, tỉ lệ đúng trung bình của lớp]]. */
     private const TOPIC_SKILL = [
@@ -158,7 +158,7 @@ class SampleAnalyticsSeeder extends Seeder
             ['name' => 'Số nguyên', 'sort_order' => 2, 'is_active' => true],
         );
 
-        $author = User::where('email', 'teacher@toan-ai.local')->value('id');
+        $author = User::where('email', 'teacher@gmail.com')->value('id');
 
         $topics = [
             [$fractions, 'rut-gon-phan-so', 'Rút gọn phân số', 3, fn () => $this->simplifyQuestion()],
@@ -213,11 +213,13 @@ class SampleAnalyticsSeeder extends Seeder
         $names = [
             'Nguyễn Gia Bảo', 'Trần Khánh Chi', 'Lê Minh Đức', 'Phạm Thu Hà', 'Hoàng Nam Khánh', 'Đỗ Bảo Lâm',
             'Vũ Thảo My', 'Bùi Quang Nam', 'Đặng Hải Phong', 'Ngô Ánh Tuyết', 'Dương Tiến Vũ', 'Lý Yến Nhi',
+            'Đặng Minh Anh', 'Bùi Thanh Tùng', 'Vũ Ngọc Diệp', 'Trịnh Gia Hân', 'Lương Đức Anh', 'Phan Bảo Châu',
+            'Đinh Xuân Mai', 'Hồ Quốc Việt', 'Chu Thảo Vy', 'Mai Anh Khoa',
         ];
         $students = [];
 
         for ($i = 0; $i < self::STUDENTS; $i++) {
-            $email = sprintf('hs%02d@toan-ai.local', $i + 1);
+            $email = sprintf('hs%02d@gmail.com', $i + 1);
 
             $student = User::firstOrCreate(
                 ['email' => $email],

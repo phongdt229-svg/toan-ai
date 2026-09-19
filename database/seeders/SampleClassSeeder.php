@@ -20,8 +20,8 @@ class SampleClassSeeder extends Seeder
 {
     public function run(ClassService $classes, AssignmentService $assignments): void
     {
-        $teacher = User::where('email', 'teacher@toan-ai.local')->first();
-        $student = User::where('email', 'student@toan-ai.local')->first();
+        $teacher = User::where('email', 'teacher@gmail.com')->first();
+        $student = User::where('email', 'student@gmail.com')->first();
         $grade = Grade::where('level', 6)->first();
 
         if (! $teacher || ! $student || ! $grade || SchoolClass::where('name', '6A1 — Toán')->exists()) {

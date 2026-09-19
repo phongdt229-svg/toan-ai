@@ -62,20 +62,23 @@ MariaDB của XAMPP phải đang chạy. DB dev: `toan_ai`, DB test: `toan_ai_te
 
 | Role | Email | Mật khẩu |
 |---|---|---|
-| Admin | `admin@toan-ai.local` | `password` |
-| Giáo viên (đã duyệt) | `teacher@toan-ai.local` | `password` |
-| Giáo viên (chờ duyệt) | `teacher-pending@toan-ai.local` | `password` |
-| Học sinh | `student@toan-ai.local` | `password` |
-| Phụ huynh | `parent@toan-ai.local` | `password` |
+| Admin | `admin@gmail.com` | `password` |
+| Giáo viên (đã duyệt) | `teacher@gmail.com` | `password` |
+| Giáo viên (chờ duyệt) | `teacher-pending@gmail.com` | `password` |
+| Học sinh | `student@gmail.com` | `password` |
+| Phụ huynh | `parent@gmail.com` | `password` |
 
 Ở `APP_ENV=local`, màn hình đăng nhập liệt kê các tài khoản này (bấm để điền, bấm đúp để đăng nhập) — danh sách lấy từ
 `DemoUserSeeder::ACCOUNTS`, mật khẩu từ `config('app.demo_password')` (env `DEMO_PASSWORD`). Môi trường khác không hiện.
 
 Lớp mẫu `6A1 — Toán`, mã tham gia **`TOAN6A`**, đã có học sinh demo và 3 bài giao (bộ câu hỏi, học bài, đề).
 
-`SampleAnalyticsSeeder` (local) thêm 12 học sinh `hs01@toan-ai.local` … `hs12@toan-ai.local` (cùng mật khẩu demo),
+`SampleAnalyticsSeeder` (local) thêm 22 học sinh `hs01@gmail.com` … `hs22@gmail.com` (cùng mật khẩu demo),
 8 chủ đề Lớp 6 kèm câu hỏi tự sinh, lịch sử luyện tập 30 ngày và kết quả bài giao — để dashboard quản trị
 và báo cáo lớp của giáo viên có số liệu. Mastery **không** ghi thẳng mà tính lại qua `MasteryService`.
+
+`SampleTeachersSeeder` (local) thêm 12 giáo viên `gv01@gmail.com` … `gv12@gmail.com` (cùng mật khẩu demo),
+đã duyệt, có hồ sơ trường/môn đầy đủ — để danh sách giáo viên ở trang quản trị có số liệu thật.
 
 ## Quy ước
 

@@ -24,7 +24,7 @@ class SamplePathSeeder extends Seeder
             return;
         }
 
-        $author = User::where('email', 'teacher@toan-ai.local')->value('id');
+        $author = User::where('email', 'teacher@gmail.com')->value('id');
 
         $lesson = Lesson::updateOrCreate(['slug' => 'so-sanh-hai-phan-so'], [
             'topic_id' => $topic->id,

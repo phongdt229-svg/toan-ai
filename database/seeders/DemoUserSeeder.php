@@ -18,11 +18,11 @@ class DemoUserSeeder extends Seeder
 {
     /** Email → vai trò. Màn hình đăng nhập ở local đọc danh sách này để hiện nút đăng nhập nhanh. */
     public const ACCOUNTS = [
-        'admin@toan-ai.local' => 'Quản trị',
-        'teacher@toan-ai.local' => 'Giáo viên',
-        'teacher-pending@toan-ai.local' => 'Giáo viên chờ duyệt',
-        'student@toan-ai.local' => 'Học sinh',
-        'parent@toan-ai.local' => 'Phụ huynh',
+        'admin@gmail.com' => 'Quản trị',
+        'teacher@gmail.com' => 'Giáo viên',
+        'teacher-pending@gmail.com' => 'Giáo viên chờ duyệt',
+        'student@gmail.com' => 'Học sinh',
+        'parent@gmail.com' => 'Phụ huynh',
     ];
 
     public function run(): void
@@ -30,7 +30,7 @@ class DemoUserSeeder extends Seeder
         $password = Hash::make(config('app.demo_password'));
 
         $admin = User::updateOrCreate(
-            ['email' => 'admin@toan-ai.local'],
+            ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Quản trị viên',
                 'password' => $password,
@@ -41,7 +41,7 @@ class DemoUserSeeder extends Seeder
         $admin->assignRole(Role::ADMIN);
 
         $teacher = User::updateOrCreate(
-            ['email' => 'teacher@toan-ai.local'],
+            ['email' => 'teacher@gmail.com'],
             [
                 'name' => 'Nguyễn Văn Giáo',
                 'phone' => '0900000001',
@@ -63,7 +63,7 @@ class DemoUserSeeder extends Seeder
 
         // Giáo viên chờ duyệt — để thử luồng duyệt của admin
         $pendingTeacher = User::updateOrCreate(
-            ['email' => 'teacher-pending@toan-ai.local'],
+            ['email' => 'teacher-pending@gmail.com'],
             [
                 'name' => 'Trần Thị Chờ Duyệt',
                 'phone' => '0900000002',
@@ -80,7 +80,7 @@ class DemoUserSeeder extends Seeder
         $grade6 = Grade::where('level', 6)->first();
 
         $student = User::updateOrCreate(
-            ['email' => 'student@toan-ai.local'],
+            ['email' => 'student@gmail.com'],
             [
                 'name' => 'Lê Minh Học',
                 'password' => $password,
@@ -108,7 +108,7 @@ class DemoUserSeeder extends Seeder
         );
 
         $parent = User::updateOrCreate(
-            ['email' => 'parent@toan-ai.local'],
+            ['email' => 'parent@gmail.com'],
             [
                 'name' => 'Lê Văn Phụ Huynh',
                 'phone' => '0900000003',

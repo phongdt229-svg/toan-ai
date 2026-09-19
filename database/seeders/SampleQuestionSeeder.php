@@ -23,7 +23,7 @@ class SampleQuestionSeeder extends Seeder
         }
 
         $grade = Grade::where('level', 6)->firstOrFail();
-        $author = User::where('email', 'teacher@toan-ai.local')->first();
+        $author = User::where('email', 'teacher@gmail.com')->first();
 
         foreach ($this->questions() as $data) {
             $options = $data['options'] ?? null;

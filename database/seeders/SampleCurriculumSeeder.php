@@ -20,7 +20,7 @@ class SampleCurriculumSeeder extends Seeder
     public function run(): void
     {
         $grade = Grade::where('level', 6)->firstOrFail();
-        $author = User::where('email', 'teacher@toan-ai.local')->first();
+        $author = User::where('email', 'teacher@gmail.com')->first();
 
         $subject = Subject::updateOrCreate(
             ['grade_id' => $grade->id, 'slug' => 'toan'],

@@ -16,7 +16,7 @@ class SampleExamSeeder extends Seeder
 {
     public function run(ExamBuilderService $builder): void
     {
-        $teacher = User::where('email', 'teacher@toan-ai.local')->first();
+        $teacher = User::where('email', 'teacher@gmail.com')->first();
         $grade = Grade::where('level', 6)->first();
 
         if (! $teacher || ! $grade) {
