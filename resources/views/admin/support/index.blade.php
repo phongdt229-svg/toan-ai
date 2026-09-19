@@ -2,17 +2,22 @@
 
 @php use App\Models\SupportTicket; @endphp
 
+@push('head')
+    @vite('resources/js/charts.js')
+@endpush
+
 @section('title', 'Hỗ trợ — Quản trị TOÁN AI')
 @section('page_title', 'Yêu cầu hỗ trợ')
 
 @section('content')
     <div class="row g-3 mb-3">
         @foreach ([
+            ['Tổng số yêu cầu', $stats['total'], 'bi-collection', 'primary'],
             ['Yêu cầu mới', $stats['new'], 'bi-inbox', $stats['new'] ? 'primary' : 'secondary'],
             ['Đang xử lý', $stats['in_progress'], 'bi-hourglass-split', 'warning'],
             ['Lỗi nội dung chưa xong', $stats['content_error'], 'bi-exclamation-triangle', $stats['content_error'] ? 'danger' : 'secondary'],
         ] as [$label, $value, $icon, $tone])
-            <div class="col-12 col-sm-4">
+            <div class="col-6 col-sm-3">
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="stat-card__label">{{ $label }}</div>
@@ -22,6 +27,42 @@
                 </div>
             </div>
         @endforeach
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-8">
+            <div class="card border h-100">
+                <div class="card-body">
+                    <div class="fw-semibold mb-2">14 ngày gần đây</div>
+                    <canvas data-chart-type="tickets-daily" data-chart='@json($daily)'
+                            role="img" aria-label="Biểu đồ số yêu cầu hỗ trợ gửi tới mỗi ngày"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="card border h-100">
+                <div class="card-body">
+                    <div class="fw-semibold mb-2">Theo loại</div>
+                    @foreach (SupportTicket::TYPE_LABELS as $value => $label)
+                        <div class="d-flex justify-content-between border-bottom py-1 small">
+                            <span class="text-secondary">{{ $label }}</span><strong>{{ $byType[$value] ?? 0 }}</strong>
+                        </div>
+                    @endforeach
+                    <div class="small text-secondary mt-3">
+                        Đã xử lý (đã giải quyết/đóng): <strong>{{ $stats['handled'] }}</strong><br>
+                        Thời gian xử lý trung bình:
+                        <strong>
+                            @if ($stats['avg_resolution_hours'] === null)
+                                chưa có dữ liệu
+                            @else
+                                {{ number_format($stats['avg_resolution_hours'], 1) }} giờ
+                            @endif
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <form method="GET" class="filter-bar">

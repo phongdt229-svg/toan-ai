@@ -222,10 +222,36 @@ function renderSubscriptionDonut(canvas) {
     }
 }
 
+/** Trang Quản trị → Hỗ trợ: số yêu cầu gửi tới mỗi ngày, 14 ngày gần nhất. */
+function renderTicketsDaily(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    canvas.parentElement.style.height = '220px';
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: rows.map((r) => r.label),
+            datasets: [{ label: 'Yêu cầu mới', data: rows.map((r) => r.count), backgroundColor: '#93c5fd', borderRadius: 4, maxBarThickness: 28 }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { maxTicksLimit: 10 } },
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+            },
+            plugins: { legend: { display: false } },
+        },
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="admin-daily"]').forEach(renderAdminDaily);
     document.querySelectorAll('canvas[data-chart-type="topic-bars"]').forEach(renderTopicBars);
     document.querySelectorAll('canvas[data-chart-type="daily-activity"]').forEach(renderDailyActivity);
     document.querySelectorAll('canvas[data-chart-type="ai-usage-daily"]').forEach(renderAiUsageDaily);
     document.querySelectorAll('canvas[data-chart-type="subscription-donut"]').forEach(renderSubscriptionDonut);
+    document.querySelectorAll('canvas[data-chart-type="tickets-daily"]').forEach(renderTicketsDaily);
 });

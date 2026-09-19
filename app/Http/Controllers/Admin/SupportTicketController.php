@@ -7,6 +7,7 @@ use App\Models\SupportTicket;
 use App\Services\SupportTicketService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -37,11 +38,44 @@ class SupportTicketController extends Controller
             'status' => $status,
             'search' => $search,
             'stats' => [
+                'total' => SupportTicket::count(),
                 'new' => SupportTicket::where('status', SupportTicket::STATUS_NEW)->count(),
                 'in_progress' => SupportTicket::where('status', SupportTicket::STATUS_IN_PROGRESS)->count(),
+                'handled' => SupportTicket::whereIn('status', [SupportTicket::STATUS_RESOLVED, SupportTicket::STATUS_CLOSED])->count(),
                 'content_error' => SupportTicket::where('type', SupportTicket::TYPE_CONTENT_ERROR)->open()->count(),
+                // Giờ trung bình từ lúc gửi tới lúc admin đổi trạng thái xong — null nếu chưa xử lý ai.
+                'avg_resolution_hours' => SupportTicket::whereNotNull('handled_at')
+                    ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, handled_at)) h')
+                    ->value('h'),
             ],
+            'byType' => SupportTicket::query()
+                ->groupBy('type')
+                ->selectRaw('type, COUNT(*) c')
+                ->pluck('c', 'type'),
+            'daily' => $this->dailyForChart(),
         ]);
+    }
+
+    /**
+     * Chuỗi 14 ngày cho biểu đồ. Ngày không có yêu cầu vẫn có mặt (giá trị 0) để trục thời gian liền mạch.
+     *
+     * @return list<array{label: string, count: int}>
+     */
+    private function dailyForChart(): array
+    {
+        $since = today()->subDays(13);
+
+        $rows = SupportTicket::query()
+            ->whereDate('created_at', '>=', $since)
+            ->groupByRaw('DATE(created_at)')
+            ->selectRaw('DATE(created_at) d, COUNT(*) c')
+            ->pluck('c', 'd');
+
+        return collect(range(0, 13))->map(function (int $i) use ($since, $rows) {
+            $day = $since->copy()->addDays($i)->toDateString();
+
+            return ['label' => Carbon::parse($day)->format('d/m'), 'count' => (int) ($rows[$day] ?? 0)];
+        })->all();
     }
 
     public function show(SupportTicket $ticket): View
