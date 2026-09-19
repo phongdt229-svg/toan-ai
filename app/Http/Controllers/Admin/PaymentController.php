@@ -8,6 +8,7 @@ use App\Models\PaymentWebhookLog;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 /** Quản lý giao dịch (§25): tra cứu, xem log IPN, đối soát lại với cổng. */
@@ -39,7 +40,38 @@ class PaymentController extends Controller
                 'bad_signatures_7d' => PaymentWebhookLog::where('result', PaymentWebhookLog::RESULT_INVALID_SIGNATURE)
                     ->where('created_at', '>=', now()->subDays(7))->count(),
             ],
+            'daily' => $this->dailyForChart(),
         ]);
+    }
+
+    /**
+     * Chuỗi 14 ngày cho biểu đồ: số giao dịch thành công + doanh thu. Ngày không có giao dịch
+     * vẫn có mặt (giá trị 0) để trục thời gian liền mạch.
+     *
+     * @return list<array{label: string, count: int, revenue: int}>
+     */
+    private function dailyForChart(): array
+    {
+        $since = today()->subDays(13);
+
+        $rows = Payment::query()
+            ->where('status', Payment::STATUS_PAID)
+            ->whereDate('paid_at', '>=', $since)
+            ->groupByRaw('DATE(paid_at)')
+            ->selectRaw('DATE(paid_at) d, COUNT(*) c, SUM(amount) r')
+            ->get()
+            ->keyBy('d');
+
+        return collect(range(0, 13))->map(function (int $i) use ($since, $rows) {
+            $day = $since->copy()->addDays($i)->toDateString();
+            $row = $rows->get($day);
+
+            return [
+                'label' => Carbon::parse($day)->format('d/m'),
+                'count' => (int) ($row->c ?? 0),
+                'revenue' => (int) ($row->r ?? 0),
+            ];
+        })->all();
     }
 
     public function show(Payment $payment): View

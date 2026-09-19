@@ -222,8 +222,11 @@ function renderSubscriptionDonut(canvas) {
     }
 }
 
-/** Trang Quản trị → Hỗ trợ: số yêu cầu gửi tới mỗi ngày, 14 ngày gần nhất. */
-function renderTicketsDaily(canvas) {
+/**
+ * Cột đơn giản {label, count} theo ngày — dùng chung cho vài trang quản trị (yêu cầu hỗ
+ * trợ, tài khoản đăng ký mới…), chỉ khác nhãn chú thích.
+ */
+function renderCountDaily(canvas, seriesLabel) {
     const rows = JSON.parse(canvas.dataset.chart || '[]');
     if (!rows.length) return;
 
@@ -233,7 +236,7 @@ function renderTicketsDaily(canvas) {
         type: 'bar',
         data: {
             labels: rows.map((r) => r.label),
-            datasets: [{ label: 'Yêu cầu mới', data: rows.map((r) => r.count), backgroundColor: '#93c5fd', borderRadius: 4, maxBarThickness: 28 }],
+            datasets: [{ label: seriesLabel, data: rows.map((r) => r.count), backgroundColor: '#93c5fd', borderRadius: 4, maxBarThickness: 28 }],
         },
         options: {
             responsive: true,
@@ -289,12 +292,75 @@ function renderFeatureBars(canvas) {
     });
 }
 
+/** Cột ngang đơn giản {label, count} — dùng cho các bảng phân loại (vd đăng ký theo từng gói). */
+function renderCountBars(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    canvas.parentElement.style.height = `${Math.max(140, rows.length * 40)}px`;
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: rows.map((r) => r.label),
+            datasets: [{ data: rows.map((r) => r.count), backgroundColor: '#3b82f6', borderRadius: 6, maxBarThickness: 28 }],
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 } },
+                y: { ticks: { autoSkip: false } },
+            },
+            plugins: { legend: { display: false } },
+        },
+    });
+}
+
+/** Trang Giao dịch: số giao dịch thành công (cột) + doanh thu ₫ (đường, trục phải). */
+function renderPaymentsDaily(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    canvas.parentElement.style.height = '240px';
+    const vnd = (v) => `${Number(v).toLocaleString('vi-VN')}₫`;
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: rows.map((r) => r.label),
+            datasets: [
+                { type: 'bar', label: 'Giao dịch thành công', data: rows.map((r) => r.count), backgroundColor: '#93c5fd', borderRadius: 4, yAxisID: 'y' },
+                { type: 'line', label: 'Doanh thu', data: rows.map((r) => r.revenue), borderColor: '#a50064', backgroundColor: '#a50064', tension: 0.3, pointRadius: 2, yAxisID: 'money' },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { type: 'category', ticks: { maxTicksLimit: 10 } },
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+                money: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: (v) => (v >= 1000 ? `${v / 1000}k` : v) } },
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.dataset.yAxisID === 'money' ? vnd(ctx.parsed.y) : ctx.parsed.y}` } },
+            },
+        },
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="admin-daily"]').forEach(renderAdminDaily);
     document.querySelectorAll('canvas[data-chart-type="topic-bars"]').forEach(renderTopicBars);
     document.querySelectorAll('canvas[data-chart-type="daily-activity"]').forEach(renderDailyActivity);
     document.querySelectorAll('canvas[data-chart-type="ai-usage-daily"]').forEach(renderAiUsageDaily);
     document.querySelectorAll('canvas[data-chart-type="subscription-donut"]').forEach(renderSubscriptionDonut);
-    document.querySelectorAll('canvas[data-chart-type="tickets-daily"]').forEach(renderTicketsDaily);
+    document.querySelectorAll('canvas[data-chart-type="tickets-daily"]').forEach((c) => renderCountDaily(c, 'Yêu cầu mới'));
+    document.querySelectorAll('canvas[data-chart-type="signups-daily"]').forEach((c) => renderCountDaily(c, 'Tài khoản mới'));
     document.querySelectorAll('canvas[data-chart-type="feature-bars"]').forEach(renderFeatureBars);
+    document.querySelectorAll('canvas[data-chart-type="count-bars"]').forEach(renderCountBars);
+    document.querySelectorAll('canvas[data-chart-type="payments-daily"]').forEach(renderPaymentsDaily);
 });

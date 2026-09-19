@@ -41,6 +41,15 @@ class SubscriptionController extends Controller
                 'pending' => Subscription::where('status', Subscription::STATUS_PENDING)->count(),
                 'expiring' => Subscription::effective()->where('ends_at', '<=', now()->addDays(7))->count(),
             ],
+            // Đang hiệu lực, theo từng gói cụ thể — biết gói nào đang được mua nhiều nhất.
+            'packageChart' => Subscription::query()
+                ->effective()
+                ->join('packages', 'packages.id', '=', 'subscriptions.package_id')
+                ->groupBy('packages.id', 'packages.name')
+                ->orderByDesc('c')
+                ->selectRaw('packages.name label, COUNT(*) c')
+                ->get()
+                ->map(fn ($row) => ['label' => $row->label, 'count' => (int) $row->c]),
         ]);
     }
 

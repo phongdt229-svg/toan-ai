@@ -1,5 +1,9 @@
 @extends('layouts.app', ['portal' => 'admin'])
 
+@push('head')
+    @vite('resources/js/charts.js')
+@endpush
+
 @section('title', 'Đăng ký gói — Quản trị TOÁN AI')
 @section('page_title', 'Đăng ký gói')
 
@@ -14,6 +18,16 @@
             </div>
         @endforeach
     </div>
+
+    @if ($packageChart->isNotEmpty())
+        <div class="card border mb-3">
+            <div class="card-body">
+                <div class="fw-semibold mb-2">Đang hiệu lực, theo từng gói</div>
+                <canvas data-chart-type="count-bars" data-chart='@json($packageChart)'
+                        role="img" aria-label="Biểu đồ số đăng ký đang hiệu lực theo từng gói"></canvas>
+            </div>
+        </div>
+    @endif
 
     <div class="card border mb-3">
         <div class="card-body">

@@ -12,6 +12,7 @@ use App\Services\Learning\StudentReportService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -55,7 +56,42 @@ class UserController extends Controller
             'role' => $role,
             'status' => $status,
             'search' => $search,
+            // Tổng quan toàn hệ thống — cố ý không theo bộ lọc đang chọn, để luôn thấy được bức tranh chung.
+            'roleChart' => [
+                ['label' => self::ROLE_LABELS[Role::STUDENT], 'count' => $this->countByRole(Role::STUDENT), 'color' => '#3b82f6'],
+                ['label' => self::ROLE_LABELS[Role::TEACHER], 'count' => $this->countByRole(Role::TEACHER), 'color' => '#16a34a'],
+                ['label' => self::ROLE_LABELS[Role::PARENT], 'count' => $this->countByRole(Role::PARENT), 'color' => '#f97316'],
+                ['label' => self::ROLE_LABELS[Role::ADMIN], 'count' => $this->countByRole(Role::ADMIN), 'color' => '#0f172a'],
+            ],
+            'signupsDaily' => $this->signupsDaily(),
         ]);
+    }
+
+    private function countByRole(string $role): int
+    {
+        return User::whereHas('roles', fn ($q) => $q->where('name', $role))->count();
+    }
+
+    /**
+     * Chuỗi 14 ngày cho biểu đồ. Ngày không có ai đăng ký vẫn có mặt (giá trị 0) để trục thời gian liền mạch.
+     *
+     * @return list<array{label: string, count: int}>
+     */
+    private function signupsDaily(): array
+    {
+        $since = today()->subDays(13);
+
+        $rows = User::query()
+            ->whereDate('created_at', '>=', $since)
+            ->groupByRaw('DATE(created_at)')
+            ->selectRaw('DATE(created_at) d, COUNT(*) c')
+            ->pluck('c', 'd');
+
+        return collect(range(0, 13))->map(function (int $i) use ($since, $rows) {
+            $day = $since->copy()->addDays($i)->toDateString();
+
+            return ['label' => Carbon::parse($day)->format('d/m'), 'count' => (int) ($rows[$day] ?? 0)];
+        })->all();
     }
 
     public function show(User $user, SubscriptionService $subscriptions, StudentReportService $reports): View

@@ -1,5 +1,9 @@
 @extends('layouts.app', ['portal' => 'admin'])
 
+@push('head')
+    @vite('resources/js/charts.js')
+@endpush
+
 @section('title', 'Giao dịch — Quản trị TOÁN AI')
 @section('page_title', 'Giao dịch')
 
@@ -18,6 +22,14 @@
                 </div></div>
             </div>
         @endforeach
+    </div>
+
+    <div class="card border mb-3">
+        <div class="card-body">
+            <div class="fw-semibold mb-2">14 ngày gần đây</div>
+            <canvas data-chart-type="payments-daily" data-chart='@json($daily)'
+                    role="img" aria-label="Biểu đồ số giao dịch thành công và doanh thu theo ngày"></canvas>
+        </div>
     </div>
 
     <form method="GET" class="filter-bar">

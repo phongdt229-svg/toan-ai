@@ -2,10 +2,36 @@
 
 @php use App\Http\Controllers\Admin\UserController; @endphp
 
+@push('head')
+    @vite('resources/js/charts.js')
+@endpush
+
 @section('title', 'Người dùng — Quản trị TOÁN AI')
 @section('page_title', 'Người dùng')
 
 @section('content')
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-4">
+            <div class="card border h-100">
+                <div class="card-body">
+                    <div class="fw-semibold mb-2">Theo vai trò</div>
+                    <canvas data-chart-type="subscription-donut" data-chart='@json($roleChart)'
+                            role="img" aria-label="Biểu đồ phân bố người dùng theo vai trò"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-8">
+            <div class="card border h-100">
+                <div class="card-body">
+                    <div class="fw-semibold mb-2">Tài khoản mới, 14 ngày gần đây</div>
+                    <canvas data-chart-type="signups-daily" data-chart='@json($signupsDaily)'
+                            role="img" aria-label="Biểu đồ số tài khoản mới đăng ký mỗi ngày"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <form method="GET" class="filter-bar">
         <input name="q" class="form-control" style="max-width:280px" placeholder="Tên, email, số điện thoại" value="{{ $search }}">
         <select name="role" class="form-select" style="max-width:170px">
