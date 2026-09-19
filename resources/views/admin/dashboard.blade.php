@@ -34,6 +34,20 @@
         </div>
     @endif
 
+    @if ($a['support']['open'] > 0)
+        <div class="alert alert-info d-flex flex-wrap align-items-center gap-2">
+            <i class="bi bi-headset"></i>
+            <span class="flex-grow-1">
+                Có <strong>{{ $a['support']['open'] }}</strong> yêu cầu hỗ trợ chưa xử lý
+                @if ($a['support']['content_error'] > 0)
+                    (<strong class="text-danger">{{ $a['support']['content_error'] }}</strong> báo lỗi nội dung)
+                @endif
+                .
+            </span>
+            <a href="{{ route('admin.support.index', ['status' => 'open']) }}" class="btn btn-sm btn-info text-white">Xem ngay</a>
+        </div>
+    @endif
+
     <div class="row g-3 mb-3">
         @foreach ([
             ['Doanh thu tháng này', $money($a['revenue']['month']), 'bi-cash-coin', $a['revenue']['paid_orders_month'] . ' đơn thành công'],

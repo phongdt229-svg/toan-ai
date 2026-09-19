@@ -11,6 +11,7 @@ use App\Models\Question;
 use App\Models\QuestionAttempt;
 use App\Models\Role;
 use App\Models\Subscription;
+use App\Models\SupportTicket;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -74,6 +75,10 @@ class AnalyticsService
             ],
             'daily' => $this->daily($since),
             'weak_topics' => $this->weakTopics(),
+            'support' => [
+                'open' => SupportTicket::query()->open()->count(),
+                'content_error' => SupportTicket::where('type', SupportTicket::TYPE_CONTENT_ERROR)->open()->count(),
+            ],
         ];
     }
 
