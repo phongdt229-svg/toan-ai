@@ -17,9 +17,29 @@
                 <li class="nav-item"><a class="nav-link" href="{{ route('packages.index') }}">Gói học</a></li>
             </ul>
 
-            <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-3 mt-3 mt-lg-0">
+            <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 ms-lg-3 mt-3 mt-lg-0">
                 @auth
                     <a href="{{ auth()->user()->homeRoute() }}" class="btn btn-primary">Vào học</a>
+
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light d-flex align-items-center gap-2 w-100 justify-content-center justify-content-lg-start"
+                                type="button" data-bs-toggle="dropdown" aria-label="Tài khoản">
+                            <i class="bi bi-person-circle"></i>
+                            <span>{{ auth()->user()->name }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><span class="dropdown-item-text small text-secondary">{{ auth()->user()->email }}</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-outline-primary">Đăng nhập</a>
                     <a href="{{ route('register') }}" class="btn btn-accent">Đăng ký</a>
