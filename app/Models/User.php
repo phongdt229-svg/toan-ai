@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Concerns\HasRoles;
 use App\Notifications\ResetPasswordLink;
+use App\Notifications\VerifyEmailLink;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,7 +16,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
@@ -141,6 +143,23 @@ class User extends Authenticatable
     public function linkedParents(): BelongsToMany
     {
         return $this->parents()->wherePivot('status', ParentChild::STATUS_LINKED);
+    }
+
+    /** Mail xác thực email bản tiếng Việt. */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailLink);
+    }
+
+    /** Trang Cài đặt của đúng portal — mỗi role một route riêng. */
+    public function settingsRoute(): string
+    {
+        return match (true) {
+            $this->isAdmin() => 'admin.settings',
+            $this->isTeacher() => 'teacher.settings',
+            $this->isParent() => 'parent.settings',
+            default => 'student.settings',
+        };
     }
 
     /** Mail đặt lại mật khẩu bản tiếng Việt thay cho mail mặc định của Laravel. */

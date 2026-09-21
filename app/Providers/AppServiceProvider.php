@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\Schema;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\Payment\Gateways\FakeMomoGateway;
 use App\Services\Payment\Gateways\MomoGateway;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -83,6 +86,9 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->isProduction() && str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
+
+        // Đăng ký xong là gửi luôn mail xác thực (Laravel 12 không tự gắn listener này).
+        Event::listen(Registered::class, SendEmailVerificationNotification::class);
 
         $this->registerPermissionGates();
     }

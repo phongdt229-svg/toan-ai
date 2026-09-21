@@ -112,6 +112,21 @@
 
         <main class="container-fluid px-3 py-3 py-lg-4">
             @include('components.flash')
+
+            {{-- Nhắc xác thực email: không chặn việc học, chỉ chặn mua gói (xem route packages.*). --}}
+            @if (! auth()->user()->hasVerifiedEmail())
+                <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2">
+                    <i class="bi bi-envelope-exclamation"></i>
+                    <span class="flex-grow-1 small">
+                        Email <strong>{{ auth()->user()->email }}</strong> chưa được xác thực — bạn sẽ không nhận được
+                        thư đặt lại mật khẩu, báo cáo học tập hay biên nhận thanh toán.
+                    </span>
+                    <form method="POST" action="{{ route('verification.send') }}">
+                        @csrf
+                        <button class="btn btn-sm btn-warning">Gửi lại email xác thực</button>
+                    </form>
+                </div>
+            @endif
             @yield('content')
         </main>
     </div>

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -107,6 +108,16 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('dang-xuat', [LoginController::class, 'destroy'])->name('logout');
 
+    // Xác thực email (§29). Link trong mail đã ký nên không cần đăng nhập mới mở được.
+    Route::get('xac-thuc-email', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('xac-thuc-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware('signed')
+        ->withoutMiddleware('auth')
+        ->name('verification.verify');
+    Route::post('xac-thuc-email/gui-lai', [EmailVerificationController::class, 'send'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
+
     // Không qua middleware `active` — đây chính là trang dành cho tài khoản pending.
     Route::get('tai-khoan/cho-duyet', [AccountController::class, 'pending'])->name('account.pending');
 
@@ -117,9 +128,11 @@ Route::middleware('auth')->group(function () {
         Route::put('thong-bao/cai-dat', [NotificationController::class, 'updatePreferences'])->name('notifications.preferences.update');
 
         // Học sinh mua cho mình, phụ huynh mua cho con — controller tự kiểm tra role.
-        Route::get('goi-hoc/{package}/mua', [PackageController::class, 'checkout'])->name('packages.checkout');
+        Route::get('goi-hoc/{package}/mua', [PackageController::class, 'checkout'])
+            ->middleware('verified')
+            ->name('packages.checkout');
         Route::post('goi-hoc/{package}/mua', [PaymentController::class, 'store'])
-            ->middleware('throttle:10,1') // mỗi lần bấm là một lượt gọi MoMo
+            ->middleware(['verified', 'throttle:10,1']) // mỗi lần bấm là một lượt gọi MoMo
             ->name('packages.pay');
 
         // §8: return URL chỉ hiển thị trạng thái đọc từ DB.
