@@ -97,6 +97,23 @@ Lần đầu cài thêm: `php artisan key:generate`, `php artisan db:seed --clas
 
 ### 3.1. Trang bảo trì
 
+Có hai cách bật: **trang quản trị** (không cần SSH) và **dòng lệnh** (dùng trong script deploy).
+
+#### Bật / tắt từ trang quản trị
+
+Quản trị → **Bảo trì** (`/quan-tri/bao-tri`): nhập thời gian dự kiến (hiện nguyên văn cho người dùng),
+tích ô xác nhận, bấm **Bật chế độ bảo trì**. Tắt bằng nút **Tắt bảo trì, mở lại site**. Cả hai đều ghi audit log
+(`maintenance.enabled` / `maintenance.disabled`).
+
+Người bật được cấp sẵn cookie bỏ qua nên **không tự khoá mình ra ngoài** — trình duyệt đó vẫn dùng site
+bình thường trong 12 giờ. Trang còn hiện "link xem site thật" để gửi cho người cần kiểm tra bản mới.
+
+Nếu mất cookie (đổi máy, quá 12 giờ): `/dang-nhap` và `/quan-tri/bao-tri` **cố ý không bị chặn**
+(khai trong `bootstrap/app.php`), nên vẫn đăng nhập rồi tắt được từ xa. Danh sách không chặn còn có `/up`
+để health check của load balancer không tưởng là server chết và khởi động lại nó.
+
+#### Bật / tắt bằng dòng lệnh
+
 `--render="errors::503"` **chụp sẵn** [resources/views/errors/503.blade.php](../resources/views/errors/503.blade.php)
 thành HTML tĩnh ngay lúc chạy `down`. Nhờ vậy người dùng vẫn thấy trang bảo trì tử tế kể cả khi
 `composer install` / `npm run build` / `migrate` đang chạy dở — nếu không có `--render`, Laravel trả về
@@ -109,11 +126,14 @@ trang 503 trắng mặc định. Bỏ `--render` là mất luôn ý nghĩa của
 | Bảo trì nhưng cho phép vài IP | `--secret` là cách đơn giản nhất; không cần sửa Nginx |
 | Gỡ bảo trì | `php artisan up` |
 
-Thời gian dự kiến hiện trên trang lấy từ biến môi trường `DEPLOY_ETA` (mặc định "15 phút"):
+Thời gian dự kiến hiện trên trang lấy từ `config('site.maintenance_eta')` (env `DEPLOY_ETA`, mặc định "15 phút").
+**Config đang cache thì phải `php artisan config:clear` trước** mới nhận giá trị mới — `deploy.sh` đã làm sẵn:
 
 ```bash
-DEPLOY_ETA="30 phút" php artisan down --render="errors::503"
+DEPLOY_ETA="30 phút" php artisan config:clear && php artisan down --render="errors::503"
 ```
+
+Bật từ trang quản trị thì không vướng chuyện này: giá trị người bật nhập được truyền thẳng vào view lúc chụp HTML.
 
 Ràng buộc khi sửa trang này: **không** `@vite`, **không** `csrf_token()`, **không** truy vấn DB,
 **không** `route()` — lúc chụp HTML, app có thể đang ở giữa quá trình build. Đường dẫn viết cứng (`/`, `/ho-tro`).

@@ -29,6 +29,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->redirectGuestsTo(fn () => route('login'));
 
+        // Vẫn phục vụ khi đang bảo trì:
+        // - `up`: health check của load balancer, trả 503 là bị coi như server chết rồi khởi động lại.
+        // - `dang-nhap` + `quan-tri/bao-tri`: đường cứu hộ. Admin bật bảo trì rồi mất cookie bỏ qua
+        //   (đổi máy, hết 12 giờ) vẫn tự tắt được mà không cần SSH vào máy chủ.
+        $middleware->preventRequestsDuringMaintenance(except: [
+            'up',
+            'dang-nhap',
+            'quan-tri/bao-tri',
+        ]);
+
         $middleware->append(SecurityHeaders::class);
 
         // Giới hạn chung chống cào dữ liệu / spam — các route nhạy cảm có throttle riêng chặt hơn.

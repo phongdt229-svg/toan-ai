@@ -1,7 +1,6 @@
 @extends('errors.layout')
 
 @section('code', 'Lỗi 404')
-@section('art', '🧭')
 @section('title', 'Không tìm thấy trang')
 
 @section('message')

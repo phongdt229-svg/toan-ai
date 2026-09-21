@@ -56,6 +56,7 @@ return [
         ['label' => 'AI usage', 'icon' => 'bi-robot', 'route' => 'admin.ai-usage.index', 'bottom' => false],
         ['label' => 'Hỗ trợ', 'icon' => 'bi-life-preserver', 'route' => 'admin.support.index', 'bottom' => false],
         ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => 'admin.audit-logs.index', 'bottom' => false],
+        ['label' => 'Bảo trì', 'icon' => 'bi-cone-striped', 'route' => 'admin.maintenance.edit', 'bottom' => false],
         ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'admin.settings', 'bottom' => false],
     ],
 

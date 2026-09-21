@@ -4,18 +4,18 @@
     - lỗi 503 thông thường (hết chỗ queue, service tạm ngừng)
 
     Vì Laravel chụp HTML lúc chạy `down`, trang KHÔNG được phụ thuộc session/DB/route.
-    Thời điểm dự kiến xong lấy từ biến môi trường DEPLOY_ETA (vd DEPLOY_ETA="15 phút") nếu có.
+    Thời điểm dự kiến xong: lấy từ $maintenanceEta (Quản trị -> Bảo trì chia sẻ sang lúc chụp),
+    không có thì dùng config('site.maintenance_eta') (env DEPLOY_ETA) cho đường chạy bằng lệnh.
 --}}
 @extends('errors.layout')
 
 @section('code', 'Bảo trì')
-@section('art', '🔧')
 @section('title', 'Hệ thống đang được nâng cấp')
 
 @section('message')
     <p>
         Chúng tôi đang cập nhật {{ config('app.name') }} để chạy tốt hơn.
-        Dự kiến xong sau <strong>{{ env('DEPLOY_ETA', '15 phút') }}</strong>.
+        Dự kiến xong sau <strong>{{ $maintenanceEta ?? config('site.maintenance_eta') }}</strong>.
     </p>
     <p>
         Bài đang làm dở đã được lưu — bạn quay lại sau ít phút là học tiếp được bình thường.

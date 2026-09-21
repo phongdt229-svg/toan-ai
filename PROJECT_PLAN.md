@@ -786,6 +786,10 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       dùng chung `errors/layout.blade.php`. Cố ý **không** `@vite`/`csrf`/DB/`route()` để hiện được cả khi
       hệ thống hỏng hoặc đang deploy. Deploy dùng `php artisan down --render="errors::503" --secret=...`
       (script `deploy/deploy.sh` luôn `artisan up` kể cả khi có bước hỏng).
+- [x] **Bật/tắt bảo trì trong trang quản trị** (`/quan-tri/bao-tri`): nhập thời gian dự kiến, tích ô xác nhận,
+      có audit log. Người bật được cấp cookie bỏ qua ngay để **không tự khoá mình ra ngoài**, kèm link chia sẻ
+      cho người cần kiểm tra bản mới. `up`, `dang-nhap`, `quan-tri/bao-tri` không bị chặn — đường cứu hộ khi
+      mất cookie, khỏi phải SSH.
 - [x] **Chia sẻ mạng xã hội + SEO**: thẻ OG/Twitter trong `layouts/base`, ảnh `public/og-cover.png`
       (1200×630), `/sitemap.xml` sinh từ `SitemapController`, `robots.txt` chặn khu vực sau đăng nhập và
       trỏ tới sitemap; trang sau đăng nhập gắn `noindex,nofollow`.

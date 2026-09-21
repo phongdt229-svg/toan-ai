@@ -55,6 +55,35 @@
     @stack('head')
 </head>
 <body>
+    {{--
+        Đang bảo trì mà vẫn xem được trang này nghĩa là trình duyệt đang giữ cookie bỏ qua.
+        Không báo rõ thì người vừa bật bảo trì dễ tưởng là bật hụt, rồi bật thêm lần nữa.
+        Style viết thẳng vào thẻ: dải này hiếm khi xuất hiện, không đáng thêm vào bundle CSS.
+    --}}
+    @if (app()->isDownForMaintenance())
+        {{-- Nổi ở góc dưới bên trái: header trang chủ là sticky, sidebar và bottom nav thì fixed —
+             một dải ngang ở đỉnh sẽ đè lên chúng. Góc này trống ở cả 4 portal lẫn trang công khai. --}}
+        <style>
+            .maintenance-flag {
+                position: fixed; left: 12px; bottom: 12px; z-index: 2000; max-width: 300px;
+                background: #b45309; color: #fff; border-radius: 10px; padding: .6rem .8rem;
+                font-size: .78rem; line-height: 1.45; box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+            }
+            .maintenance-flag a { color: #fff; font-weight: 600; }
+            @media (max-width: 991.98px) { .maintenance-flag { bottom: 76px; } }
+        </style>
+        <div class="maintenance-flag">
+            <strong>Site đang bảo trì.</strong>
+            Mọi người khác — kể cả ở trang chủ — đang thấy trang "Hệ thống đang được nâng cấp".
+            Bạn vào được là nhờ quyền bỏ qua.
+            @auth
+                @if (auth()->user()->isAdmin())
+                    <a href="{{ route('admin.maintenance.edit') }}">Tắt bảo trì</a>
+                @endif
+            @endauth
+        </div>
+    @endif
+
     @yield('body')
 
     @stack('widgets')

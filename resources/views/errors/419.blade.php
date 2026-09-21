@@ -1,7 +1,6 @@
 @extends('errors.layout')
 
 @section('code', 'Lỗi 419')
-@section('art', '⏳')
 @section('title', 'Phiên làm việc đã hết hạn')
 
 @section('message')

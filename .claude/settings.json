@@ -14,7 +14,9 @@
       "Bash(timeout 150 node shot.mjs teacher@toan-ai.local giao-vien/hoc-sinh table-students-before.png)",
       "Bash(timeout 150 node shot.mjs admin@toan-ai.local quan-tri/ho-tro support-admin.png)",
       "Bash(timeout 120 node pub.mjs \"huong-dan?doi-tuong=student\" guide-student-filter.png 1280 full)",
-      "Bash(php -l app/Models/User.php)"
+      "Bash(php -l app/Models/User.php)",
+      "Bash(vendor/bin/pint --test)",
+      "Bash(node shot503.mjs)"
     ]
   }
 }

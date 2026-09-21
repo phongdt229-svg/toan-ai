@@ -26,6 +26,10 @@ return [
     // Số dòng mỗi trang ở khu quản trị (danh sách người dùng, giao dịch, hỗ trợ…).
     'per_page' => (int) env('SITE_PER_PAGE', 10),
 
+    // Thời gian dự kiến hiện trên trang bảo trì khi bật bằng lệnh `php artisan down`.
+    // Bật từ trang Quản trị thì lấy theo ô người bật tự nhập, không dùng giá trị này.
+    'maintenance_eta' => env('DEPLOY_ETA', '15 phút'),
+
     // Ngày cập nhật hai trang pháp lý — sửa nội dung thì sửa luôn ngày này.
     'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '18/09/2026'),
 

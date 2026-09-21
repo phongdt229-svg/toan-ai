@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AiUsageController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CurriculumController;
+use App\Http\Controllers\Admin\MaintenanceController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
@@ -355,6 +356,12 @@ Route::middleware('auth')->group(function () {
         Route::prefix('quan-tri')->name('admin.')->middleware('role:admin')->group(function () {
             Route::get('/', [AdminDashboard::class, 'index'])->name('dashboard');
             Route::post('lam-moi-so-lieu', [AdminDashboard::class, 'refresh'])->name('dashboard.refresh');
+
+            // Bảo trì: xem bootstrap/app.php — route này cố ý vẫn vào được khi đang bảo trì,
+            // nếu không admin mất cookie bỏ qua là hết đường tắt mà không SSH vào máy chủ.
+            Route::get('bao-tri', [MaintenanceController::class, 'edit'])->name('maintenance.edit');
+            Route::post('bao-tri', [MaintenanceController::class, 'store'])->name('maintenance.store');
+            Route::delete('bao-tri', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
 
             Route::get('cai-dat', [AdminSettingsController::class, 'edit'])->name('settings');
             Route::put('cai-dat/ho-so', [AdminSettingsController::class, 'updateProfile'])->name('settings.profile');

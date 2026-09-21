@@ -54,6 +54,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Lệnh dọn: `accounts:purge` (đã đặt lịch 03:00 hằng ngày).
 - Trang lỗi + trang bảo trì (`resources/views/errors/`) không được dùng `@vite`, `csrf_token()`, DB hay `route()` —
   chúng phải hiện được đúng lúc hệ thống hỏng hoặc đang deploy. `ErrorPagesTest` canh điều này.
+- Bảo trì bật/tắt ở Quản trị → Bảo trì (`MaintenanceModeService`, vẫn gọi `artisan down/up` chứ không tự ghi file:
+  lệnh này còn tạo `storage/framework/maintenance.php` mà `public/index.php` nạp trước cả Composer).
+  `bootstrap/app.php` cố ý **không chặn** `up`, `dang-nhap`, `quan-tri/bao-tri` — đường cứu hộ khi admin mất
+  cookie bỏ qua. Thêm route vào danh sách này phải cân nhắc: mỗi mục là một cửa còn mở lúc site đang đóng.
 - Thêm trang công khai mới → thêm vào `SitemapController`; trang sau đăng nhập thì thôi (đã `noindex` ở `layouts/app`).
   Thẻ OG/Twitter đặt sẵn ở `layouts/base`, trang nào cần preview riêng thì khai `@section('og_title'/'og_description'/'og_image')`.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).

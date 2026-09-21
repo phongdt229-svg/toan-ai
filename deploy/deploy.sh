@@ -26,6 +26,8 @@ finish() {
 trap finish EXIT
 
 echo "==> Bật trang bảo trì"
+# Thời gian dự kiến đọc qua config; config đang cache thì DEPLOY_ETA mới sẽ không có tác dụng.
+php artisan config:clear
 php artisan down --render="errors::503" --secret="$SECRET" --retry=60
 # Lấy APP_URL thẳng từ .env: `artisan tinker` là gói dev, production cài --no-dev nên không có.
 APP_URL="$(grep -m1 '^APP_URL=' .env | cut -d= -f2- | tr -d '"' || true)"

@@ -21,11 +21,17 @@
             line-height: 1.6;
         }
         .box { width: 100%; max-width: 560px; text-align: center; }
+        .brand {
+            /* flex chứ không inline-flex: để chip mã lỗi xuống dòng riêng thay vì nằm cạnh logo. */
+            display: flex; align-items: center; justify-content: center; gap: .55rem; margin-bottom: 18px;
+            font-weight: 800; font-size: 1.35rem; letter-spacing: -.02em; color: #0f172a;
+        }
+        .brand svg { width: 40px; height: 40px; display: block; }
+        .brand em { font-style: normal; color: #2563eb; }
         .code {
             display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .08em;
             color: #2563eb; background: #e0ecff; border-radius: 999px; padding: 4px 14px; margin-bottom: 18px;
         }
-        .art { font-size: 56px; line-height: 1; margin-bottom: 16px; }
         h1 { font-size: 26px; font-weight: 700; margin: 0 0 10px; }
         p { margin: 0 0 12px; color: #475569; }
         .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
@@ -41,6 +47,8 @@
         .foot a { color: #64748b; }
         @media (prefers-color-scheme: dark) {
             body { background: #0b1220; color: #e2e8f0; }
+            .brand { color: #f1f5f9; }
+            .brand em { color: #60a5fa; }
             .code { background: #1e293b; color: #93c5fd; }
             p { color: #94a3b8; }
             a.ghost { background: transparent; border-color: #334155; color: #cbd5e1; }
@@ -49,7 +57,27 @@
 </head>
 <body>
     <div class="box">
-        <div class="art">@yield('art', '🤔')</div>
+        {{--
+            Logo vẽ thẳng bằng SVG chứ không dùng <x-brand>: component đó lấy kích thước từ
+            bundle CSS, mà trang lỗi cố tình không nạp bundle. Trước đây chỗ này là emoji —
+            Windows đổ về font đơn sắc nên trông như ảnh hỏng.
+        --}}
+        <span class="brand">
+            <svg viewBox="0 0 40 40" role="img" aria-label="{{ config('site.brand') }}" focusable="false">
+                <defs>
+                    <linearGradient id="brand-error" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#2563eb"/>
+                        <stop offset="1" stop-color="#22d3ee"/>
+                    </linearGradient>
+                </defs>
+                <rect width="40" height="40" rx="12" fill="url(#brand-error)"/>
+                <path d="M9 21.5 L14 28.5 L21.5 11.5 H29" fill="none" stroke="#fff" stroke-width="3"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="30.5" cy="11.5" r="3" fill="#fb923c"/>
+            </svg>
+            <span>Math<em>AI</em></span>
+        </span>
+
         <div class="code">@yield('code')</div>
         <h1>@yield('title')</h1>
         @yield('message')

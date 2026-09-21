@@ -7,7 +7,9 @@ use App\Models\Role;
 use App\Services\AI\Contracts\AiProviderInterface;
 use App\Services\AI\Providers\FakeProvider;
 use App\Services\AI\Providers\OpenAiProvider;
+use App\Services\Admin\MaintenanceModeService;
 use App\Support\HtmlSanitizer;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -89,6 +91,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Đăng ký xong là gửi luôn mail xác thực (Laravel 12 không tự gắn listener này).
         Event::listen(Registered::class, SendEmailVerificationNotification::class);
+
+        // Cookie bỏ qua trang bảo trì phải để nguyên văn: middleware kiểm nó nằm ở tầng global,
+        // chạy trước cả EncryptCookies nên không giải mã được. Bản thân Laravel cũng cấp cookie này
+        // không mã hoá — nội dung chỉ là HMAC theo mã bỏ qua, không chứa gì nhạy cảm.
+        EncryptCookies::except(MaintenanceModeService::BYPASS_COOKIE);
 
         $this->registerPermissionGates();
     }
