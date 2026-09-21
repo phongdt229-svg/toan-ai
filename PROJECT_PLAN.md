@@ -768,6 +768,38 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       tìm kiếm không dấu, lọc theo vai trò; nội dung ở `config/guides.php` nên không cần DB.
       Lối vào: header trang chủ, footer, menu tài khoản trong app (mở đúng nhóm theo vai trò) và form hỗ trợ
 
+### ✅ Bổ sung sau roadmap (21/09)
+- [x] **Menu mobile**: nút hamburger + offcanvas `components/mobile-menu.blade.php`. Trước đó màn hình nhỏ chỉ
+      có 4 ô bottom nav nên phần lớn mục menu không vào được.
+- [x] **Xác thực email**: `User implements MustVerifyEmail`, notification `VerifyEmailLink` (link ký, hạn 60
+      phút), controller `Auth\EmailVerificationController`, dải nhắc trên đầu trang trong `layouts/app`.
+      Laravel 12 không tự đăng ký `SendEmailVerificationNotification` nên phải `Event::listen` trong
+      `AppServiceProvider`. **Quyết định**: chưa xác thực vẫn học được, chỉ chặn mua gói (`verified` ở
+      `packages.checkout`/`packages.pay`) — khoá chặt hơn sẽ làm người dùng mới không dùng được gì.
+      Migration `mark_existing_users_as_verified` backfill user cũ để không khoá nhầm ai.
+- [x] **Xoá tài khoản** (thực thi cam kết trong Chính sách bảo mật): `AccountDeletionService`
+      (yêu cầu → soft delete ngay → 30 ngày → `anonymise()`), khung "Vùng nguy hiểm" ở 3 trang cài đặt,
+      lệnh `accounts:purge` chạy 03:00, quản trị có bộ lọc "Chờ xoá" + nút Khôi phục.
+      **Ẩn danh chứ không xoá cứng**: điểm số, bài nộp, hoá đơn còn gắn với lớp học và sổ sách kế toán.
+      Chặn quản trị viên duy nhất tự xoá. Thêm bảng chứa dữ liệu cá nhân → phải bổ sung vào `anonymise()`.
+- [x] **Trang lỗi tuỳ biến** 403/404/419/429/500 + **trang bảo trì** 503 (`resources/views/errors/`),
+      dùng chung `errors/layout.blade.php`. Cố ý **không** `@vite`/`csrf`/DB/`route()` để hiện được cả khi
+      hệ thống hỏng hoặc đang deploy. Deploy dùng `php artisan down --render="errors::503" --secret=...`
+      (script `deploy/deploy.sh` luôn `artisan up` kể cả khi có bước hỏng).
+- [x] **Chia sẻ mạng xã hội + SEO**: thẻ OG/Twitter trong `layouts/base`, ảnh `public/og-cover.png`
+      (1200×630), `/sitemap.xml` sinh từ `SitemapController`, `robots.txt` chặn khu vực sau đăng nhập và
+      trỏ tới sitemap; trang sau đăng nhập gắn `noindex,nofollow`.
+- [x] **CI**: `.github/workflows/ci.yml` chạy `php artisan test` (PHP 8.2 + MariaDB 10.4 + `npm run build`)
+      trên mỗi push/PR vào `main`. Chưa bật job Pint — code cũ còn 66 file lệch chuẩn, dọn riêng một lượt.
+- [x] Hướng dẫn: thêm bài "Xoá tài khoản", bổ sung bước xác thực email vào bài "Tài khoản, mật khẩu và bảo mật".
+
+### Còn nợ
+- [ ] **Nội dung**: mới có 1/12 lớp có dữ liệu thật (4 bài học, 49 câu hỏi, 1 đề). Công cụ đã đủ, thiếu người nhập.
+- [ ] **Trang chủ quảng cáo tính năng chưa có**: chip "7 ngày liên tiếp" và "+10 điểm" trong hero —
+      hệ thống **không có** streak/điểm thưởng. Phải làm gamification hoặc bỏ 2 chip này.
+- [ ] **Avatar**: cột `users.avatar` chưa gắn upload/Storage.
+- [ ] `vendor/bin/pint` một lượt cho toàn repo rồi bật job lint trong CI.
+
 ---
 
 ## 11b. Kết quả rà checklist bảo mật — 2026-09-17 (Phase 10)

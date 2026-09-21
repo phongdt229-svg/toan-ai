@@ -1,2 +1,15 @@
+# Khu vực sau đăng nhập không có gì để lập chỉ mục, chặn ở đây đỡ tốn lượt crawl.
+# Các trang đó cũng đã gắn <meta name="robots" content="noindex"> trong layouts/app.blade.php.
 User-agent: *
-Disallow:
+Disallow: /hoc-sinh
+Disallow: /giao-vien
+Disallow: /phu-huynh
+Disallow: /quan-tri
+Disallow: /thanh-toan
+Disallow: /payment
+Disallow: /tai-khoan
+Disallow: /dat-lai-mat-khau
+Disallow: /xac-thuc-email
+
+# Chuẩn robots.txt yêu cầu URL tuyệt đối — đổi tên miền thì sửa luôn dòng này.
+Sitemap: https://toanai.vn/sitemap.xml

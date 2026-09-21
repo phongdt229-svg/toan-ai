@@ -61,9 +61,19 @@ BACKUP_KEEP_DAYS=14
 
 ## 3. Các bước deploy (mỗi lần phát hành)
 
+Dùng sẵn script [deploy/deploy.sh](../deploy/deploy.sh) — nó bật trang bảo trì, làm đủ các bước dưới đây,
+và **luôn gỡ bảo trì kể cả khi có bước hỏng giữa chừng** (`trap`):
+
 ```bash
 cd /var/www/toan-ai
-php artisan down --retry=60
+sudo -u www-data bash deploy/deploy.sh
+```
+
+Chạy tay thì đúng thứ tự này:
+
+```bash
+cd /var/www/toan-ai
+php artisan down --render="errors::503" --secret="$(openssl rand -hex 16)" --retry=60
 
 git pull --ff-only
 composer install --no-dev --optimize-autoloader
@@ -84,6 +94,34 @@ php artisan up
 
 Lần đầu cài thêm: `php artisan key:generate`, `php artisan db:seed --class=GradeSeeder --force`, tạo tài khoản admin,
 `php artisan storage:link`.
+
+### 3.1. Trang bảo trì
+
+`--render="errors::503"` **chụp sẵn** [resources/views/errors/503.blade.php](../resources/views/errors/503.blade.php)
+thành HTML tĩnh ngay lúc chạy `down`. Nhờ vậy người dùng vẫn thấy trang bảo trì tử tế kể cả khi
+`composer install` / `npm run build` / `migrate` đang chạy dở — nếu không có `--render`, Laravel trả về
+trang 503 trắng mặc định. Bỏ `--render` là mất luôn ý nghĩa của bước này.
+
+| Việc | Lệnh |
+|---|---|
+| Bật bảo trì kèm link xem trước | `php artisan down --render="errors::503" --secret=abc123 --retry=60` |
+| Người deploy xem bản thật | mở `https://toanai.vn/abc123` (đặt cookie bỏ qua bảo trì) |
+| Bảo trì nhưng cho phép vài IP | `--secret` là cách đơn giản nhất; không cần sửa Nginx |
+| Gỡ bảo trì | `php artisan up` |
+
+Thời gian dự kiến hiện trên trang lấy từ biến môi trường `DEPLOY_ETA` (mặc định "15 phút"):
+
+```bash
+DEPLOY_ETA="30 phút" php artisan down --render="errors::503"
+```
+
+Ràng buộc khi sửa trang này: **không** `@vite`, **không** `csrf_token()`, **không** truy vấn DB,
+**không** `route()` — lúc chụp HTML, app có thể đang ở giữa quá trình build. Đường dẫn viết cứng (`/`, `/ho-tro`).
+Cùng ràng buộc đó áp cho mọi trang trong `resources/views/errors/` (403, 404, 419, 429, 500, 503) — chúng phải hiện
+được đúng lúc hệ thống hỏng; `tests/Feature/ErrorPagesTest.php` kiểm tra điều này.
+
+> Lưu ý với `APP_MAINTENANCE_DRIVER=cache`: file chụp sẵn nằm trong cache chứ không ở `storage/framework/down`.
+> Mặc định của repo là `file`, dùng được ngay.
 
 ## 4. Queue worker (Supervisor)
 
@@ -109,6 +147,7 @@ Lịch đã khai báo trong `routes/console.php` (`php artisan schedule:list`):
 | `payments:expire-pending` | 5 phút | đối soát MoMo rồi huỷ đơn quá hạn |
 | `subscriptions:expire` | 00:05 | gói hết hạn → `expired`, đăng ký chờ > 24h → huỷ |
 | `backup:database` | 02:00 | sao lưu DB `.sql.gz`, xoá bản cũ hơn `BACKUP_KEEP_DAYS` |
+| `accounts:purge` | 03:00 | ẩn danh vĩnh viễn tài khoản đã yêu cầu xoá quá 30 ngày (cam kết trong Chính sách bảo mật) |
 | `reports:weekly-parents` | CN 19:00 | email báo cáo tuần cho phụ huynh |
 | `queue:prune-failed`, `sanctum:prune-expired` | tuần / ngày | dọn bảng |
 
@@ -121,6 +160,23 @@ Mẫu: [deploy/nginx/toan-ai.conf](../deploy/nginx/toan-ai.conf). Điểm quan t
 - `/build/assets/*` cache 1 năm (tên file có hash); `/sw.js` và `/manifest.webmanifest` **không cache** để bản mới tới người dùng ngay.
 - Header bảo mật (HSTS, X-Frame-Options, CSP cơ bản…) do middleware `SecurityHeaders` của app gửi — không cần lặp ở Nginx.
 - MoMo gọi IPN từ internet: không chặn `POST /api/v1/payment/momo/ipn` bằng firewall/basic auth.
+
+## 6.1. SEO & chia sẻ mạng xã hội
+
+- `https://toanai.vn/sitemap.xml` sinh động từ [SitemapController](../app/Http/Controllers/Web/SitemapController.php)
+  — chỉ gồm trang công khai (trang chủ, gói học, hướng dẫn và từng bài hướng dẫn, hỗ trợ, đăng ký, 2 trang pháp lý).
+  Thêm trang công khai mới thì thêm vào đây, nếu không Google không biết tới nó.
+- [public/robots.txt](../public/robots.txt) chặn các tiền tố sau đăng nhập và trỏ tới sitemap bằng **URL tuyệt đối**
+  (chuẩn robots.txt không nhận đường dẫn tương đối) — **đổi tên miền thì phải sửa dòng `Sitemap:` này**.
+- Thẻ Open Graph / Twitter Card nằm ở [layouts/base.blade.php](../resources/views/layouts/base.blade.php),
+  mặc định lấy `@section('title')` + `@section('meta_description')` của chính trang đó.
+  Trang muốn preview riêng thì khai báo `@section('og_title')` / `og_description` / `og_image` / `og_type`.
+- Ảnh preview mặc định: `public/og-cover.png` (1200×630). Thay ảnh khác thì **ghi đè đúng file này**
+  rồi xoá cache preview ở [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) —
+  Zalo và Facebook giữ ảnh cũ khá lâu.
+- Trang sau đăng nhập gắn `noindex,nofollow` (đặt ở `layouts/app.blade.php`), nên không bao giờ đưa chúng vào sitemap.
+
+Sau khi lên production, kiểm tra nhanh: dán link trang chủ vào một cuộc trò chuyện Zalo và xem preview có đúng ảnh + tiêu đề không.
 
 ## 7. Sao lưu & khôi phục
 

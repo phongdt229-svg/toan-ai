@@ -389,6 +389,8 @@ return [
             'summary' => 'Đổi thông tin cá nhân, lấy lại mật khẩu và giữ tài khoản an toàn.',
             'steps' => [
                 ['Cập nhật hồ sơ', 'Vào Cài đặt để đổi họ tên, số điện thoại, lớp đang học và tuỳ chọn thông báo.'],
+                ['Xác thực email', 'Ngay sau khi đăng ký, hệ thống gửi một email xác thực. Mở link trong đó là xong — link dùng được 60 phút. Chưa xác thực thì vẫn học bình thường, nhưng không mua được gói và có thể không nhận được email đặt lại mật khẩu.'],
+                ['Gửi lại email xác thực', 'Nếu không thấy thư, bấm "Gửi lại email xác thực" ở dải thông báo màu vàng trên đầu trang, và kiểm tra cả mục spam.'],
                 ['Quên mật khẩu', 'Ở trang đăng nhập bấm "Quên mật khẩu?", nhập email và mở link trong hộp thư (kiểm tra cả mục spam).'],
                 ['Đặt mật khẩu mới', 'Link dùng được một lần trong 60 phút. Mật khẩu tối thiểu 8 ký tự, có cả chữ và số.'],
                 ['Đăng xuất thiết bị khác', 'Đổi mật khẩu sẽ đăng xuất mọi thiết bị đang đăng nhập.'],
@@ -399,6 +401,31 @@ return [
             ],
             'links' => [
                 ['Quên mật khẩu', 'password.request'],
+                ['Xoá tài khoản', 'guides.show:xoa-tai-khoan'],
+            ],
+        ],
+
+        'xoa-tai-khoan' => [
+            'audience' => 'all',
+            'icon' => 'bi-person-x',
+            'title' => 'Xoá tài khoản',
+            'summary' => 'Tự xoá tài khoản khỏi TOÁN AI, dữ liệu nào bị xoá và đổi ý được trong bao lâu.',
+            'steps' => [
+                ['Mở phần Xoá tài khoản', 'Vào Cài đặt, kéo xuống cuối trang tới khung viền đỏ "Xoá tài khoản".'],
+                ['Xác nhận bằng mật khẩu', 'Bấm "Tôi muốn xoá tài khoản", nhập mật khẩu đang dùng. Phần lý do không bắt buộc nhưng giúp chúng tôi cải thiện.'],
+                ['Tài khoản ngừng ngay', 'Ngay sau khi xác nhận, bạn bị đăng xuất khỏi mọi thiết bị và không đăng nhập lại được nữa.'],
+                ['Đổi ý trong 30 ngày', 'Trong 30 ngày, liên hệ hỗ trợ bằng đúng email đã đăng ký để được khôi phục. Sau 30 ngày thì không còn gì để khôi phục.'],
+            ],
+            'warning' => 'Sau 30 ngày, hồ sơ cá nhân, nội dung trò chuyện với AI và thông báo bị xoá vĩnh viễn — không lấy lại được bằng bất kỳ cách nào.',
+            'tips' => [
+                'Hoá đơn và dữ liệu giao dịch được giữ theo thời hạn kế toán mà pháp luật yêu cầu, không xoá theo yêu cầu.',
+                'Giáo viên: bài học, câu hỏi và lớp bạn đã tạo vẫn ở lại để học sinh không mất dữ liệu học, nhưng không còn gắn với tên bạn.',
+                'Chỉ muốn tạm nghỉ thì không cần xoá — tắt email thông báo trong Cài đặt là đủ.',
+                'Là quản trị viên duy nhất thì phải chuyển quyền cho người khác trước khi xoá.',
+            ],
+            'links' => [
+                ['Gửi yêu cầu hỗ trợ', 'support.create'],
+                ['Chính sách bảo mật', 'legal.privacy'],
             ],
         ],
 

@@ -1,0 +1,83 @@
+name: CI
+
+# Chạy toàn bộ test trên mỗi lần push / pull request vào main.
+# Test dùng MariaDB thật (không phải SQLite) vì code có chỗ phụ thuộc hành vi MariaDB:
+# strict mode, enum, cột dateTime thứ hai trong một bảng — xem CLAUDE.md.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  # Push liên tiếp lên cùng nhánh thì chỉ cần kết quả của lần cuối.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: php artisan test
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: toan_ai_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cài PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, gd, intl, zip, bcmath
+          coverage: none
+
+      - name: Cache composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Chuẩn bị .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm ci
+
+      # Nhiều test render Blade có @vite — thiếu manifest là hỏng hàng loạt.
+      - name: Build assets
+        run: npm run build
+
+      - name: Chạy test
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: toan_ai_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: php artisan test
+
+# Chưa thêm job `vendor/bin/pint --test`: code hiện có 66 file lệch chuẩn Pint từ trước.
+# Dọn một lượt bằng `vendor/bin/pint` rồi mới bật job lint, nếu không CI đỏ ngay mà không
+# liên quan gì tới thay đổi đang đẩy lên.

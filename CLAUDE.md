@@ -46,6 +46,18 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Quên mật khẩu: mọi logic ở `PasswordResetService`; giữ nguyên tắc "thông báo giống nhau dù email có tồn tại hay không".
   Local `MAIL_MAILER=log` → link đặt lại nằm trong `storage/logs/laravel.log`.
 - Câu hỏi trong kiểm tra đầu vào là **bản chụp**; chấm qua `PlacementTestQuestion::toQuestion()` để dùng lại `GradingService`.
+- Xác thực email: `User` implement `MustVerifyEmail`, mail gửi qua `VerifyEmailLink` (link ký, hạn 60 phút).
+  Chưa xác thực **vẫn học được**, chỉ chặn mua gói (middleware `verified` ở `packages.checkout`/`packages.pay`).
+  Thêm middleware `verified` vào chỗ khác phải cân nhắc: khoá quá tay là người dùng mới không dùng được gì.
+- Xoá tài khoản: chỉ qua `AccountDeletionService` (soft delete → 30 ngày → `anonymise()`), không `User::delete()` tay.
+  Thêm bảng mới chứa dữ liệu cá nhân thì **phải bổ sung vào `anonymise()`**, nếu không là vi phạm Chính sách bảo mật.
+  Lệnh dọn: `accounts:purge` (đã đặt lịch 03:00 hằng ngày).
+- Trang lỗi + trang bảo trì (`resources/views/errors/`) không được dùng `@vite`, `csrf_token()`, DB hay `route()` —
+  chúng phải hiện được đúng lúc hệ thống hỏng hoặc đang deploy. `ErrorPagesTest` canh điều này.
+- Thêm trang công khai mới → thêm vào `SitemapController`; trang sau đăng nhập thì thôi (đã `noindex` ở `layouts/app`).
+  Thẻ OG/Twitter đặt sẵn ở `layouts/base`, trang nào cần preview riêng thì khai `@section('og_title'/'og_description'/'og_image')`.
+- CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
+  Chưa bật job Pint vì code cũ còn 66 file lệch chuẩn — dọn một lượt rồi mới thêm.
 
 ## Lệnh hay dùng
 

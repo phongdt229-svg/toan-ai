@@ -4,6 +4,9 @@
 --}}
 @extends('layouts.base')
 
+{{-- Khu vực làm việc sau đăng nhập: không để công cụ tìm kiếm lập chỉ mục. --}}
+@section('robots', 'noindex,nofollow')
+
 @php
     $items = config("navigation.{$portal}", []);
     $bottomItems = collect($items)->where('bottom', true)->take(4);

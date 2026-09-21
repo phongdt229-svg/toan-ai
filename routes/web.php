@@ -53,6 +53,7 @@ use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\GuideController;
 use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
+use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SupportController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,6 +74,9 @@ Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy')
 // Trung tâm hướng dẫn — nội dung tĩnh trong config/guides.php, ai cũng xem được.
 Route::get('huong-dan', [GuideController::class, 'index'])->name('guides.index');
 Route::get('huong-dan/{slug}', [GuideController::class, 'show'])->name('guides.show');
+
+// Sơ đồ trang cho công cụ tìm kiếm (robots.txt trỏ tới đây).
+Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::get('ho-tro', [SupportController::class, 'create'])->name('support.create');
 Route::post('ho-tro', [SupportController::class, 'store'])->middleware('throttle:20,60')->name('support.store');
