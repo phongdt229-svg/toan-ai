@@ -9,4 +9,5 @@
     @include('partials.profile-form', ['profileRoute' => route('student.settings.profile')])
     @include('partials.notification-preferences-form')
     @include('partials.password-form', ['passwordRoute' => route('student.settings.password')])
+    @include('partials.danger-zone')
 @endsection

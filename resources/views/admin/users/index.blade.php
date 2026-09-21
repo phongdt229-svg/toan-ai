@@ -1,6 +1,11 @@
 @extends('layouts.app', ['portal' => 'admin'])
 
-@php use App\Http\Controllers\Admin\UserController; @endphp
+@php
+    use App\Http\Controllers\Admin\UserController;
+    use App\Services\Auth\AccountDeletionService;
+
+    $deletedView = $status === UserController::FILTER_DELETED;
+@endphp
 
 @push('head')
     @vite('resources/js/charts.js')
@@ -45,6 +50,9 @@
             @foreach (UserController::STATUS_LABELS as $value => $label)
                 <option value="{{ $value }}" @selected($status === $value)>{{ $label }}</option>
             @endforeach
+            <option value="{{ UserController::FILTER_DELETED }}" @selected($status === UserController::FILTER_DELETED)>
+                Chờ xoá ({{ AccountDeletionService::GRACE_DAYS }} ngày)
+            </option>
         </select>
         <button class="btn btn-outline-primary">Lọc</button>
     </form>
@@ -54,27 +62,59 @@
     <div class="table-responsive">
         <table class="table table-sm align-middle small">
             <thead>
-                <tr><th>Người dùng</th><th>Vai trò</th><th>Trạng thái</th><th>Lớp</th><th>Đăng nhập gần nhất</th><th>Ngày tạo</th></tr>
+                <tr>
+                    <th>Người dùng</th><th>Vai trò</th><th>Trạng thái</th><th>Lớp</th>
+                    <th>{{ $deletedView ? 'Yêu cầu xoá' : 'Đăng nhập gần nhất' }}</th>
+                    <th>{{ $deletedView ? 'Ẩn danh vào' : 'Ngày tạo' }}</th>
+                    @if ($deletedView)<th></th>@endif
+                </tr>
             </thead>
             <tbody>
                 @forelse ($users as $u)
                     <tr>
                         <td>
-                            <a href="{{ route('admin.users.show', $u) }}" class="fw-semibold text-decoration-none">{{ $u->name }}</a>
+                            {{-- Ràng buộc route của trang chi tiết không nhận tài khoản đã xoá mềm. --}}
+                            @if ($deletedView)
+                                <span class="fw-semibold">{{ $u->name }}</span>
+                            @else
+                                <a href="{{ route('admin.users.show', $u) }}" class="fw-semibold text-decoration-none">{{ $u->name }}</a>
+                            @endif
                             <div class="text-secondary">{{ $u->email }}</div>
                         </td>
                         <td>{{ $u->roles->map(fn ($r) => UserController::ROLE_LABELS[$r->name] ?? $r->name)->implode(', ') }}</td>
                         <td>
-                            <span class="badge text-bg-{{ ['active' => 'success', 'pending' => 'warning', 'suspended' => 'danger', 'rejected' => 'secondary'][$u->status] ?? 'light' }}">
-                                {{ UserController::STATUS_LABELS[$u->status] ?? $u->status }}
-                            </span>
+                            @if ($deletedView)
+                                <span class="badge text-bg-dark">Chờ xoá</span>
+                            @else
+                                <span class="badge text-bg-{{ ['active' => 'success', 'pending' => 'warning', 'suspended' => 'danger', 'rejected' => 'secondary'][$u->status] ?? 'light' }}">
+                                    {{ UserController::STATUS_LABELS[$u->status] ?? $u->status }}
+                                </span>
+                            @endif
                         </td>
                         <td>{{ $u->studentProfile?->grade?->name ?? '—' }}</td>
-                        <td>{{ $u->last_login_at?->diffForHumans() ?? '—' }}</td>
-                        <td class="text-nowrap">{{ $u->created_at->format('d/m/Y') }}</td>
+                        @if ($deletedView)
+                            <td class="text-nowrap">{{ $u->deleted_at->format('d/m/Y') }}</td>
+                            <td class="text-nowrap">
+                                {{ $u->deleted_at->copy()->addDays(AccountDeletionService::GRACE_DAYS)->format('d/m/Y') }}
+                            </td>
+                            <td class="text-end">
+                                <form method="POST" action="{{ route('admin.users.restore', $u) }}"
+                                      onsubmit="return confirm('Khôi phục tài khoản {{ $u->name }}?')">
+                                    @csrf
+                                    <button class="btn btn-sm btn-outline-success">Khôi phục</button>
+                                </form>
+                            </td>
+                        @else
+                            <td>{{ $u->last_login_at?->diffForHumans() ?? '—' }}</td>
+                            <td class="text-nowrap">{{ $u->created_at->format('d/m/Y') }}</td>
+                        @endif
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="text-center text-secondary py-4">Không có người dùng phù hợp.</td></tr>
+                    <tr>
+                        <td colspan="{{ $deletedView ? 7 : 6 }}" class="text-center text-secondary py-4">
+                            {{ $deletedView ? 'Không có tài khoản nào đang chờ xoá.' : 'Không có người dùng phù hợp.' }}
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>

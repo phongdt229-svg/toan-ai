@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Admin\UserAdminService;
+use App\Services\Auth\AccountDeletionService;
 use App\Services\Learning\StudentReportService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +34,13 @@ class UserController extends Controller
         Role::ADMIN => 'Quản trị',
     ];
 
-    public function __construct(private readonly UserAdminService $users) {}
+    /** Giá trị riêng cho bộ lọc trạng thái: tài khoản đã yêu cầu xoá (soft delete). */
+    public const FILTER_DELETED = 'deleted';
+
+    public function __construct(
+        private readonly UserAdminService $users,
+        private readonly AccountDeletionService $deletion,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -43,6 +50,7 @@ class UserController extends Controller
 
         return view('admin.users.index', [
             'users' => User::query()
+                ->when($status === self::FILTER_DELETED, fn ($q) => $q->onlyTrashed())
                 ->with('roles:id,name', 'studentProfile.grade')
                 ->when(array_key_exists($role, self::ROLE_LABELS), fn ($q) => $q->whereHas('roles', fn ($r) => $r->where('name', $role)))
                 ->when(array_key_exists($status, self::STATUS_LABELS), fn ($q) => $q->where('status', $status))
@@ -122,6 +130,18 @@ class UserController extends Controller
                 ->limit(15)
                 ->get(),
         ]);
+    }
+
+    /** Khôi phục tài khoản trong thời gian chờ xoá. */
+    public function restore(Request $request, User $user): RedirectResponse
+    {
+        try {
+            $this->deletion->restore($user, $request->user());
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('status', "Đã khôi phục tài khoản {$user->name}.");
     }
 
     public function suspend(Request $request, User $user): RedirectResponse

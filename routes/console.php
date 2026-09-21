@@ -41,3 +41,8 @@ Schedule::command('backup:database')
 // Dọn job lỗi cũ và token Sanctum hết hạn để bảng không phình.
 Schedule::command('queue:prune-failed --hours=720')->weekly();
 Schedule::command('sanctum:prune-expired --hours=168')->daily();
+
+// Tài khoản đã yêu cầu xoá quá 30 ngày → ẩn danh vĩnh viễn (cam kết ở Chính sách bảo mật).
+Schedule::command('accounts:purge')
+    ->dailyAt('03:00')
+    ->withoutOverlapping();

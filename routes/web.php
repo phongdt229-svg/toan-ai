@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Auth\AccountDeletionController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -117,6 +118,9 @@ Route::middleware('auth')->group(function () {
     Route::post('xac-thuc-email/gui-lai', [EmailVerificationController::class, 'send'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
+
+    // Xoá tài khoản: dùng chung cho cả 4 portal, hỏi lại mật khẩu trong controller.
+    Route::delete('tai-khoan/xoa', [AccountDeletionController::class, 'destroy'])->name('account.destroy');
 
     // Không qua middleware `active` — đây chính là trang dành cho tài khoản pending.
     Route::get('tai-khoan/cho-duyet', [AccountController::class, 'pending'])->name('account.pending');
@@ -356,6 +360,9 @@ Route::middleware('auth')->group(function () {
             Route::get('nguoi-dung/{user}', [AdminUserController::class, 'show'])->name('users.show');
             Route::post('nguoi-dung/{user}/khoa', [AdminUserController::class, 'suspend'])->name('users.suspend');
             Route::post('nguoi-dung/{user}/mo-khoa', [AdminUserController::class, 'reactivate'])->name('users.reactivate');
+            Route::post('nguoi-dung/{user}/khoi-phuc', [AdminUserController::class, 'restore'])
+                ->withTrashed()
+                ->name('users.restore');
 
             Route::get('ho-tro', [SupportTicketController::class, 'index'])->name('support.index');
             Route::get('ho-tro/{ticket}', [SupportTicketController::class, 'show'])->name('support.show');
