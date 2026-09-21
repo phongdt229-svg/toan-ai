@@ -48,6 +48,7 @@ use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\LandingController;
+use App\Http\Controllers\Web\GuideController;
 use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
 use App\Http\Controllers\Web\SupportController;
@@ -67,6 +68,10 @@ Route::view('dieu-khoan-su-dung', 'public.legal.terms')->name('legal.terms');
 Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy');
 
 // Hỗ trợ / báo lỗi nội dung: khách chưa đăng nhập cũng gửi được (có captcha + throttle trong request).
+// Trung tâm hướng dẫn — nội dung tĩnh trong config/guides.php, ai cũng xem được.
+Route::get('huong-dan', [GuideController::class, 'index'])->name('guides.index');
+Route::get('huong-dan/{slug}', [GuideController::class, 'show'])->name('guides.show');
+
 Route::get('ho-tro', [SupportController::class, 'create'])->name('support.create');
 Route::post('ho-tro', [SupportController::class, 'store'])->middleware('throttle:20,60')->name('support.store');
 

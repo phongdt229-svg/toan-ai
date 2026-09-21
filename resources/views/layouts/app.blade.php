@@ -81,6 +81,17 @@
                         <li><span class="dropdown-item-text small text-secondary">{{ auth()->user()->email }}</span></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
+                            <a class="dropdown-item" href="{{ route('guides.index', ['doi-tuong' => $portal === 'admin' ? 'all' : $portal]) }}">
+                                <i class="bi bi-book me-2"></i>Hướng dẫn sử dụng
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('support.create') }}">
+                                <i class="bi bi-life-preserver me-2"></i>Gửi yêu cầu hỗ trợ
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="dropdown-item text-danger">

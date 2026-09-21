@@ -17,6 +17,12 @@
                 hãy mô tả giúp chúng tôi. Phản hồi gửi qua email trong vòng 7 ngày làm việc.
             </p>
 
+            <div class="alert alert-light border d-flex flex-wrap align-items-center gap-2 small">
+                <i class="bi bi-book text-primary"></i>
+                <span class="flex-grow-1">Nhiều câu hỏi thường gặp đã có sẵn lời giải trong phần hướng dẫn.</span>
+                <a href="{{ route('guides.index') }}" class="btn btn-sm btn-outline-primary">Xem hướng dẫn</a>
+            </div>
+
             <form method="POST" action="{{ route('support.store') }}" class="card border" novalidate>
                 @csrf
                 <input type="hidden" name="context_url" value="{{ $contextUrl }}">

@@ -40,6 +40,9 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Số liệu dashboard admin cache 10 phút (`AnalyticsService`) — test/thao tác cần số mới thì gọi `forget()`.
 - Kích hoạt gói chỉ qua `SubscriptionService::activate()` (idempotent, cộng nối) — không `update(['status' => 'active'])` tay.
 - Form công khai (hỗ trợ, báo lỗi nội dung) phải có `MathCaptcha` + honeypot + throttle — xem `SupportTicketRequest`.
+- Nội dung Trung tâm hướng dẫn nằm ở [config/guides.php](config/guides.php) (không có bảng DB). Thêm bài = thêm một phần tử;
+  `links` chỉ ghi **tên route** (`'packages.index'`, hoặc `'guides.show:slug'` để trỏ bài khác) vì config nạp trước route.
+  `GuideTest` mở tất cả các bài nên gõ sai tên route sẽ bị test bắt ngay.
 - Quên mật khẩu: mọi logic ở `PasswordResetService`; giữ nguyên tắc "thông báo giống nhau dù email có tồn tại hay không".
   Local `MAIL_MAILER=log` → link đặt lại nằm trong `storage/logs/laravel.log`.
 - Câu hỏi trong kiểm tra đầu vào là **bản chụp**; chấm qua `PlacementTestQuestion::toQuestion()` để dùng lại `GradingService`.

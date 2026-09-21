@@ -764,6 +764,9 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       `StudentInsightService::studentsFor()` để tự động giới hạn đúng học sinh trong lớp mình dạy. Hộp tìm
       hiện trên header desktop của portal giáo viên (`layouts/app.blade.php`), mobile vào mục "Tìm kiếm"
       trong menu.
+- [x] **Trung tâm hướng dẫn** `/huong-dan`: 17 bài theo 4 nhóm (học sinh, giáo viên, phụ huynh, tài khoản & thanh toán),
+      tìm kiếm không dấu, lọc theo vai trò; nội dung ở `config/guides.php` nên không cần DB.
+      Lối vào: header trang chủ, footer, menu tài khoản trong app (mở đúng nhóm theo vai trò) và form hỗ trợ
 
 ---
 

@@ -15,6 +15,7 @@
                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#ai-tutor">AI Tutor</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#chuong-trinh">Chương trình</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('packages.index') }}">Gói học</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('guides.index') }}">Hướng dẫn</a></li>
             </ul>
 
             <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 ms-lg-3 mt-3 mt-lg-0">

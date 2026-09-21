@@ -663,3 +663,81 @@
         p, li { line-height: 1.7; }
     }
 }
+
+// --- Trung tâm hướng dẫn ---------------------------------------------------
+.guide-search {
+    max-width: 34rem;
+}
+
+.guide-card {
+    display: flex;
+    gap: .875rem;
+    height: 100%;
+    padding: 1.125rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: #fff;
+    text-decoration: none;
+    color: $body-color;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        border-color: rgba($primary, .4);
+        box-shadow: 0 16px 34px -26px rgba(15, 23, 42, .6);
+        color: $body-color;
+    }
+
+    &--compact {
+        align-items: center;
+        padding: .75rem 1rem;
+        font-weight: 600;
+    }
+}
+
+// Các bước: số thứ tự nằm trong vòng tròn, nối với nhau bằng một đường dọc.
+.guide-steps {
+    counter-reset: guide-step;
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+
+    &__item {
+        position: relative;
+        padding: 0 0 1.5rem 3rem;
+
+        &::before {
+            counter-increment: guide-step;
+            content: counter(guide-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: linear-gradient(140deg, $primary, #0891b2);
+            color: #fff;
+            font-weight: 700;
+            font-size: .875rem;
+        }
+
+        // Đường nối giữa các bước, bước cuối không cần.
+        &:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            left: .9375rem;
+            top: 2.25rem;
+            bottom: .25rem;
+            width: 2px;
+            background: $border-color;
+        }
+    }
+
+    &__title {
+        font-weight: 600;
+        margin-bottom: .25rem;
+    }
+}
