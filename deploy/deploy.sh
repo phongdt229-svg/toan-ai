@@ -27,7 +27,9 @@ trap finish EXIT
 
 echo "==> Bật trang bảo trì"
 php artisan down --render="errors::503" --secret="$SECRET" --retry=60
-echo "    Xem trước bản thật tại: $(php artisan tinker --execute='echo config("app.url");' 2>/dev/null || echo https://toanai.vn)/$SECRET"
+# Lấy APP_URL thẳng từ .env: `artisan tinker` là gói dev, production cài --no-dev nên không có.
+APP_URL="$(grep -m1 '^APP_URL=' .env | cut -d= -f2- | tr -d '"' || true)"
+echo "    Xem trước bản thật tại: ${APP_URL:-https://toanai.vn}/$SECRET"
 
 echo "==> Lấy code mới"
 git pull --ff-only origin "$BRANCH"
