@@ -2,7 +2,11 @@
     $hasRoute = ! empty($item['route']) && Route::has($item['route']);
     $url = $hasRoute ? route($item['route']) : '#';
     $active = $hasRoute && request()->routeIs($item['route']);
-    $classes = $style === 'bottom' ? 'bottom-nav__item' : 'sidebar__item';
+    $classes = match ($style) {
+        'bottom' => 'bottom-nav__item',
+        'mobile' => 'mobile-menu__item',
+        default => 'sidebar__item',
+    };
 @endphp
 
 <a href="{{ $url }}"

@@ -55,6 +55,8 @@ class GuideTest extends TestCase
         $this->get(route('guides.index', ['doi-tuong' => 'parent']))
             ->assertOk()
             ->assertSee('Phụ huynh: liên kết và theo dõi con')
+            // Nhóm chung (tài khoản, gói học, thanh toán) luôn đi kèm mọi vai trò.
+            ->assertSee('Gói học và thanh toán MoMo')
             ->assertDontSee('Soạn bài học và chèn công thức toán');
     }
 

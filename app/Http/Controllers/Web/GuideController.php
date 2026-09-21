@@ -24,8 +24,12 @@ class GuideController extends Controller
             $articles = $articles->filter(fn (array $a) => $this->matches($a, $search));
         }
 
-        if (array_key_exists($audience, config('guides.audiences'))) {
-            $articles = $articles->where('audience', $audience);
+        // Lọc theo vai trò vẫn giữ nhóm "Tài khoản & thanh toán" (audience = all):
+        // tài khoản, gói học, thanh toán thì ai cũng cần, ẩn đi là người dùng tưởng không có.
+        if (array_key_exists($audience, config('guides.audiences')) && $audience !== 'all') {
+            $articles = $articles->whereIn('audience', [$audience, 'all']);
+        } elseif ($audience === 'all') {
+            $articles = $articles->where('audience', 'all');
         }
 
         return view('public.guides.index', [

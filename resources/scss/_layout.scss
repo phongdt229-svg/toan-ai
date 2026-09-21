@@ -220,3 +220,47 @@ body {
 
 a.brand:hover .brand__text { color: $primary; }
 a.brand--light:hover .brand__text { color: #fff; }
+
+// --- Menu đầy đủ trên mobile (offcanvas) -----------------------------------
+.mobile-menu {
+    width: 82vw;
+    max-width: 320px;
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: .75rem .875rem;
+        border-radius: $border-radius;
+        color: $body-color;
+        font-weight: 500;
+        text-align: left;
+        text-decoration: none;
+
+        i {
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1.125rem;
+            color: $secondary;
+        }
+
+        &:hover,
+        &:focus-visible {
+            background: $gray-100;
+            color: $body-color;
+        }
+
+        &.is-active {
+            background: rgba($primary, .1);
+            color: $primary;
+
+            i { color: $primary; }
+        }
+
+        // Mục chưa làm (route = null) hiển thị mờ, xem components/nav-item.
+        &.opacity-50 { pointer-events: none; }
+    }
+
+    // Nút đăng xuất dùng chung lớp trên nhưng là <button>.
+    &__item.text-danger i { color: inherit; }
+}

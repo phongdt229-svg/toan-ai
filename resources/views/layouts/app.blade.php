@@ -14,10 +14,16 @@
 
 @section('body')
     @include('components.sidebar', ['items' => $items, 'portal' => $portal])
+    @include('components.mobile-menu', ['items' => $items, 'portal' => $portal])
 
     <div class="app-shell">
         <header class="navbar bg-white border-bottom sticky-top px-3">
             <div class="d-flex align-items-center gap-2">
+                {{-- Mobile: mở menu đầy đủ; desktop đã có sidebar nên ẩn nút này. --}}
+                <button class="btn btn-sm btn-light d-lg-none" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#appMenu" aria-controls="appMenu" aria-label="Mở menu">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
                 <x-brand class="d-lg-none" size="sm" />
                 <h1 class="h6 mb-0 d-none d-lg-block">@yield('page_title', 'Trang chủ')</h1>
             </div>
