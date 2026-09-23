@@ -62,8 +62,8 @@ class AnalyticsService
                 'answers_7d' => QuestionAttempt::where('created_at', '>=', today()->subDays(6))->count(),
             ],
             'revenue' => [
-                'month' => (int) Payment::where('status', Payment::STATUS_PAID)->where('paid_at', '>=', $monthStart)->sum('amount'),
-                'last_30d' => (int) Payment::where('status', Payment::STATUS_PAID)->where('paid_at', '>=', $since)->sum('amount'),
+                'month' => (int) Payment::where('status', Payment::STATUS_PAID)->where('paid_at', '>=', $monthStart)->sum(DB::raw('amount - refunded_amount')),
+                'last_30d' => (int) Payment::where('status', Payment::STATUS_PAID)->where('paid_at', '>=', $since)->sum(DB::raw('amount - refunded_amount')),
                 'paid_orders_month' => Payment::where('status', Payment::STATUS_PAID)->where('paid_at', '>=', $monthStart)->count(),
             ],
             'subscriptions' => $this->effectiveByTier(),
@@ -122,7 +122,7 @@ class AnalyticsService
         $revenue = Payment::where('status', Payment::STATUS_PAID)
             ->where('paid_at', '>=', $since)
             ->groupByRaw('DATE(paid_at)')
-            ->selectRaw('DATE(paid_at) d, SUM(amount) c')
+            ->selectRaw('DATE(paid_at) d, SUM(amount - refunded_amount) c')
             ->pluck('c', 'd');
 
         return collect(range(0, 29))->map(function (int $i) use ($since, $signups, $active, $revenue) {

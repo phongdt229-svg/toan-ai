@@ -31,7 +31,7 @@ class Payment extends Model
 
     protected $fillable = [
         'order_code', 'user_id', 'package_id', 'voucher_id', 'subscription_id',
-        'amount', 'discount_amount', 'currency', 'method', 'status',
+        'amount', 'discount_amount', 'refunded_amount', 'currency', 'method', 'status',
         'gateway_request_id', 'gateway_transaction_id', 'gateway_result_code', 'gateway_message',
         'pay_url', 'gateway_response', 'flag_reason', 'paid_at', 'expires_at', 'client_ip',
     ];
@@ -43,6 +43,7 @@ class Payment extends Model
         return [
             'amount' => 'decimal:2',
             'discount_amount' => 'decimal:2',
+            'refunded_amount' => 'decimal:2',
             'gateway_response' => 'array',
             'gateway_result_code' => 'integer',
             'paid_at' => 'datetime',
@@ -105,6 +106,18 @@ class Payment extends Model
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
+    }
+
+    /** Số tiền còn hoàn được (VND, số nguyên). */
+    public function refundableInt(): int
+    {
+        return max(0, $this->amountInt() - (int) round((float) $this->refunded_amount));
+    }
+
+    /** Số tiền thực thu sau hoàn — dùng cho mọi báo cáo doanh thu. */
+    public function netAmountInt(): int
+    {
+        return $this->amountInt() - (int) round((float) $this->refunded_amount);
     }
 
     public function isRefunded(): bool

@@ -985,8 +985,9 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       disk `public` (cần `storage:link`); xoá file khi xoá/ẩn danh tài khoản. `Dockerfile.dev` thêm GD jpeg/webp.
 - [x] **Lưới an toàn cấu hình** — trang AI usage cảnh báo model chưa có dòng giá (`AiUsageGuard::hasPricing`);
       footer tự ẩn link mạng xã hội giả kiểu `facebook.com/x` (`SocialLink`). Vẫn cần dán URL thật trước khi ra production.
-- [x] **Hoàn tiền MoMo (toàn bộ đơn)** — `PaymentService::refund()` + nút ở Quản trị → Giao dịch → chi tiết. Đơn chuyển
+- [x] **Hoàn tiền MoMo (toàn bộ hoặc một phần)** — `PaymentService::refund()` + nút ở Quản trị → Giao dịch → chi tiết. Đơn chuyển
       `refunded` (mọi báo cáo lọc `status=paid` tự loại khỏi doanh thu), gói bị thu hồi, có bảng `payment_refunds`.
+      Hoàn một phần (25/09): đơn vẫn `paid`, giữ gói, cộng `payments.refunded_amount`; đủ tiền thì sang `refunded` + thu hồi gói. Doanh thu ở mọi báo cáo tính ròng `amount − refunded_amount`.
       Ghi yêu cầu `pending` TRƯỚC khi gọi MoMo: mất mạng giữa chừng thì nút khoá, admin phải kiểm tra bên MoMo (tránh hoàn hai lần).
       IPN gửi lại sau khi hoàn không kích hoạt lại gói. Người trả tiền nhận email + thông báo trong app khi được hoàn (`PaymentRefunded`).
 - [x] **Số liệu GA trong Quản trị (Data API)** — `AnalyticsReportService`: tự ký JWT service account (không kéo google/apiclient),
@@ -1049,7 +1050,7 @@ là **toàn bộ** việc còn lại đã biết.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định
 
-Hoàn tiền một phần (hiện chỉ hoàn toàn bộ đơn) · middleware
+middleware
 `subscription:pro|premium` theo route (khoá ở mức nội dung đúng hơn) · spec §37 bị cắt nội dung nguồn
 nên đang chạy bản mặc định ghi ở Phase 7B.
 

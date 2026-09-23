@@ -15,12 +15,16 @@ class RefundPaymentRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        return ['reason' => ['required', 'string', 'max:191']];
+        return [
+            'reason' => ['required', 'string', 'max:191'],
+            // Bỏ trống = hoàn toàn bộ phần còn lại. Giới hạn trên do PaymentService kiểm dưới khoá dòng.
+            'amount' => ['nullable', 'integer', 'min:1', 'max:1000000000'],
+        ];
     }
 
     /** @return array<string, string> */
     public function attributes(): array
     {
-        return ['reason' => 'lý do hoàn tiền'];
+        return ['reason' => 'lý do hoàn tiền', 'amount' => 'số tiền hoàn'];
     }
 }

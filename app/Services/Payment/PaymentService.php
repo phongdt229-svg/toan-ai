@@ -189,17 +189,20 @@ class PaymentService
     }
 
     /**
-     * Hoàn tiền TOÀN BỘ một đơn đã thanh toán, do admin bấm (§ hoàn tiền tự động).
+     * Hoàn tiền một đơn đã thanh toán — toàn bộ (`$amount = null`) hoặc một phần, do admin bấm.
+     *
+     * Hoàn một phần: đơn vẫn `paid`, gói giữ nguyên (coi như bồi hoàn); chỉ khi tổng đã hoàn chạm đúng số tiền
+     * thực trả thì đơn mới sang `refunded` và gói bị thu hồi.
      *
      * Thứ tự cố ý: ghi yêu cầu `pending` TRƯỚC khi gọi cổng. Nếu cổng nhận mà ta mất kết nối, dòng pending còn đó
-     * và chặn admin bấm lần hai — hoàn hai lần là mất tiền thật. Chỉ khi cổng báo rõ thành công mới đổi đơn sang
-     * `refunded` và thu hồi gói.
+     * và chặn admin bấm lần hai — hoàn hai lần là mất tiền thật. Chỉ khi cổng báo rõ thành công mới cộng vào
+     * `refunded_amount`.
      *
      * @throws PaymentException
      */
-    public function refund(Payment $payment, User $admin, string $reason): PaymentRefund
+    public function refund(Payment $payment, User $admin, string $reason, ?int $amount = null): PaymentRefund
     {
-        $refund = DB::transaction(function () use ($payment, $admin, $reason) {
+        $refund = DB::transaction(function () use ($payment, $admin, $reason, $amount) {
             $payment = Payment::whereKey($payment->id)->lockForUpdate()->firstOrFail();
 
             if (! $payment->isPaid()) {
@@ -210,13 +213,20 @@ class PaymentService
                 throw new PaymentException('Đơn 0đ (mã giảm 100%) không có tiền để hoàn — hãy huỷ đăng ký ở trang Đăng ký gói.');
             }
 
-            if ($payment->refunds()->whereIn('status', [PaymentRefund::STATUS_PENDING, PaymentRefund::STATUS_SUCCEEDED])->exists()) {
-                throw new PaymentException('Đơn này đã có yêu cầu hoàn tiền chưa rõ kết quả. Kiểm tra trên cổng MoMo trước khi làm lại.');
+            if ($payment->refunds()->where('status', PaymentRefund::STATUS_PENDING)->exists()) {
+                throw new PaymentException('Đơn này có yêu cầu hoàn tiền chưa rõ kết quả. Kiểm tra trên cổng MoMo trước khi làm lại.');
+            }
+
+            $refundable = $payment->refundableInt();
+            $amount ??= $refundable;
+
+            if ($amount < 1 || $amount > $refundable) {
+                throw new PaymentException('Số tiền hoàn phải từ 1₫ đến '.number_format($refundable, 0, ',', '.').'₫ (phần còn lại của đơn).');
             }
 
             return $payment->refunds()->create([
                 'refund_code' => 'RF'.$payment->order_code.strtoupper(Str::random(4)),
-                'amount' => $payment->amount,
+                'amount' => $amount,
                 'reason' => $reason,
                 'status' => PaymentRefund::STATUS_PENDING,
                 'requested_by' => $admin->id,
@@ -226,7 +236,7 @@ class PaymentService
         $payment->refresh();
 
         // Gọi mạng NGOÀI transaction: không giữ khoá dòng trong lúc chờ MoMo.
-        $result = $this->gateway->refund($payment, $refund->refund_code, $payment->amountInt(), $reason);
+        $result = $this->gateway->refund($payment, $refund->refund_code, (int) $refund->amount, $reason);
 
         if (! $result->succeeded) {
             $refund->update([
@@ -241,6 +251,8 @@ class PaymentService
         }
 
         DB::transaction(function () use ($payment, $refund, $result, $admin, $reason) {
+            $payment = Payment::whereKey($payment->id)->lockForUpdate()->firstOrFail();
+
             $refund->update([
                 'status' => PaymentRefund::STATUS_SUCCEEDED,
                 'gateway_transaction_id' => $result->transactionId,
@@ -249,21 +261,29 @@ class PaymentService
                 'refunded_at' => now(),
             ]);
 
-            $payment->update(['status' => Payment::STATUS_REFUNDED]);
+            // Tính lại từ bảng hoàn tiền thay vì cộng dồn — sai một lần là lệch mãi.
+            $total = (float) $payment->refunds()->where('status', PaymentRefund::STATUS_SUCCEEDED)->sum('amount');
+            $full = (int) round($total) >= $payment->amountInt();
 
-            // Tiền đã trả lại thì gói không còn lý do tồn tại.
-            $subscription = Subscription::lockForUpdate()->find($payment->subscription_id);
-            if ($subscription && in_array($subscription->status, [Subscription::STATUS_ACTIVE, Subscription::STATUS_PENDING], true)) {
-                $this->subscriptions->cancel($subscription, $admin, "Hoàn tiền: {$reason}");
+            $payment->update(['refunded_amount' => $total, 'status' => $full ? Payment::STATUS_REFUNDED : Payment::STATUS_PAID]);
+
+            // Hoàn đủ tiền thì gói không còn lý do tồn tại; hoàn một phần thì giữ gói.
+            if ($full) {
+                $subscription = Subscription::lockForUpdate()->find($payment->subscription_id);
+                if ($subscription && in_array($subscription->status, [Subscription::STATUS_ACTIVE, Subscription::STATUS_PENDING], true)) {
+                    $this->subscriptions->cancel($subscription, $admin, "Hoàn tiền: {$reason}");
+                }
             }
 
             $this->audit->log('payment.refunded', $payment, ['status' => Payment::STATUS_PAID], [
                 'refund_code' => $refund->refund_code,
-                'amount' => $payment->amountInt(),
+                'amount' => (int) $refund->amount,
+                'total_refunded' => (int) round($total),
+                'full' => $full,
                 'reason' => $reason,
             ]);
 
-            DB::afterCommit(fn () => $payment->user->notify(new PaymentRefunded($payment)));
+            DB::afterCommit(fn () => $payment->user->notify(new PaymentRefunded($payment, $refund)));
         });
 
         return $refund->refresh();

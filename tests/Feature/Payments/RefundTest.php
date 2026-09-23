@@ -205,4 +205,60 @@ class RefundTest extends SubscriptionTestCase
             ->assertDontSee(route('admin.payments.refund', $payment), false);
         $this->get(route('admin.payments.index'))->assertOk();
     }
+
+    public function test_partial_refund_keeps_order_paid_and_subscription_active_and_nets_revenue(): void
+    {
+        $payment = $this->paidPayment();
+        $admin = $this->makeAdmin();
+        $this->fakeRefund();
+
+        $this->actingAs($admin)->post(route('admin.payments.refund', $payment), ['reason' => 'Bồi hoàn sự cố', 'amount' => 30000])
+            ->assertSessionHas('status');
+
+        $payment->refresh();
+        $this->assertSame(Payment::STATUS_PAID, $payment->status);
+        $this->assertSame(Subscription::STATUS_ACTIVE, $payment->subscription->status);
+        $this->assertSame('30000.00', $payment->refunded_amount);
+        $this->assertSame(69000, $payment->refundableInt());
+        $this->assertSame(69000, $payment->netAmountInt());
+
+        // Doanh thu ròng trên trang Giao dịch: 99.000 − 30.000.
+        $this->get(route('admin.payments.index'))->assertOk()->assertSee('69.000₫');
+
+        Http::assertSent(fn (HttpRequest $r) => str_ends_with($r->url(), '/refund') && $r['amount'] === '30000');
+        Notification::assertSentTo($payment->user, PaymentRefunded::class,
+            fn (PaymentRefunded $n) => $n->toArray($payment->user)['title'] === 'Đơn hàng được hoàn một phần');
+    }
+
+    public function test_second_partial_refund_completing_the_amount_revokes_the_subscription(): void
+    {
+        $payment = $this->paidPayment();
+        $admin = $this->makeAdmin();
+        $this->fakeRefund();
+
+        $this->actingAs($admin)->post(route('admin.payments.refund', $payment), ['reason' => 'a', 'amount' => 30000]);
+        $this->post(route('admin.payments.refund', $payment), ['reason' => 'b']); // để trống = phần còn lại
+
+        $payment->refresh();
+        $this->assertSame(Payment::STATUS_REFUNDED, $payment->status);
+        $this->assertSame('99000.00', $payment->refunded_amount);
+        $this->assertSame(0, $payment->refundableInt());
+        $this->assertSame(Subscription::STATUS_CANCELLED, $payment->subscription->status);
+        $this->assertSame([30000, 69000], $payment->refunds()->orderBy('id')->pluck('amount')->map(fn ($a) => (int) $a)->all());
+    }
+
+    public function test_cannot_refund_more_than_what_is_left(): void
+    {
+        $payment = $this->paidPayment();
+        $admin = $this->makeAdmin();
+        $this->fakeRefund();
+
+        $this->actingAs($admin)->post(route('admin.payments.refund', $payment), ['reason' => 'a', 'amount' => 60000]);
+
+        $this->post(route('admin.payments.refund', $payment), ['reason' => 'b', 'amount' => 50000])->assertSessionHas('error');
+        $this->post(route('admin.payments.refund', $payment), ['reason' => 'b', 'amount' => 0])->assertSessionHasErrors('amount');
+
+        $this->assertSame('60000.00', $payment->refresh()->refunded_amount);
+        $this->assertSame(1, $payment->refunds()->count());
+    }
 }

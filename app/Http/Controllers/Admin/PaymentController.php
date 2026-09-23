@@ -11,6 +11,7 @@ use App\Services\Payment\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /** Quản lý giao dịch (§25): tra cứu, xem log IPN, đối soát lại với cổng. */
@@ -36,7 +37,7 @@ class PaymentController extends Controller
             'status' => $status,
             'search' => $search,
             'stats' => [
-                'revenue_month' => (int) Payment::where('status', Payment::STATUS_PAID)->where('paid_at', '>=', now()->startOfMonth())->sum('amount'),
+                'revenue_month' => (int) Payment::where('status', Payment::STATUS_PAID)->where('paid_at', '>=', now()->startOfMonth())->sum(DB::raw('amount - refunded_amount')),
                 'paid_month' => Payment::where('status', Payment::STATUS_PAID)->where('paid_at', '>=', now()->startOfMonth())->count(),
                 'flagged' => Payment::whereNotNull('flag_reason')->count(),
                 'bad_signatures_7d' => PaymentWebhookLog::where('result', PaymentWebhookLog::RESULT_INVALID_SIGNATURE)
@@ -60,7 +61,7 @@ class PaymentController extends Controller
             ->where('status', Payment::STATUS_PAID)
             ->whereDate('paid_at', '>=', $since)
             ->groupByRaw('DATE(paid_at)')
-            ->selectRaw('DATE(paid_at) d, COUNT(*) c, SUM(amount) r')
+            ->selectRaw('DATE(paid_at) d, COUNT(*) c, SUM(amount - refunded_amount) r')
             ->get()
             ->keyBy('d');
 
@@ -99,11 +100,13 @@ class PaymentController extends Controller
     public function refund(RefundPaymentRequest $request, Payment $payment, PaymentService $payments): RedirectResponse
     {
         try {
-            $payments->refund($payment, $request->user(), $request->validated('reason'));
+            $refund = $payments->refund($payment, $request->user(), $request->validated('reason'), $request->filled('amount') ? (int) $request->validated('amount') : null);
         } catch (PaymentException $e) {
             return back()->with('error', $e->getMessage());
         }
 
-        return back()->with('status', 'Đã hoàn tiền và thu hồi gói.');
+        return back()->with('status', $payment->refresh()->isRefunded()
+            ? 'Đã hoàn toàn bộ tiền và thu hồi gói.'
+            : 'Đã hoàn '.number_format((float) $refund->amount, 0, ',', '.').'₫ (hoàn một phần, gói được giữ nguyên).');
     }
 }

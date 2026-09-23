@@ -41,6 +41,11 @@
                     </div>
                 @endif
                 <div class="d-flex justify-content-between"><span class="text-secondary">Số tiền thực trả</span><strong>{{ $payment->amountLabel() }}</strong></div>
+                @if ((float) $payment->refunded_amount > 0)
+                    <div class="d-flex justify-content-between text-danger">
+                        <span>Đã hoàn</span><span>−{{ number_format((float) $payment->refunded_amount, 0, ',', '.') }}₫</span>
+                    </div>
+                @endif
                 <div class="d-flex justify-content-between"><span class="text-secondary">Đăng ký</span><span>#{{ $payment->subscription_id }} · {{ $payment->subscription?->statusLabel() }}</span></div>
             </div></div>
         </div>
@@ -58,7 +63,7 @@
     @php
         // Còn dòng hoàn tiền `pending` = đã gửi MoMo mà chưa rõ kết quả → khoá nút, admin phải kiểm tra bên MoMo.
         $blockingRefund = $payment->refunds->first(fn ($r) => $r->status === 'pending');
-        $canRefund = $payment->isPaid() && $payment->method !== 'voucher' && $payment->amountInt() > 0 && ! $blockingRefund;
+        $canRefund = $payment->isPaid() && $payment->method !== 'voucher' && $payment->refundableInt() > 0 && ! $blockingRefund;
     @endphp
 
     @if ($payment->refunds->isNotEmpty() || $canRefund)
@@ -86,12 +91,19 @@
 
                 @if ($canRefund)
                     <form method="POST" action="{{ route('admin.payments.refund', $payment) }}" class="d-flex flex-column flex-sm-row gap-2 mt-3"
-                          data-confirm="Hoàn {{ $payment->amountLabel() }} cho đơn này và thu hồi gói? Không hoàn tác được." data-confirm-ok="Hoàn tiền">
+                          data-confirm="Hoàn tiền cho đơn này? Không hoàn tác được." data-confirm-ok="Hoàn tiền">
                         @csrf
+                        <input name="amount" type="number" min="1" max="{{ $payment->refundableInt() }}" step="1" inputmode="numeric"
+                               class="form-control @error('amount') is-invalid @enderror" style="max-width:190px"
+                               placeholder="Số tiền (để trống = {{ number_format($payment->refundableInt(), 0, ',', '.') }}₫)" aria-label="Số tiền hoàn">
                         <input name="reason" class="form-control" maxlength="191" required placeholder="Lý do hoàn tiền (ghi vào audit log)">
                         <button class="btn btn-danger flex-shrink-0"><i class="bi bi-arrow-counterclockwise me-1"></i>Hoàn tiền</button>
                     </form>
-                    <div class="form-text">Hoàn toàn bộ số tiền thực trả qua MoMo và huỷ đăng ký gắn với đơn.</div>
+                    @error('amount')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                    <div class="form-text">
+                        Còn hoàn được {{ number_format($payment->refundableInt(), 0, ',', '.') }}₫.
+                        Hoàn toàn bộ thì gói bị thu hồi; hoàn một phần thì gói được giữ nguyên.
+                    </div>
                 @endif
             </div>
         </div>

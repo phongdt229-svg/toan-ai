@@ -27,7 +27,7 @@ class VoucherReportService
         $revenue = (int) Payment::query()
             ->where('status', Payment::STATUS_PAID)
             ->whereNotNull('voucher_id')
-            ->sum('amount');
+            ->sum(DB::raw('amount - refunded_amount'));
 
         $gross = $revenue + $discount;
 
