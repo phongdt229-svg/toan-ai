@@ -953,6 +953,14 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       link huỷ (không cần đăng nhập) — cảnh báo duy nhất khi có người chiếm phiên đăng nhập.
       Quản trị đổi hộ được cho người mất luôn hộp thư cũ. 14 test.
 
+- [x] **Khung chương trình Toán 1–12** — 77 chương, 314 chủ đề theo mạch kiến thức GDPT 2018.
+      Trước đó chỉ Lớp 6 có 8 chủ đề, 11 lớp còn lại trống — giáo viên mở màn hình soạn bài là
+      không chọn được gì, đó mới là thứ chặn việc nhập nội dung. **Cần giáo viên rà lại** tên chương
+      cho khớp bộ sách đang dùng.
+- [x] **Bỏ hai chip quảng cáo sai sự thật trên trang chủ** — "+10 điểm" và "7 ngày liên tiếp" thay bằng
+      "Chấm ngay" và "Lộ trình riêng", hai thứ sản phẩm có thật. Gamification vẫn là quyết định để ngỏ,
+      nhưng không để trang chủ nói sai trong lúc chờ.
+
 ### Còn nợ — rà lại 23/09/2026 (lần 2, sau đợt cookie + nhắc gia hạn)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
@@ -960,15 +968,13 @@ là **toàn bộ** việc còn lại đã biết.
 
 #### A. Chặn đường bán hàng
 
-- [ ] **Nội dung thật** — mới 1/12 lớp có dữ liệu (4 bài học, 49 câu hỏi, 1 đề tính tới 21/09).
-      Công cụ đã đủ cả: soạn bài, `QuestionImporter` nhập CSV, AI soạn nháp, ra đề. Thiếu **người nhập**,
-      không phải thiếu code. Đây là thứ duy nhất chặn giữa "chạy được" và "bán được".
+- [ ] **Nội dung bài học và câu hỏi** — khung chương trình đã có (77 chương, 314 chủ đề cho cả 12 lớp,
+      xem `CurriculumSkeletonSeeder`) nên giáo viên đã có chỗ treo bài. Giờ thiếu **nội dung thật**:
+      bài giảng và câu hỏi. Đây là việc soạn thảo của giáo viên, không phải việc code.
+      Công cụ đủ cả: soạn bài, `QuestionImporter` nhập CSV, AI soạn nháp, ra đề.
 
 #### B. Cam kết đã hứa nhưng chưa có công cụ
 
-- [ ] **Trang chủ quảng cáo tính năng không có** — `public/partials/hero.blade.php` có chip
-      "+10 điểm" và "7 ngày liên tiếp", trong khi code **không có** streak hay điểm thưởng nào.
-      Hai đường: bỏ 2 chip *(~1 giờ)*, hoặc làm gamification thật *(~2 buổi)*. **Chưa có quyết định.**
 - [ ] **Tự tải bản sao dữ liệu** *(~1 buổi)* — Chính sách bảo mật §7 hứa "yêu cầu bản sao dữ liệu học tập",
       hiện chỉ xử lý tay qua email. Đúng y tình trạng của "xoá tài khoản" trước khi làm ở đợt 21/09.
       Làm theo cùng khuôn: service xuất JSON/CSV + nút trong trang Cài đặt.

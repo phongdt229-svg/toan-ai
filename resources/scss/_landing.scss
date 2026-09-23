@@ -144,13 +144,13 @@
         @include media-breakpoint-up(md) {
             display: flex;
 
-            &--score { top: 12%; left: -12%; }
-            &--streak { bottom: 18%; right: -10%; }
+            &--grade { top: 12%; left: -12%; }
+            &--path { bottom: 18%; right: -10%; }
         }
 
         @media (prefers-reduced-motion: no-preference) {
             animation: float 5s ease-in-out infinite;
-            &--streak { animation-delay: -2.5s; }
+            &--path { animation-delay: -2.5s; }
         }
     }
 }

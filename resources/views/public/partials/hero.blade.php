@@ -49,11 +49,14 @@
 
             <div class="col-12 col-lg-6">
                 <div class="device">
-                    <div class="device__chip device__chip--score">
-                        <i class="bi bi-patch-check-fill text-success"></i>+10 điểm
+                    {{-- Hai thẻ này phải nói đúng thứ sản phẩm có thật: chấm tự động (GradingService)
+                         và lộ trình riêng (LearningPathService). Trước đây là "+10 điểm" và "7 ngày liên tiếp"
+                         trong khi hệ thống không hề có điểm thưởng hay chuỗi ngày học. --}}
+                    <div class="device__chip device__chip--grade">
+                        <i class="bi bi-patch-check-fill text-success"></i>Chấm ngay
                     </div>
-                    <div class="device__chip device__chip--streak">
-                        <i class="bi bi-fire text-warning"></i>7 ngày liên tiếp
+                    <div class="device__chip device__chip--path">
+                        <i class="bi bi-signpost-split-fill text-primary"></i>Lộ trình riêng
                     </div>
 
                     <div class="device__screen" data-math>

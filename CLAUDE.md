@@ -65,6 +65,11 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Local/test để TRỐNG để không làm bẩn số liệu thật — thử thì đặt `GOOGLE_ANALYTICS_ID` / `GOOGLE_TAG_MANAGER_ID` trong `.env`.
   Bật thêm công cụ theo dõi nào cũng **phải khai vào Chính sách bảo mật §3 + §8** và sửa `legal_updated_at`;
   `SeoTest` có test canh đúng chuyện này.
+- Khung chương trình 1–12 ở [database/data/curriculum.php](database/data/curriculum.php), nạp bằng
+  `php artisan db:seed --class=CurriculumSkeletonSeeder` (idempotent, **không ghi đè** chương/chủ đề thêm tay).
+  Đây là BỘ KHUNG — tên chương mỗi bộ sách một khác, giáo viên sửa ở Quản trị → Chương trình.
+- Trang chủ **chỉ được quảng cáo thứ sản phẩm có thật**. Chưa có streak/điểm thưởng nên hero không được
+  nói tới — `FooterSocialLinksTest` canh chuyện này.
 - Đổi email: **không đổi thẳng** — địa chỉ mới nằm ở `users.pending_email` cho tới khi người dùng bấm link
   gửi TỚI ĐỊA CHỈ MỚI (`EmailChangeService`). Địa chỉ cũ luôn được báo ngay kèm link huỷ.
   Thư xác nhận phải gửi qua `Notification::route('mail', $newEmail)` — `$user->notify()` sẽ đi về địa chỉ cũ.

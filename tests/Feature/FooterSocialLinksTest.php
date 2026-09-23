@@ -47,6 +47,17 @@ class FooterSocialLinksTest extends TestCase
             ->assertSee('aria-label="Facebook"', false);
     }
 
+    public function test_the_hero_does_not_advertise_features_that_do_not_exist(): void
+    {
+        // Trước 23/09 hero có chip "+10 điểm" và "7 ngày liên tiếp" trong khi hệ thống
+        // không hề có điểm thưởng hay chuỗi ngày học. Làm gamification thật thì bỏ test này.
+        $html = $this->get('/')->assertOk()->getContent();
+        $hero = substr($html, 0, strpos($html, 'device__screen') ?: strlen($html));
+
+        $this->assertStringNotContainsString('+10 điểm', $hero);
+        $this->assertStringNotContainsString('ngày liên tiếp', $hero);
+    }
+
     public function test_all_five_networks_render_when_configured(): void
     {
         config(['site.social' => [
