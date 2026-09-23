@@ -942,6 +942,11 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 - Kênh: chuông trong app + push. **Không gửi email** — học sinh không mở email, và bài giao thì
   ngày nào cũng có, email sẽ thành rác.
 
+- [x] **Hộp thoại xác nhận trong giao diện** — thay toàn bộ `confirm()`/`alert()` mặc định
+      (21 chỗ ở 20 view). Hộp mặc định không đổi được chữ trên nút và trên một số trình duyệt di động
+      có ô "không hiện lại nữa" — tick vào là mọi xác nhận sau đó im lặng trôi qua, kể cả xoá tài khoản.
+      `ConfirmDialogTest` quét view để hộp mặc định không bò ngược trở lại.
+
 ### Còn nợ — rà lại 23/09/2026 (lần 2, sau đợt cookie + nhắc gia hạn)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
@@ -973,8 +978,10 @@ là **toàn bộ** việc còn lại đã biết.
 - [ ] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
       Giáo viên đang phải nhờ AI sinh câu rồi tự bốc vào đề. Xem ghi chú cuối Phase 7A.
 - [ ] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
-- [ ] **URL mạng xã hội thật** — footer đã sẵn sàng nhưng 5 khoá trong `config/site.php` còn trống,
-      nên khối icon đang ẩn. Chờ link thật, không bịa.
+- [ ] **URL mạng xã hội đang là link giả** — `.env` ở máy dev đang đặt `https://facebook.com/x`,
+      `https://google.com/x`… nên footer hiện đủ 5 biểu tượng nhưng bấm vào là trang không tồn tại.
+      Ở local thì vô hại; **chép nhầm sang production là mất uy tín ngay trang chủ**.
+      Dán URL thật, hoặc xoá dòng nào chưa có trang để biểu tượng đó tự ẩn.
 
 #### E. Vận hành thật — chưa có gì khi sự cố xảy ra
 
@@ -987,10 +994,18 @@ là **toàn bộ** việc còn lại đã biết.
       "em không thấy bài" của học sinh. Cần chức năng đăng nhập hộ có audit log và dải cảnh báo rõ
       trong lúc đang mượn tài khoản.
 
+- [ ] **Chốt nhà cung cấp AI + bảng giá** *(~1 giờ)* — `OpenAiProvider` đã gọi chuẩn
+      `/chat/completions` và `OPENAI_BASE_URL` là biến môi trường, nên cắm Gemini/Groq/OpenRouter
+      chỉ cần đổi `.env`, không sửa code. Nhưng `config/ai.php` → `pricing` mới có `gpt-4o-mini`
+      và `gpt-4o`: đổi model mà quên thêm dòng giá thì trang **Quản trị → AI usage** hiện chi phí 0₫,
+      nhìn tưởng miễn phí. Lưu ý bậc miễn phí thường dùng dữ liệu để huấn luyện — không hợp với
+      bài làm của trẻ em khi chạy thật.
+
 #### D. Nợ kỹ thuật
 
 - [ ] `vendor/bin/pint` một lượt cho toàn repo rồi bật job lint trong CI
-      (66 file lệch chuẩn từ trước — bật ngay là CI đỏ không liên quan tới thay đổi đang đẩy).
+      (**71 file** tính tới 23/09 — con số này tăng theo mỗi đợt tính năng mới, càng để lâu càng đắt.
+      Bật ngay mà chưa dọn là CI đỏ vì chuyện không liên quan tới thay đổi đang đẩy).
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định
 
