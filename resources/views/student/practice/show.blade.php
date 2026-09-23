@@ -13,7 +13,7 @@
     </div>
 
     <form method="POST" action="{{ route('student.practice.submit') }}" id="practice-form"
-          onsubmit="return confirm('Nộp bài luyện tập?')">
+          data-confirm="Nộp bài luyện tập?" data-confirm-ok="Nộp bài">
         @csrf
 
         @foreach ($questions as $i => $question)

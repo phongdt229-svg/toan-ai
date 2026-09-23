@@ -96,7 +96,7 @@
                             </a>
 
                             <form method="POST" action="{{ route('teacher.questions.destroy', $question) }}"
-                                  onsubmit="return confirm('Xoá câu hỏi này?')">
+                                  data-confirm="Xoá câu hỏi này?" data-confirm-ok="Xoá">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-sm btn-outline-danger">

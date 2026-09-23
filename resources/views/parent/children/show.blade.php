@@ -196,7 +196,7 @@
             <hr class="my-4">
 
             <form method="POST" action="{{ route('parent.children.unlink', $student) }}"
-                  onsubmit="return confirm('Huỷ liên kết với {{ $student->name }}? Bạn sẽ không xem được kết quả học của con nữa.')">
+                  data-confirm="Huỷ liên kết với {{ $student->name }}? Bạn sẽ không xem được kết quả học của con nữa." data-confirm-ok="Huỷ liên kết">
                 @csrf
                 @method('DELETE')
                 <button class="btn btn-sm btn-outline-danger">Huỷ liên kết</button>

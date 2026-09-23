@@ -101,7 +101,7 @@
                 @endif
 
                 <form method="POST" action="{{ route('student.assignments.submit', $assignment) }}" id="assignment-form"
-                      onsubmit="return confirm('Nộp bài?')">
+                      data-confirm="Nộp bài?" data-confirm-ok="Nộp bài">
                     @csrf
 
                     @foreach ($questions as $i => $question)

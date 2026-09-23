@@ -37,7 +37,7 @@
                             <a href="{{ route('admin.packages.edit', $package) }}" class="btn btn-sm btn-outline-primary">Sửa</a>
                             @unless ($package->is_default)
                                 <form method="POST" action="{{ route('admin.packages.destroy', $package) }}" class="d-inline"
-                                      onsubmit="return confirm('Xoá gói {{ $package->name }}?')">
+                                      data-confirm="Xoá gói {{ $package->name }}?" data-confirm-ok="Xoá">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-sm btn-outline-danger">Xoá</button>
                                 </form>

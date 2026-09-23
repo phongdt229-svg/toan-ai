@@ -3,6 +3,7 @@ import './bootstrap';
 import * as bootstrap from 'bootstrap';
 import renderMathInElement from 'katex/contrib/auto-render';
 import { initAiTutor } from './ai-tutor';
+import './confirm-dialog';
 
 window.bootstrap = bootstrap;
 

@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <form method="POST" action="{{ route('student.parents.revoke', $parent) }}"
-                      onsubmit="return confirm('Ngừng chia sẻ với {{ $parent->name }}? Mã liên kết sẽ được đổi.')">
+                      data-confirm="Ngừng chia sẻ với {{ $parent->name }}? Mã liên kết sẽ được đổi." data-confirm-ok="Ngừng chia sẻ">
                     @csrf
                     @method('DELETE')
                     <button class="btn btn-sm btn-outline-danger">Ngừng chia sẻ</button>
@@ -76,7 +76,7 @@
         <i class="bi bi-shield-lock me-1"></i>
         Thấy người lạ trong danh sách, hoặc lỡ gửi mã cho người khác?
         <form method="POST" action="{{ route('student.parents.regenerate') }}" class="d-inline"
-              onsubmit="return confirm('Đổi mã? Mã, link và QR cũ sẽ không dùng được nữa.')">
+              data-confirm="Đổi mã? Mã, link và QR cũ sẽ không dùng được nữa." data-confirm-ok="Đổi mã">
             @csrf
             <button class="btn btn-link btn-sm p-0 align-baseline">Đổi mã mới</button>
         </form>

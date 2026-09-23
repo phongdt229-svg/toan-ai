@@ -99,7 +99,7 @@
                             </td>
                             <td class="text-end">
                                 <form method="POST" action="{{ route('admin.users.restore', $u) }}"
-                                      onsubmit="return confirm('Khôi phục tài khoản {{ $u->name }}?')">
+                                      data-confirm="Khôi phục tài khoản {{ $u->name }}?" data-confirm-ok="Khôi phục">
                                     @csrf
                                     <button class="btn btn-sm btn-outline-success">Khôi phục</button>
                                 </form>

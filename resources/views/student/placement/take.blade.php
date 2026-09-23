@@ -74,11 +74,19 @@
     tick();
     setInterval(tick, 1000);
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         if (submitting) return;
-        if (!confirm('Nộp bài kiểm tra đầu vào?')) { e.preventDefault(); return; }
+
+        // Phải chặn rồi gửi lại: hộp thoại là bất đồng bộ, không chặn được luồng submit như hộp thoại mặc định của trình duyệt.
+        e.preventDefault();
+
+        if (!await window.confirmDialog('Nộp bài kiểm tra đầu vào?', {
+            title: 'Kiểm tra đầu vào', ok: 'Nộp bài',
+        })) return;
+
         submitting = true;
         fillTimes();
+        form.submit();
     });
 })();
 </script>

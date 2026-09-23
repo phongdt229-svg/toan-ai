@@ -36,7 +36,7 @@
                         </a>
                     @else
                         <form method="POST" action="{{ route('student.placement.start') }}"
-                              @if ($latest) onsubmit="return confirm('Làm lại sẽ tạo lộ trình mới thay cho lộ trình hiện tại. Tiếp tục?')" @endif>
+                              @if ($latest) data-confirm="Làm lại sẽ tạo lộ trình mới thay cho lộ trình hiện tại. Tiếp tục?" data-confirm-ok="Làm lại" @endif>
                             @csrf
                             <button class="btn btn-primary btn-lg btn-touch">
                                 <i class="bi bi-play-fill me-1"></i>{{ $latest ? 'Làm lại kiểm tra đầu vào' : 'Bắt đầu làm bài' }}

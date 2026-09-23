@@ -100,7 +100,7 @@
                 <div class="border rounded p-3 mt-2 d-none bg-light" data-preview-target data-math></div>
 
                 <form method="POST" action="{{ route('teacher.sections.destroy', [$lesson, $section]) }}"
-                      class="mt-2" onsubmit="return confirm('Xoá phần nội dung này?')">
+                      class="mt-2" data-confirm="Xoá phần nội dung này?" data-confirm-ok="Xoá">
                     @csrf
                     @method('DELETE')
                     <button class="btn btn-sm btn-outline-danger">
@@ -196,7 +196,7 @@ document.querySelectorAll('[data-ai-rewrite]').forEach((btn) => {
             editor.value = json.data.html;
             editor.dispatchEvent(new Event('rich:refresh')); // cập nhật trình soạn thảo trực quan
         } catch (e) {
-            alert(e.message);
+            window.alertDialog(e.message, { title: 'Không lưu được' });
         } finally {
             btn.disabled = false;
             btn.innerHTML = original;

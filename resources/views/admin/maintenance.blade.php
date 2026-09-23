@@ -66,7 +66,7 @@
                         </p>
 
                         <form method="POST" action="{{ route('admin.maintenance.store') }}"
-                              onsubmit="return confirm('Bật chế độ bảo trì ngay bây giờ? Người dùng sẽ không truy cập được.')">
+                              data-confirm="Bật chế độ bảo trì ngay bây giờ? Người dùng sẽ không truy cập được." data-confirm-ok="Bật bảo trì">
                             @csrf
 
                             <div class="mb-3" style="max-width:280px">

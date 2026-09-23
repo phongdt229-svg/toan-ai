@@ -62,7 +62,7 @@
                         @if ($removeFrom ?? null)
                             <td class="text-end">
                                 <form method="POST" action="{{ route('teacher.classes.students.remove', [$removeFrom, $row['student']]) }}"
-                                      onsubmit="return confirm('Xoá {{ $row['student']->name }} khỏi lớp?')">
+                                      data-confirm="Xoá {{ $row['student']->name }} khỏi lớp?" data-confirm-ok="Xoá">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-sm btn-link text-danger p-0" title="Xoá khỏi lớp">

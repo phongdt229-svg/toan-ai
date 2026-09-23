@@ -26,7 +26,7 @@
                 <div class="fs-3 fw-bold font-monospace" style="letter-spacing:.15em">{{ $class->code }}</div>
                 @if ($isOwner)
                     <form method="POST" action="{{ route('teacher.classes.code', $class) }}"
-                          onsubmit="return confirm('Đổi mã? Mã cũ sẽ không dùng được nữa.')">
+                          data-confirm="Đổi mã? Mã cũ sẽ không dùng được nữa." data-confirm-ok="Đổi mã">
                         @csrf
                         <button class="btn btn-link btn-sm p-0">Đổi mã</button>
                     </form>

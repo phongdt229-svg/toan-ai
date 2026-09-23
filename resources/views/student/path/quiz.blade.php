@@ -14,7 +14,7 @@
         chưa đạt thì buổi sau có thêm phần ôn đúng chỗ còn sai.
     </p>
 
-    <form method="POST" action="{{ route('student.path.quiz.submit', $session) }}" onsubmit="return confirm('Nộp bài kiểm tra cuối buổi?')">
+    <form method="POST" action="{{ route('student.path.quiz.submit', $session) }}" data-confirm="Nộp bài kiểm tra cuối buổi?" data-confirm-ok="Nộp bài">
         @csrf
 
         @foreach ($questions as $i => $question)

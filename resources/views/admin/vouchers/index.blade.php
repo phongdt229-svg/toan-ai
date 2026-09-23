@@ -70,7 +70,7 @@
                             <a href="{{ route('admin.vouchers.edit', $voucher) }}" class="btn btn-sm btn-outline-secondary">Sửa</a>
                             @if ($voucher->used_count === 0 && $voucher->paid_count === 0)
                                 <form method="POST" action="{{ route('admin.vouchers.destroy', $voucher) }}" class="d-inline"
-                                      onsubmit="return confirm('Xoá mã {{ $voucher->code }}?')">
+                                      data-confirm="Xoá mã {{ $voucher->code }}?" data-confirm-ok="Xoá">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-sm btn-outline-danger">Xoá</button>

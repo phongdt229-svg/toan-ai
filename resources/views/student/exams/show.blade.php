@@ -60,7 +60,7 @@
                 </div>
 
                 <form method="POST" action="{{ route('student.exams.start', $exam) }}"
-                      onsubmit="return confirm('Bắt đầu làm bài? Đồng hồ sẽ chạy ngay.')">
+                      data-confirm="Bắt đầu làm bài? Đồng hồ sẽ chạy ngay." data-confirm-ok="Bắt đầu">
                     @csrf
                     <button class="btn btn-primary btn-lg w-100 btn-touch">
                         <i class="bi bi-play-fill me-1"></i>Bắt đầu làm bài

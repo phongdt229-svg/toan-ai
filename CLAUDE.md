@@ -65,6 +65,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Local/test để TRỐNG để không làm bẩn số liệu thật — thử thì đặt `GOOGLE_ANALYTICS_ID` / `GOOGLE_TAG_MANAGER_ID` trong `.env`.
   Bật thêm công cụ theo dõi nào cũng **phải khai vào Chính sách bảo mật §3 + §8** và sửa `legal_updated_at`;
   `SeoTest` có test canh đúng chuyện này.
+- **Không dùng `confirm()`/`alert()` của trình duyệt.** Xác nhận thao tác: thêm `data-confirm="Câu hỏi?"`
+  vào `<form>` hoặc `<a>` (kèm `data-confirm-ok="Xoá"` cho rõ hành động); cần chờ kết quả trong JS thì
+  `await window.confirmDialog('...')`. Nút màu đỏ thì hộp thoại tự đỏ theo. `ConfirmDialogTest` quét
+  toàn bộ view để chặn hộp thoại mặc định quay lại.
 - Push (Web Push + VAPID): khoá ở `config/push.php`, chưa khai thì tính năng **tắt hẳn** (không hiện công tắc).
   Notification muốn đẩy thì khai `toPush()` + thêm `WebPushChannel::class` vào `via()`.
   Sửa `public/sw.js` nhớ tăng `VERSION`. Sinh khoá: `php artisan push:keys`

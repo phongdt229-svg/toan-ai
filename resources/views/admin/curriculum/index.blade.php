@@ -39,7 +39,7 @@
                                 <span class="badge text-bg-light border">{{ $topic->lessons_count }} bài</span>
 
                                 <form method="POST" action="{{ route('admin.curriculum.topics.destroy', $topic) }}"
-                                      onsubmit="return confirm('Xoá chủ đề {{ $topic->name }}?')">
+                                      data-confirm="Xoá chủ đề {{ $topic->name }}?" data-confirm-ok="Xoá">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-sm btn-link text-danger p-0" title="Xoá chủ đề">

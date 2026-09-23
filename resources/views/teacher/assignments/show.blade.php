@@ -39,7 +39,7 @@
                 </button>
             </form>
             <form method="POST" action="{{ route('teacher.assignments.destroy', $assignment) }}"
-                  onsubmit="return confirm('Xoá bài giao này? Học sinh sẽ không thấy bài nữa.')">
+                  data-confirm="Xoá bài giao này? Học sinh sẽ không thấy bài nữa." data-confirm-ok="Xoá">
                 @csrf
                 @method('DELETE')
                 <button class="btn btn-sm btn-outline-danger">Xoá</button>

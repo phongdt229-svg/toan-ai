@@ -205,7 +205,7 @@
             .forEach(save);
     }, 10000);
 
-    submitForm.addEventListener('submit', (e) => {
+    submitForm.addEventListener('submit', async (e) => {
         if (submitting) return;
         e.preventDefault();
 
@@ -214,7 +214,7 @@
             ? `Còn ${unanswered} câu chưa trả lời. Vẫn nộp bài?`
             : 'Nộp bài? Sau khi nộp không sửa được nữa.';
 
-        if (!confirm(msg)) return;
+        if (!await window.confirmDialog(msg, { title: 'Nộp bài kiểm tra', ok: 'Nộp bài' })) return;
 
         submitting = true;
         window.onbeforeunload = null;

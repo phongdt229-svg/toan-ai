@@ -31,7 +31,7 @@
 
         <div class="collapse mt-3" id="delete-account">
             <form method="POST" action="{{ route('account.destroy') }}"
-                  onsubmit="return confirm('Xoá tài khoản này? Thao tác không thể tự hoàn tác.')">
+                  data-confirm="Xoá tài khoản này? Thao tác không thể tự hoàn tác." data-confirm-ok="Xoá">
                 @csrf
                 @method('DELETE')
 
