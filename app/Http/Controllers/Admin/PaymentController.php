@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\RefundPaymentRequest;
 use App\Models\Payment;
 use App\Models\PaymentWebhookLog;
 use App\Services\Payment\PaymentException;
@@ -95,12 +96,10 @@ class PaymentController extends Controller
     }
 
     /** Hoàn tiền toàn bộ đơn qua MoMo. Chỉ admin (nhóm route), có lý do bắt buộc để vào audit log. */
-    public function refund(Request $request, Payment $payment, PaymentService $payments): RedirectResponse
+    public function refund(RefundPaymentRequest $request, Payment $payment, PaymentService $payments): RedirectResponse
     {
-        $data = $request->validate(['reason' => ['required', 'string', 'max:191']], [], ['reason' => 'lý do hoàn tiền']);
-
         try {
-            $payments->refund($payment, $request->user(), $data['reason']);
+            $payments->refund($payment, $request->user(), $request->validated('reason'));
         } catch (PaymentException $e) {
             return back()->with('error', $e->getMessage());
         }

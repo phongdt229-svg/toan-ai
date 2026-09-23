@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\TwoFactorCodeRequest;
 use App\Models\User;
 use App\Services\Auth\TwoFactorService;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +23,7 @@ class TwoFactorChallengeController extends Controller
         return $this->pending($request) ? view('auth.two-factor') : redirect()->route('login');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(TwoFactorCodeRequest $request): RedirectResponse
     {
         $pending = $this->pending($request);
 
@@ -30,7 +31,7 @@ class TwoFactorChallengeController extends Controller
             return redirect()->route('login')->withErrors(['email' => 'Phiên xác thực đã hết hạn, hãy đăng nhập lại.']);
         }
 
-        $data = $request->validate(['code' => ['required', 'string', 'max:32']]);
+        $data = $request->validated();
 
         $key = '2fa|'.$pending['id'].'|'.$request->ip();
 

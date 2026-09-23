@@ -1049,7 +1049,7 @@ là **toàn bộ** việc còn lại đã biết.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định
 
-Hoàn tiền tự động (admin huỷ đăng ký, hoàn tiền thao tác trên cổng MoMo) · middleware
+Hoàn tiền một phần (hiện chỉ hoàn toàn bộ đơn) · middleware
 `subscription:pro|premium` theo route (khoá ở mức nội dung đúng hơn) · spec §37 bị cắt nội dung nguồn
 nên đang chạy bản mặc định ghi ở Phase 7B.
 
