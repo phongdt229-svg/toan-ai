@@ -992,6 +992,9 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       IPN gửi lại sau khi hoàn không kích hoạt lại gói. Người trả tiền nhận email + thông báo trong app khi được hoàn (`PaymentRefunded`).
 - [x] **Số liệu GA trong Quản trị (Data API)** — `AnalyticsReportService`: tự ký JWT service account (không kéo google/apiclient),
       cache 10 phút, lỗi không làm hỏng trang. Cần `GA_PROPERTY_ID` (số) + `GA_CREDENTIALS_PATH` (file JSON ngoài repo).
+- [x] **E2E bằng trình duyệt (Playwright)** — thư mục `e2e/`, 4 luồng: 2FA (bật → mã dự phòng dùng một lần → TOTP → tắt), đăng nhập hộ
+      (dải cảnh báo, chặn đổi mật khẩu, thoát về đúng admin), ảnh đại diện (từ chối file giả, xoá file), hoàn tiền một phần → toàn bộ.
+      Chạy tay (`cd e2e && npx playwright test`), chưa đưa vào CI vì cần app + DB dựng sẵn.
 - [x] **Pint** — dọn một lượt toàn repo, thêm job `pint --test` vào CI.
 - [x] Sửa: biểu đồ Chart.js tràn khỏi card đè chữ (`sizeBox`), favicon rỗng → logo TOÁN AI, trang Cài đặt quản trị gọn 2 cột.
 
