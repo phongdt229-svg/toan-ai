@@ -908,7 +908,7 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 - Trang chi tiết một mã: danh sách lượt dùng (ai, đơn nào, giảm bao nhiêu, trạng thái, lúc nào)
   để soi được mã bị lạm dụng.
 
-### Còn nợ — rà lại 23/09/2026 (cập nhật sau đợt voucher + analytics)
+### Còn nợ — rà lại 23/09/2026 (lần 2, sau đợt cookie + nhắc gia hạn)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
 là **toàn bộ** việc còn lại đã biết.
@@ -930,6 +930,16 @@ là **toàn bộ** việc còn lại đã biết.
 
 #### C. Tính năng spec có mà code chưa có
 
+- [ ] **Không đổi được email** *(~1 buổi)* — **việc đáng làm nhất trong nhóm này.**
+      Không có đường nào cho người dùng đổi email (`UpdateProfileRequest` chỉ có tên + SĐT), và quản trị
+      cũng không đổi hộ được. Gõ sai email lúc đăng ký là tài khoản hỏng vĩnh viễn: không xác thực được
+      → không mua gói được, không nhận được link đặt lại mật khẩu, không nhận biên nhận.
+      Đợt xác thực email 21/09 làm hậu quả nặng thêm. Cần: đổi email + gửi xác thực tới địa chỉ mới,
+      chỉ đổi thật khi bấm link (không đổi ngay), báo về email cũ để phát hiện chiếm tài khoản.
+- [ ] **Áp mã giảm giá từ link** *(~1 giờ)* — hiện phải vào trang xác nhận rồi gõ tay.
+      Chạy quảng cáo cần link dạng `/goi-hoc/pro-thang/mua?ma=KHAIGIANG30` tự áp sẵn.
+- [ ] **Push notification** *(~1 buổi)* — đã cài được như ứng dụng (PWA) nhưng nhắc hạn gói, nhắc bài giao
+      vẫn chỉ qua email và chuông trong app. Học sinh không mở email.
 - [ ] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
       Giáo viên đang phải nhờ AI sinh câu rồi tự bốc vào đề. Xem ghi chú cuối Phase 7A.
 - [ ] **Nhắc bài giao sắp đến hạn** *(~nửa buổi)* — hiện chỉ báo khi *đã có* kết quả
@@ -937,6 +947,17 @@ là **toàn bộ** việc còn lại đã biết.
 - [ ] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
 - [ ] **URL mạng xã hội thật** — footer đã sẵn sàng nhưng 5 khoá trong `config/site.php` còn trống,
       nên khối icon đang ẩn. Chờ link thật, không bịa.
+
+#### E. Vận hành thật — chưa có gì khi sự cố xảy ra
+
+- [ ] **Không có giám sát lỗi production** *(~1 giờ)* — lỗi 500 của người dùng thật chỉ nằm trong
+      `storage/logs/laravel.log` trên máy chủ, không ai được báo. Phải chờ người dùng phàn nàn mới biết.
+      Gắn Sentry (hoặc tương đương) + cảnh báo là xong.
+- [ ] **Quản trị không có xác thực 2 bước** *(~1 buổi)* — tài khoản admin đổi được giá gói, tạo được mã
+      giảm 100%, cấp gói tay. Mất một mật khẩu admin là mất tiền thật. Ít nhất nên có TOTP cho vai trò này.
+- [ ] **Không đăng nhập hộ được để hỗ trợ** *(~nửa buổi)* — người hỗ trợ không tái hiện được lỗi
+      "em không thấy bài" của học sinh. Cần chức năng đăng nhập hộ có audit log và dải cảnh báo rõ
+      trong lúc đang mượn tài khoản.
 
 #### D. Nợ kỹ thuật
 
