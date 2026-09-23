@@ -5,14 +5,13 @@ namespace App\Services\Learning;
 use App\Models\AssignmentStudent;
 use App\Models\AssignmentSubmission;
 use App\Models\ExamAttempt;
+use App\Models\LearningPath;
 use App\Models\Lesson;
 use App\Models\QuestionAttempt;
 use App\Models\StudentLessonProgress;
-use App\Models\StudentTopicMastery;
 use App\Models\TeacherComment;
 use App\Models\User;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -43,7 +42,7 @@ class StudentReportService
             'weak_topics' => $this->mastery->weakTopics($student, 3),
             'recommendations' => $this->recommendations->current($student, 4),
             // §36: lộ trình cá nhân hóa (nếu con đã làm kiểm tra đầu vào).
-            'path' => \App\Models\LearningPath::where('user_id', $student->id)
+            'path' => LearningPath::where('user_id', $student->id)
                 ->whereIn('status', ['active', 'completed'])->with('stages', 'placementTest')->latest('id')->first(),
             'comments' => TeacherComment::query()
                 ->where('student_id', $student->id)

@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class LearningPath extends Model
 {
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_ARCHIVED = 'archived';
 
     protected $fillable = [

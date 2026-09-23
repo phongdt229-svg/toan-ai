@@ -8,9 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class QuestionAttempt extends Model
 {
     public const CONTEXT_PRACTICE = 'practice';
+
     public const CONTEXT_EXAM = 'exam';
+
     public const CONTEXT_ASSIGNMENT = 'assignment';
+
     public const CONTEXT_PLACEMENT = 'placement';
+
     public const CONTEXT_SESSION_QUIZ = 'session_quiz';
 
     protected $fillable = [

@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\VoucherRequest;
 use App\Models\Package;
 use App\Models\Voucher;
 use App\Services\AuditLogger;
+use App\Services\Payment\VoucherReportService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,11 +21,17 @@ use Illuminate\View\View;
  */
 class VoucherController extends Controller
 {
-    public function __construct(private readonly AuditLogger $audit) {}
+    public function __construct(
+        private readonly AuditLogger $audit,
+        private readonly VoucherReportService $report,
+    ) {}
 
     public function index(Request $request): View
     {
         return view('admin.vouchers.index', [
+            'summary' => $this->report->summary(),
+            'daily' => $this->report->daily(),
+            'top' => $this->report->topVouchers(),
             'vouchers' => Voucher::query()
                 ->with('packages:id,name')
                 ->withCount([

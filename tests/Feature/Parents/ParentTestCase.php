@@ -7,6 +7,7 @@ use App\Models\ParentProfile;
 use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\User;
+use App\Services\Parenting\ChildLinkService;
 use Database\Seeders\GradeSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\SampleCurriculumSeeder;
@@ -56,7 +57,7 @@ abstract class ParentTestCase extends TestCase
 
     protected function link(User $parent, User $student): void
     {
-        app(\App\Services\Parenting\ChildLinkService::class)
+        app(ChildLinkService::class)
             ->linkByCode($parent, $student->studentProfile()->value('link_code'));
     }
 }

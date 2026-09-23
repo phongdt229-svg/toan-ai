@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Recommendation extends Model
 {
     public const TYPE_REVIEW_LESSON = 'review_lesson';
+
     public const TYPE_PRACTICE_TOPIC = 'practice_topic';
+
     public const TYPE_TAKE_EXAM = 'take_exam';
 
     protected $fillable = [

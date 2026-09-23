@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Package;
 use App\Models\Subscription;
 use App\Notifications\SubscriptionExpiringSoon;
 use Illuminate\Console\Command;

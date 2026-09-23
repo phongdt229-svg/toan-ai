@@ -15,7 +15,9 @@ class Assignment extends Model
     use SoftDeletes;
 
     public const TYPE_QUESTION_SET = 'question_set';
+
     public const TYPE_EXAM = 'exam';
+
     public const TYPE_LESSON = 'lesson';
 
     /** @var array<string, string> */
@@ -26,6 +28,7 @@ class Assignment extends Model
     ];
 
     public const STATUS_PUBLISHED = 'published';
+
     public const STATUS_CLOSED = 'closed';
 
     protected $fillable = [

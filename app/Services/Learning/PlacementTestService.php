@@ -236,7 +236,7 @@ class PlacementTestService
                         .", trải đều các chủ đề: {$topicNames}."
                         ."\nChỉ dùng loại: ".implode(', ', self::AUTO_TYPES)
                         ."\nJSON: {\"questions\": [{\"type\", \"difficulty\", \"topic\" (đúng một tên chủ đề ở trên), \"content\", \"explanation\", "
-                        ."\"options\"+\"correct\" (chỉ số từ 0) cho trắc nghiệm | \"correct\": true/false | \"blanks\": [[...]] | \"accepted\": [...]}]}"],
+                        .'"options"+"correct" (chỉ số từ 0) cho trắc nghiệm | "correct": true/false | "blanks": [[...]] | "accepted": [...]}]}'],
                 ],
                 task: 'generate_questions',
                 maxTokens: config('ai.max_output_tokens.generate_questions'),

@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
                 SampleClassSeeder::class,
                 SampleAnalyticsSeeder::class,
                 SampleReportsSeeder::class,
+                SampleVouchersSeeder::class,
             ]);
         }
     }

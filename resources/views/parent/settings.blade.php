@@ -10,6 +10,7 @@
     @include('partials.email-form')
     @include('partials.notification-preferences-form')
     @include('partials.password-form', ['passwordRoute' => route('parent.settings.password')])
+    @include('partials.data-export')
     @include('partials.danger-zone')
 
     <div class="card border mt-3" style="max-width:36rem">

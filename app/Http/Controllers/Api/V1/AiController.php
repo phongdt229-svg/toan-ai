@@ -133,9 +133,9 @@ class AiController extends Controller
         }
 
         $reachable = ExamAttempt::query()
-                ->where('user_id', $user->id)
-                ->whereHas('exam.questions', fn ($q) => $q->where('questions.id', $question->id))
-                ->exists()
+            ->where('user_id', $user->id)
+            ->whereHas('exam.questions', fn ($q) => $q->where('questions.id', $question->id))
+            ->exists()
             || AssignmentStudent::query()
                 ->where('student_id', $user->id)
                 ->whereHas('assignment.questions', fn ($q) => $q->where('questions.id', $question->id))

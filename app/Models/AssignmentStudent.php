@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AssignmentStudent extends Model
 {
     public const STATUS_ASSIGNED = 'assigned';
+
     public const STATUS_SUBMITTED = 'submitted';
+
     public const STATUS_COMPLETED = 'completed';
 
     protected $fillable = [

@@ -6,6 +6,7 @@ use App\Models\ExamAttempt;
 use App\Models\Question;
 use App\Models\QuestionAttempt;
 use App\Models\StudentAnswer;
+use App\Services\Learning\ExamService;
 
 class ExamTakingTest extends ExamTestCase
 {
@@ -92,7 +93,7 @@ class ExamTakingTest extends ExamTestCase
         );
 
         // Tải lại trang nhiều lần, thứ tự giữ nguyên như đã lưu.
-        $service = app(\App\Services\Learning\ExamService::class);
+        $service = app(ExamService::class);
         $first = $service->questionsForAttempt($attempt->fresh())->pluck('id')->all();
         $again = $service->questionsForAttempt($attempt->fresh())->pluck('id')->all();
 

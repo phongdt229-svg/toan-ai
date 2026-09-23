@@ -383,7 +383,8 @@ class SampleAnalyticsSeeder extends Seeder
     }
 
     /**
-     * Phân số thật sự (tử < mẫu) và đã tối giản — đề bài nhìn gọn, không ra kiểu $rac{4}{4}$.
+     * Phân số thật sự (tử < mẫu) và đã tối giản — đề bài nhìn gọn, không ra kiểu $
+rac{4}{4}$.
      *
      * @return array{0: int, 1: int}
      */

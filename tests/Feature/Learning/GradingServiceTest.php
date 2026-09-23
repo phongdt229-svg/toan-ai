@@ -14,6 +14,7 @@ class GradingServiceTest extends TestCase
     use RefreshDatabase;
 
     private GradingService $grading;
+
     private int $gradeId;
 
     protected function setUp(): void

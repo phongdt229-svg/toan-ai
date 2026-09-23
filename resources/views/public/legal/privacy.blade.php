@@ -50,6 +50,7 @@
                     <li><strong>MoMo:</strong> xử lý thanh toán; nhận mã đơn và số tiền.</li>
                     <li><strong>Dịch vụ gửi email và hạ tầng máy chủ:</strong> để gửi thư và lưu trữ hệ thống.</li>
                     <li><strong>Google Analytics / Google Tag Manager:</strong> đo lượt truy cập và cách người dùng di chuyển giữa các trang, để biết chỗ nào khó dùng mà sửa. Google nhận địa chỉ IP (đã rút gọn), loại thiết bị, trình duyệt và trang bạn xem — <strong>không</strong> nhận tên, email, số điện thoại, điểm số hay nội dung bài làm của bạn.</li>
+                    <li><strong>Sentry (giám sát lỗi):</strong> khi hệ thống gặp lỗi, chi tiết kỹ thuật của lỗi (đường dẫn trang, dòng code lỗi) được gửi tới Sentry để chúng tôi sửa nhanh. Chúng tôi <strong>không</strong> gửi tên, email, địa chỉ IP, nội dung biểu mẫu hay bài làm kèm theo.</li>
                     <li><strong>Cơ quan nhà nước có thẩm quyền</strong> khi có yêu cầu hợp pháp bằng văn bản.</li>
                 </ul>
 
@@ -82,7 +83,7 @@
                 <h2>7. Quyền của bạn</h2>
                 <ul>
                     <li>Xem và sửa thông tin cá nhân trong phần tài khoản.</li>
-                    <li>Yêu cầu bản sao dữ liệu học tập của mình (hoặc của con, nếu là phụ huynh đã liên kết).</li>
+                    <li>Tải bản sao dữ liệu của mình ngay trong phần Cài đặt tài khoản (file JSON); với dữ liệu của con, phụ huynh đã liên kết gửi yêu cầu qua email bên dưới.</li>
                     <li>Yêu cầu xoá tài khoản và dữ liệu liên quan.</li>
                     <li>Rút lại sự đồng ý; khi đó một số chức năng sẽ ngừng hoạt động.</li>
                     <li>Khiếu nại nếu cho rằng dữ liệu bị sử dụng sai.</li>

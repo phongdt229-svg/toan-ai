@@ -4,7 +4,6 @@ namespace App\Services\Parenting;
 
 use App\Models\ParentChild;
 use App\Models\ParentProfile;
-use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Services\AuditLogger;

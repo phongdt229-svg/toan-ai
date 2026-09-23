@@ -44,7 +44,7 @@ class ConfirmDialogTest extends TestCase
         }
 
         $this->assertSame([], $offenders,
-            "Dùng confirm()/alert() mặc định của trình duyệt. Thay bằng data-confirm=\"…\" ".
+            'Dùng confirm()/alert() mặc định của trình duyệt. Thay bằng data-confirm="…" '.
             'hoặc window.confirmDialog(). Các file: '.implode(', ', $offenders));
     }
 

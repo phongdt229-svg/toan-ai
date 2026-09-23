@@ -10,7 +10,9 @@ class ParentChild extends Model
     protected $table = 'parent_children';
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_LINKED = 'linked';
+
     public const STATUS_REVOKED = 'revoked';
 
     protected $fillable = ['parent_id', 'student_id', 'status', 'linked_at'];

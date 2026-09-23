@@ -6,6 +6,7 @@ use App\Events\MasteryUpdated;
 use App\Models\QuestionAttempt;
 use App\Models\StudentTopicMastery;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -74,7 +75,7 @@ class MasteryService
     /**
      * Chủ đề yếu — nguồn cho "AI đề xuất ôn lại" (§14) và lộ trình (§35).
      *
-     * @return \Illuminate\Support\Collection<int, StudentTopicMastery>
+     * @return Collection<int, StudentTopicMastery>
      */
     public function weakTopics(User $user, int $limit = 5)
     {
@@ -89,7 +90,7 @@ class MasteryService
             ->get();
     }
 
-    /** @return \Illuminate\Support\Collection<int, StudentTopicMastery> */
+    /** @return Collection<int, StudentTopicMastery> */
     public function strongTopics(User $user, int $limit = 5)
     {
         return StudentTopicMastery::query()

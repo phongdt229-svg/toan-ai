@@ -1,11 +1,15 @@
 <?php
 
+use App\Http\Middleware\BlockWhenImpersonating;
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureUserHasRole;
+use App\Http\Middleware\RequireAdminTwoFactor;
 use App\Http\Middleware\SecurityHeaders;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Sentry\Laravel\Integration;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,9 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+            'verified' => EnsureEmailIsVerified::class,
             'role' => EnsureUserHasRole::class,
             'active' => EnsureAccountIsActive::class,
+            'admin.2fa' => RequireAdminTwoFactor::class,
         ]);
 
         // MoMo gọi server-to-server, không có CSRF token (PROJECT_PLAN.md §8).
@@ -36,10 +41,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->preventRequestsDuringMaintenance(except: [
             'up',
             'dang-nhap',
+            'dang-nhap/*',
             'quan-tri/bao-tri',
         ]);
 
         $middleware->append(SecurityHeaders::class);
+        $middleware->appendToGroup('web', BlockWhenImpersonating::class);
 
         // Giới hạn chung chống cào dữ liệu / spam — các route nhạy cảm có throttle riêng chặt hơn.
         $middleware->appendToGroup('web', 'throttle:global');
@@ -52,5 +59,6 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Không có SENTRY_LARAVEL_DSN thì Sentry tự tắt (local/test không gửi gì ra ngoài).
+        Integration::handles($exceptions);
     })->create();

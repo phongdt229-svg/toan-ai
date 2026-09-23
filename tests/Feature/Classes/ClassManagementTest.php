@@ -4,6 +4,7 @@ namespace Tests\Feature\Classes;
 
 use App\Models\AssignmentStudent;
 use App\Models\SchoolClass;
+use App\Services\Teaching\ClassService;
 
 class ClassManagementTest extends ClassroomTestCase
 {
@@ -126,7 +127,7 @@ class ClassManagementTest extends ClassroomTestCase
         $class = $this->makeClass();
         $student = $this->makeStudent();
         $this->enroll($class, $student);
-        app(\App\Services\Teaching\ClassService::class)->removeStudent($class, $student);
+        app(ClassService::class)->removeStudent($class, $student);
 
         $this->actingAs($student)->post(route('student.classes.join'), ['code' => $class->code]);
 

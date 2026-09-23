@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Assignment;
 use App\Models\PushSubscription;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\AssignmentDueSoon;
 use App\Notifications\Channels\WebPushChannel;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -113,8 +115,8 @@ class PushNotificationTest extends TestCase
         $user = $this->user();
         $this->assertSame(0, PushSubscription::where('user_id', $user->id)->count());
 
-        (new WebPushChannel)->send($user, new \App\Notifications\AssignmentDueSoon(
-            new \App\Models\Assignment(['title' => 'Bài 1', 'due_at' => now()->addHours(3)]), 3
+        (new WebPushChannel)->send($user, new AssignmentDueSoon(
+            new Assignment(['title' => 'Bài 1', 'due_at' => now()->addHours(3)]), 3
         ));
 
         $this->assertTrue(true);

@@ -10,8 +10,11 @@ use Illuminate\Support\Str;
 class SupportTicket extends Model
 {
     public const TYPE_SUPPORT = 'support';
+
     public const TYPE_CONTENT_ERROR = 'content_error';
+
     public const TYPE_PAYMENT = 'payment';
+
     public const TYPE_OTHER = 'other';
 
     public const TYPE_LABELS = [
@@ -22,8 +25,11 @@ class SupportTicket extends Model
     ];
 
     public const STATUS_NEW = 'new';
+
     public const STATUS_IN_PROGRESS = 'in_progress';
+
     public const STATUS_RESOLVED = 'resolved';
+
     public const STATUS_CLOSED = 'closed';
 
     public const STATUS_LABELS = [

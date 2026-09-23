@@ -17,6 +17,7 @@ class LessonAuthoringTest extends TestCase
     use RefreshDatabase;
 
     private User $teacher;
+
     private Topic $topic;
 
     protected function setUp(): void

@@ -134,8 +134,8 @@ class SupportTicketTest extends TestCase
     {
         // "ài há»c" kiểu này là tiếng Việt bị sai mã — bot hay gửi.
         $this->post(route('support.store'), $this->payload([
-            'subject' => "Bài hõc có lõi",
-            'message' => "Nõi dung báo lõi dài hõn hai mõõi ký tõ de kiem tra.",
+            'subject' => 'Bài hõc có lõi',
+            'message' => 'Nõi dung báo lõi dài hõn hai mõõi ký tõ de kiem tra.',
         ]))->assertSessionHasNoErrors();
 
         $ticket = SupportTicket::firstOrFail();

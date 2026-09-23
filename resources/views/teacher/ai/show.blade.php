@@ -121,6 +121,21 @@
                 </div>
             </div>
         @endforeach
+
+        @php $acceptedCount = collect($draft->items())->where('status', 'accepted')->count(); @endphp
+        @if ($createdExam)
+            <a href="{{ route('teacher.exams.edit', $createdExam) }}" class="btn btn-outline-primary mt-2">
+                <i class="bi bi-file-earmark-text me-1"></i>Mở đề đã tạo
+            </a>
+        @elseif ($acceptedCount > 0)
+            <form method="POST" action="{{ route('teacher.ai.create-exam', $draft) }}" class="mt-2">
+                @csrf
+                <button class="btn btn-primary btn-touch">
+                    <i class="bi bi-file-earmark-plus me-1"></i>Tạo đề nháp từ {{ $acceptedCount }} câu đã chấp nhận
+                </button>
+                <div class="form-text">Chỉ các câu bạn đã chấp nhận mới vào đề. Đề ở trạng thái Nháp — bạn chỉnh rồi mới xuất bản.</div>
+            </form>
+        @endif
     @else
         {{-- Bài học: xem trước các phần rồi tạo bài NHÁP --}}
         @foreach ($draft->output['sections'] as $section)

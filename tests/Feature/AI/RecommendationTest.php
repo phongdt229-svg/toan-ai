@@ -14,6 +14,7 @@ use App\Services\Learning\RecommendationService;
 class RecommendationTest extends AiTestCase
 {
     private Topic $addition;
+
     private Topic $comparison;
 
     protected function setUp(): void

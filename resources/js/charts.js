@@ -23,6 +23,24 @@ Chart.register(
 );
 
 /**
+ * Bọc canvas trong một khung riêng có chiều cao cố định. Chart.js (responsive) lấy cỡ theo
+ * phần tử cha — nếu cha là card-body chứa cả tiêu đề/mô tả thì đặt height lên đó sẽ làm
+ * biểu đồ tràn ra ngoài card và đè lên chữ bên dưới.
+ */
+function sizeBox(canvas, height) {
+    let box = canvas.parentElement;
+
+    if (!box.classList.contains('chart-box')) {
+        box = document.createElement('div');
+        box.className = 'chart-box position-relative';
+        canvas.before(box);
+        box.appendChild(canvas);
+    }
+
+    box.style.height = height;
+}
+
+/**
  * Biểu đồ cột ngang % đúng theo chủ đề. Đọc dữ liệu từ data-chart (JSON).
  * Màu theo ngưỡng giống MasteryService: <60 yếu, <80 tạm, còn lại tốt.
  */
@@ -33,7 +51,7 @@ function renderTopicBars(canvas) {
     const colorFor = (p) => (p < 60 ? '#dc2626' : p < 80 ? '#f59e0b' : '#16a34a');
 
     // Chiều cao theo số dòng để nhãn không bị ép trên điện thoại.
-    canvas.parentElement.style.height = `${Math.max(140, rows.length * 44)}px`;
+    sizeBox(canvas, `${Math.max(140, rows.length * 44)}px`);
 
     new Chart(canvas, {
         type: 'bar',
@@ -80,7 +98,7 @@ function renderDailyActivity(canvas) {
     const rows = JSON.parse(canvas.dataset.chart || '[]');
     if (!rows.length) return;
 
-    canvas.parentElement.style.height = '220px';
+    sizeBox(canvas, '220px');
 
     new Chart(canvas, {
         type: 'bar',
@@ -126,7 +144,7 @@ function renderAdminDaily(canvas) {
     const rows = JSON.parse(canvas.dataset.chart || '[]');
     if (!rows.length) return;
 
-    canvas.parentElement.style.height = '280px';
+    sizeBox(canvas, '280px');
     const vnd = (v) => `${Number(v).toLocaleString('vi-VN')}₫`;
 
     new Chart(canvas, {
@@ -166,7 +184,7 @@ function renderAiUsageDaily(canvas) {
     const rows = JSON.parse(canvas.dataset.chart || '[]');
     if (!rows.length) return;
 
-    canvas.parentElement.style.height = '240px';
+    sizeBox(canvas, '240px');
     const usd = (v) => `$${Number(v).toFixed(2)}`;
 
     new Chart(canvas, {
@@ -201,7 +219,7 @@ function renderAiUsageDaily(canvas) {
 function renderSubscriptionDonut(canvas) {
     const rows = JSON.parse(canvas.dataset.chart || '[]');
     if (!rows.every((r) => r.count === 0)) {
-        canvas.parentElement.style.height = '220px';
+        sizeBox(canvas, '220px');
 
         new Chart(canvas, {
             type: 'doughnut',
@@ -230,7 +248,7 @@ function renderCountDaily(canvas, seriesLabel) {
     const rows = JSON.parse(canvas.dataset.chart || '[]');
     if (!rows.length) return;
 
-    canvas.parentElement.style.height = '220px';
+    sizeBox(canvas, '220px');
 
     new Chart(canvas, {
         type: 'bar',
@@ -255,7 +273,7 @@ function renderFeatureBars(canvas) {
     const rows = JSON.parse(canvas.dataset.chart || '[]');
     if (!rows.length) return;
 
-    canvas.parentElement.style.height = `${Math.max(140, rows.length * 40)}px`;
+    sizeBox(canvas, `${Math.max(140, rows.length * 40)}px`);
 
     new Chart(canvas, {
         type: 'bar',
@@ -297,7 +315,7 @@ function renderCountBars(canvas) {
     const rows = JSON.parse(canvas.dataset.chart || '[]');
     if (!rows.length) return;
 
-    canvas.parentElement.style.height = `${Math.max(140, rows.length * 40)}px`;
+    sizeBox(canvas, `${Math.max(140, rows.length * 40)}px`);
 
     new Chart(canvas, {
         type: 'bar',
@@ -323,7 +341,7 @@ function renderPaymentsDaily(canvas) {
     const rows = JSON.parse(canvas.dataset.chart || '[]');
     if (!rows.length) return;
 
-    canvas.parentElement.style.height = '240px';
+    sizeBox(canvas, '240px');
     const vnd = (v) => `${Number(v).toLocaleString('vi-VN')}₫`;
 
     new Chart(canvas, {
@@ -352,6 +370,69 @@ function renderPaymentsDaily(canvas) {
     });
 }
 
+/** Trang Mã giảm giá: lượt dùng mỗi ngày (cột) + tiền đã giảm ₫ (đường, trục phải). */
+function renderVouchersDaily(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    sizeBox(canvas, '260px');
+    const vnd = (v) => `${Number(v).toLocaleString('vi-VN')}₫`;
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: rows.map((r) => r.label),
+            datasets: [
+                { type: 'bar', label: 'Lượt dùng', data: rows.map((r) => r.count), backgroundColor: '#93c5fd', borderRadius: 4, yAxisID: 'y' },
+                { type: 'line', label: 'Tiền đã giảm', data: rows.map((r) => r.discount), borderColor: '#dc2626', backgroundColor: '#dc2626', tension: 0.3, pointRadius: 2, yAxisID: 'money' },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { type: 'category', ticks: { maxTicksLimit: 10 } },
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+                money: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: (v) => (v >= 1000 ? `${v / 1000}k` : v) } },
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.dataset.yAxisID === 'money' ? vnd(ctx.parsed.y) : ctx.parsed.y}` } },
+            },
+        },
+    });
+}
+
+/** Top mã: cột ngang theo số lượt dùng, tooltip kèm tiền đã giảm. */
+function renderVoucherTop(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    sizeBox(canvas, `${Math.max(140, rows.length * 40)}px`);
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: rows.map((r) => r.label),
+            datasets: [{ data: rows.map((r) => r.count), backgroundColor: '#3b82f6', borderRadius: 6, maxBarThickness: 28 }],
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 } },
+                y: { ticks: { autoSkip: false } },
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.x} lượt · giảm ${Number(rows[ctx.dataIndex].discount).toLocaleString('vi-VN')}₫` } },
+            },
+        },
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="admin-daily"]').forEach(renderAdminDaily);
     document.querySelectorAll('canvas[data-chart-type="topic-bars"]').forEach(renderTopicBars);
@@ -363,4 +444,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="feature-bars"]').forEach(renderFeatureBars);
     document.querySelectorAll('canvas[data-chart-type="count-bars"]').forEach(renderCountBars);
     document.querySelectorAll('canvas[data-chart-type="payments-daily"]').forEach(renderPaymentsDaily);
+    document.querySelectorAll('canvas[data-chart-type="vouchers-daily"]').forEach(renderVouchersDaily);
+    document.querySelectorAll('canvas[data-chart-type="voucher-top"]').forEach(renderVoucherTop);
 });

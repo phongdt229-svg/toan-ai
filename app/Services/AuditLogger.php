@@ -15,6 +15,11 @@ class AuditLogger
      */
     public function log(string $action, ?Model $subject = null, ?array $old = null, ?array $new = null): AuditLog
     {
+        // Đang đăng nhập hộ: hành động ghi dưới tên người được mượn, nên phải đóng dấu ai là người thao tác thật.
+        if ($impersonator = session('impersonator_id')) {
+            $new = ($new ?? []) + ['_impersonated_by' => $impersonator];
+        }
+
         return AuditLog::create([
             'user_id' => Auth::id(),
             'action' => $action,

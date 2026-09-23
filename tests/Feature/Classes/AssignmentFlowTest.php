@@ -4,6 +4,7 @@ namespace Tests\Feature\Classes;
 
 use App\Models\Assignment;
 use App\Models\AssignmentStudent;
+use App\Models\AssignmentSubmission;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Lesson;
@@ -11,6 +12,7 @@ use App\Models\Question;
 use App\Models\QuestionAttempt;
 use App\Models\StudentAnswer;
 use App\Services\Learning\ProgressService;
+use App\Services\Teaching\AssignmentService;
 
 class AssignmentFlowTest extends ClassroomTestCase
 {
@@ -227,7 +229,7 @@ class AssignmentFlowTest extends ClassroomTestCase
         $assignment = $this->questionSetAssignment($class);
 
         $this->actingAs($a)->post(route('student.assignments.submit', $assignment), ['answers' => []]);
-        $submission = \App\Models\AssignmentSubmission::firstOrFail();
+        $submission = AssignmentSubmission::firstOrFail();
 
         $this->actingAs($b)
             ->get(route('student.assignments.result', [$assignment, $submission]))
@@ -289,7 +291,7 @@ class AssignmentFlowTest extends ClassroomTestCase
 
         $this->travel(1)->minutes();
 
-        app(\App\Services\Teaching\AssignmentService::class)->create($class, $this->teacher, [
+        app(AssignmentService::class)->create($class, $this->teacher, [
             'title' => 'Giao sau', 'type' => 'exam', 'exam_id' => $exam->id,
             'assign_to_all' => true, 'allow_retry' => false,
         ]);
@@ -304,7 +306,7 @@ class AssignmentFlowTest extends ClassroomTestCase
         $this->enroll($class, $student);
         $exam = $this->publishedExamWithQuestions(withEssay: true);
 
-        app(\App\Services\Teaching\AssignmentService::class)->create($class, $this->teacher, [
+        app(AssignmentService::class)->create($class, $this->teacher, [
             'title' => 'Đề có tự luận', 'type' => 'exam', 'exam_id' => $exam->id,
             'assign_to_all' => true, 'allow_retry' => false,
         ]);
@@ -357,7 +359,7 @@ class AssignmentFlowTest extends ClassroomTestCase
 
         app(ProgressService::class)->completeLesson($student, $lesson);
 
-        app(\App\Services\Teaching\AssignmentService::class)->create($class, $this->teacher, [
+        app(AssignmentService::class)->create($class, $this->teacher, [
             'title' => 'Đọc lại', 'type' => 'lesson', 'lesson_id' => $lesson->id,
             'assign_to_all' => true, 'due_at' => now()->addDay(), 'allow_retry' => false,
         ]);

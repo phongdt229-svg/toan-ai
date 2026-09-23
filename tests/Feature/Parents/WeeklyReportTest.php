@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\QuestionAttempt;
 use App\Models\TeacherComment;
 use App\Models\User;
+use App\Services\Learning\StudentReportService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 
@@ -60,7 +61,7 @@ class WeeklyReportTest extends ParentTestCase
             'content' => 'Tuần này làm bài rất chăm.', 'visible_to_parent' => true,
         ]);
 
-        (new SendWeeklyParentReport($parent->id))->handle(app(\App\Services\Learning\StudentReportService::class));
+        (new SendWeeklyParentReport($parent->id))->handle(app(StudentReportService::class));
 
         Mail::assertSent(WeeklyParentReport::class, function (WeeklyParentReport $mail) use ($parent) {
             $week = $mail->children[0];
@@ -82,7 +83,7 @@ class WeeklyReportTest extends ParentTestCase
         $this->link($parent, $child);
         $this->giveActivity($child, 2);
 
-        $weekly = app(\App\Services\Learning\StudentReportService::class)->weekly($child, now()->subWeek(), now());
+        $weekly = app(StudentReportService::class)->weekly($child, now()->subWeek(), now());
         $html = (new WeeklyParentReport($parent, [$weekly], now()->subWeek(), now()))->render();
 
         $this->assertStringContainsString('Phạm Bé Bi', $html);
@@ -97,7 +98,7 @@ class WeeklyReportTest extends ParentTestCase
         $parent = $this->makeParent();
         $this->link($parent, $this->makeStudent());
 
-        (new SendWeeklyParentReport($parent->id))->handle(app(\App\Services\Learning\StudentReportService::class));
+        (new SendWeeklyParentReport($parent->id))->handle(app(StudentReportService::class));
 
         Mail::assertNothingSent();
     }
@@ -114,7 +115,7 @@ class WeeklyReportTest extends ParentTestCase
         $this->giveActivity($child);
         $this->travelBack();
 
-        (new SendWeeklyParentReport($parent->id))->handle(app(\App\Services\Learning\StudentReportService::class));
+        (new SendWeeklyParentReport($parent->id))->handle(app(StudentReportService::class));
 
         Mail::assertNothingSent();
     }
@@ -128,7 +129,7 @@ class WeeklyReportTest extends ParentTestCase
         $this->link($parent, $child);
         $this->giveActivity($child);
 
-        $service = app(\App\Services\Learning\StudentReportService::class);
+        $service = app(StudentReportService::class);
         (new SendWeeklyParentReport($parent->id))->handle($service);
         (new SendWeeklyParentReport($parent->id))->handle($service);
 
@@ -145,7 +146,7 @@ class WeeklyReportTest extends ParentTestCase
         $this->giveActivity($child);
         $parent->parentProfile->update(['weekly_report_enabled' => false]);
 
-        (new SendWeeklyParentReport($parent->id))->handle(app(\App\Services\Learning\StudentReportService::class));
+        (new SendWeeklyParentReport($parent->id))->handle(app(StudentReportService::class));
 
         Mail::assertNothingSent();
     }

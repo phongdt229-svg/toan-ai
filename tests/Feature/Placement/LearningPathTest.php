@@ -8,13 +8,13 @@ use App\Models\LearningPath;
 use App\Models\LearningPathItem;
 use App\Models\Lesson;
 use App\Models\Question;
-use App\Models\StudentLessonProgress;
 use App\Models\StudentTopicMastery;
 use App\Models\StudySession;
 use App\Models\Topic;
 use App\Models\User;
 use App\Services\Learning\LearningPathService;
 use App\Services\Learning\ProgressService;
+use App\Services\Parenting\ChildLinkService;
 
 class LearningPathTest extends PlacementTestCase
 {
@@ -308,7 +308,7 @@ class LearningPathTest extends PlacementTestCase
 
         $parent = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $parent->assignRole('parent');
-        app(\App\Services\Parenting\ChildLinkService::class)->linkByCode($parent, $student->studentProfile()->value('link_code'));
+        app(ChildLinkService::class)->linkByCode($parent, $student->studentProfile()->value('link_code'));
 
         $this->actingAs($parent)->get(route('parent.children.show', $student))
             ->assertOk()

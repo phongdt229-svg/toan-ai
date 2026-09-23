@@ -41,6 +41,14 @@
         <div class="alert alert-success"><i class="bi bi-check-circle me-1"></i>Provider: <code>{{ $providerName }}</code></div>
     @endif
 
+    @if ($pricingMissing)
+        <div class="alert alert-warning">
+            <i class="bi bi-currency-dollar me-1"></i>
+            Model <code>{{ $model }}</code> chưa có dòng giá trong <code>config/ai.php → pricing</code> —
+            chi phí bên dưới sẽ luôn hiện <strong>0₫</strong> dù vẫn đang tốn tiền thật. Thêm giá (USD / 1 triệu token) cho model này.
+        </div>
+    @endif
+
     @if ($stuckDrafts > 0)
         <div class="alert alert-warning">
             <i class="bi bi-hourglass-split me-1"></i>

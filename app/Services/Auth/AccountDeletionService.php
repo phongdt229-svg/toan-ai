@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Notifications\AccountDeletionRequested;
 use App\Services\AuditLogger;
+use App\Services\AvatarService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -112,6 +113,9 @@ class AccountDeletionService
                 ->where('notifiable_id', $user->id)
                 ->delete();
 
+            // File ảnh nằm trên ổ đĩa chứ không trong DB — đặt cột null thôi thì ảnh vẫn còn đó.
+            app(AvatarService::class)->delete($user->avatar);
+
             $user->forceFill([
                 'name' => 'Người dùng đã xoá',
                 'email' => "deleted-{$user->id}@deleted.invalid",
@@ -120,6 +124,10 @@ class AccountDeletionService
                 'password' => Hash::make(Str::random(40)),
                 'remember_token' => null,
                 'notification_preferences' => null,
+                'two_factor_secret' => null,
+                'two_factor_recovery_codes' => null,
+                'two_factor_confirmed_at' => null,
+                'two_factor_last_step' => null,
             ])->saveQuietly();
 
             $this->audit->log('account.purged', $user, null, ['user_id' => $user->id]);

@@ -3,8 +3,8 @@
 namespace Tests\Feature\Parents;
 
 use App\Models\StudentProfile;
+use App\Models\User;
 use App\Services\Parenting\ChildLinkService;
-use Illuminate\Support\Facades\URL;
 
 class ParentLinkingTest extends ParentTestCase
 {
@@ -185,7 +185,7 @@ class ParentLinkingTest extends ParentTestCase
             'password_confirmation' => 'matkhau123',
         ])->assertRedirect(route('parent.dashboard'));
 
-        $parent = \App\Models\User::where('email', 'ph-moi@example.com')->firstOrFail();
+        $parent = User::where('email', 'ph-moi@example.com')->firstOrFail();
         $this->assertTrue($parent->isParentOf($child));
         $this->assertNotNull($parent->parentProfile);
     }

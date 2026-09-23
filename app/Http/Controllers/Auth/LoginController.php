@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
+use App\Services\Auth\TwoFactorService;
 use Database\Seeders\DemoUserSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,13 +19,29 @@ class LoginController extends Controller
         return view('auth.login', ['demoAccounts' => $this->demoAccounts()]);
     }
 
+    public function __construct(private readonly TwoFactorService $twoFactor) {}
+
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-        $request->session()->regenerate();
 
         /** @var User $user */
         $user = $request->user();
+
+        // Có 2FA: mật khẩu đúng chưa đủ — đăng xuất ngay, chỉ nhớ id trong session tới khi nhập mã.
+        if ($this->twoFactor->isEnabled($user)) {
+            Auth::logout();
+            $request->session()->regenerate();
+            $request->session()->put('two_factor', [
+                'id' => $user->id,
+                'remember' => $request->boolean('remember'),
+                'expires' => now()->addMinutes(10)->timestamp,
+            ]);
+
+            return redirect()->route('two-factor.challenge');
+        }
+
+        $request->session()->regenerate();
         $user->forceFill(['last_login_at' => now()])->saveQuietly();
 
         if ($user->isPending()) {

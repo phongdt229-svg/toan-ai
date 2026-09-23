@@ -10,7 +10,9 @@ class StudentLessonProgress extends Model
     protected $table = 'student_lesson_progress';
 
     public const STATUS_NOT_STARTED = 'not_started';
+
     public const STATUS_IN_PROGRESS = 'in_progress';
+
     public const STATUS_COMPLETED = 'completed';
 
     protected $fillable = [

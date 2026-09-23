@@ -37,6 +37,13 @@
                         <i class="bi bi-lock me-1"></i>Khoá tài khoản
                     </button>
                 @endif
+                @if (! $user->is(auth()->user()) && ! $user->hasRole('admin') && $user->status !== 'suspended')
+                    <form method="POST" action="{{ route('admin.users.impersonate', $user) }}" class="d-inline"
+                          data-confirm="Đăng nhập hộ {{ $user->name }}? Thao tác được ghi vào audit log." data-confirm-ok="Đăng nhập hộ">
+                        @csrf
+                        <button class="btn btn-outline-primary ms-1"><i class="bi bi-person-badge me-1"></i>Đăng nhập hộ</button>
+                    </form>
+                @endif
                 <button class="btn btn-outline-secondary ms-1" data-bs-toggle="collapse" data-bs-target="#email-form">
                     <i class="bi bi-envelope-at me-1"></i>Đổi email
                 </button>

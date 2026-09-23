@@ -69,7 +69,11 @@ return [
     // Thẻ xác minh Google Search Console — vô hại ở mọi môi trường, Google cần thấy nó trên domain thật.
     'google_site_verification' => env('GOOGLE_SITE_VERIFICATION', 'GuZkEv4BKbqG8cgzsFVFdNseP-XJOYhO6ki-g7CZ9Xk'),
 
+    // Link nhúng báo cáo Looker Studio (Chia sẻ → Nhúng báo cáo → URL nhúng) hiện ở Quản trị → Google Analytics.
+    // Chỉ nhận https://lookerstudio.google.com/... — xem AnalyticsController. Trống = không hiện khung.
+    'looker_studio_embed_url' => env('LOOKER_STUDIO_EMBED_URL', ''),
+
     // Ngày cập nhật hai trang pháp lý — sửa nội dung thì sửa luôn ngày này.
-    'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '23/09/2026'),
+    'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '24/09/2026'),
 
 ];

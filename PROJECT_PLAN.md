@@ -961,6 +961,33 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       "Chấm ngay" và "Lộ trình riêng", hai thứ sản phẩm có thật. Gamification vẫn là quyết định để ngỏ,
       nhưng không để trang chủ nói sai trong lúc chờ.
 
+### ✅ Đã làm (24/09) — báo cáo voucher · GA · bảo mật quản trị · dữ liệu cá nhân
+
+- [x] **Báo cáo mã giảm giá** — Quản trị → Mã giảm giá có 4 ô số liệu, biểu đồ 30 ngày (lượt dùng + tiền giảm)
+      và top mã. Tính ở `VoucherReportService`, chỉ đếm lượt đã `redeemed_at`. Seed demo: `SampleVouchersSeeder`.
+- [x] **Menu Google Analytics** trong Quản trị — lối tắt GA4/GTM/Search Console + khung nhúng Looker Studio
+      (`LOOKER_STUDIO_EMBED_URL`, chỉ nhận `https://lookerstudio.google.com`). Chưa kéo số liệu qua Data API.
+- [x] **Xác thực 2 bước (TOTP)** — `TwoFactorService` (RFC 6238, tự cài, không thêm phụ thuộc), 8 mã dự phòng băm,
+      chặn dùng lại mã, throttle bước 2. Cài ở Quản trị → Cài đặt. `ADMIN_REQUIRE_2FA=true` để bắt buộc với admin
+      (mặc định tắt). Tài khoản ẩn danh hoá xoá luôn secret.
+- [x] **Đăng nhập hộ** — `ImpersonationService`: chỉ admin, không mượn được admin/chính mình/tài khoản khoá;
+      audit vào + ra; dải đỏ trong lúc mượn; `BlockWhenImpersonating` chặn đổi mật khẩu/email, xoá tài khoản, mua gói;
+      audit trong lúc mượn được đóng dấu `_impersonated_by`.
+- [x] **Tự tải bản sao dữ liệu** — `DataExportService` + nút ở Cài đặt (hỏi lại mật khẩu, JSON, có audit).
+      Không có mật khẩu/secret 2FA/`gateway_response`/IP. Bảng mới chứa dữ liệu cá nhân phải thêm vào cả hai
+      service này và `anonymise()`.
+- [x] **Giám sát lỗi (Sentry)** — `sentry/sentry-laravel`, tắt khi `SENTRY_LARAVEL_DSN` trống, `send_default_pii=false`.
+      Đã khai ở Chính sách bảo mật §3 (ngày cập nhật 24/09/2026). **Còn việc của bạn:** tạo project Sentry, đặt DSN
+      và cảnh báo email trên production.
+- [x] **Tạo đề bằng AI (§16)** — từ bản nháp câu hỏi AI, nút "Tạo đề nháp từ N câu đã chấp nhận":
+      chỉ câu giáo viên đã duyệt vào đề, đề ở trạng thái Nháp, mỗi nháp một đề (`ContentGeneratorService::createExamFromDraft`).
+- [x] **Ảnh đại diện** — `AvatarService` vẽ lại thành JPEG vuông 256px (bỏ EXIF/GPS, từ chối file đội lốt),
+      disk `public` (cần `storage:link`); xoá file khi xoá/ẩn danh tài khoản. `Dockerfile.dev` thêm GD jpeg/webp.
+- [x] **Lưới an toàn cấu hình** — trang AI usage cảnh báo model chưa có dòng giá (`AiUsageGuard::hasPricing`);
+      footer tự ẩn link mạng xã hội giả kiểu `facebook.com/x` (`SocialLink`). Vẫn cần dán URL thật trước khi ra production.
+- [x] **Pint** — dọn một lượt toàn repo, thêm job `pint --test` vào CI.
+- [x] Sửa: biểu đồ Chart.js tràn khỏi card đè chữ (`sizeBox`), favicon rỗng → logo TOÁN AI, trang Cài đặt quản trị gọn 2 cột.
+
 ### Còn nợ — rà lại 23/09/2026 (lần 2, sau đợt cookie + nhắc gia hạn)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
@@ -975,43 +1002,44 @@ là **toàn bộ** việc còn lại đã biết.
 
 #### B. Cam kết đã hứa nhưng chưa có công cụ
 
-- [ ] **Tự tải bản sao dữ liệu** *(~1 buổi)* — Chính sách bảo mật §7 hứa "yêu cầu bản sao dữ liệu học tập",
+- [x] **Tự tải bản sao dữ liệu** *(~1 buổi)* — Chính sách bảo mật §7 hứa "yêu cầu bản sao dữ liệu học tập",
       hiện chỉ xử lý tay qua email. Đúng y tình trạng của "xoá tài khoản" trước khi làm ở đợt 21/09.
       Làm theo cùng khuôn: service xuất JSON/CSV + nút trong trang Cài đặt.
 
 #### C. Tính năng spec có mà code chưa có
 
-- [ ] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
+- [x] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
       Giáo viên đang phải nhờ AI sinh câu rồi tự bốc vào đề. Xem ghi chú cuối Phase 7A.
-- [ ] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
-- [ ] **URL mạng xã hội đang là link giả** — `.env` ở máy dev đang đặt `https://facebook.com/x`,
+- [x] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
+- [ ] **URL mạng xã hội đang là link giả** *(footer đã tự ẩn link giả từ 24/09, vẫn cần URL thật)* — `.env` ở máy dev đang đặt `https://facebook.com/x`,
       `https://google.com/x`… nên footer hiện đủ 5 biểu tượng nhưng bấm vào là trang không tồn tại.
       Ở local thì vô hại; **chép nhầm sang production là mất uy tín ngay trang chủ**.
       Dán URL thật, hoặc xoá dòng nào chưa có trang để biểu tượng đó tự ẩn.
 
 #### E. Vận hành thật — chưa có gì khi sự cố xảy ra
 
-- [ ] **Không có giám sát lỗi production** *(~1 giờ)* — lỗi 500 của người dùng thật chỉ nằm trong
+- [x] **Không có giám sát lỗi production** *(~1 giờ)* — lỗi 500 của người dùng thật chỉ nằm trong
       `storage/logs/laravel.log` trên máy chủ, không ai được báo. Phải chờ người dùng phàn nàn mới biết.
       Gắn Sentry (hoặc tương đương) + cảnh báo là xong.
-- [ ] **Quản trị không có xác thực 2 bước** *(~1 buổi)* — tài khoản admin đổi được giá gói, tạo được mã
+- [x] **Quản trị không có xác thực 2 bước** *(~1 buổi)* — tài khoản admin đổi được giá gói, tạo được mã
       giảm 100%, cấp gói tay. Mất một mật khẩu admin là mất tiền thật. Ít nhất nên có TOTP cho vai trò này.
-- [ ] **Không đăng nhập hộ được để hỗ trợ** *(~nửa buổi)* — người hỗ trợ không tái hiện được lỗi
+- [x] **Không đăng nhập hộ được để hỗ trợ** *(~nửa buổi)* — người hỗ trợ không tái hiện được lỗi
       "em không thấy bài" của học sinh. Cần chức năng đăng nhập hộ có audit log và dải cảnh báo rõ
       trong lúc đang mượn tài khoản.
 
-- [ ] **Chốt nhà cung cấp AI + bảng giá** *(~1 giờ)* — `OpenAiProvider` đã gọi chuẩn
+- [ ] **Chốt nhà cung cấp AI + bảng giá** *(trang AI usage đã cảnh báo khi thiếu giá, từ 24/09)* *(~1 giờ)* — `OpenAiProvider` đã gọi chuẩn
       `/chat/completions` và `OPENAI_BASE_URL` là biến môi trường, nên cắm Gemini/Groq/OpenRouter
       chỉ cần đổi `.env`, không sửa code. Nhưng `config/ai.php` → `pricing` mới có `gpt-4o-mini`
       và `gpt-4o`: đổi model mà quên thêm dòng giá thì trang **Quản trị → AI usage** hiện chi phí 0₫,
       nhìn tưởng miễn phí. Lưu ý bậc miễn phí thường dùng dữ liệu để huấn luyện — không hợp với
       bài làm của trẻ em khi chạy thật.
 
+- [ ] **Hoàn tiền tự động qua MoMo** — hiện admin huỷ đăng ký rồi hoàn tay trên cổng MoMo.
+- [ ] **Số liệu GA ngay trong Quản trị bằng Data API** (service account + Property ID) — hiện chỉ nhúng Looker Studio.
+
 #### D. Nợ kỹ thuật
 
-- [ ] `vendor/bin/pint` một lượt cho toàn repo rồi bật job lint trong CI
-      (**71 file** tính tới 23/09 — con số này tăng theo mỗi đợt tính năng mới, càng để lâu càng đắt.
-      Bật ngay mà chưa dọn là CI đỏ vì chuyện không liên quan tới thay đổi đang đẩy).
+- [x] `vendor/bin/pint` một lượt cho toàn repo và job lint trong CI — xong 24/09/2026.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định
 

@@ -22,6 +22,7 @@ class PracticeFlowTest extends TestCase
     use RefreshDatabase;
 
     private User $student;
+
     private Topic $topic;
 
     protected function setUp(): void

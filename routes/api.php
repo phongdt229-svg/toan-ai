@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | API v1  (prefix 'api/v1' được đặt trong bootstrap/app.php)
 |--------------------------------------------------------------------------
-| Các nhóm endpoint đầy đủ xem PROJECT_PLAN.md §6. 
+| Các nhóm endpoint đầy đủ xem PROJECT_PLAN.md §6.
 */
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request, SubscriptionService $subscriptions) {

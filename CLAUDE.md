@@ -90,8 +90,20 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Thêm công cụ theo dõi mới thì phải đặt sau cùng cổng này.
 - Thêm trang công khai mới → thêm vào `SitemapController`; trang sau đăng nhập thì thôi (đã `noindex` ở `layouts/app`).
   Thẻ OG/Twitter đặt sẵn ở `layouts/base`, trang nào cần preview riêng thì khai `@section('og_title'/'og_description'/'og_image')`.
+- Xác thực 2 bước: chỉ qua `TwoFactorService` (TOTP tự cài). Mật khẩu đúng + có 2FA → đăng xuất ngay, chỉ nhớ id trong
+  session tới khi nhập mã (`TwoFactorChallengeController`). Đừng `Auth::login()` tay ở chỗ khác. `ADMIN_REQUIRE_2FA=true` bắt buộc admin.
+- Đăng nhập hộ: chỉ qua `ImpersonationService`. Route mới mà người mượn tài khoản KHÔNG được làm (đổi mật khẩu/email,
+  xoá tài khoản, tiêu tiền) → thêm tên route vào `BlockWhenImpersonating::BLOCKED`.
+- Bản sao dữ liệu cá nhân (`DataExportService`) và ẩn danh (`anonymise()`) là hai mặt của một việc: thêm bảng mới chứa
+  dữ liệu cá nhân thì sửa CẢ HAI.
+- Ảnh đại diện: chỉ qua `AvatarService` (vẽ lại JPEG 256px, bỏ EXIF). Cần `php artisan storage:link`. Đừng lưu file người dùng gửi lên nguyên bản.
+- Sentry tắt khi `SENTRY_LARAVEL_DSN` trống; giữ `send_default_pii=false` (dữ liệu trẻ em). Bật thêm dịch vụ bên thứ ba nào
+  cũng phải khai vào Chính sách bảo mật §3 và sửa `legal_updated_at`.
+- Tạo đề bằng AI: chỉ câu giáo viên đã chấp nhận mới vào đề, đề luôn ở trạng thái Nháp (`createExamFromDraft`).
+- Đổi model AI → thêm dòng giá ở `config/ai.php → pricing`, nếu không trang AI usage hiện 0₫ (có cảnh báo).
+- Chart.js: canvas được bọc khung riêng bởi `sizeBox()` trong `resources/js/charts.js` — đừng đặt height lên `card-body`.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
-  Chưa bật job Pint vì code cũ còn 66 file lệch chuẩn — dọn một lượt rồi mới thêm.
+  Job `pint --test` đã bật (repo đã dọn 24/09) — trước khi commit chạy `vendor/bin/pint`.
 
 ## Lệnh hay dùng
 

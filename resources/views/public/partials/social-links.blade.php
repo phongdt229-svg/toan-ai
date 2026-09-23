@@ -1,6 +1,6 @@
 {{--
     Hàng biểu tượng mạng xã hội ở footer. Link nào chưa khai trong config/site.php thì ẩn luôn
-    biểu tượng đó — dẫn người dùng tới một trang không tồn tại còn tệ hơn là không có link.
+    biểu tượng đó (kể cả link giả kiểu facebook.com/x, xem SocialLink) — dẫn người dùng tới một trang không tồn tại còn tệ hơn là không có link.
     Cả khối biến mất khi chưa khai link nào, nên bản demo không lòi ra dãy icon chết.
 --}}
 @php
@@ -11,7 +11,7 @@
         ['key' => 'x', 'icon' => 'bi-twitter-x', 'label' => 'X'],
         ['key' => 'google', 'icon' => 'bi-google', 'label' => 'Google'],
     ])->map(fn ($item) => $item + ['url' => config("site.social.{$item['key']}")])
-      ->filter(fn ($item) => filled($item['url']));
+      ->filter(fn ($item) => \App\Support\SocialLink::isUsable($item['url']));
 @endphp
 
 @if ($socials->isNotEmpty())

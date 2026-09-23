@@ -7,6 +7,7 @@ use App\Models\Question;
 use App\Models\Topic;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -108,7 +109,7 @@ class QuestionImporter
 
     /**
      * @param  array<string, string>  $row
-     * @param  \Illuminate\Support\Collection<int, int>  $validTopicIds
+     * @param  Collection<int, int>  $validTopicIds
      */
     private function importRow(array $row, Grade $grade, User $author, string $status, $validTopicIds): void
     {

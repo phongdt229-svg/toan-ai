@@ -16,6 +16,17 @@
 @endphp
 
 @section('body')
+    @if (session(\App\Services\Admin\ImpersonationService::SESSION_KEY))
+        {{-- Dải cố định: không thể quên đang mượn tài khoản người khác. --}}
+        <div class="bg-danger text-white small px-3 py-2 d-flex flex-wrap align-items-center justify-content-between gap-2 position-sticky top-0" style="z-index:1100" role="alert">
+            <span><i class="bi bi-person-badge me-1"></i>Đang đăng nhập hộ <strong>{{ auth()->user()->name }}</strong> — mọi thao tác được ghi lại.</span>
+            <form method="POST" action="{{ route('impersonate.stop') }}">
+                @csrf
+                <button class="btn btn-light btn-sm py-0">Thoát chế độ này</button>
+            </form>
+        </div>
+    @endif
+
     @include('components.sidebar', ['items' => $items, 'portal' => $portal])
     @include('components.mobile-menu', ['items' => $items, 'portal' => $portal])
 
@@ -83,7 +94,11 @@
 
                 <div class="dropdown">
                     <button class="btn btn-sm btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i>
+                        @if (auth()->user()->avatarUrl())
+                            <img src="{{ auth()->user()->avatarUrl() }}" alt="" width="20" height="20" class="rounded-circle" style="object-fit:cover">
+                        @else
+                            <i class="bi bi-person-circle"></i>
+                        @endif
                         <span class="d-none d-sm-inline">{{ auth()->user()->name }}</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">

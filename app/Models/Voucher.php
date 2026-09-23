@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 class Voucher extends Model
 {
     public const TYPE_PERCENT = 'percent';
+
     public const TYPE_FIXED = 'fixed';
 
     public const TYPE_LABELS = [

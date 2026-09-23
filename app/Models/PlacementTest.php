@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PlacementTest extends Model
 {
     public const STATUS_IN_PROGRESS = 'in_progress';
+
     public const STATUS_GRADED = 'graded';
 
     /** Ân hạn cho độ trễ mạng — cùng giá trị với đề kiểm tra. */

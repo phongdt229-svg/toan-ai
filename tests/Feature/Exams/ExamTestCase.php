@@ -20,7 +20,9 @@ abstract class ExamTestCase extends TestCase
     use RefreshDatabase;
 
     protected User $teacher;
+
     protected User $student;
+
     protected Grade $grade;
 
     protected function setUp(): void

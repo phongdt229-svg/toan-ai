@@ -4,6 +4,7 @@ namespace App\Services\AI;
 
 use App\Jobs\GenerateAiContent;
 use App\Models\AiGenerationDraft;
+use App\Models\Exam;
 use App\Models\Grade;
 use App\Models\Lesson;
 use App\Models\LessonSection;
@@ -261,6 +262,59 @@ class ContentGeneratorService
             $draft->update(['output' => [...$draft->output, 'status' => 'accepted', 'lesson_id' => $lesson->id]]);
 
             return $lesson;
+        });
+    }
+
+    /**
+     * Tạo ĐỀ NHÁP từ những câu giáo viên đã chấp nhận (§16). Không tự chấp nhận câu nào thay giáo viên:
+     * câu chưa duyệt không vào đề, đề sinh ra ở trạng thái Nháp để giáo viên chỉnh rồi tự xuất bản.
+     */
+    public function createExamFromDraft(AiGenerationDraft $draft, User $teacher): Exam
+    {
+        return DB::transaction(function () use ($draft, $teacher) {
+            $draft = AiGenerationDraft::whereKey($draft->id)->lockForUpdate()->firstOrFail();
+
+            if ($draft->type !== AiGenerationDraft::TYPE_QUESTIONS || ! $draft->isReady()) {
+                throw new RuntimeException('Chỉ tạo đề từ bản nháp câu hỏi đã soạn xong.');
+            }
+
+            if (isset($draft->output['exam_id'])) {
+                throw new RuntimeException('Bản nháp này đã được dùng để tạo đề.');
+            }
+
+            $questionIds = collect($draft->items())
+                ->where('status', 'accepted')
+                ->pluck('question_id')
+                ->filter()
+                ->values()
+                ->all();
+
+            if ($questionIds === []) {
+                throw new RuntimeException('Hãy chấp nhận ít nhất một câu hỏi trước khi tạo đề.');
+            }
+
+            $topic = Topic::find($draft->input['topic_id']);
+            $count = count($questionIds);
+
+            $exam = $this->examBuilder->create([
+                'title' => 'Đề AI — '.($topic?->name ?? 'Toán').' ('.now()->format('d/m/Y').')',
+                'description' => null,
+                'grade_id' => $draft->input['grade_id'],
+                'type' => 'quiz',
+                'duration_minutes' => min(300, max(10, $count * 2)),
+                'difficulty' => 'mixed',
+                'access_level' => 'free',
+                'max_attempts' => 3,
+                'shuffle_questions' => true,
+                'shuffle_options' => true,
+                'show_answers_after_submit' => true,
+            ], $teacher);
+
+            $this->examBuilder->addQuestions($exam, $questionIds, $teacher);
+
+            $draft->update(['output' => [...$draft->output, 'exam_id' => $exam->id]]);
+
+            return $exam->refresh();
         });
     }
 

@@ -8,11 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AiGenerationDraft extends Model
 {
     public const TYPE_QUESTIONS = 'questions';
+
     public const TYPE_LESSON = 'lesson';
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_PROCESSING = 'processing';
+
     public const STATUS_READY = 'ready';
+
     public const STATUS_FAILED = 'failed';
 
     protected $fillable = ['user_id', 'type', 'status', 'input', 'output', 'error'];

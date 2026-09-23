@@ -10,5 +10,6 @@
     @include('partials.email-form')
     @include('partials.notification-preferences-form')
     @include('partials.password-form', ['passwordRoute' => route('teacher.settings.password')])
+    @include('partials.data-export')
     @include('partials.danger-zone')
 @endsection

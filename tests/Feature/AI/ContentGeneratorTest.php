@@ -3,6 +3,7 @@
 namespace Tests\Feature\AI;
 
 use App\Models\AiGenerationDraft;
+use App\Models\Exam;
 use App\Models\Grade;
 use App\Models\Lesson;
 use App\Models\Question;
@@ -234,5 +235,38 @@ class ContentGeneratorTest extends AiTestCase
             ->assertOk()
             ->assertSee('FakeProvider')
             ->assertSee('GV: tạo câu hỏi');
+    }
+
+    public function test_exam_is_built_only_from_accepted_questions_and_stays_draft(): void
+    {
+        $draft = $this->requestQuestions();
+
+        // Chưa duyệt câu nào → không tạo được đề.
+        $this->actingAs($this->teacher)->post(route('teacher.ai.create-exam', $draft))->assertSessionHas('error');
+        $this->assertSame(0, Exam::count());
+
+        $this->post(route('teacher.ai.accept', [$draft, 0]));
+        $this->post(route('teacher.ai.accept', [$draft, 1]));
+
+        $this->post(route('teacher.ai.create-exam', $draft))->assertRedirect();
+
+        $exam = Exam::firstOrFail();
+        $this->assertSame('draft', $exam->status);
+        $this->assertSame(2, $exam->total_questions);
+        $this->assertSame($this->teacher->id, $exam->created_by);
+
+        // Ba câu còn lại vẫn là nháp, không tự vào ngân hàng câu hỏi.
+        $this->assertSame(2, Question::where('source', 'ai')->count());
+
+        // Mỗi nháp chỉ đổi thành đề một lần.
+        $this->post(route('teacher.ai.create-exam', $draft))->assertSessionHas('error');
+        $this->assertSame(1, Exam::count());
+    }
+
+    public function test_other_teacher_cannot_build_exam_from_someone_elses_draft(): void
+    {
+        $draft = $this->requestQuestions();
+
+        $this->actingAs($this->makeTeacher())->post(route('teacher.ai.create-exam', $draft))->assertForbidden();
     }
 }

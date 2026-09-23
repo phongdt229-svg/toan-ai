@@ -10,7 +10,9 @@ use Illuminate\Support\Collection;
 class Package extends Model
 {
     public const TIER_FREE = 'free';
+
     public const TIER_PRO = 'pro';
+
     public const TIER_PREMIUM = 'premium';
 
     /** Thứ bậc gói — số lớn bao trùm số nhỏ. */

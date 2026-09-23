@@ -7,6 +7,7 @@ use App\Models\Lesson;
 use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\User;
+use App\Services\AccessControlService;
 use Database\Seeders\GradeSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\SampleCurriculumSeeder;
@@ -67,7 +68,7 @@ class AccessControlTest extends TestCase
         $teacher->assignRole(Role::TEACHER);
 
         $this->assertTrue(
-            app(\App\Services\AccessControlService::class)->canAccessLesson($teacher, $lesson),
+            app(AccessControlService::class)->canAccessLesson($teacher, $lesson),
         );
     }
 }

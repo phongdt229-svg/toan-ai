@@ -20,6 +20,7 @@ class SchoolClass extends Model
     protected $table = 'classes';
 
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_ARCHIVED = 'archived';
 
     protected $fillable = ['name', 'code', 'grade_id', 'description', 'owner_teacher_id', 'status'];

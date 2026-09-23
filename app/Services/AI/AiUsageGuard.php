@@ -101,14 +101,25 @@ class AiUsageGuard
     public function estimateCost(AiResponse $response): float
     {
         $pricing = config('ai.pricing');
-        // Model trả về có thể kèm hậu tố ngày (gpt-4o-mini-2024-07-18) — so theo tiền tố dài nhất.
-        $key = collect(array_keys($pricing))
-            ->sortByDesc(fn ($k) => strlen($k))
-            ->first(fn ($k) => str_starts_with($response->model, $k));
+        $key = self::priceKeyFor($response->model);
 
         $price = $pricing[$key] ?? ['input' => 0, 'output' => 0];
 
         return ($response->tokensIn * $price['input'] + $response->tokensOut * $price['output']) / 1_000_000;
+    }
+
+    /** Model chưa có dòng giá → chi phí ước tính luôn 0₫ và trang AI usage nhìn như miễn phí. */
+    public static function hasPricing(string $model): bool
+    {
+        return self::priceKeyFor($model) !== null;
+    }
+
+    private static function priceKeyFor(string $model): ?string
+    {
+        // Model trả về có thể kèm hậu tố ngày (gpt-4o-mini-2024-07-18) — so theo tiền tố dài nhất.
+        return collect(array_keys(config('ai.pricing')))
+            ->sortByDesc(fn ($k) => strlen($k))
+            ->first(fn ($k) => str_starts_with($model, $k));
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\AiGenerationDraft;
+use App\Models\Exam;
 use App\Models\Grade;
 use App\Models\Lesson;
 use App\Models\LessonSection;
@@ -95,6 +96,7 @@ class AiContentController extends Controller
             'topic' => Topic::with('chapter.subject.grade')->find($draft->input['topic_id'] ?? null),
             'sectionTypes' => LessonSection::TYPES,
             // Route bài học bind theo slug, nên cần model chứ không chỉ id lưu trong nháp.
+            'createdExam' => isset($draft->output['exam_id']) ? Exam::find($draft->output['exam_id']) : null,
             'createdLesson' => isset($draft->output['lesson_id']) ? Lesson::find($draft->output['lesson_id']) : null,
         ]);
     }
@@ -162,6 +164,23 @@ class AiContentController extends Controller
 
         return redirect()->route('teacher.lessons.edit', $lesson)
             ->with('status', 'Đã tạo bài học NHÁP từ AI. Đọc lại, chỉnh sửa rồi mới xuất bản.');
+    }
+
+    public function createExam(Request $request, AiGenerationDraft $draft): RedirectResponse
+    {
+        $this->ensureOwner($request, $draft);
+        $this->authorize('create', Exam::class);
+
+        try {
+            $exam = $this->generator->createExamFromDraft($draft, $request->user());
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        $this->audit->log('exam.created', $exam, null, ['title' => $exam->title, 'ai_draft_id' => $draft->id]);
+
+        return redirect()->route('teacher.exams.edit', $exam)
+            ->with('status', 'Đã tạo đề NHÁP từ các câu bạn đã duyệt. Chỉnh thời gian, điểm rồi xuất bản khi sẵn sàng.');
     }
 
     /** Viết lại / tóm tắt một đoạn trong trình soạn bài học. */

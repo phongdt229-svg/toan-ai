@@ -4,6 +4,7 @@ namespace Tests\Feature\Exams;
 
 use App\Models\Exam;
 use App\Models\ExamAttempt;
+use App\Models\Grade;
 use App\Models\Question;
 use App\Models\Role;
 use App\Models\User;
@@ -139,7 +140,7 @@ class ExamBuildingTest extends ExamTestCase
     public function test_grade_cannot_change_after_questions_added(): void
     {
         $exam = $this->publishedExam();
-        $otherGrade = \App\Models\Grade::where('level', 7)->firstOrFail();
+        $otherGrade = Grade::where('level', 7)->firstOrFail();
 
         $this->actingAs($this->teacher)
             ->put(route('teacher.exams.update', $exam), $this->payload(['grade_id' => $otherGrade->id]))

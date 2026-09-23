@@ -3,7 +3,6 @@
 namespace Tests\Feature\Subscriptions;
 
 use App\Models\AuditLog;
-use App\Models\Grade;
 use App\Models\Package;
 use App\Models\Subscription;
 use Laravel\Sanctum\Sanctum;

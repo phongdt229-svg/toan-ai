@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AiGenerationDraft;
 use App\Models\AiUsage;
 use App\Models\AuditLog;
+use App\Services\AI\AiUsageGuard;
 use App\Services\AI\Contracts\AiProviderInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,8 @@ class AiUsageController extends Controller
         return view('admin.ai-usage.index', [
             'providerName' => $provider->name(),
             'isFake' => config('ai.provider') !== 'openai',
+            'pricingMissing' => config('ai.provider') === 'openai' && ! AiUsageGuard::hasPricing((string) config('ai.openai.model')),
+            'model' => (string) config('ai.openai.model'),
             'keyConfigured' => filled(config('ai.openai.api_key')),
             'today' => $totals(today()),
             'week' => $totals(today()->subDays(6)),

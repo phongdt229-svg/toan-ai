@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class StudySession extends Model
 {
     public const STATUS_PLANNED = 'planned';
+
     public const STATUS_QUIZ_PENDING = 'quiz_pending';
+
     public const STATUS_DONE = 'done';
 
     protected $fillable = [

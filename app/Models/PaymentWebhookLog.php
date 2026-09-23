@@ -7,12 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class PaymentWebhookLog extends Model
 {
     public const RESULT_PROCESSED = 'processed';
+
     public const RESULT_DUPLICATE = 'duplicate';
+
     public const RESULT_INVALID_SIGNATURE = 'invalid_signature';
+
     public const RESULT_NOT_FOUND = 'not_found';
+
     public const RESULT_AMOUNT_MISMATCH = 'amount_mismatch';
+
     public const RESULT_PAYMENT_FAILED = 'payment_failed';
+
     public const RESULT_PENDING = 'still_pending';
+
     public const RESULT_ERROR = 'error';
 
     protected $fillable = [

@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LearningPathItem extends Model
 {
     public const TYPE_LESSON = 'lesson';
+
     public const TYPE_PRACTICE = 'practice';
+
     public const TYPE_EXAM = 'exam';
 
     protected $fillable = [

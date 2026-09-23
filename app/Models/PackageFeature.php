@@ -26,7 +26,7 @@ class PackageFeature extends Model
     /** Dòng chỉ để hiển thị trên bảng giá (không có kiểm tra trong code) dùng tiền tố này. */
     public const DISPLAY_PREFIX = 'display.';
 
-    protected $fillable =['package_id', 'key', 'label', 'value', 'limit_value', 'show_on_pricing', 'sort_order'];
+    protected $fillable = ['package_id', 'key', 'label', 'value', 'limit_value', 'show_on_pricing', 'sort_order'];
 
     protected function casts(): array
     {

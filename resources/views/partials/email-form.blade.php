@@ -9,6 +9,8 @@
     // Tự lấy người đang đăng nhập thay vì nhận $user từ bên ngoài: bốn trang Cài đặt
     // truyền biến khác nhau, partial nào tự lo thì thêm vào trang mới không sợ thiếu.
     $user = auth()->user();
+    // Form đổi email gập lại cho gọn; mở sẵn khi đang chờ xác nhận hoặc vừa nhập sai.
+    $emailFormOpen = $user->pending_email || $errors->has('email') || old('email');
 @endphp
 
 <div class="card border mb-3" style="max-width:36rem">
@@ -43,7 +45,15 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('email-change.store') }}">
+        @unless ($emailFormOpen)
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse"
+                    data-bs-target="#email-change-form" aria-expanded="false" aria-controls="email-change-form">
+                Đổi email
+            </button>
+        @endunless
+
+        <form method="POST" action="{{ route('email-change.store') }}" id="email-change-form"
+              class="collapse {{ $emailFormOpen ? 'show' : 'mt-3' }}">
             @csrf
 
             <div class="mb-3">

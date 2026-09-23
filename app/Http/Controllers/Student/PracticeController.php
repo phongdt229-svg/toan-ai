@@ -20,6 +20,7 @@ class PracticeController extends Controller
 {
     /** Key phiên luyện tập — server giữ bộ câu hỏi, client không được đổi. */
     private const SESSION_KEY = 'practice.current';
+
     private const RESULT_KEY = 'practice.result';
 
     public function __construct(

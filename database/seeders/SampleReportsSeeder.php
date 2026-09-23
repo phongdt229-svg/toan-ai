@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\Learning\ExamService;
 use App\Services\SubscriptionService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -63,7 +64,7 @@ class SampleReportsSeeder extends Seeder
      * Gói + thanh toán trải đều 6 tháng gần đây. 2/3 số học sinh có mua ít nhất 1 lần,
      * số còn lại vẫn ở Free — để báo cáo có cả hai nhóm, không phải ai cũng trả phí.
      *
-     * @param  \Illuminate\Support\Collection<int, User>  $students
+     * @param  Collection<int, User>  $students
      */
     private function seedSubscriptionsAndPayments($students): void
     {
@@ -121,7 +122,7 @@ class SampleReportsSeeder extends Seeder
      * question_order, mastery... đều đúng như học sinh làm thật. Câu tự luận/điền khuyết
      * bỏ trống, giống việc học sinh thật hay bỏ qua câu khó khi không đủ giờ.
      *
-     * @param  \Illuminate\Support\Collection<int, User>  $students
+     * @param  Collection<int, User>  $students
      */
     private function seedExamAttempts($students): void
     {
@@ -193,7 +194,7 @@ class SampleReportsSeeder extends Seeder
      * Hội thoại AI Tutor — kèm tổng hợp vào ai_usage cho khớp (trang AI usage đọc từ đây,
      * không đếm lại từ ai_conversations).
      *
-     * @param  \Illuminate\Support\Collection<int, User>  $students
+     * @param  Collection<int, User>  $students
      */
     private function seedAiConversations($students): void
     {
@@ -264,7 +265,7 @@ class SampleReportsSeeder extends Seeder
      * Yêu cầu hỗ trợ — trộn khách chưa đăng nhập (user_id null) và tài khoản thật,
      * đủ 4 trạng thái để trang Quản trị → Hỗ trợ có cái để lọc.
      *
-     * @param  \Illuminate\Support\Collection<int, User>  $students
+     * @param  Collection<int, User>  $students
      */
     private function seedSupportTickets($students): void
     {

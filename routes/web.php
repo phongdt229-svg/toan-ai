@@ -1,32 +1,38 @@
 <?php
 
 use App\Http\Controllers\Admin\AiUsageController;
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CurriculumController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Admin\MaintenanceController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
-use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
+use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\TeacherApprovalController;
+use App\Http\Controllers\Admin\TwoFactorController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VoucherController as AdminVoucherController;
 use App\Http\Controllers\Auth\AccountDeletionController;
+use App\Http\Controllers\Auth\AvatarController;
+use App\Http\Controllers\Auth\DataExportController;
 use App\Http\Controllers\Auth\EmailChangeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\ParentPortal\ChildController as ParentChildController;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\ParentPortal\SettingsController as ParentSettingsController;
 use App\Http\Controllers\ParentPortal\SubscriptionController as ParentSubscriptionController;
-use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 use App\Http\Controllers\Student\AiTutorController;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\Student\ClassController as StudentClassController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Student\LearnController;
 use App\Http\Controllers\Student\LearningPathController;
@@ -51,10 +57,10 @@ use App\Http\Controllers\Teacher\SearchController as TeacherSearchController;
 use App\Http\Controllers\Teacher\SettingsController as TeacherSettingsController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
-use App\Http\Controllers\Web\NotificationController;
-use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\CookieConsentController;
 use App\Http\Controllers\Web\GuideController;
+use App\Http\Controllers\Web\LandingController;
+use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
 use App\Http\Controllers\Web\PushSubscriptionController;
@@ -99,6 +105,8 @@ Route::post('ho-tro', [SupportController::class, 'store'])->middleware('throttle
 Route::middleware('guest')->group(function () {
     Route::get('dang-nhap', [LoginController::class, 'create'])->name('login');
     Route::post('dang-nhap', [LoginController::class, 'store']);
+    Route::get('dang-nhap/xac-thuc-2-buoc', [TwoFactorChallengeController::class, 'create'])->name('two-factor.challenge');
+    Route::post('dang-nhap/xac-thuc-2-buoc', [TwoFactorChallengeController::class, 'store'])->name('two-factor.verify');
 
     // Quên mật khẩu (§29): throttle nằm trong ForgotPasswordRequest + broker chặn gửi lại trong 60 giây.
     Route::get('quen-mat-khau', [PasswordResetController::class, 'request'])->name('password.request');
@@ -149,6 +157,13 @@ Route::middleware('auth')->group(function () {
         ->name('email-change.cancel');
 
     // Xoá tài khoản: dùng chung cho cả 4 portal, hỏi lại mật khẩu trong controller.
+    Route::post('dung-dang-nhap-ho', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
+    Route::post('tai-khoan/tai-du-lieu', [DataExportController::class, 'store'])
+        ->middleware('throttle:5,1')
+        ->name('account.export');
+    Route::post('tai-khoan/anh-dai-dien', [AvatarController::class, 'store'])
+        ->middleware('throttle:10,1')->name('account.avatar.store');
+    Route::delete('tai-khoan/anh-dai-dien', [AvatarController::class, 'destroy'])->name('account.avatar.destroy');
     Route::delete('tai-khoan/xoa', [AccountDeletionController::class, 'destroy'])->name('account.destroy');
 
     // Không qua middleware `active` — đây chính là trang dành cho tài khoản pending.
@@ -281,6 +296,7 @@ Route::middleware('auth')->group(function () {
                 ->whereNumber('index')->middleware('throttle:ai')->name('ai.regenerate');
             Route::get('ai/nhap/{draft}/muc/{index}/sua', [AiContentController::class, 'edit'])
                 ->whereNumber('index')->name('ai.edit');
+            Route::post('ai/nhap/{draft}/tao-de', [AiContentController::class, 'createExam'])->name('ai.create-exam');
             Route::post('ai/nhap/{draft}/tao-bai-hoc', [AiContentController::class, 'createLesson'])->name('ai.create-lesson');
 
             Route::get('lop-hoc', [TeacherClassController::class, 'index'])->name('classes.index');
@@ -389,7 +405,7 @@ Route::middleware('auth')->group(function () {
             Route::put('cai-dat/mat-khau', [ParentSettingsController::class, 'updatePassword'])->name('settings.password');
         });
 
-        Route::prefix('quan-tri')->name('admin.')->middleware('role:admin')->group(function () {
+        Route::prefix('quan-tri')->name('admin.')->middleware(['role:admin', 'admin.2fa'])->group(function () {
             Route::get('/', [AdminDashboard::class, 'index'])->name('dashboard');
             Route::post('lam-moi-so-lieu', [AdminDashboard::class, 'refresh'])->name('dashboard.refresh');
 
@@ -402,9 +418,14 @@ Route::middleware('auth')->group(function () {
             Route::get('cai-dat', [AdminSettingsController::class, 'edit'])->name('settings');
             Route::put('cai-dat/ho-so', [AdminSettingsController::class, 'updateProfile'])->name('settings.profile');
             Route::put('cai-dat/mat-khau', [AdminSettingsController::class, 'updatePassword'])->name('settings.password');
+            Route::post('cai-dat/2-buoc', [TwoFactorController::class, 'enable'])->name('two-factor.enable');
+            Route::post('cai-dat/2-buoc/xac-nhan', [TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
+            Route::post('cai-dat/2-buoc/ma-du-phong', [TwoFactorController::class, 'regenerate'])->name('two-factor.regenerate');
+            Route::delete('cai-dat/2-buoc', [TwoFactorController::class, 'disable'])->name('two-factor.disable');
 
             Route::get('nguoi-dung', [AdminUserController::class, 'index'])->name('users.index');
             Route::get('nguoi-dung/{user}', [AdminUserController::class, 'show'])->name('users.show');
+            Route::post('nguoi-dung/{user}/dang-nhap-ho', [ImpersonationController::class, 'start'])->name('users.impersonate');
             Route::post('nguoi-dung/{user}/doi-email', [AdminUserController::class, 'changeEmail'])->name('users.email');
             Route::post('nguoi-dung/{user}/khoa', [AdminUserController::class, 'suspend'])->name('users.suspend');
             Route::post('nguoi-dung/{user}/mo-khoa', [AdminUserController::class, 'reactivate'])->name('users.reactivate');
@@ -426,6 +447,7 @@ Route::middleware('auth')->group(function () {
             Route::post('giao-vien/{user}/tu-choi', [TeacherApprovalController::class, 'reject'])
                 ->name('teachers.reject');
 
+            Route::get('google-analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
             Route::get('ai-usage', [AiUsageController::class, 'index'])->name('ai-usage.index');
 
             Route::resource('goi-hoc', AdminPackageController::class)

@@ -1,11 +1,52 @@
 @extends('layouts.app', ['portal' => 'admin'])
 
+@push('head')
+    @vite('resources/js/charts.js')
+@endpush
+
 @php use App\Models\Voucher; @endphp
 
 @section('title', 'Mã giảm giá — Quản trị TOÁN AI')
 @section('page_title', 'Mã giảm giá')
 
 @section('content')
+    <div class="row g-3 mb-3">
+        @foreach ([
+            ['Tổng tiền đã giảm', number_format($summary['discount_total'], 0, ',', '.') . '₫', 'danger'],
+            ['Lượt dùng thành công', number_format($summary['redemptions'], 0, ',', '.'), 'primary'],
+            ['Doanh thu đơn có mã', number_format($summary['revenue_after'], 0, ',', '.') . '₫', 'success'],
+            ['Tỉ lệ giảm trên giá gốc', $summary['discount_rate'] . '%', 'secondary'],
+        ] as [$label, $value, $tone])
+            <div class="col-6 col-lg-3">
+                <div class="card border h-100"><div class="card-body py-2">
+                    <div class="small text-secondary">{{ $label }}</div>
+                    <div class="h5 fw-bold mb-0 text-{{ $tone }}">{{ $value }}</div>
+                </div></div>
+            </div>
+        @endforeach
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-8">
+            <div class="card border h-100"><div class="card-body">
+                <div class="fw-semibold mb-2">30 ngày gần đây</div>
+                <canvas data-chart-type="vouchers-daily" data-chart='@json($daily)'
+                        role="img" aria-label="Biểu đồ số lượt dùng mã và tiền đã giảm theo ngày"></canvas>
+            </div></div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="card border h-100"><div class="card-body">
+                <div class="fw-semibold mb-2">Mã dùng nhiều nhất</div>
+                @if ($top)
+                    <canvas data-chart-type="voucher-top" data-chart='@json($top)'
+                            role="img" aria-label="Biểu đồ số lượt dùng của từng mã"></canvas>
+                @else
+                    <div class="text-secondary small">Chưa có lượt dùng nào.</div>
+                @endif
+            </div></div>
+        </div>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="table-meta mb-0">{{ number_format($vouchers->total(), 0, ',', '.') }} mã</div>
         <a href="{{ route('admin.vouchers.create') }}" class="btn btn-primary btn-sm">

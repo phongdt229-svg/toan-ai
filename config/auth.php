@@ -15,6 +15,9 @@ return [
     |
     */
 
+    // Bắt buộc admin bật xác thực 2 bước (xem RequireAdminTwoFactor). Mặc định tắt.
+    'require_admin_2fa' => env('ADMIN_REQUIRE_2FA', false),
+
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),

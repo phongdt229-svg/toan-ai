@@ -19,7 +19,9 @@ class QuestionBankTest extends TestCase
     use RefreshDatabase;
 
     private User $teacher;
+
     private Grade $grade;
+
     private Topic $topic;
 
     protected function setUp(): void
@@ -198,7 +200,7 @@ class QuestionBankTest extends TestCase
             "single_choice,easy,1,\"Hợp lệ\",,{$t},A,B,,1,",
             "bogus_type,easy,1,\"Sai loại\",,{$t},,,,,",
             "single_choice,easy,1,\"Thiếu lựa chọn\",,{$t},A,,,1,",
-            "short_answer,easy,1,\"Chủ đề sai lớp\",,999999,,,,,x",
+            'short_answer,easy,1,"Chủ đề sai lớp",,999999,,,,,x',
         ]);
 
         $this->actingAs($this->teacher)->post(route('teacher.questions.import.store'), [

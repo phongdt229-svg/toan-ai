@@ -39,6 +39,13 @@ class AuditLog extends Model
         'ai.question_accepted' => 'Duyệt câu hỏi AI soạn',
         'ai.lesson_created' => 'Tạo bài học từ AI',
         'ai.off_topic_suspected' => 'Nghi ngờ AI Tutor lạc đề khỏi Toán học',
+        'auth.2fa_enabled' => 'Bật xác thực 2 bước',
+        'auth.2fa_disabled' => 'Tắt xác thực 2 bước',
+        'auth.2fa_recovery_regenerated' => 'Tạo lại mã dự phòng 2 bước',
+        'auth.2fa_recovery_used' => 'Dùng mã dự phòng 2 bước',
+        'account.data_exported' => 'Tải bản sao dữ liệu cá nhân',
+        'impersonation.started' => 'Bắt đầu đăng nhập hộ',
+        'impersonation.stopped' => 'Kết thúc đăng nhập hộ',
     ];
 
     protected $fillable = [

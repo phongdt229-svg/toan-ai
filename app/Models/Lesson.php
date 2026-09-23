@@ -13,11 +13,15 @@ class Lesson extends Model
     use SoftDeletes;
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_REVIEW = 'review';
+
     public const STATUS_PUBLISHED = 'published';
 
     public const ACCESS_FREE = 'free';
+
     public const ACCESS_PRO = 'pro';
+
     public const ACCESS_PREMIUM = 'premium';
 
     protected $fillable = [

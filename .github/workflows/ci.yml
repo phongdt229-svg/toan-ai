@@ -78,6 +78,20 @@ jobs:
           DB_PASSWORD: root
         run: php artisan test
 
-# Chưa thêm job `vendor/bin/pint --test`: code hiện có 66 file lệch chuẩn Pint từ trước.
-# Dọn một lượt bằng `vendor/bin/pint` rồi mới bật job lint, nếu không CI đỏ ngay mà không
-# liên quan gì tới thay đổi đang đẩy lên.
+  lint:
+    name: pint --test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cài PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - run: composer install --prefer-dist --no-interaction --no-progress
+
+      # Repo đã được dọn một lượt bằng `vendor/bin/pint` (24/09/2026). Job đỏ = chạy `vendor/bin/pint` rồi commit.
+      - run: vendor/bin/pint --test

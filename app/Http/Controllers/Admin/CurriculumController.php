@@ -7,6 +7,7 @@ use App\Models\Chapter;
 use App\Models\Grade;
 use App\Models\Subject;
 use App\Models\Topic;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -99,7 +100,7 @@ class CurriculumController extends Controller
     }
 
     /**
-     * @param  class-string<\Illuminate\Database\Eloquent\Model>  $model
+     * @param  class-string<Model>  $model
      * @param  array<string, mixed>  $scope
      */
     private function uniqueSlug(string $model, string $name, array $scope): string

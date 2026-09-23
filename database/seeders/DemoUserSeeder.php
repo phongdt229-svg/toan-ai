@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Grade;
+use App\Models\ParentProfile;
 use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
@@ -118,7 +119,7 @@ class DemoUserSeeder extends Seeder
             ],
         );
         $parent->assignRole(Role::PARENT);
-        \App\Models\ParentProfile::firstOrCreate(['user_id' => $parent->id], ['weekly_report_enabled' => true]);
+        ParentProfile::firstOrCreate(['user_id' => $parent->id], ['weekly_report_enabled' => true]);
         $parent->children()->syncWithoutDetaching([
             $student->id => ['status' => 'linked', 'linked_at' => now()],
         ]);

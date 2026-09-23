@@ -1,5 +1,5 @@
 {{-- Dùng chung 4 portal — nhận $passwordRoute (route đích của form). --}}
-<div class="card border" style="max-width:36rem">
+<div class="card border mb-3" style="max-width:36rem">
     <div class="card-body">
         <h3 class="h6 fw-bold mb-3">Đổi mật khẩu</h3>
         <form method="POST" action="{{ $passwordRoute }}">

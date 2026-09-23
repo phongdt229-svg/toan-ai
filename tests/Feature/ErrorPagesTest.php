@@ -7,6 +7,7 @@ use Illuminate\Foundation\Exceptions\RegisterErrorViewPaths;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\View;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 /**
@@ -45,7 +46,7 @@ class ErrorPagesTest extends TestCase
     public function test_error_view_renders_without_build_assets(string $code): void
     {
         $html = View::make("errors.{$code}", [
-            'exception' => new \Symfony\Component\HttpKernel\Exception\HttpException((int) $code),
+            'exception' => new HttpException((int) $code),
         ])->render();
 
         $this->assertStringContainsString('<title>', $html);

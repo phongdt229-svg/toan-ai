@@ -12,7 +12,6 @@ use App\Models\PlacementTest;
 use App\Models\Question;
 use App\Models\QuestionAttempt;
 use App\Models\StudentLessonProgress;
-use App\Models\StudentTopicMastery;
 use App\Models\StudySession;
 use App\Models\Topic;
 use App\Models\User;
@@ -128,7 +127,7 @@ class LearningPathService
     }
 
     /**
-     * @return array<string, array<int, array<string, mixed>>>  stage => danh sách mục
+     * @return array<string, array<int, array<string, mixed>>> stage => danh sách mục
      */
     private function buildPlan(User $student, int $gradeId, string $level, ?PlacementTest $test): array
     {

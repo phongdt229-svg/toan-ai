@@ -7,6 +7,7 @@ use App\Models\StudentTopicMastery;
 use App\Models\TeacherComment;
 use App\Models\Topic;
 use App\Models\User;
+use App\Services\Teaching\AssignmentService;
 use App\Services\Teaching\StudentInsightService;
 
 class StudentInsightTest extends ClassroomTestCase
@@ -158,7 +159,7 @@ class StudentInsightTest extends ClassroomTestCase
         $this->enroll($theirs, $student);
 
         // Bài điểm thấp ở lớp người khác không được làm học sinh bị gắn cờ ở lớp mình.
-        $otherAssignment = app(\App\Services\Teaching\AssignmentService::class)->create($theirs, $theirs->owner, [
+        $otherAssignment = app(AssignmentService::class)->create($theirs, $theirs->owner, [
             'title' => 'Lớp khác', 'type' => 'question_set', 'question_ids' => $this->autoGradableQuestionIds(),
             'assign_to_all' => true, 'allow_retry' => false,
         ]);

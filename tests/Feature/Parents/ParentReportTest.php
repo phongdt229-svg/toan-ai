@@ -4,9 +4,12 @@ namespace Tests\Feature\Parents;
 
 use App\Models\Assignment;
 use App\Models\AssignmentStudent;
-use App\Models\ExamAttempt;
+use App\Models\AssignmentSubmission;
 use App\Models\Exam;
+use App\Models\ExamAttempt;
+use App\Models\Grade;
 use App\Models\Lesson;
+use App\Models\Question;
 use App\Models\QuestionAttempt;
 use App\Models\SchoolClass;
 use App\Models\StudentLessonProgress;
@@ -49,7 +52,7 @@ class ParentReportTest extends ParentTestCase
     public function test_curriculum_percent_is_null_without_grade_content(): void
     {
         $child = $this->makeStudent();
-        $child->studentProfile->update(['grade_id' => \App\Models\Grade::where('level', 12)->value('id')]);
+        $child->studentProfile->update(['grade_id' => Grade::where('level', 12)->value('id')]);
 
         $this->assertNull(app(StudentReportService::class)->curriculumPercent($child->fresh()));
     }
@@ -85,7 +88,7 @@ class ParentReportTest extends ParentTestCase
             'published_at' => now(),
         ]);
         // 6/10 = 60%
-        \App\Models\AssignmentSubmission::create([
+        AssignmentSubmission::create([
             'assignment_id' => $assignment->id, 'student_id' => $child->id, 'score' => 6, 'max_score' => 10,
             'submitted_at' => now(),
         ]);
@@ -101,7 +104,7 @@ class ParentReportTest extends ParentTestCase
             'user_id' => $child->id, 'lesson_id' => Lesson::value('id'), 'time_spent_seconds' => 3600,
         ]);
         QuestionAttempt::create([
-            'user_id' => $child->id, 'question_id' => \App\Models\Question::value('id'), 'time_spent_seconds' => 1800,
+            'user_id' => $child->id, 'question_id' => Question::value('id'), 'time_spent_seconds' => 1800,
         ]);
 
         $seconds = app(StudentReportService::class)->studySeconds($child);
@@ -114,7 +117,7 @@ class ParentReportTest extends ParentTestCase
     public function test_daily_activity_covers_every_day_including_empty_ones(): void
     {
         $child = $this->makeStudent();
-        $questionId = \App\Models\Question::value('id');
+        $questionId = Question::value('id');
 
         $this->travel(-2)->days();
         QuestionAttempt::create(['user_id' => $child->id, 'question_id' => $questionId, 'is_correct' => true]);

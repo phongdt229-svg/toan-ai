@@ -117,7 +117,7 @@ class FakeProvider implements AiProviderInterface
                     'type' => 'single_choice',
                     'difficulty' => $difficulty,
                     'content' => "Câu mẫu {$n}: tính \$\\frac{1}{{$n}} + \\frac{1}{{$n}}\$.",
-                    'options' => ["\$\\frac{2}{{$n}}\$", "\$\\frac{1}{{$n}}\$", "\$\\frac{2}{".(2 * $n).'}$'],
+                    'options' => ["\$\\frac{2}{{$n}}\$", "\$\\frac{1}{{$n}}\$", '$\\frac{2}{'.(2 * $n).'}$'],
                     'correct' => [0],
                     'explanation' => 'Cùng mẫu số nên cộng tử số.',
                 ];
