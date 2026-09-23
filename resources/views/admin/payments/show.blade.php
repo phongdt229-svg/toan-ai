@@ -8,8 +8,8 @@
 
     <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mb-3">
         <h2 class="h5 fw-bold mb-0"><code>{{ $payment->order_code }}</code></h2>
-        <span class="badge text-bg-{{ ['paid' => 'success', 'pending' => 'warning', 'failed' => 'danger', 'cancelled' => 'secondary'][$payment->status] }}">{{ $payment->statusLabel() }}</span>
-        @if ($payment->status !== 'paid')
+        <span class="badge text-bg-{{ ['paid' => 'success', 'pending' => 'warning', 'failed' => 'danger', 'cancelled' => 'secondary', 'refunded' => 'info'][$payment->status] }}">{{ $payment->statusLabel() }}</span>
+        @if (! in_array($payment->status, ['paid', 'refunded'], true))
             <form method="POST" action="{{ route('admin.payments.reconcile', $payment) }}" class="ms-auto">
                 @csrf
                 <button class="btn btn-sm btn-outline-primary"><i class="bi bi-arrow-repeat me-1"></i>Đối soát với MoMo</button>
@@ -54,6 +54,48 @@
             </div></div>
         </div>
     </div>
+
+    @php
+        // Còn dòng hoàn tiền `pending` = đã gửi MoMo mà chưa rõ kết quả → khoá nút, admin phải kiểm tra bên MoMo.
+        $blockingRefund = $payment->refunds->first(fn ($r) => $r->status === 'pending');
+        $canRefund = $payment->isPaid() && $payment->method !== 'voucher' && $payment->amountInt() > 0 && ! $blockingRefund;
+    @endphp
+
+    @if ($payment->refunds->isNotEmpty() || $canRefund)
+        <div class="card border mb-4">
+            <div class="card-body">
+                <h3 class="h6 fw-bold">Hoàn tiền</h3>
+
+                @if ($blockingRefund)
+                    <div class="alert alert-warning small">
+                        Có yêu cầu hoàn <code>{{ $blockingRefund->refund_code }}</code> đã gửi nhưng chưa rõ kết quả
+                        ({{ $blockingRefund->gateway_message ?: 'chưa có phản hồi' }}). Kiểm tra trên cổng MoMo —
+                        hệ thống khoá nút để tránh hoàn hai lần.
+                    </div>
+                @endif
+
+                @foreach ($payment->refunds as $refund)
+                    <div class="small d-flex flex-wrap gap-2 align-items-center border-bottom py-1">
+                        <span class="badge text-bg-{{ ['succeeded' => 'success', 'failed' => 'danger', 'pending' => 'warning'][$refund->status] }}">{{ \App\Models\PaymentRefund::STATUS_LABELS[$refund->status] }}</span>
+                        <code>{{ $refund->refund_code }}</code>
+                        <span>{{ number_format((float) $refund->amount, 0, ',', '.') }}₫</span>
+                        <span class="text-secondary">{{ $refund->reason }}</span>
+                        <span class="text-secondary ms-auto">{{ $refund->requester?->name }} · {{ $refund->created_at->format('H:i d/m/Y') }}</span>
+                    </div>
+                @endforeach
+
+                @if ($canRefund)
+                    <form method="POST" action="{{ route('admin.payments.refund', $payment) }}" class="d-flex flex-column flex-sm-row gap-2 mt-3"
+                          data-confirm="Hoàn {{ $payment->amountLabel() }} cho đơn này và thu hồi gói? Không hoàn tác được." data-confirm-ok="Hoàn tiền">
+                        @csrf
+                        <input name="reason" class="form-control" maxlength="191" required placeholder="Lý do hoàn tiền (ghi vào audit log)">
+                        <button class="btn btn-danger flex-shrink-0"><i class="bi bi-arrow-counterclockwise me-1"></i>Hoàn tiền</button>
+                    </form>
+                    <div class="form-text">Hoàn toàn bộ số tiền thực trả qua MoMo và huỷ đăng ký gắn với đơn.</div>
+                @endif
+            </div>
+        </div>
+    @endif
 
     <h3 class="h6 fw-bold">Log IPN / đối soát</h3>
     @forelse ($logs as $log)

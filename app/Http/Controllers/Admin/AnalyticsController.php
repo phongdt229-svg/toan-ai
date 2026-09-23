@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\Admin\AnalyticsReportService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
@@ -11,8 +14,12 @@ use Illuminate\View\View;
  */
 class AnalyticsController extends Controller
 {
-    public function index(): View
+    public function __construct(private readonly AnalyticsReportService $report) {}
+
+    public function index(Request $request): View
     {
+        $days = in_array($request->integer('days'), [7, 28, 90], true) ? $request->integer('days') : 28;
+
         $ga = (string) config('site.google_analytics_id');
         $gtm = (string) config('site.google_tag_manager_id');
 
@@ -40,6 +47,9 @@ class AnalyticsController extends Controller
                     'icon' => 'bi-search',
                 ],
             ],
+            'days' => $days,
+            'gaConfigured' => $this->report->isConfigured(),
+            'gaReport' => $this->report->overview($days),
             'embedUrl' => $this->embedUrl(),
             'tracking' => $ga !== '' || $gtm !== '',
             'both' => $ga !== '' && $gtm !== '',
@@ -60,5 +70,13 @@ class AnalyticsController extends Controller
         }
 
         return $url;
+    }
+
+    /** Nút "Làm mới": bỏ cache 10 phút để xem số mới ngay. */
+    public function refresh(): RedirectResponse
+    {
+        $this->report->forget();
+
+        return back()->with('status', 'Đã làm mới số liệu.');
     }
 }

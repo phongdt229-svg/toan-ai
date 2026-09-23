@@ -15,7 +15,7 @@
     @else
         <div class="d-grid gap-2">
             @foreach ($payments as $payment)
-                @php $tone = ['paid' => 'success', 'pending' => 'warning', 'failed' => 'danger', 'cancelled' => 'secondary'][$payment->status]; @endphp
+                @php $tone = ['paid' => 'success', 'pending' => 'warning', 'failed' => 'danger', 'cancelled' => 'secondary', 'refunded' => 'info'][$payment->status]; @endphp
                 <a href="{{ route('payment.show', $payment) }}" class="card border text-decoration-none text-body">
                     <div class="card-body py-2 d-flex flex-wrap align-items-center gap-2">
                         <div class="flex-grow-1">

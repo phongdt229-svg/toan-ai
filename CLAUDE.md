@@ -99,6 +99,9 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Ảnh đại diện: chỉ qua `AvatarService` (vẽ lại JPEG 256px, bỏ EXIF). Cần `php artisan storage:link`. Đừng lưu file người dùng gửi lên nguyên bản.
 - Sentry tắt khi `SENTRY_LARAVEL_DSN` trống; giữ `send_default_pii=false` (dữ liệu trẻ em). Bật thêm dịch vụ bên thứ ba nào
   cũng phải khai vào Chính sách bảo mật §3 và sửa `legal_updated_at`.
+- Hoàn tiền: chỉ `PaymentService::refund()` (đơn → `refunded`, KHÔNG sửa status tay). Luôn ghi dòng `payment_refunds` `pending`
+  TRƯỚC khi gọi MoMo và không tự gửi lại khi chưa rõ kết quả. Thêm chỗ nào kiểm "đã xử lý xong" cho đơn thì nhớ `isRefunded()`.
+- Số liệu GA trong Quản trị đọc qua `AnalyticsReportService` (service account chỉ đọc). File khoá JSON để ngoài repo, không commit.
 - Tạo đề bằng AI: chỉ câu giáo viên đã chấp nhận mới vào đề, đề luôn ở trạng thái Nháp (`createExamFromDraft`).
 - Đổi model AI → thêm dòng giá ở `config/ai.php → pricing`, nếu không trang AI usage hiện 0₫ (có cảnh báo).
 - Chart.js: canvas được bọc khung riêng bởi `sizeBox()` trong `resources/js/charts.js` — đừng đặt height lên `card-body`.

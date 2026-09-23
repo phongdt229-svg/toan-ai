@@ -448,6 +448,7 @@ Route::middleware('auth')->group(function () {
                 ->name('teachers.reject');
 
             Route::get('google-analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+            Route::post('google-analytics/lam-moi', [AnalyticsController::class, 'refresh'])->name('analytics.refresh');
             Route::get('ai-usage', [AiUsageController::class, 'index'])->name('ai-usage.index');
 
             Route::resource('goi-hoc', AdminPackageController::class)
@@ -461,6 +462,8 @@ Route::middleware('auth')->group(function () {
             Route::post('dang-ky-goi/cap', [AdminSubscriptionController::class, 'grant'])->name('subscriptions.grant');
             Route::get('giao-dich', [AdminPaymentController::class, 'index'])->name('payments.index');
             Route::get('giao-dich/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
+            Route::post('giao-dich/{payment}/hoan-tien', [AdminPaymentController::class, 'refund'])
+                ->middleware('throttle:10,1')->name('payments.refund');
             Route::post('giao-dich/{payment}/doi-soat', [AdminPaymentController::class, 'reconcile'])->name('payments.reconcile');
             Route::post('dang-ky-goi/{subscription}/huy', [AdminSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
 

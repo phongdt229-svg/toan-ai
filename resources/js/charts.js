@@ -433,6 +433,35 @@ function renderVoucherTop(canvas) {
     });
 }
 
+/** Trang Google Analytics: người dùng (đường) + lượt xem trang (cột), cùng một trục vì cùng là số đếm. */
+function renderGaDaily(canvas) {
+    const rows = JSON.parse(canvas.dataset.chart || '[]');
+    if (!rows.length) return;
+
+    sizeBox(canvas, '260px');
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: rows.map((r) => r.label),
+            datasets: [
+                { type: 'bar', label: 'Lượt xem trang', data: rows.map((r) => r.views), backgroundColor: '#93c5fd', borderRadius: 4 },
+                { type: 'line', label: 'Người dùng', data: rows.map((r) => r.users), borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, pointRadius: 2 },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { type: 'category', ticks: { maxTicksLimit: 10 } },
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+            },
+            plugins: { legend: { position: 'bottom' } },
+        },
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="admin-daily"]').forEach(renderAdminDaily);
     document.querySelectorAll('canvas[data-chart-type="topic-bars"]').forEach(renderTopicBars);
@@ -445,5 +474,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="count-bars"]').forEach(renderCountBars);
     document.querySelectorAll('canvas[data-chart-type="payments-daily"]').forEach(renderPaymentsDaily);
     document.querySelectorAll('canvas[data-chart-type="vouchers-daily"]').forEach(renderVouchersDaily);
+    document.querySelectorAll('canvas[data-chart-type="ga-daily"]').forEach(renderGaDaily);
     document.querySelectorAll('canvas[data-chart-type="voucher-top"]').forEach(renderVoucherTop);
 });

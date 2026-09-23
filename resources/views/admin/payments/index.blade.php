@@ -51,7 +51,7 @@
             </thead>
             <tbody>
                 @forelse ($payments as $payment)
-                    @php $tone = ['paid' => 'success', 'pending' => 'warning', 'failed' => 'danger', 'cancelled' => 'secondary'][$payment->status]; @endphp
+                    @php $tone = ['paid' => 'success', 'pending' => 'warning', 'failed' => 'danger', 'cancelled' => 'secondary', 'refunded' => 'info'][$payment->status]; @endphp
                     <tr>
                         <td><a href="{{ route('admin.payments.show', $payment) }}"><code>{{ $payment->order_code }}</code></a></td>
                         <td>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\PaymentWebhookLog;
+use App\Services\Payment\PaymentException;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -77,7 +78,7 @@ class PaymentController extends Controller
     public function show(Payment $payment): View
     {
         return view('admin.payments.show', [
-            'payment' => $payment->load('user', 'package', 'voucher', 'subscription.user'),
+            'payment' => $payment->load('user', 'package', 'voucher', 'subscription.user', 'refunds.requester'),
             'logs' => PaymentWebhookLog::where('order_code', $payment->order_code)->latest('id')->get(),
         ]);
     }
@@ -91,5 +92,19 @@ class PaymentController extends Controller
         return back()->with('status', $payment->status === $before
             ? 'Cổng thanh toán chưa báo thay đổi trạng thái.'
             : "Đã cập nhật: {$payment->statusLabel()}.");
+    }
+
+    /** Hoàn tiền toàn bộ đơn qua MoMo. Chỉ admin (nhóm route), có lý do bắt buộc để vào audit log. */
+    public function refund(Request $request, Payment $payment, PaymentService $payments): RedirectResponse
+    {
+        $data = $request->validate(['reason' => ['required', 'string', 'max:191']], [], ['reason' => 'lý do hoàn tiền']);
+
+        try {
+            $payments->refund($payment, $request->user(), $data['reason']);
+        } catch (PaymentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('status', 'Đã hoàn tiền và thu hồi gói.');
     }
 }

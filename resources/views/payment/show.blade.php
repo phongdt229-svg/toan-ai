@@ -4,8 +4,8 @@
 @section('page_title', 'Kết quả thanh toán')
 
 @php
-    $tone = ['paid' => 'success', 'pending' => 'warning', 'failed' => 'danger', 'cancelled' => 'secondary'][$payment->status];
-    $icon = ['paid' => 'bi-check-circle-fill', 'pending' => 'bi-hourglass-split', 'failed' => 'bi-x-circle-fill', 'cancelled' => 'bi-slash-circle'][$payment->status];
+    $tone = ['paid' => 'success', 'pending' => 'warning', 'failed' => 'danger', 'cancelled' => 'secondary', 'refunded' => 'info'][$payment->status];
+    $icon = ['paid' => 'bi-check-circle-fill', 'pending' => 'bi-hourglass-split', 'failed' => 'bi-x-circle-fill', 'cancelled' => 'bi-slash-circle', 'refunded' => 'bi-arrow-counterclockwise'][$payment->status];
 @endphp
 
 @section('content')
@@ -33,6 +33,10 @@
                     @case('failed')
                         <h1 class="h4 fw-bold mt-2">Thanh toán không thành công</h1>
                         <p class="text-secondary mb-0">{{ $payment->gateway_message ?: 'Giao dịch bị từ chối hoặc đã huỷ.' }} Bạn chưa bị trừ tiền cho đơn này.</p>
+                        @break
+                    @case('refunded')
+                        <h1 class="h4 fw-bold mt-2">Đơn đã được hoàn tiền</h1>
+                        <p class="text-secondary mb-0">Số tiền đã được hoàn về MoMo của bạn và gói tương ứng đã được thu hồi.</p>
                         @break
                     @default
                         <h1 class="h4 fw-bold mt-2">Đơn đã huỷ</h1>

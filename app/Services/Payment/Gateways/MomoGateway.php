@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\Payment\GatewayCheckout;
 use App\Services\Payment\GatewayNotification;
+use App\Services\Payment\GatewayRefund;
 use App\Services\Payment\PaymentException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
@@ -21,6 +22,8 @@ class MomoGateway implements PaymentGatewayInterface
     private const CREATE_FIELDS = ['accessKey', 'amount', 'extraData', 'ipnUrl', 'orderId', 'orderInfo', 'partnerCode', 'redirectUrl', 'requestId', 'requestType'];
 
     private const IPN_FIELDS = ['accessKey', 'amount', 'extraData', 'message', 'orderId', 'orderInfo', 'orderType', 'partnerCode', 'payType', 'requestId', 'responseTime', 'resultCode', 'transId'];
+
+    private const REFUND_FIELDS = ['accessKey', 'amount', 'description', 'orderId', 'partnerCode', 'requestId', 'transId'];
 
     private const QUERY_FIELDS = ['accessKey', 'orderId', 'partnerCode', 'requestId'];
 
@@ -132,6 +135,53 @@ class MomoGateway implements PaymentGatewayInterface
         return new GatewayNotification(
             orderCode: (string) $json['orderId'],
             amount: (int) ($json['amount'] ?? 0),
+            transactionId: filled($json['transId'] ?? null) ? (string) $json['transId'] : null,
+            resultCode: (int) $json['resultCode'],
+            message: (string) ($json['message'] ?? ''),
+            raw: $json,
+        );
+    }
+
+    public function refund(Payment $payment, string $refundCode, int $amount, string $reason): GatewayRefund
+    {
+        $config = $this->credentials();
+
+        if (blank($config['partner_code']) || blank($config['access_key']) || blank($config['secret_key'])) {
+            throw new PaymentException('Cổng thanh toán chưa được cấu hình, không thể hoàn tiền.');
+        }
+
+        if (blank($payment->gateway_transaction_id)) {
+            throw new PaymentException('Đơn này chưa có mã giao dịch MoMo (transId) nên không hoàn được.');
+        }
+
+        // orderId ở đây là mã của LẦN HOÀN, không phải mã đơn gốc; transId trỏ tới giao dịch cần hoàn.
+        $body = [
+            'partnerCode' => $config['partner_code'],
+            'orderId' => $refundCode,
+            'requestId' => (string) Str::uuid(),
+            'amount' => (string) $amount,
+            'transId' => (string) $payment->gateway_transaction_id,
+            'description' => Str::limit($reason, 100, ''),
+        ];
+        $body['signature'] = $this->sign($body, self::REFUND_FIELDS);
+        $body['lang'] = 'vi';
+
+        try {
+            $response = Http::timeout($config['timeout'])->acceptJson()->post($config['endpoint'].'/v2/gateway/api/refund', $body);
+        } catch (ConnectionException $e) {
+            Log::warning('MoMo refund: không nhận được phản hồi', ['order' => $payment->order_code, 'refund' => $refundCode, 'error' => $e->getMessage()]);
+            throw new PaymentException('Không nhận được phản hồi từ MoMo — chưa rõ đã hoàn hay chưa. Kiểm tra trên cổng MoMo trước khi làm lại.');
+        }
+
+        $json = (array) $response->json();
+
+        if (! isset($json['resultCode'])) {
+            Log::warning('MoMo refund: phản hồi không hợp lệ', ['refund' => $refundCode, 'status' => $response->status(), 'body' => $json]);
+            throw new PaymentException('MoMo trả về phản hồi không hợp lệ — kiểm tra trên cổng MoMo trước khi làm lại.');
+        }
+
+        return new GatewayRefund(
+            succeeded: (int) $json['resultCode'] === 0,
             transactionId: filled($json['transId'] ?? null) ? (string) $json['transId'] : null,
             resultCode: (int) $json['resultCode'],
             message: (string) ($json['message'] ?? ''),

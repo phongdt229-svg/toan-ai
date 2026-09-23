@@ -5,6 +5,7 @@ namespace App\Services\Payment\Gateways;
 use App\Models\Payment;
 use App\Services\Payment\GatewayCheckout;
 use App\Services\Payment\GatewayNotification;
+use App\Services\Payment\GatewayRefund;
 use Illuminate\Support\Str;
 
 /**
@@ -22,6 +23,12 @@ class FakeMomoGateway extends MomoGateway
     public function queryStatus(Payment $payment): ?GatewayNotification
     {
         return null;
+    }
+
+    /** Local: hoàn luôn thành công, không gọi mạng. Test muốn lỗi thì bind gateway khác. */
+    public function refund(Payment $payment, string $refundCode, int $amount, string $reason): GatewayRefund
+    {
+        return new GatewayRefund(true, 'FAKE-RF-'.Str::upper(Str::random(8)), 0, 'Thành công (giả lập)', ['fake' => true]);
     }
 
     protected function credentials(): array

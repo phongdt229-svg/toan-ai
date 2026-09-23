@@ -43,6 +43,8 @@ class AuditLog extends Model
         'auth.2fa_disabled' => 'Tắt xác thực 2 bước',
         'auth.2fa_recovery_regenerated' => 'Tạo lại mã dự phòng 2 bước',
         'auth.2fa_recovery_used' => 'Dùng mã dự phòng 2 bước',
+        'payment.refunded' => 'Hoàn tiền đơn hàng',
+        'payment.refund_failed' => 'Hoàn tiền thất bại',
         'account.data_exported' => 'Tải bản sao dữ liệu cá nhân',
         'impersonation.started' => 'Bắt đầu đăng nhập hộ',
         'impersonation.stopped' => 'Kết thúc đăng nhập hộ',

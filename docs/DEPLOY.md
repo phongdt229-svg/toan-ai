@@ -56,12 +56,25 @@ MOMO_RETURN_URL=https://toanai.vn/payment/momo/return
 VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
 
+# Giám sát lỗi — để trống thì tắt. Không bật send_default_pii (dữ liệu trẻ em).
+SENTRY_LARAVEL_DSN=
+SENTRY_ENVIRONMENT=production
+
+# Bắt buộc admin bật xác thực 2 bước — bật SAU KHI mọi admin đã cài xong (Quản trị → Cài đặt).
+ADMIN_REQUIRE_2FA=false
+
+# Số liệu Google Analytics trong Quản trị (tuỳ chọn). Property ID là SỐ; file khoá JSON để ngoài repo, quyền 600.
+GA_PROPERTY_ID=
+GA_CREDENTIALS_PATH=/etc/toan-ai/ga-service-account.json
+LOOKER_STUDIO_EMBED_URL=
+
 TRUSTED_PROXIES=          # đặt khi chạy sau Cloudflare / load balancer
 BACKUP_MYSQLDUMP_PATH=/usr/bin/mysqldump
 BACKUP_PATH=/var/backups/toan-ai
 BACKUP_KEEP_DAYS=14
 ```
 
+> Hoàn tiền dùng chung khoá MoMo ở trên (`/v2/gateway/api/refund`) — thử trên sandbox trước khi bấm ở production.
 > Không commit `.env`. Key MoMo/OpenAI chỉ cấu hình trực tiếp trên server.
 
 ## 3. Các bước deploy (mỗi lần phát hành)

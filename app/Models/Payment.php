@@ -16,6 +16,8 @@ class Payment extends Model
 
     public const STATUS_CANCELLED = 'cancelled';
 
+    public const STATUS_REFUNDED = 'refunded';
+
     /** Đơn 0đ do mã giảm 100% — không cổng nào tham gia. */
     public const METHOD_VOUCHER = 'voucher';
 
@@ -24,6 +26,7 @@ class Payment extends Model
         self::STATUS_PAID => 'Thành công',
         self::STATUS_FAILED => 'Thất bại',
         self::STATUS_CANCELLED => 'Đã huỷ',
+        self::STATUS_REFUNDED => 'Đã hoàn tiền',
     ];
 
     protected $fillable = [
@@ -67,6 +70,11 @@ class Payment extends Model
         return $this->belongsTo(Subscription::class);
     }
 
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(PaymentRefund::class);
+    }
+
     public function voucher(): BelongsTo
     {
         return $this->belongsTo(Voucher::class);
@@ -97,6 +105,11 @@ class Payment extends Model
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isRefunded(): bool
+    {
+        return $this->status === self::STATUS_REFUNDED;
     }
 
     public function isPaid(): bool

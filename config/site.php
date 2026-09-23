@@ -69,6 +69,11 @@ return [
     // Thẻ xác minh Google Search Console — vô hại ở mọi môi trường, Google cần thấy nó trên domain thật.
     'google_site_verification' => env('GOOGLE_SITE_VERIFICATION', 'GuZkEv4BKbqG8cgzsFVFdNseP-XJOYhO6ki-g7CZ9Xk'),
 
+    // GA4 Data API — đọc số liệu về hiện ngay trong Quản trị. Cần: property ID dạng SỐ (không phải G-XXXX),
+    // và file khoá JSON của service account (được thêm vào GA4 với quyền Người xem). File khoá KHÔNG để trong repo.
+    'ga_property_id' => env('GA_PROPERTY_ID', ''),
+    'ga_credentials_path' => env('GA_CREDENTIALS_PATH', ''),
+
     // Link nhúng báo cáo Looker Studio (Chia sẻ → Nhúng báo cáo → URL nhúng) hiện ở Quản trị → Google Analytics.
     // Chỉ nhận https://lookerstudio.google.com/... — xem AnalyticsController. Trống = không hiện khung.
     'looker_studio_embed_url' => env('LOOKER_STUDIO_EMBED_URL', ''),

@@ -1,5 +1,9 @@
 @extends('layouts.app', ['portal' => 'admin'])
 
+@push('head')
+    @vite('resources/js/charts.js')
+@endpush
+
 @section('title', 'Google Analytics — Quản trị TOÁN AI')
 @section('page_title', 'Google Analytics')
 
@@ -19,9 +23,76 @@
         </div>
     @endif
 
+    @if ($gaReport)
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            @foreach ([7 => '7 ngày', 28 => '28 ngày', 90 => '90 ngày'] as $d => $label)
+                <a href="{{ route('admin.analytics.index', ['days' => $d]) }}"
+                   class="btn btn-sm {{ $days === $d ? 'btn-primary' : 'btn-outline-secondary' }}">{{ $label }}</a>
+            @endforeach
+            <form method="POST" action="{{ route('admin.analytics.refresh') }}" class="ms-auto">
+                @csrf
+                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-repeat me-1"></i>Làm mới</button>
+            </form>
+        </div>
+
+        <div class="row g-3 mb-3">
+            @foreach ([['Người dùng', $gaReport['totals']['users'], 'primary'], ['Phiên', $gaReport['totals']['sessions'], 'success'], ['Lượt xem trang', $gaReport['totals']['views'], 'secondary']] as [$label, $value, $tone])
+                <div class="col-12 col-sm-4">
+                    <div class="card border h-100"><div class="card-body py-2">
+                        <div class="small text-secondary">{{ $label }}</div>
+                        <div class="h5 fw-bold mb-0 text-{{ $tone }}">{{ number_format($value, 0, ',', '.') }}</div>
+                    </div></div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="card border mb-3"><div class="card-body">
+            <div class="fw-semibold mb-2">Lượt truy cập theo ngày</div>
+            <canvas data-chart-type="ga-daily" data-chart='@json($gaReport['daily'])' role="img" aria-label="Biểu đồ người dùng và lượt xem trang theo ngày"></canvas>
+        </div></div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-lg-7">
+                <div class="card border h-100"><div class="card-body">
+                    <div class="fw-semibold mb-2">Trang xem nhiều nhất</div>
+                    <table class="table table-sm small mb-0">
+                        <tbody>
+                            @forelse ($gaReport['pages'] as $page)
+                                <tr><td class="text-break"><code>{{ $page['path'] }}</code></td><td class="text-end">{{ number_format($page['views'], 0, ',', '.') }}</td></tr>
+                            @empty
+                                <tr><td class="text-secondary">Chưa có dữ liệu.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div></div>
+            </div>
+            <div class="col-12 col-lg-5">
+                <div class="card border h-100"><div class="card-body">
+                    <div class="fw-semibold mb-2">Nguồn truy cập (phiên)</div>
+                    @if ($gaReport['sources'])
+                        <canvas data-chart-type="count-bars" data-chart='@json($gaReport['sources'])' role="img" aria-label="Biểu đồ số phiên theo nguồn truy cập"></canvas>
+                    @else
+                        <div class="text-secondary small">Chưa có dữ liệu.</div>
+                    @endif
+                </div></div>
+            </div>
+        </div>
+        <p class="small text-secondary">Số liệu từ Google Analytics, cache 10 phút và Google thường trễ vài giờ.</p>
+    @elseif ($gaConfigured)
+        <div class="alert alert-warning small">
+            Đã khai <code>GA_PROPERTY_ID</code> nhưng chưa đọc được số liệu — kiểm tra service account đã được thêm vào GA4
+            với quyền <em>Người xem</em> và đã bật <em>Google Analytics Data API</em>. Chi tiết lỗi nằm trong <code>storage/logs/laravel.log</code>.
+        </div>
+    @else
+        <div class="alert alert-light border small">
+            Muốn xem số liệu ngay tại đây: đặt <code>GA_PROPERTY_ID</code> (số, không phải <code>G-…</code>) và
+            <code>GA_CREDENTIALS_PATH</code> (đường dẫn file JSON của service account, để ngoài repo) trong <code>.env</code>.
+        </div>
+    @endif
+
     <div class="card border mb-3">
         <div class="card-body">
-            <div class="fw-semibold mb-2">Báo cáo truy cập</div>
+            <div class="fw-semibold mb-2">Báo cáo Looker Studio</div>
             @if ($embedUrl)
                 {{-- Đăng nhập Google trong khung nếu báo cáo không công khai; sandbox vẫn cần allow-same-origin để Looker chạy. --}}
                 <div class="ratio ratio-4x3" style="max-height:80vh">

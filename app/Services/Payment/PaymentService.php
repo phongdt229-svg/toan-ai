@@ -4,6 +4,7 @@ namespace App\Services\Payment;
 
 use App\Models\Package;
 use App\Models\Payment;
+use App\Models\PaymentRefund;
 use App\Models\PaymentWebhookLog;
 use App\Models\Subscription;
 use App\Models\User;
@@ -186,6 +187,85 @@ class PaymentService
         return $payment->refresh();
     }
 
+    /**
+     * Hoàn tiền TOÀN BỘ một đơn đã thanh toán, do admin bấm (§ hoàn tiền tự động).
+     *
+     * Thứ tự cố ý: ghi yêu cầu `pending` TRƯỚC khi gọi cổng. Nếu cổng nhận mà ta mất kết nối, dòng pending còn đó
+     * và chặn admin bấm lần hai — hoàn hai lần là mất tiền thật. Chỉ khi cổng báo rõ thành công mới đổi đơn sang
+     * `refunded` và thu hồi gói.
+     *
+     * @throws PaymentException
+     */
+    public function refund(Payment $payment, User $admin, string $reason): PaymentRefund
+    {
+        $refund = DB::transaction(function () use ($payment, $admin, $reason) {
+            $payment = Payment::whereKey($payment->id)->lockForUpdate()->firstOrFail();
+
+            if (! $payment->isPaid()) {
+                throw new PaymentException('Chỉ hoàn được đơn đã thanh toán thành công.');
+            }
+
+            if ($payment->method === Payment::METHOD_VOUCHER || $payment->amountInt() <= 0) {
+                throw new PaymentException('Đơn 0đ (mã giảm 100%) không có tiền để hoàn — hãy huỷ đăng ký ở trang Đăng ký gói.');
+            }
+
+            if ($payment->refunds()->whereIn('status', [PaymentRefund::STATUS_PENDING, PaymentRefund::STATUS_SUCCEEDED])->exists()) {
+                throw new PaymentException('Đơn này đã có yêu cầu hoàn tiền chưa rõ kết quả. Kiểm tra trên cổng MoMo trước khi làm lại.');
+            }
+
+            return $payment->refunds()->create([
+                'refund_code' => 'RF'.$payment->order_code.strtoupper(Str::random(4)),
+                'amount' => $payment->amount,
+                'reason' => $reason,
+                'status' => PaymentRefund::STATUS_PENDING,
+                'requested_by' => $admin->id,
+            ]);
+        });
+
+        $payment->refresh();
+
+        // Gọi mạng NGOÀI transaction: không giữ khoá dòng trong lúc chờ MoMo.
+        $result = $this->gateway->refund($payment, $refund->refund_code, $payment->amountInt(), $reason);
+
+        if (! $result->succeeded) {
+            $refund->update([
+                'status' => PaymentRefund::STATUS_FAILED,
+                'gateway_result_code' => $result->resultCode,
+                'gateway_message' => Str::limit($result->message, 180),
+            ]);
+
+            $this->audit->log('payment.refund_failed', $payment, null, ['refund_code' => $refund->refund_code, 'result' => $result->resultCode]);
+
+            throw new PaymentException('MoMo từ chối hoàn tiền: '.($result->message ?: "mã {$result->resultCode}").'.');
+        }
+
+        DB::transaction(function () use ($payment, $refund, $result, $admin, $reason) {
+            $refund->update([
+                'status' => PaymentRefund::STATUS_SUCCEEDED,
+                'gateway_transaction_id' => $result->transactionId,
+                'gateway_result_code' => $result->resultCode,
+                'gateway_message' => Str::limit($result->message, 180),
+                'refunded_at' => now(),
+            ]);
+
+            $payment->update(['status' => Payment::STATUS_REFUNDED]);
+
+            // Tiền đã trả lại thì gói không còn lý do tồn tại.
+            $subscription = Subscription::lockForUpdate()->find($payment->subscription_id);
+            if ($subscription && in_array($subscription->status, [Subscription::STATUS_ACTIVE, Subscription::STATUS_PENDING], true)) {
+                $this->subscriptions->cancel($subscription, $admin, "Hoàn tiền: {$reason}");
+            }
+
+            $this->audit->log('payment.refunded', $payment, ['status' => Payment::STATUS_PAID], [
+                'refund_code' => $refund->refund_code,
+                'amount' => $payment->amountInt(),
+                'reason' => $reason,
+            ]);
+        });
+
+        return $refund->refresh();
+    }
+
     /** Đơn chờ quá hạn → huỷ cùng đăng ký chờ. Trước khi huỷ hỏi lại cổng một lần để không huỷ nhầm đơn đã trả. */
     public function expireStale(): int
     {
@@ -260,8 +340,9 @@ class PaymentService
                 return [PaymentWebhookLog::RESULT_NOT_FOUND];
             }
 
-            // 5. Idempotency: đã xử lý xong thì thôi.
-            if ($payment->isPaid()) {
+            // 5. Idempotency: đã xử lý xong thì thôi. Đơn đã hoàn tiền cũng tính là đã xử lý — IPN gửi lại
+            // mà rơi xuống dưới sẽ kích hoạt lại gói vừa bị thu hồi.
+            if ($payment->isPaid() || $payment->isRefunded()) {
                 return [PaymentWebhookLog::RESULT_DUPLICATE];
             }
 

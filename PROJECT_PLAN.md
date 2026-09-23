@@ -985,6 +985,12 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       disk `public` (cần `storage:link`); xoá file khi xoá/ẩn danh tài khoản. `Dockerfile.dev` thêm GD jpeg/webp.
 - [x] **Lưới an toàn cấu hình** — trang AI usage cảnh báo model chưa có dòng giá (`AiUsageGuard::hasPricing`);
       footer tự ẩn link mạng xã hội giả kiểu `facebook.com/x` (`SocialLink`). Vẫn cần dán URL thật trước khi ra production.
+- [x] **Hoàn tiền MoMo (toàn bộ đơn)** — `PaymentService::refund()` + nút ở Quản trị → Giao dịch → chi tiết. Đơn chuyển
+      `refunded` (mọi báo cáo lọc `status=paid` tự loại khỏi doanh thu), gói bị thu hồi, có bảng `payment_refunds`.
+      Ghi yêu cầu `pending` TRƯỚC khi gọi MoMo: mất mạng giữa chừng thì nút khoá, admin phải kiểm tra bên MoMo (tránh hoàn hai lần).
+      IPN gửi lại sau khi hoàn không kích hoạt lại gói. Chưa có email báo cho người dùng khi được hoàn tiền.
+- [x] **Số liệu GA trong Quản trị (Data API)** — `AnalyticsReportService`: tự ký JWT service account (không kéo google/apiclient),
+      cache 10 phút, lỗi không làm hỏng trang. Cần `GA_PROPERTY_ID` (số) + `GA_CREDENTIALS_PATH` (file JSON ngoài repo).
 - [x] **Pint** — dọn một lượt toàn repo, thêm job `pint --test` vào CI.
 - [x] Sửa: biểu đồ Chart.js tràn khỏi card đè chữ (`sizeBox`), favicon rỗng → logo TOÁN AI, trang Cài đặt quản trị gọn 2 cột.
 
@@ -1034,8 +1040,8 @@ là **toàn bộ** việc còn lại đã biết.
       nhìn tưởng miễn phí. Lưu ý bậc miễn phí thường dùng dữ liệu để huấn luyện — không hợp với
       bài làm của trẻ em khi chạy thật.
 
-- [ ] **Hoàn tiền tự động qua MoMo** — hiện admin huỷ đăng ký rồi hoàn tay trên cổng MoMo.
-- [ ] **Số liệu GA ngay trong Quản trị bằng Data API** (service account + Property ID) — hiện chỉ nhúng Looker Studio.
+- [x] **Hoàn tiền tự động qua MoMo** — xong 24/09 (xem mục Đã làm). *Chưa thử với MoMo sandbox thật — chỉ test bằng Http::fake.*
+- [x] **Số liệu GA ngay trong Quản trị bằng Data API** — xong 24/09. *Chưa thử với GA thật — cần service account + Property ID.*
 
 #### D. Nợ kỹ thuật
 
