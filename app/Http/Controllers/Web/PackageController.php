@@ -7,7 +7,9 @@ use App\Models\Package;
 use App\Models\User;
 use App\Services\Payment\VoucherService;
 use App\Services\SubscriptionService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -22,8 +24,12 @@ class PackageController extends Controller
         private readonly VoucherService $vouchers,
     ) {}
 
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
+        if ($redirect = $this->applyCodeFromLink($request)) {
+            return $redirect;
+        }
+
         $user = $request->user();
 
         return view('public.packages.index', [
@@ -33,9 +39,13 @@ class PackageController extends Controller
         ]);
     }
 
-    public function checkout(Request $request, Package $package): View
+    public function checkout(Request $request, Package $package): View|RedirectResponse
     {
         abort_if(! $package->is_active || $package->isFree(), 404);
+
+        if ($redirect = $this->applyCodeFromLink($request, $package)) {
+            return $redirect;
+        }
 
         $user = $request->user();
         abort_unless($user->isStudent() || $user->isParent(), 403, 'Gói học dành cho học sinh — phụ huynh có thể mua cho con.');
@@ -61,6 +71,42 @@ class PackageController extends Controller
             'current' => $beneficiary ? $this->subscriptions->effective($beneficiary) : null,
             'startsAt' => $beneficiary ? $this->subscriptions->nextStartFor($beneficiary, $package) : null,
         ]);
+    }
+
+    /**
+     * Mã giảm giá đi kèm link quảng cáo (`?ma=KHAIGIANG30`).
+     *
+     * Áp xong chuyển hướng về URL sạch: F5 hoặc bấm back không áp lại, và mã không nằm lại
+     * trong thanh địa chỉ. Mã sai thì KHÔNG chặn — link quảng cáo hỏng không được cản đường mua hàng.
+     */
+    private function applyCodeFromLink(Request $request, ?Package $package = null): ?RedirectResponse
+    {
+        $code = trim($request->string('ma')->toString());
+
+        if ($code === '') {
+            return null;
+        }
+
+        // Dò mã qua GET phải bị chặn như qua POST — nhưng chỉ đếm khi thật sự có mã,
+        // để người xem trang bình thường không bị vạ lây.
+        $key = 'voucher-link:'.($request->user()?->id ?: $request->ip());
+
+        if (RateLimiter::tooManyAttempts($key, 10)) {
+            return redirect()->to($request->url())->with('error', 'Bạn thử mã hơi nhiều, đợi một phút rồi thử lại nhé.');
+        }
+
+        RateLimiter::hit($key, 60);
+
+        $target = $package ?? Package::active()->where('price', '>', 0)->ordered()->first();
+        $quote = $target ? $this->vouchers->quoteOrNull($code, $target, $request->user()) : null;
+
+        if (! $quote) {
+            return redirect()->to($request->url())->with('error', "Mã {$code} không dùng được — bạn vẫn mua gói bình thường nhé.");
+        }
+
+        $request->session()->put(VoucherController::SESSION_KEY, $quote->voucher->code);
+
+        return redirect()->to($request->url())->with('status', "Đã áp mã {$quote->voucher->code} cho bạn.");
     }
 
     /**

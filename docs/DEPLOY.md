@@ -51,6 +51,11 @@ MOMO_ENDPOINT=https://payment.momo.vn
 MOMO_IPN_URL=https://toanai.vn/api/v1/payment/momo/ipn
 MOMO_RETURN_URL=https://toanai.vn/payment/momo/return
 
+# Thông báo đẩy — sinh một lần bằng `php artisan push:keys`, KHÔNG commit khoá riêng.
+# Đổi khoá là mọi thiết bị đã đăng ký phải đăng ký lại.
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+
 TRUSTED_PROXIES=          # đặt khi chạy sau Cloudflare / load balancer
 BACKUP_MYSQLDUMP_PATH=/usr/bin/mysqldump
 BACKUP_PATH=/var/backups/toan-ai
@@ -167,6 +172,8 @@ Lịch đã khai báo trong `routes/console.php` (`php artisan schedule:list`):
 | `payments:expire-pending` | 5 phút | đối soát MoMo rồi huỷ đơn quá hạn |
 | `subscriptions:expire` | 00:05 | gói hết hạn → `expired`, đăng ký chờ > 24h → huỷ |
 | `backup:database` | 02:00 | sao lưu DB `.sql.gz`, xoá bản cũ hơn `BACKUP_KEEP_DAYS` |
+| `subscriptions:remind-expiring` | 08:00 | nhắc gia hạn gói sắp hết hạn (7/3/1 ngày) |
+| `assignments:remind-due` | 18:00 | nhắc học sinh bài giao hết hạn trong 24 giờ tới |
 | `accounts:purge` | 03:00 | ẩn danh vĩnh viễn tài khoản đã yêu cầu xoá quá 30 ngày (cam kết trong Chính sách bảo mật) |
 | `reports:weekly-parents` | CN 19:00 | email báo cáo tuần cho phụ huynh |
 | `queue:prune-failed`, `sanctum:prune-expired` | tuần / ngày | dọn bảng |

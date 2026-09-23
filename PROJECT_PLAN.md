@@ -908,6 +908,40 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 - Trang chi tiết một mã: danh sách lượt dùng (ai, đơn nào, giảm bao nhiêu, trạng thái, lúc nào)
   để soi được mã bị lạm dụng.
 
+### ✅ Đã làm (23/09, đợt 2) — mã từ link · push · nhắc bài giao
+
+#### 1. Áp mã giảm giá từ link quảng cáo
+
+- `?ma=CODE` nhận ở **cả** `/goi-hoc` và `/goi-hoc/{gói}/mua`: link quảng cáo thường trỏ về bảng giá,
+  người dùng chọn gói sau, mã phải còn nguyên khi tới bước xác nhận.
+- Áp xong **chuyển hướng về URL sạch** (không còn `?ma=`): F5 hay bấm back không áp lại,
+  và người dùng không vô tình khoe mã trong thanh địa chỉ khi chia sẻ màn hình.
+- Mã sai thì **không chặn** — vẫn vào trang mua, chỉ báo nhẹ. Link quảng cáo hỏng không được
+  chặn đường mua hàng.
+- Dò mã qua GET phải bị chặn như qua POST: đếm lượt bằng `RateLimiter` **chỉ khi có `?ma=`**,
+  10 lượt/phút/người, để người xem trang bình thường không bị vạ lây.
+
+#### 2. Push notification (Web Push)
+
+- Dùng `minishlink/web-push` + khoá VAPID trong `.env`. **Chưa khai khoá thì tính năng tắt hẳn** —
+  cùng khuôn với GA: không khai thì không có nút, không có lỗi.
+- Bảng `push_subscriptions` (user, endpoint duy nhất, khoá p256dh/auth, user agent).
+  Endpoint duy nhất: mỗi trình duyệt một dòng, một người có thể có nhiều thiết bị.
+- **Không hỏi quyền ngay khi vào trang** — trình duyệt phạt kiểu đó và người dùng bấm "Chặn" là mất luôn.
+  Chỉ hỏi khi người dùng tự bật công tắc trong Cài đặt → Thông báo.
+- Kênh `push` của Laravel Notification, dùng chung `NotificationType`: tắt loại nào thì loại đó
+  không đẩy. Endpoint chết (404/410) thì **tự xoá** khỏi DB, không để rác.
+- `public/sw.js` thêm `push` + `notificationclick`, và **tăng `VERSION`** để trình duyệt bỏ bản cũ.
+
+#### 3. Nhắc bài giao sắp đến hạn
+
+- Lệnh `assignments:remind-due` chạy **18:00** — sau giờ học, kịp làm buổi tối.
+- Chỉ nhắc học sinh **chưa nộp** (`status = assigned`) của bài giao **đã công bố**, còn hạn,
+  và hạn nằm trong 24 giờ tới.
+- Cột `assignment_students.due_reminded_at` chống nhắc trùng.
+- Kênh: chuông trong app + push. **Không gửi email** — học sinh không mở email, và bài giao thì
+  ngày nào cũng có, email sẽ thành rác.
+
 ### Còn nợ — rà lại 23/09/2026 (lần 2, sau đợt cookie + nhắc gia hạn)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
@@ -936,14 +970,8 @@ là **toàn bộ** việc còn lại đã biết.
       → không mua gói được, không nhận được link đặt lại mật khẩu, không nhận biên nhận.
       Đợt xác thực email 21/09 làm hậu quả nặng thêm. Cần: đổi email + gửi xác thực tới địa chỉ mới,
       chỉ đổi thật khi bấm link (không đổi ngay), báo về email cũ để phát hiện chiếm tài khoản.
-- [ ] **Áp mã giảm giá từ link** *(~1 giờ)* — hiện phải vào trang xác nhận rồi gõ tay.
-      Chạy quảng cáo cần link dạng `/goi-hoc/pro-thang/mua?ma=KHAIGIANG30` tự áp sẵn.
-- [ ] **Push notification** *(~1 buổi)* — đã cài được như ứng dụng (PWA) nhưng nhắc hạn gói, nhắc bài giao
-      vẫn chỉ qua email và chuông trong app. Học sinh không mở email.
 - [ ] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
       Giáo viên đang phải nhờ AI sinh câu rồi tự bốc vào đề. Xem ghi chú cuối Phase 7A.
-- [ ] **Nhắc bài giao sắp đến hạn** *(~nửa buổi)* — hiện chỉ báo khi *đã có* kết quả
-      (`SendActivityNotifications`), không nhắc trước deadline dù `AssignmentStudent` đủ dữ liệu.
 - [ ] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
 - [ ] **URL mạng xã hội thật** — footer đã sẵn sàng nhưng 5 khoá trong `config/site.php` còn trống,
       nên khối icon đang ẩn. Chờ link thật, không bịa.

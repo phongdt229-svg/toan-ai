@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Subscription;
+use App\Notifications\Channels\WebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -26,7 +27,20 @@ class SubscriptionExpiringSoon extends Notification implements ShouldQueue
     /** @return list<string> */
     public function via(object $notifiable): array
     {
-        return $notifiable->hasMutedNotification(self::class) ? ['mail'] : ['mail', 'database'];
+        // Tắt loại này thì tắt chuông và đẩy, nhưng email nhắc tiền vẫn phải tới.
+        return $notifiable->hasMutedNotification(self::class)
+            ? ['mail']
+            : ['mail', 'database', WebPushChannel::class];
+    }
+
+    /** @return array<string, string> */
+    public function toPush(object $notifiable): array
+    {
+        return [
+            'title' => $this->daysLeft === 1 ? 'Gói học hết hạn vào ngày mai' : "Gói học còn {$this->daysLeft} ngày",
+            'body' => "{$this->subscription->package->name} hết hạn ngày {$this->subscription->ends_at->format('d/m/Y')}.",
+            'url' => route('packages.index'),
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

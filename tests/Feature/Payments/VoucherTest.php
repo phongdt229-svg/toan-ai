@@ -299,6 +299,69 @@ class VoucherTest extends SubscriptionTestCase
         app(PaymentService::class)->checkout($student, $student, $this->package('pro-thang'), null, 'KHONGTONTAI');
     }
 
+    // --- Mã đi kèm link quảng cáo ---------------------------------------------------------
+
+    public function test_a_code_in_the_link_is_applied_and_the_url_is_cleaned(): void
+    {
+        $student = $this->makeStudent();
+        $package = $this->package('pro-thang');
+        $this->voucher();
+
+        $this->actingAs($student)
+            ->get(route('packages.checkout', $package).'?ma=giam50')
+            // Chuyển về URL sạch: F5 hay bấm back không áp lại, mã không nằm trong thanh địa chỉ.
+            ->assertRedirect(route('packages.checkout', $package))
+            ->assertSessionHas('status');
+
+        $payment = $this->pay($student, $package);
+        $this->assertEquals((float) $package->price / 2, (float) $payment->amount);
+    }
+
+    public function test_a_code_on_the_pricing_page_survives_until_checkout(): void
+    {
+        $student = $this->makeStudent();
+        $package = $this->package('pro-thang');
+        $this->voucher();
+
+        // Link quảng cáo thường trỏ về bảng giá, người dùng chọn gói sau.
+        $this->actingAs($student)->get(route('packages.index').'?ma=GIAM50')
+            ->assertRedirect(route('packages.index'));
+
+        $this->actingAs($student)->get(route('packages.checkout', $package))
+            ->assertOk()
+            ->assertSee('GIAM50');
+    }
+
+    public function test_a_broken_link_never_blocks_the_purchase(): void
+    {
+        $student = $this->makeStudent();
+        $package = $this->package('pro-thang');
+
+        $this->actingAs($student)
+            ->get(route('packages.checkout', $package).'?ma=MAKHONGCO')
+            ->assertRedirect(route('packages.checkout', $package))
+            ->assertSessionHas('error');
+
+        // Vẫn mua được, chỉ là không được giảm.
+        $payment = $this->pay($student, $package);
+        $this->assertEquals((float) $package->price, (float) $payment->amount);
+    }
+
+    public function test_guessing_codes_through_the_link_is_rate_limited(): void
+    {
+        $student = $this->makeStudent();
+        $package = $this->package('pro-thang');
+
+        for ($i = 0; $i < 10; $i++) {
+            $this->actingAs($student)->get(route('packages.checkout', $package)."?ma=THU{$i}");
+        }
+
+        $this->actingAs($student)
+            ->get(route('packages.checkout', $package).'?ma=THUNUA')
+            ->assertRedirect()
+            ->assertSessionHas('error', 'Bạn thử mã hơi nhiều, đợi một phút rồi thử lại nhé.');
+    }
+
     // --- Quản trị -------------------------------------------------------------------------
 
     public function test_admin_can_create_a_voucher_and_it_is_audited(): void

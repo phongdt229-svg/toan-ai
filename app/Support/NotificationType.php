@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Notifications\AssignmentDueSoon;
 use App\Notifications\AssignmentSubmittedByStudent;
 use App\Notifications\ChildScoreLow;
 use App\Notifications\ExamResultReady;
@@ -21,6 +22,7 @@ class NotificationType
     public const LABELS = [
         ExamResultReady::class => 'Có điểm bài kiểm tra',
         AssignmentSubmittedByStudent::class => 'Học sinh nộp bài giao',
+        AssignmentDueSoon::class => 'Bài giao sắp hết hạn',
         TeacherAccountApproved::class => 'Tài khoản được duyệt',
         ChildScoreLow::class => 'Con điểm thấp',
         WeeklyReportReady::class => 'Báo cáo tuần sẵn sàng',

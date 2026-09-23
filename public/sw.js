@@ -8,7 +8,7 @@
  *
  * Đổi VERSION khi sửa file này để xoá cache cũ.
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const STATIC_CACHE = `toanai-static-${VERSION}`;
 const LESSON_CACHE = 'toanai-lessons';
 const OFFLINE_URL = '/offline.html';
@@ -95,3 +95,43 @@ async function trimCache(cache) {
         await cache.delete(keys[i]);
     }
 }
+
+// --- Thông báo đẩy (Web Push) ----------------------------------------------------------
+// Server gửi payload JSON {title, body, url}. Không có dữ liệu thì vẫn hiện một thông báo
+// tối giản còn hơn im lặng — trình duyệt phạt service worker nhận push mà không hiện gì.
+self.addEventListener('push', (event) => {
+    let data = {};
+
+    try {
+        data = event.data ? event.data.json() : {};
+    } catch (e) {
+        data = {};
+    }
+
+    event.waitUntil(self.registration.showNotification(data.title || 'TOÁN AI', {
+        body: data.body || '',
+        icon: '/icons/icon-192.png',
+        badge: '/icons/icon-192.png',
+        data: { url: data.url || '/' },
+        // Cùng một loại thông báo thì thay thế cái cũ, không xếp chồng.
+        tag: data.tag || 'toanai',
+    }));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const target = (event.notification.data && event.notification.data.url) || '/';
+
+    // Đang mở sẵn một tab của site thì dùng lại tab đó, không mở thêm cửa sổ.
+    event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+        for (const client of list) {
+            if (client.url.startsWith(self.location.origin) && 'focus' in client) {
+                client.navigate(target);
+                return client.focus();
+            }
+        }
+
+        return clients.openWindow(target);
+    }));
+});

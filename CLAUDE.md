@@ -65,6 +65,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Local/test để TRỐNG để không làm bẩn số liệu thật — thử thì đặt `GOOGLE_ANALYTICS_ID` / `GOOGLE_TAG_MANAGER_ID` trong `.env`.
   Bật thêm công cụ theo dõi nào cũng **phải khai vào Chính sách bảo mật §3 + §8** và sửa `legal_updated_at`;
   `SeoTest` có test canh đúng chuyện này.
+- Push (Web Push + VAPID): khoá ở `config/push.php`, chưa khai thì tính năng **tắt hẳn** (không hiện công tắc).
+  Notification muốn đẩy thì khai `toPush()` + thêm `WebPushChannel::class` vào `via()`.
+  Sửa `public/sw.js` nhớ tăng `VERSION`. Sinh khoá: `php artisan push:keys`
+  (Windows cần `OPENSSL_CONF=C:/xampp/apache/conf/openssl.cnf`).
 - Dải cookie có HAI bản: có GA/GTM thì **hỏi đồng ý** (2 nút), không có thì chỉ **thông báo** (nút Đã hiểu).
   Hai lựa chọn lưu ở hai cookie khác nhau: bấm Đã hiểu **không phải** là đồng ý cho đo lường,
   sau này bật GA vẫn phải hỏi lại.

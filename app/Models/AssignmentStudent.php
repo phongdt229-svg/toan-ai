@@ -13,7 +13,7 @@ class AssignmentStudent extends Model
 
     protected $fillable = [
         'assignment_id', 'student_id', 'status', 'score', 'max_score', 'percent',
-        'attempts_count', 'time_spent_seconds', 'is_late', 'completed_at',
+        'attempts_count', 'time_spent_seconds', 'is_late', 'completed_at', 'due_reminded_at',
     ];
 
     protected function casts(): array

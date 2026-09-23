@@ -56,6 +56,7 @@ use App\Http\Controllers\Web\CookieConsentController;
 use App\Http\Controllers\Web\GuideController;
 use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
+use App\Http\Controllers\Web\PushSubscriptionController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SupportController;
 use App\Http\Controllers\Web\VoucherController;
@@ -142,6 +143,10 @@ Route::middleware('auth')->group(function () {
         Route::get('thong-bao/{notification}/mo', [NotificationController::class, 'open'])->name('notifications.open');
         Route::post('thong-bao/danh-dau-da-doc', [NotificationController::class, 'readAll'])->name('notifications.read_all');
         Route::put('thong-bao/cai-dat', [NotificationController::class, 'updatePreferences'])->name('notifications.preferences.update');
+
+        // Đăng ký nhận thông báo đẩy của từng trình duyệt (gọi bằng fetch từ trang Cài đặt).
+        Route::post('thong-bao/day', [PushSubscriptionController::class, 'store'])->name('push.store');
+        Route::delete('thong-bao/day', [PushSubscriptionController::class, 'destroy'])->name('push.destroy');
 
         // Học sinh mua cho mình, phụ huynh mua cho con — controller tự kiểm tra role.
         Route::get('goi-hoc/{package}/mua', [PackageController::class, 'checkout'])
