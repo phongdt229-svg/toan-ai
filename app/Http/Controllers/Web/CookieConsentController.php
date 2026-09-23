@@ -22,14 +22,28 @@ class CookieConsentController extends Controller
 
     public const REJECTED = 'rejected';
 
+    /**
+     * "Đã hiểu" của thông báo cookie thường — lưu ở cookie RIÊNG, không dùng chung với lựa chọn đo lường.
+     * Người dùng mới chỉ đọc một thông báo, chưa đồng ý gì cả — sau này bật GA thì vẫn phải hỏi họ.
+     */
+    public const SEEN = 'seen';
+
+    public const NOTICE_COOKIE = 'cookie_notice';
+
     /** Hỏi lại sau 180 ngày. */
     private const MINUTES = 60 * 24 * 180;
 
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'choice' => ['required', 'in:'.self::ACCEPTED.','.self::REJECTED],
+            'choice' => ['required', 'in:'.self::ACCEPTED.','.self::REJECTED.','.self::SEEN],
         ]);
+
+        if ($data['choice'] === self::SEEN) {
+            Cookie::queue(Cookie::make(self::NOTICE_COOKIE, '1', self::MINUTES));
+
+            return back();
+        }
 
         Cookie::queue(Cookie::make(self::COOKIE, $data['choice'], self::MINUTES));
 
@@ -42,6 +56,7 @@ class CookieConsentController extends Controller
     public function destroy(): RedirectResponse
     {
         Cookie::queue(Cookie::forget(self::COOKIE));
+        Cookie::queue(Cookie::forget(self::NOTICE_COOKIE));
 
         return back()->with('status', 'Hãy chọn lại bên dưới.');
     }

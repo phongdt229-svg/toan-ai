@@ -64,9 +64,9 @@ class CookieConsentTest extends TestCase
             ->assertSessionHasErrors('choice');
     }
 
-    public function test_the_banner_stays_hidden_when_there_is_nothing_to_track(): void
+    public function test_no_consent_is_asked_when_there_is_nothing_to_track(): void
     {
-        // Chưa cấu hình GA/GTM thì không có gì để xin phép — hỏi là làm phiền vô ích.
+        // Chưa cấu hình GA/GTM thì không có gì để xin phép — chỉ thông báo, không hỏi đồng ý.
         config(['site.google_analytics_id' => '', 'site.google_tag_manager_id' => '']);
 
         $this->get('/')->assertOk()->assertDontSee('Cookie đo lường');
@@ -82,6 +82,42 @@ class CookieConsentTest extends TestCase
             ->delete(route('cookie.destroy'))
             ->assertRedirect()
             ->assertCookieExpired(Consent::COOKIE);
+    }
+
+    // --- Thông báo cookie khi chưa bật đo lường -------------------------------------------
+
+    public function test_a_plain_notice_shows_when_there_is_nothing_to_consent_to(): void
+    {
+        config(['site.google_analytics_id' => '', 'site.google_tag_manager_id' => '']);
+
+        $this->get('/')->assertOk()
+            ->assertSee('Trang này dùng cookie')
+            ->assertSee('Đã hiểu')
+            // Không có gì để xin phép thì đừng hỏi đồng ý.
+            ->assertDontSee('Cookie đo lường');
+    }
+
+    public function test_acknowledging_the_notice_hides_it(): void
+    {
+        config(['site.google_analytics_id' => '', 'site.google_tag_manager_id' => '']);
+
+        $this->post(route('cookie.store'), ['choice' => Consent::SEEN])
+            ->assertRedirect()
+            ->assertCookie(Consent::NOTICE_COOKIE, '1');
+
+        $this->withCookie(Consent::NOTICE_COOKIE, '1')->get('/')
+            ->assertOk()
+            ->assertDontSee('Trang này dùng cookie');
+    }
+
+    public function test_acknowledging_the_notice_is_not_consent_to_tracking(): void
+    {
+        // Bấm "Đã hiểu" lúc chưa có GA, sau đó production bật GA lên:
+        // người dùng VẪN phải được hỏi, vì họ chưa từng đồng ý điều gì.
+        $this->withCookie(Consent::NOTICE_COOKIE, '1')->get('/')
+            ->assertOk()
+            ->assertSee('Cookie đo lường')
+            ->assertDontSee('googletagmanager.com', false);
     }
 
     public function test_the_privacy_policy_explains_the_choice(): void
