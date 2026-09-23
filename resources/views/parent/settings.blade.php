@@ -7,6 +7,7 @@
     <h2 class="h5 fw-bold mb-3">Cài đặt</h2>
 
     @include('partials.profile-form', ['user' => auth()->user(), 'profileRoute' => route('parent.settings.profile')])
+    @include('partials.email-form')
     @include('partials.notification-preferences-form')
     @include('partials.password-form', ['passwordRoute' => route('parent.settings.password')])
     @include('partials.danger-zone')

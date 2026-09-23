@@ -947,6 +947,12 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       có ô "không hiện lại nữa" — tick vào là mọi xác nhận sau đó im lặng trôi qua, kể cả xoá tài khoản.
       `ConfirmDialogTest` quét view để hộp mặc định không bò ngược trở lại.
 
+- [x] **Đổi email tài khoản** — trả nợ cái hố do chính đợt xác thực email 21/09 đào ra:
+      gõ sai email lúc đăng ký trước đây là tài khoản hỏng vĩnh viễn. Hai bước: địa chỉ mới nằm chờ ở
+      `pending_email`, chỉ đổi thật khi bấm link gửi tới chính địa chỉ đó. Địa chỉ cũ được báo ngay kèm
+      link huỷ (không cần đăng nhập) — cảnh báo duy nhất khi có người chiếm phiên đăng nhập.
+      Quản trị đổi hộ được cho người mất luôn hộp thư cũ. 14 test.
+
 ### Còn nợ — rà lại 23/09/2026 (lần 2, sau đợt cookie + nhắc gia hạn)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
@@ -969,12 +975,6 @@ là **toàn bộ** việc còn lại đã biết.
 
 #### C. Tính năng spec có mà code chưa có
 
-- [ ] **Không đổi được email** *(~1 buổi)* — **việc đáng làm nhất trong nhóm này.**
-      Không có đường nào cho người dùng đổi email (`UpdateProfileRequest` chỉ có tên + SĐT), và quản trị
-      cũng không đổi hộ được. Gõ sai email lúc đăng ký là tài khoản hỏng vĩnh viễn: không xác thực được
-      → không mua gói được, không nhận được link đặt lại mật khẩu, không nhận biên nhận.
-      Đợt xác thực email 21/09 làm hậu quả nặng thêm. Cần: đổi email + gửi xác thực tới địa chỉ mới,
-      chỉ đổi thật khi bấm link (không đổi ngay), báo về email cũ để phát hiện chiếm tài khoản.
 - [ ] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
       Giáo viên đang phải nhờ AI sinh câu rồi tự bốc vào đề. Xem ghi chú cuối Phase 7A.
 - [ ] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).

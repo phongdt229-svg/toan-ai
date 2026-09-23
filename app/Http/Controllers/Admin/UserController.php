@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\Admin\UserAdminService;
 use App\Services\Auth\AccountDeletionService;
+use App\Services\Auth\EmailChangeService;
 use App\Services\Learning\StudentReportService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
@@ -142,6 +143,30 @@ class UserController extends Controller
         }
 
         return back()->with('status', "Đã khôi phục tài khoản {$user->name}.");
+    }
+
+    /**
+     * Đổi email hộ người dùng.
+     *
+     * Dùng khi họ mất luôn quyền vào hộp thư cũ (gõ sai lúc đăng ký, email cơ quan bị thu hồi)
+     * nên không tự đổi qua luồng hai bước được. Ghi audit log vì đây là thao tác đổi được
+     * đường đăng nhập của người khác.
+     */
+    public function changeEmail(Request $request, User $user, EmailChangeService $emails): RedirectResponse
+    {
+        $data = $request->validate(
+            ['email' => ['required', 'string', 'email', 'max:191']],
+            [],
+            ['email' => 'email mới'],
+        );
+
+        try {
+            $emails->changeByAdmin($user, $data['email'], $request->user());
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('status', "Đã đổi email của {$user->name} thành {$user->email}. Đã gửi thư xác thực tới địa chỉ mới.");
     }
 
     public function suspend(Request $request, User $user): RedirectResponse

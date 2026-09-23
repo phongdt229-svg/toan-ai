@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VoucherController as AdminVoucherController;
 use App\Http\Controllers\Auth\AccountDeletionController;
+use App\Http\Controllers\Auth\EmailChangeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -131,6 +132,21 @@ Route::middleware('auth')->group(function () {
     Route::post('xac-thuc-email/gui-lai', [EmailVerificationController::class, 'send'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
+
+    // Đổi email (§10, đợt 23/09). Hai link trong thư đều đã ký nên không cần đăng nhập:
+    // người bị chiếm tài khoản có thể đã không vào được nữa.
+    Route::post('tai-khoan/doi-email', [EmailChangeController::class, 'store'])
+        ->middleware('throttle:6,60')
+        ->name('email-change.store');
+    Route::delete('tai-khoan/doi-email', [EmailChangeController::class, 'destroy'])->name('email-change.destroy');
+    Route::get('doi-email/{id}/{hash}', [EmailChangeController::class, 'confirm'])
+        ->middleware('signed')
+        ->withoutMiddleware('auth')
+        ->name('email-change.confirm');
+    Route::get('huy-doi-email/{id}/{hash}', [EmailChangeController::class, 'cancel'])
+        ->middleware('signed')
+        ->withoutMiddleware('auth')
+        ->name('email-change.cancel');
 
     // Xoá tài khoản: dùng chung cho cả 4 portal, hỏi lại mật khẩu trong controller.
     Route::delete('tai-khoan/xoa', [AccountDeletionController::class, 'destroy'])->name('account.destroy');
@@ -389,6 +405,7 @@ Route::middleware('auth')->group(function () {
 
             Route::get('nguoi-dung', [AdminUserController::class, 'index'])->name('users.index');
             Route::get('nguoi-dung/{user}', [AdminUserController::class, 'show'])->name('users.show');
+            Route::post('nguoi-dung/{user}/doi-email', [AdminUserController::class, 'changeEmail'])->name('users.email');
             Route::post('nguoi-dung/{user}/khoa', [AdminUserController::class, 'suspend'])->name('users.suspend');
             Route::post('nguoi-dung/{user}/mo-khoa', [AdminUserController::class, 'reactivate'])->name('users.reactivate');
             Route::post('nguoi-dung/{user}/khoi-phuc', [AdminUserController::class, 'restore'])

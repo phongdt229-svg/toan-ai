@@ -65,6 +65,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Local/test để TRỐNG để không làm bẩn số liệu thật — thử thì đặt `GOOGLE_ANALYTICS_ID` / `GOOGLE_TAG_MANAGER_ID` trong `.env`.
   Bật thêm công cụ theo dõi nào cũng **phải khai vào Chính sách bảo mật §3 + §8** và sửa `legal_updated_at`;
   `SeoTest` có test canh đúng chuyện này.
+- Đổi email: **không đổi thẳng** — địa chỉ mới nằm ở `users.pending_email` cho tới khi người dùng bấm link
+  gửi TỚI ĐỊA CHỈ MỚI (`EmailChangeService`). Địa chỉ cũ luôn được báo ngay kèm link huỷ.
+  Thư xác nhận phải gửi qua `Notification::route('mail', $newEmail)` — `$user->notify()` sẽ đi về địa chỉ cũ.
+  Quản trị đổi hộ được (`admin.users.email`) nhưng đặt lại `email_verified_at = null`.
 - **Không dùng `confirm()`/`alert()` của trình duyệt.** Xác nhận thao tác: thêm `data-confirm="Câu hỏi?"`
   vào `<form>` hoặc `<a>` (kèm `data-confirm-ok="Xoá"` cho rõ hành động); cần chờ kết quả trong JS thì
   `await window.confirmDialog('...')`. Nút màu đỏ thì hộp thoại tự đỏ theo. `ConfirmDialogTest` quét

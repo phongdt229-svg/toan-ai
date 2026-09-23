@@ -37,9 +37,28 @@
                         <i class="bi bi-lock me-1"></i>Khoá tài khoản
                     </button>
                 @endif
+                <button class="btn btn-outline-secondary ms-1" data-bs-toggle="collapse" data-bs-target="#email-form">
+                    <i class="bi bi-envelope-at me-1"></i>Đổi email
+                </button>
                 @if ($user->isTeacher() && $user->isPending())
                     <a href="{{ route('admin.teachers.pending') }}" class="btn btn-warning ms-1">Duyệt hồ sơ</a>
                 @endif
+            </div>
+        </div>
+
+        <div class="collapse" id="email-form">
+            <form method="POST" action="{{ route('admin.users.email', $user) }}"
+                  class="card-body border-top d-flex flex-column flex-sm-row gap-2"
+                  data-confirm="Đổi email đăng nhập của {{ $user->name }}?" data-confirm-ok="Đổi email">
+                @csrf
+                <input name="email" type="email" class="form-control" maxlength="191" required
+                       placeholder="Email mới" value="{{ old('email') }}">
+                <button class="btn btn-primary flex-shrink-0">Xác nhận đổi</button>
+            </form>
+            <div class="px-3 pb-3 small text-secondary">
+                Chỉ dùng khi người dùng không vào được hộp thư cũ nên không tự đổi được.
+                Địa chỉ mới sẽ ở trạng thái <strong>chưa xác thực</strong> và nhận thư xác thực ngay —
+                thao tác này ghi vào audit log.
             </div>
         </div>
 

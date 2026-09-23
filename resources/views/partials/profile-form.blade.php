@@ -14,12 +14,6 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label" for="email">Email</label>
-                <input type="email" class="form-control" id="email" value="{{ $user->email }}" disabled>
-                <div class="form-text">Không đổi được email tài khoản.</div>
-            </div>
-
-            <div class="mb-3">
                 <label class="form-label" for="phone">Số điện thoại</label>
                 <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone"
                        value="{{ old('phone', $user->phone) }}" placeholder="0912345678">

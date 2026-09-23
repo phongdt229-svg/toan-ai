@@ -7,6 +7,7 @@
     <h2 class="h5 fw-bold mb-3">Cài đặt tài khoản</h2>
 
     @include('partials.profile-form', ['profileRoute' => route('admin.settings.profile')])
+    @include('partials.email-form')
     @include('partials.notification-preferences-form')
     @include('partials.password-form', ['passwordRoute' => route('admin.settings.password')])
 @endsection
