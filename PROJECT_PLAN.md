@@ -460,8 +460,8 @@ interface AiProviderInterface {
 **DoD:** ✅ học sinh mở được lesson thật, đọc lý thuyết có công thức, tiến độ lưu vào DB;
 giáo viên soạn + xuất bản được bài; admin dựng được cây chương trình.
 
-> **Nợ kỹ thuật ghi nhận:** chưa có màn hình chuyển bài học sang chủ đề khác,
-> chưa có import CSV nội dung, chưa có quên mật khẩu (cần cấu hình mail).
+> **Nợ kỹ thuật ghi nhận (đã trả xong):** chuyển bài học sang chủ đề khác — sửa được ngay trong form
+> soạn bài (ô "Chủ đề"); import CSV nội dung — `QuestionImporter` ở Phase 3; quên mật khẩu — Phase 1 bổ sung.
 
 ### ✅ Phase 3 — Question Bank & Luyện tập
 - [x] Migration nhóm 3 (17–21) + bảng bổ sung `question_attempts` (21b)
@@ -797,12 +797,48 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       trên mỗi push/PR vào `main`. Chưa bật job Pint — code cũ còn 66 file lệch chuẩn, dọn riêng một lượt.
 - [x] Hướng dẫn: thêm bài "Xoá tài khoản", bổ sung bước xác thực email vào bài "Tài khoản, mật khẩu và bảo mật".
 
-### Còn nợ
-- [ ] **Nội dung**: mới có 1/12 lớp có dữ liệu thật (4 bài học, 49 câu hỏi, 1 đề). Công cụ đã đủ, thiếu người nhập.
-- [ ] **Trang chủ quảng cáo tính năng chưa có**: chip "7 ngày liên tiếp" và "+10 điểm" trong hero —
-      hệ thống **không có** streak/điểm thưởng. Phải làm gamification hoặc bỏ 2 chip này.
-- [ ] **Avatar**: cột `users.avatar` chưa gắn upload/Storage.
-- [ ] `vendor/bin/pint` một lượt cho toàn repo rồi bật job lint trong CI.
+### Còn nợ — rà lại 23/09/2026
+
+Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
+là **toàn bộ** việc còn lại đã biết.
+
+#### A. Chặn đường bán hàng
+
+- [ ] **Nội dung thật** — mới 1/12 lớp có dữ liệu (4 bài học, 49 câu hỏi, 1 đề tính tới 21/09).
+      Công cụ đã đủ cả: soạn bài, `QuestionImporter` nhập CSV, AI soạn nháp, ra đề. Thiếu **người nhập**,
+      không phải thiếu code. Đây là thứ duy nhất chặn giữa "chạy được" và "bán được".
+- [ ] **Nhắc gói sắp hết hạn** *(~nửa buổi)* — mất doanh thu gia hạn.
+      Admin thấy ô "Hết hạn trong 7 ngày" (`Admin\SubscriptionController`), phụ huynh thấy "còn N ngày"
+      (`parent/dashboard.blade.php`), nhưng **không có email hay thông báo nào gửi đi**: gói cứ thế hết hạn.
+      Làm: thêm Notification + nhánh "còn 7/3/1 ngày" vào lệnh `subscriptions:expire` (đã chạy 00:05).
+
+#### B. Cam kết đã hứa nhưng chưa có công cụ
+
+- [ ] **Trang chủ quảng cáo tính năng không có** — `public/partials/hero.blade.php` có chip
+      "+10 điểm" và "7 ngày liên tiếp", trong khi code **không có** streak hay điểm thưởng nào.
+      Hai đường: bỏ 2 chip *(~1 giờ)*, hoặc làm gamification thật *(~2 buổi)*. **Chưa có quyết định.**
+- [ ] **Tự tải bản sao dữ liệu** *(~1 buổi)* — Chính sách bảo mật §7 hứa "yêu cầu bản sao dữ liệu học tập",
+      hiện chỉ xử lý tay qua email. Đúng y tình trạng của "xoá tài khoản" trước khi làm ở đợt 21/09.
+      Làm theo cùng khuôn: service xuất JSON/CSV + nút trong trang Cài đặt.
+
+#### C. Tính năng spec có mà code chưa có
+
+- [ ] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
+      Giáo viên đang phải nhờ AI sinh câu rồi tự bốc vào đề. Xem ghi chú cuối Phase 7A.
+- [ ] **Nhắc bài giao sắp đến hạn** *(~nửa buổi)* — hiện chỉ báo khi *đã có* kết quả
+      (`SendActivityNotifications`), không nhắc trước deadline dù `AssignmentStudent` đủ dữ liệu.
+- [ ] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
+
+#### D. Nợ kỹ thuật
+
+- [ ] `vendor/bin/pint` một lượt cho toàn repo rồi bật job lint trong CI
+      (66 file lệch chuẩn từ trước — bật ngay là CI đỏ không liên quan tới thay đổi đang đẩy).
+
+#### Cố tình không làm — vẫn giữ nguyên quyết định
+
+Hoàn tiền tự động (admin huỷ đăng ký, hoàn tiền thao tác trên cổng MoMo) · middleware
+`subscription:pro|premium` theo route (khoá ở mức nội dung đúng hơn) · spec §37 bị cắt nội dung nguồn
+nên đang chạy bản mặc định ghi ở Phase 7B.
 
 ---
 
@@ -852,3 +888,7 @@ Phase 1 → 2 → 3 → 4 là **trục xương sống**, phải xong và chắc 
 Phase 8 (subscription) nên làm **trước** Phase 9 (MoMo) — cấp quyền phải đúng trước khi thu tiền.
 Phase 7A (AI Tutor) có thể chạy song song với 5–6 nếu có người thứ hai, vì phụ thuộc ít.
 Phase 7B (placement test + giáo trình) **phải sau 3 và 7A** — cần ngân hàng câu hỏi để sinh đề và cần provider AI để chấm.
+
+**Giờ làm gì tiếp:** toàn bộ 10 phase đã xong, nên việc còn lại nằm ở mục
+[Còn nợ](#còn-nợ--rà-lại-23092026) cuối §10 — xếp sẵn theo thứ tự nên làm. Nhóm A (nội dung + nhắc gia hạn)
+là thứ đang chặn doanh thu; nhóm B là cam kết đã hứa với người dùng mà chưa có công cụ thực thi.
