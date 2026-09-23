@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Student\SubmitPlacementRequest;
 use App\Models\PlacementTest;
 use App\Services\Learning\PlacementException;
 use App\Services\Learning\PlacementTestService;
@@ -64,15 +65,9 @@ class PlacementController extends Controller
         ]);
     }
 
-    public function submit(Request $request, PlacementTest $test): RedirectResponse
+    public function submit(SubmitPlacementRequest $request, PlacementTest $test): RedirectResponse
     {
-        $this->ensureOwner($request, $test);
-
-        $data = $request->validate([
-            'answers' => ['nullable', 'array', 'max:20'],
-            'time_spent' => ['nullable', 'array', 'max:20'],
-            'time_spent.*' => ['nullable', 'integer', 'min:0', 'max:1800'],
-        ]);
+        $data = $request->validated();
 
         $this->placements->submit($test, $data['answers'] ?? [], $data['time_spent'] ?? []);
 

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\AddAssistantRequest;
+use App\Http\Requests\Teacher\AddStudentToClassRequest;
 use App\Http\Requests\Teacher\ClassRequest;
 use App\Models\Grade;
 use App\Models\SchoolClass;
@@ -110,12 +112,9 @@ class ClassController extends Controller
         return back()->with('status', "Mã lớp mới: {$code}. Mã cũ không còn dùng được.");
     }
 
-    public function addStudent(Request $request, SchoolClass $class): RedirectResponse
+    public function addStudent(AddStudentToClassRequest $request, SchoolClass $class): RedirectResponse
     {
-        $this->authorize('manageStudents', $class);
-
-        $data = $request->validate(['email' => ['required', 'email']], [], ['email' => 'email học sinh']);
-        $student = $this->classes->addStudentByEmail($class, $data['email']);
+        $student = $this->classes->addStudentByEmail($class, $request->validated('email'));
 
         return back()->with('status', "Đã thêm {$student->name} vào lớp.");
     }
@@ -130,12 +129,9 @@ class ClassController extends Controller
         return back()->with('status', "Đã xoá {$student->name} khỏi lớp. Điểm và bài làm cũ vẫn được giữ.");
     }
 
-    public function addAssistant(Request $request, SchoolClass $class): RedirectResponse
+    public function addAssistant(AddAssistantRequest $request, SchoolClass $class): RedirectResponse
     {
-        $this->authorize('update', $class);
-
-        $data = $request->validate(['email' => ['required', 'email']], [], ['email' => 'email giáo viên']);
-        $teacher = $this->classes->addAssistant($class, $data['email']);
+        $teacher = $this->classes->addAssistant($class, $request->validated('email'));
 
         return back()->with('status', "Đã thêm giáo viên {$teacher->name} vào lớp.");
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\AiChatRequest;
 use App\Http\Requests\Api\AiQuestionRequest;
 use App\Models\AiConversation;
 use App\Models\AssignmentStudent;
@@ -19,7 +20,6 @@ use App\Support\AiText;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 /**
  * §10 — /api/v1/ai/*. Xác thực bằng session (cùng domain), nên dùng được từ widget trên trang.
@@ -31,14 +31,9 @@ class AiController extends Controller
         private readonly AiUsageGuard $usage,
     ) {}
 
-    public function chat(Request $request): JsonResponse
+    public function chat(AiChatRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'message' => ['required', 'string', 'max:2000'],
-            'conversation_id' => ['nullable', 'integer'],
-            'context_type' => ['nullable', Rule::in(['lesson', 'free'])],
-            'context_id' => ['nullable', 'integer'],
-        ], [], ['message' => 'câu hỏi']);
+        $data = $request->validated();
 
         return $this->respond($request, fn () => $this->tutor->chat(
             $request->user(),

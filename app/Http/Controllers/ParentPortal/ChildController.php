@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ParentPortal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ParentPortal\LinkChildRequest;
 use App\Models\User;
 use App\Services\AccessControlService;
 use App\Services\Learning\StudentReportService;
@@ -24,15 +25,9 @@ class ChildController extends Controller
         return view('parent.children.link');
     }
 
-    public function link(Request $request): RedirectResponse
+    public function link(LinkChildRequest $request): RedirectResponse
     {
-        abort_unless($request->user()->hasPermission('child.link'), 403);
-
-        $data = $request->validate(
-            ['link_code' => ['required', 'string', 'max:16']],
-            [],
-            ['link_code' => 'mã liên kết'],
-        );
+        $data = $request->validated();
 
         $child = $this->links->linkByCode($request->user(), $data['link_code']);
 

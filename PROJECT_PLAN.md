@@ -1068,16 +1068,18 @@ nên đang chạy bản mặc định ghi ở Phase 7B.
 
 ## 11. Checklist bảo mật (§29) — kiểm trước mỗi lần release
 
-- [ ] CSRF bật cho toàn bộ route web; **loại trừ đúng 1 route** `payment/momo/ipn`
-- [ ] Blade dùng `{{ }}`; chỗ nào `{!! !!}` (nội dung lesson) phải qua HTML Purifier
-- [ ] Không `DB::raw` với input người dùng
-- [ ] Mọi action ghi đều có Form Request
-- [ ] Mọi truy cập bản ghi đều qua Policy — kiểm bằng test "user A đọc dữ liệu user B → 403"
-- [ ] Throttle: login 5/phút, AI theo quota gói, IPN 60/phút/IP
-- [ ] `bcrypt`/`argon2id`, không log password
-- [ ] `.env` không commit; `OPENAI_API_KEY`, `MOMO_SECRET_KEY` chỉ ở server
-- [ ] `APP_DEBUG=false` production
-- [ ] Audit log cho: duyệt GV, đổi quyền, đổi giá gói, mọi thay đổi payment
+Rà lại ngày **24/09/2026** (sau đợt 2FA/đăng nhập hộ/hoàn tiền/ảnh đại diện). Mỗi mục ghi bằng chứng để lần sau kiểm lại được.
+
+- [x] CSRF bật cho toàn bộ route web; **loại trừ đúng 1 route** `payment/momo/ipn` — `bootstrap/app.php` `validateCsrfTokens(except: ['api/v1/payment/momo/ipn'])`; `grep VerifyCsrf routes app` không có ngoại lệ nào khác.
+- [x] Blade dùng `{{ }}`; chỗ nào `{!! !!}` phải qua HTML Purifier — 36 chỗ `{!! !!}`, mỗi chỗ thuộc một trong: nội dung `Question/QuestionOption/Exam/Assignment/LessonSection` (mutator `HtmlSanitizer` lúc lưu), bản chụp `PlacementTestQuestion` (sanitize khi chụp), `AiText::toHtml` (escape), SVG QR do server sinh (`qrSvg`, `twoFactorQr`).
+- [x] Không `DB::raw` với input người dùng — `grep DB::raw|whereRaw|selectRaw|orderByRaw|groupByRaw` toàn chuỗi tĩnh hoặc binding `?`; chỗ nối chuỗi duy nhất ép `(int)` (`ClassReportService`).
+- [x] Mọi action ghi đều có Form Request — **24/09: chuyển nốt 27 chỗ `$request->validate()` inline sang Form Request**, `grep "validate(" app/Http/Controllers` chỉ còn `validated()`. Policy/Gate đặt trong `authorize()` của request để 403 đến trước 422.
+- [x] Mọi truy cập bản ghi đều qua Policy — 6 policy (`Assignment/ExamAttempt/Exam/Lesson/Question/SchoolClass`), 67 assertion `assertForbidden` ở 29 file test ("user A đọc dữ liệu user B → 403").
+- [x] Throttle: login 5/phút (`LoginRequest`, theo email+IP), bước 2FA 5 lần/phút, AI 10/phút + quota ngày (`AiUsageGuard`), IPN 60/phút (`routes/api.php`), hoàn tiền/tải dữ liệu/ảnh đại diện có throttle riêng.
+- [x] `bcrypt`, không log password — `BCRYPT_ROUNDS=12`, cast `hashed` trên `User.password`; không có `Log::` nào ghi request/password. Secret 2FA mã hoá (`encrypt`), mã dự phòng băm.
+- [x] `.env` không commit; `OPENAI_API_KEY`, `MOMO_SECRET_KEY` chỉ ở server — `git ls-files` chỉ có `.env.example` (các khoá để trống); `git grep` không thấy khoá thật; file GA service account để ngoài repo.
+- [x] `APP_DEBUG=false` production — nằm trong `docs/DEPLOY.md`; **24/09 thêm lưới an toàn** ở `AppServiceProvider`: production mà `APP_DEBUG=true` thì tự ép tắt + `Log::critical` (`DebugGuardTest`).
+- [x] Audit log cho: duyệt GV, đổi quyền, đổi giá gói, mọi thay đổi payment — xem `AuditLog::ACTION_LABELS`; đợt 24/09 thêm 2FA bật/tắt/mã dự phòng, đăng nhập hộ vào/ra, hoàn tiền, tải dữ liệu cá nhân.
 
 ---
 

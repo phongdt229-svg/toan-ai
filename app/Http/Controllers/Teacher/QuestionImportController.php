@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\ImportQuestionsRequest;
 use App\Models\Grade;
 use App\Models\Question;
 use App\Models\Topic;
@@ -40,15 +41,9 @@ class QuestionImportController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(ImportQuestionsRequest $request): RedirectResponse
     {
-        $this->authorize('create', Question::class);
-
-        $validated = $request->validate([
-            'grade_id' => ['required', 'integer', 'exists:grades,id'],
-            'file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
-            'status' => ['required', 'in:draft,published'],
-        ], [], ['file' => 'tệp CSV', 'grade_id' => 'lớp']);
+        $validated = $request->validated();
 
         $grade = Grade::findOrFail($validated['grade_id']);
 

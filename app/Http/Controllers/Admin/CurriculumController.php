@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CurriculumNodeRequest;
 use App\Models\Chapter;
 use App\Models\Grade;
 use App\Models\Subject;
@@ -36,9 +37,9 @@ class CurriculumController extends Controller
         ]);
     }
 
-    public function storeSubject(Request $request, Grade $grade): RedirectResponse
+    public function storeSubject(CurriculumNodeRequest $request, Grade $grade): RedirectResponse
     {
-        $data = $this->validateNode($request);
+        $data = $request->validated();
 
         Subject::create([
             'grade_id' => $grade->id,
@@ -50,9 +51,9 @@ class CurriculumController extends Controller
         return back()->with('status', "Đã thêm môn học vào {$grade->name}.");
     }
 
-    public function storeChapter(Request $request, Subject $subject): RedirectResponse
+    public function storeChapter(CurriculumNodeRequest $request, Subject $subject): RedirectResponse
     {
-        $data = $this->validateNode($request);
+        $data = $request->validated();
 
         Chapter::create([
             'subject_id' => $subject->id,
@@ -64,9 +65,9 @@ class CurriculumController extends Controller
         return back()->with('status', 'Đã thêm chương.');
     }
 
-    public function storeTopic(Request $request, Chapter $chapter): RedirectResponse
+    public function storeTopic(CurriculumNodeRequest $request, Chapter $chapter): RedirectResponse
     {
-        $data = $this->validateNode($request);
+        $data = $request->validated();
 
         Topic::create([
             'chapter_id' => $chapter->id,
@@ -88,15 +89,6 @@ class CurriculumController extends Controller
         $topic->delete();
 
         return back()->with('status', 'Đã xoá chủ đề.');
-    }
-
-    /** @return array{name: string, sort_order: ?int} */
-    private function validateNode(Request $request): array
-    {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:191'],
-            'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
-        ], [], ['name' => 'tên', 'sort_order' => 'thứ tự']);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Student\SubmitQuizRequest;
 use App\Models\StudySession;
 use App\Services\Learning\LearningPathService;
 use App\Services\Learning\PlacementException;
@@ -51,11 +52,9 @@ class LearningPathController extends Controller
         return view('student.path.quiz', ['session' => $session, 'questions' => $questions]);
     }
 
-    public function submitQuiz(Request $request, StudySession $session): RedirectResponse
+    public function submitQuiz(SubmitQuizRequest $request, StudySession $session): RedirectResponse
     {
-        $this->ensureOwner($request, $session);
-
-        $data = $request->validate(['answers' => ['nullable', 'array', 'max:20']]);
+        $data = $request->validated();
 
         try {
             $result = $this->paths->submitQuiz($session, $data['answers'] ?? []);

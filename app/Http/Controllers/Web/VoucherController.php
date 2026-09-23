@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\ApplyVoucherRequest;
 use App\Models\Package;
 use App\Services\Payment\VoucherException;
 use App\Services\Payment\VoucherService;
@@ -22,13 +23,9 @@ class VoucherController extends Controller
 
     public function __construct(private readonly VoucherService $vouchers) {}
 
-    public function apply(Request $request, Package $package): RedirectResponse
+    public function apply(ApplyVoucherRequest $request, Package $package): RedirectResponse
     {
-        $data = $request->validate(
-            ['code' => ['required', 'string', 'max:32']],
-            [],
-            ['code' => 'mã giảm giá'],
-        );
+        $data = $request->validated();
 
         try {
             $quote = $this->vouchers->quote($data['code'], $package, $request->user());

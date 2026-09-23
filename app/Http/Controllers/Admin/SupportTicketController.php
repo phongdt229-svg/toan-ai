@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateSupportTicketRequest;
 use App\Models\SupportTicket;
 use App\Services\SupportTicketService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SupportTicketController extends Controller
@@ -83,12 +83,9 @@ class SupportTicketController extends Controller
         return view('admin.support.show', ['ticket' => $ticket->load('user', 'handler')]);
     }
 
-    public function update(Request $request, SupportTicket $ticket): RedirectResponse
+    public function update(UpdateSupportTicketRequest $request, SupportTicket $ticket): RedirectResponse
     {
-        $data = $request->validate([
-            'status' => ['required', Rule::in(array_keys(SupportTicket::STATUS_LABELS))],
-            'admin_note' => ['nullable', 'string', 'max:2000'],
-        ], [], ['status' => 'trạng thái', 'admin_note' => 'ghi chú']);
+        $data = $request->validated();
 
         $this->tickets->update($ticket, $request->user(), $data['status'], $data['admin_note'] ?? null);
 

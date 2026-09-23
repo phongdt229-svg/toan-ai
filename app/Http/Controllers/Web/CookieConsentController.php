@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\CookieChoiceRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
 /**
@@ -33,11 +33,9 @@ class CookieConsentController extends Controller
     /** Hỏi lại sau 180 ngày. */
     private const MINUTES = 60 * 24 * 180;
 
-    public function store(Request $request): RedirectResponse
+    public function store(CookieChoiceRequest $request): RedirectResponse
     {
-        $data = $request->validate([
-            'choice' => ['required', 'in:'.self::ACCEPTED.','.self::REJECTED.','.self::SEEN],
-        ]);
+        $data = $request->validated();
 
         if ($data['choice'] === self::SEEN) {
             Cookie::queue(Cookie::make(self::NOTICE_COOKIE, '1', self::MINUTES));

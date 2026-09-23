@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\GenerateLessonRequest;
+use App\Http\Requests\Teacher\GenerateQuestionsRequest;
+use App\Http\Requests\Teacher\RewriteContentRequest;
 use App\Models\AiGenerationDraft;
 use App\Models\Exam;
 use App\Models\Grade;
 use App\Models\Lesson;
 use App\Models\LessonSection;
-use App\Models\Question;
 use App\Models\Topic;
 use App\Services\AI\AiProviderException;
 use App\Services\AI\AiQuotaExceededException;
@@ -18,7 +20,6 @@ use App\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -45,21 +46,9 @@ class AiContentController extends Controller
         ]);
     }
 
-    public function storeQuestions(Request $request): RedirectResponse
+    public function storeQuestions(GenerateQuestionsRequest $request): RedirectResponse
     {
-        $this->ensureCanGenerate($request);
-
-        $data = $request->validate([
-            'grade_id' => ['required', 'integer', 'exists:grades,id'],
-            'topic_id' => ['required', 'integer', 'exists:topics,id'],
-            'count' => ['required', 'integer', 'min:1', 'max:20'],
-            'easy' => ['required', 'integer', 'min:0', 'max:100'],
-            'medium' => ['required', 'integer', 'min:0', 'max:100'],
-            'hard' => ['required', 'integer', 'min:0', 'max:100'],
-            'types' => ['required', 'array', 'min:1'],
-            'types.*' => [Rule::in(ContentGeneratorService::allowedTypes())],
-            'notes' => ['nullable', 'string', 'max:500'],
-        ], [], ['topic_id' => 'chủ đề', 'count' => 'số câu', 'types' => 'loại câu hỏi']);
+        $data = $request->validated();
 
         if ($data['easy'] + $data['medium'] + $data['hard'] !== 100) {
             return back()->withInput()->with('error', 'Tổng tỉ lệ Dễ + Trung bình + Khó phải bằng 100%.');
@@ -70,17 +59,9 @@ class AiContentController extends Controller
         return $this->queue(fn () => $this->generator->queueQuestions($request->user(), $data));
     }
 
-    public function storeLesson(Request $request): RedirectResponse
+    public function storeLesson(GenerateLessonRequest $request): RedirectResponse
     {
-        $this->ensureCanGenerate($request);
-
-        $data = $request->validate([
-            'grade_id' => ['required', 'integer', 'exists:grades,id'],
-            'topic_id' => ['required', 'integer', 'exists:topics,id'],
-            'title' => ['required', 'string', 'max:191'],
-            'difficulty' => ['required', Rule::in(array_keys(Question::DIFFICULTIES))],
-            'notes' => ['nullable', 'string', 'max:500'],
-        ], [], ['topic_id' => 'chủ đề', 'title' => 'tên bài học']);
+        $data = $request->validated();
 
         $this->ensureTopicInGrade($data);
 
@@ -184,14 +165,9 @@ class AiContentController extends Controller
     }
 
     /** Viết lại / tóm tắt một đoạn trong trình soạn bài học. */
-    public function rewrite(Request $request): JsonResponse
+    public function rewrite(RewriteContentRequest $request): JsonResponse
     {
-        $this->ensureCanGenerate($request);
-
-        $data = $request->validate([
-            'content' => ['required', 'string', 'max:10000'],
-            'mode' => ['required', Rule::in(['simplify', 'summarize'])],
-        ]);
+        $data = $request->validated();
 
         try {
             $html = $this->generator->rewrite($request->user(), $data['content'], $data['mode']);

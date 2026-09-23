@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\GrantSubscriptionRequest;
+use App\Http\Requests\Admin\ReasonRequest;
 use App\Models\Package;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -53,13 +54,9 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    public function grant(Request $request): RedirectResponse
+    public function grant(GrantSubscriptionRequest $request): RedirectResponse
     {
-        $data = $request->validate([
-            'email' => ['required', 'email'],
-            'package_id' => ['required', Rule::exists('packages', 'id')],
-            'days' => ['required', 'integer', 'min:1', 'max:3650'],
-        ], [], ['email' => 'email học sinh', 'package_id' => 'gói', 'days' => 'số ngày']);
+        $data = $request->validated();
 
         $student = User::where('email', $data['email'])->first();
 
@@ -76,9 +73,9 @@ class SubscriptionController extends Controller
         return back()->with('status', "Đã cấp {$sub->package->name} cho {$student->name} đến {$sub->ends_at->format('d/m/Y')}.");
     }
 
-    public function cancel(Request $request, Subscription $subscription): RedirectResponse
+    public function cancel(ReasonRequest $request, Subscription $subscription): RedirectResponse
     {
-        $data = $request->validate(['reason' => ['required', 'string', 'max:191']], [], ['reason' => 'lý do']);
+        $data = $request->validated();
 
         if (in_array($subscription->status, [Subscription::STATUS_CANCELLED, Subscription::STATUS_EXPIRED], true)) {
             return back()->with('error', 'Đăng ký này đã kết thúc.');

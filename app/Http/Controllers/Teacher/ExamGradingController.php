@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\GradeAnswerRequest;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\StudentAnswer;
@@ -52,15 +53,9 @@ class ExamGradingController extends Controller
         ]);
     }
 
-    public function grade(Request $request, StudentAnswer $answer): RedirectResponse
+    public function grade(GradeAnswerRequest $request, StudentAnswer $answer): RedirectResponse
     {
-        $answer->load('attempt.exam');
-        $this->authorize('grade', $answer->attempt->exam);
-
-        $data = $request->validate([
-            'score' => ['required', 'numeric', 'min:0'],
-            'feedback' => ['nullable', 'string', 'max:2000'],
-        ], [], ['score' => 'điểm', 'feedback' => 'nhận xét']);
+        $data = $request->validated();
 
         try {
             $this->grading->grade($answer, (float) $data['score'], $data['feedback'] ?? null, $request->user());

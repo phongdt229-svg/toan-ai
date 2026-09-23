@@ -23,6 +23,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
@@ -69,6 +70,13 @@ class AppServiceProvider extends ServiceProvider
         Model::shouldBeStrict($this->app->isLocal());
 
         Paginator::useBootstrapFive();
+
+        // Lưới an toàn (§11): APP_DEBUG=true ở production làm trang lỗi lộ đường dẫn, biến môi trường và câu SQL.
+        // Quên đổi .env sau khi copy từ máy dev là lỗi rất dễ gặp — ép tắt và báo động thay vì để lộ.
+        if ($this->app->isProduction() && config('app.debug')) {
+            config(['app.debug' => false]);
+            Log::critical('APP_DEBUG=true ở production — đã tự ép tắt. Sửa .env rồi chạy php artisan config:cache.');
+        }
 
         // Mỗi lượt AI tốn tiền thật — chặn bấm liên tục. Quota theo ngày kiểm riêng ở AiUsageGuard.
         RateLimiter::for('ai', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip())

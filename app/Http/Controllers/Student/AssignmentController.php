@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Student\SubmitAssignmentRequest;
 use App\Models\Assignment;
 use App\Models\AssignmentStudent;
 use App\Models\AssignmentSubmission;
@@ -55,16 +56,11 @@ class AssignmentController extends Controller
         ]);
     }
 
-    public function submit(Request $request, Assignment $assignment): RedirectResponse
+    public function submit(SubmitAssignmentRequest $request, Assignment $assignment): RedirectResponse
     {
-        $this->authorize('work', $assignment);
         abort_unless($assignment->type === Assignment::TYPE_QUESTION_SET, 404);
 
-        $data = $request->validate([
-            'answers' => ['nullable', 'array', 'max:100'],
-            'time_spent' => ['nullable', 'array'],
-            'time_spent.*' => ['nullable', 'integer', 'min:0', 'max:1800'],
-        ]);
+        $data = $request->validated();
 
         try {
             $submission = $this->submissions->submit(

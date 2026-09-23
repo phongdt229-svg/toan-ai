@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ReasonRequest;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\TeacherAccountApproved;
@@ -49,14 +50,12 @@ class TeacherApprovalController extends Controller
         return back()->with('status', "Đã duyệt giáo viên {$user->name}.");
     }
 
-    public function reject(Request $request, User $user): RedirectResponse
+    public function reject(ReasonRequest $request, User $user): RedirectResponse
     {
         abort_unless($user->isTeacher() && $user->isPending(), 404);
         $user->load('teacherProfile');
 
-        $validated = $request->validate([
-            'reason' => ['required', 'string', 'max:191'],
-        ], [], ['reason' => 'lý do']);
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated, $user) {
             $user->update(['status' => User::STATUS_REJECTED]);

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ChangeUserEmailRequest;
+use App\Http\Requests\Admin\ReasonRequest;
 use App\Models\AuditLog;
 use App\Models\Payment;
 use App\Models\Role;
@@ -152,13 +154,9 @@ class UserController extends Controller
      * nên không tự đổi qua luồng hai bước được. Ghi audit log vì đây là thao tác đổi được
      * đường đăng nhập của người khác.
      */
-    public function changeEmail(Request $request, User $user, EmailChangeService $emails): RedirectResponse
+    public function changeEmail(ChangeUserEmailRequest $request, User $user, EmailChangeService $emails): RedirectResponse
     {
-        $data = $request->validate(
-            ['email' => ['required', 'string', 'email', 'max:191']],
-            [],
-            ['email' => 'email mới'],
-        );
+        $data = $request->validated();
 
         try {
             $emails->changeByAdmin($user, $data['email'], $request->user());
@@ -169,9 +167,9 @@ class UserController extends Controller
         return back()->with('status', "Đã đổi email của {$user->name} thành {$user->email}. Đã gửi thư xác thực tới địa chỉ mới.");
     }
 
-    public function suspend(Request $request, User $user): RedirectResponse
+    public function suspend(ReasonRequest $request, User $user): RedirectResponse
     {
-        $data = $request->validate(['reason' => ['required', 'string', 'max:191']], [], ['reason' => 'lý do']);
+        $data = $request->validated();
 
         try {
             $this->users->suspend($request->user(), $user, $data['reason']);

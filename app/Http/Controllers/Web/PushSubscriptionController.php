@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\PushSubscriptionRequest;
 use App\Models\PushSubscription;
-use App\Notifications\Channels\WebPushChannel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -12,15 +12,9 @@ use Illuminate\Support\Str;
 /** Trình duyệt bật/tắt nhận thông báo đẩy. Gọi bằng fetch từ trang Cài đặt → Thông báo. */
 class PushSubscriptionController extends Controller
 {
-    public function store(Request $request): JsonResponse
+    public function store(PushSubscriptionRequest $request): JsonResponse
     {
-        abort_unless(WebPushChannel::configured(), 404);
-
-        $data = $request->validate([
-            'endpoint' => ['required', 'url', 'max:500'],
-            'keys.p256dh' => ['required', 'string', 'max:191'],
-            'keys.auth' => ['required', 'string', 'max:191'],
-        ]);
+        $data = $request->validated();
 
         // Cùng một trình duyệt đăng ký lại thì ghi đè, không đẻ thêm dòng.
         PushSubscription::updateOrCreate(

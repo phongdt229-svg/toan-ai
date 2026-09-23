@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\AddExamQuestionsRequest;
+use App\Http\Requests\Teacher\AddRandomExamQuestionsRequest;
 use App\Http\Requests\Teacher\ExamRequest;
+use App\Http\Requests\Teacher\UpdateExamQuestionRequest;
 use App\Models\Exam;
 use App\Models\Grade;
 use App\Models\Question;
@@ -125,14 +128,9 @@ class ExamController extends Controller
 
     // --- Câu hỏi trong đề -------------------------------------------------------
 
-    public function addQuestions(Request $request, Exam $exam): RedirectResponse
+    public function addQuestions(AddExamQuestionsRequest $request, Exam $exam): RedirectResponse
     {
-        $this->authorize('update', $exam);
-
-        $data = $request->validate([
-            'question_ids' => ['required', 'array', 'min:1', 'max:100'],
-            'question_ids.*' => ['integer'],
-        ], [], ['question_ids' => 'câu hỏi']);
+        $data = $request->validated();
 
         try {
             $added = $this->builder->addQuestions($exam, $data['question_ids'], $request->user());
@@ -143,18 +141,9 @@ class ExamController extends Controller
         return back()->with('status', "Đã thêm {$added} câu hỏi vào đề.");
     }
 
-    public function addRandom(Request $request, Exam $exam): RedirectResponse
+    public function addRandom(AddRandomExamQuestionsRequest $request, Exam $exam): RedirectResponse
     {
-        $this->authorize('update', $exam);
-
-        $data = $request->validate([
-            'count' => ['required', 'integer', 'min:1', 'max:100'],
-            'topic_ids' => ['nullable', 'array'],
-            'topic_ids.*' => ['integer', 'exists:topics,id'],
-            'easy' => ['required', 'integer', 'min:0', 'max:100'],
-            'medium' => ['required', 'integer', 'min:0', 'max:100'],
-            'hard' => ['required', 'integer', 'min:0', 'max:100'],
-        ], [], ['count' => 'số câu']);
+        $data = $request->validated();
 
         if ($data['easy'] + $data['medium'] + $data['hard'] !== 100) {
             return back()->withInput()->with('error', 'Tổng tỉ lệ Dễ + Trung bình + Khó phải bằng 100%.');
@@ -179,14 +168,9 @@ class ExamController extends Controller
         return back()->with('status', $message);
     }
 
-    public function updateQuestion(Request $request, Exam $exam, Question $question): RedirectResponse
+    public function updateQuestion(UpdateExamQuestionRequest $request, Exam $exam, Question $question): RedirectResponse
     {
-        $this->authorize('update', $exam);
-
-        $data = $request->validate([
-            'points' => ['required', 'numeric', 'min:0.25', 'max:100'],
-            'sort_order' => ['required', 'integer', 'min:0', 'max:999'],
-        ]);
+        $data = $request->validated();
 
         try {
             $this->builder->updateQuestion($exam, $question, (float) $data['points'], (int) $data['sort_order']);
