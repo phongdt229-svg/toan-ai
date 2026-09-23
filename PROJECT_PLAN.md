@@ -866,7 +866,16 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       trên mỗi push/PR vào `main`. Chưa bật job Pint — code cũ còn 66 file lệch chuẩn, dọn riêng một lượt.
 - [x] Hướng dẫn: thêm bài "Xoá tài khoản", bổ sung bước xác thực email vào bài "Tài khoản, mật khẩu và bảo mật".
 
-### Còn nợ — rà lại 23/09/2026
+### ✅ Bổ sung sau roadmap (23/09)
+- [x] **Mã giảm giá** (§8b) — percent/fixed, trần giảm, đơn tối thiểu, thời gian, tổng lượt, lượt mỗi người,
+      giới hạn theo gói. Giữ chỗ lúc tạo đơn → trả lại khi đơn hỏng; mã 100% không đi qua cổng.
+      Quản trị có CRUD + audit log. 18 test.
+- [x] **Google Analytics 4 + Google Tag Manager + xác minh Search Console** — khai ở `config/site.php`,
+      trống ở local/test để không làm bẩn số liệu. Kéo theo việc sửa Chính sách bảo mật §3 và §8
+      (trước đó đang khẳng định "không theo dõi bạn sang website khác" — câu đó thành sai khi bật GA).
+- [x] **Link mạng xã hội ở footer** — Facebook, YouTube, TikTok, X, Google; chưa khai URL thì ẩn.
+
+### Còn nợ — rà lại 23/09/2026 (cập nhật sau đợt voucher + analytics)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
 là **toàn bộ** việc còn lại đã biết.
@@ -886,6 +895,11 @@ là **toàn bộ** việc còn lại đã biết.
 - [ ] **Trang chủ quảng cáo tính năng không có** — `public/partials/hero.blade.php` có chip
       "+10 điểm" và "7 ngày liên tiếp", trong khi code **không có** streak hay điểm thưởng nào.
       Hai đường: bỏ 2 chip *(~1 giờ)*, hoặc làm gamification thật *(~2 buổi)*. **Chưa có quyết định.**
+- [ ] **Bảng hỏi đồng ý cookie** *(~nửa buổi)* — **phát sinh từ đợt bật GA/GTM ngày 23/09.**
+      Nghị định 13/2023/NĐ-CP yêu cầu có sự đồng ý trước khi xử lý dữ liệu cá nhân; hiện GA chạy ngay
+      từ lượt truy cập đầu, người dùng chỉ được *thông báo* trong Chính sách bảo mật chứ không được *chọn*.
+      Cần dải hỏi đồng ý: từ chối thì không nạp gtag/GTM (nhóm cookie bắt buộc vẫn chạy).
+      Phần lớn người dùng là trẻ em nên chỗ này không nên để nợ lâu.
 - [ ] **Tự tải bản sao dữ liệu** *(~1 buổi)* — Chính sách bảo mật §7 hứa "yêu cầu bản sao dữ liệu học tập",
       hiện chỉ xử lý tay qua email. Đúng y tình trạng của "xoá tài khoản" trước khi làm ở đợt 21/09.
       Làm theo cùng khuôn: service xuất JSON/CSV + nút trong trang Cài đặt.
@@ -897,6 +911,13 @@ là **toàn bộ** việc còn lại đã biết.
 - [ ] **Nhắc bài giao sắp đến hạn** *(~nửa buổi)* — hiện chỉ báo khi *đã có* kết quả
       (`SendActivityNotifications`), không nhắc trước deadline dù `AssignmentStudent` đủ dữ liệu.
 - [ ] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
+- [ ] **Giảm giá không hiện ở chỗ đối soát** *(~1 giờ)* — `payments.voucher_id` và `discount_amount` đã lưu
+      nhưng trang Quản trị → Giao dịch và email biên nhận `PaymentSucceeded` đều không nhắc tới.
+      Kế toán nhìn đơn 69.300₫ của gói 99.000₫ sẽ không biết vì sao.
+- [ ] **Danh sách lượt dùng của một mã** *(~nửa buổi)* — quản trị mới thấy con số tổng (đã dùng / đã giảm),
+      chưa xem được ai dùng, đơn nào, lúc nào. Thiếu cái này thì không soi được mã bị lạm dụng.
+- [ ] **URL mạng xã hội thật** — footer đã sẵn sàng nhưng 5 khoá trong `config/site.php` còn trống,
+      nên khối icon đang ẩn. Chờ link thật, không bịa.
 
 #### D. Nợ kỹ thuật
 
