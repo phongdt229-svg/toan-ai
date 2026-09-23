@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\VoucherController as AdminVoucherController;
 use App\Http\Controllers\Auth\AccountDeletionController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
@@ -56,6 +57,7 @@ use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SupportController;
+use App\Http\Controllers\Web\VoucherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -143,6 +145,14 @@ Route::middleware('auth')->group(function () {
         Route::post('goi-hoc/{package}/mua', [PaymentController::class, 'store'])
             ->middleware(['verified', 'throttle:10,1']) // mỗi lần bấm là một lượt gọi MoMo
             ->name('packages.pay');
+
+        // Mã giảm giá (§8b). Throttle chặt hơn bình thường vì đây là chỗ duy nhất dò được mã.
+        Route::post('goi-hoc/{package}/ma-giam-gia', [VoucherController::class, 'apply'])
+            ->middleware(['verified', 'throttle:10,1'])
+            ->name('packages.voucher.apply');
+        Route::delete('goi-hoc/{package}/ma-giam-gia', [VoucherController::class, 'remove'])
+            ->middleware('verified')
+            ->name('packages.voucher.remove');
 
         // §8: return URL chỉ hiển thị trạng thái đọc từ DB.
         Route::get('payment/momo/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
@@ -395,6 +405,10 @@ Route::middleware('auth')->group(function () {
                 ->except('show')
                 ->parameters(['goi-hoc' => 'package'])
                 ->names('packages');
+            Route::resource('ma-giam-gia', AdminVoucherController::class)
+                ->except('show')
+                ->parameters(['ma-giam-gia' => 'voucher'])
+                ->names('vouchers');
             Route::get('dang-ky-goi', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');
             Route::post('dang-ky-goi/cap', [AdminSubscriptionController::class, 'grant'])->name('subscriptions.grant');
             Route::get('giao-dich', [AdminPaymentController::class, 'index'])->name('payments.index');

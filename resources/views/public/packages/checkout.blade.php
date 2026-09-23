@@ -62,6 +62,47 @@
                 @endif
 
                 @if ($beneficiary)
+                    {{-- Mã giảm giá (§8b). Chỉ gửi chuỗi mã; số tiền do server tính lại lúc tạo đơn. --}}
+                    <div class="card border mb-3">
+                        <div class="card-body">
+                            @if ($quote)
+                                <div class="d-flex justify-content-between align-items-center gap-2">
+                                    <div>
+                                        <span class="badge text-bg-success">{{ $quote->voucher->code }}</span>
+                                        <span class="small text-secondary ms-1">
+                                            giảm {{ number_format($quote->discount, 0, ',', '.') }}₫
+                                            @if ($quote->voucher->description) · {{ $quote->voucher->description }} @endif
+                                        </span>
+                                    </div>
+                                    <form method="POST" action="{{ route('packages.voucher.remove', $package) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-link text-secondary text-decoration-none p-0">Gỡ mã</button>
+                                    </form>
+                                </div>
+                            @else
+                                @if ($voucherCode)
+                                    <p class="small text-warning-emphasis mb-2">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>Mã <strong>{{ $voucherCode }}</strong>
+                                        không dùng được cho gói này.
+                                    </p>
+                                @endif
+                                <form method="POST" action="{{ route('packages.voucher.apply', $package) }}"
+                                      class="d-flex gap-2 align-items-start">
+                                    @csrf
+                                    <div class="flex-grow-1">
+                                        <label class="form-label small mb-1" for="code">Mã giảm giá</label>
+                                        <input id="code" name="code" maxlength="32" autocomplete="off"
+                                               class="form-control text-uppercase @error('code') is-invalid @enderror"
+                                               value="{{ old('code') }}" placeholder="VD: TOANAI50">
+                                        @error('code')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                    <button class="btn btn-outline-primary mt-4">Áp dụng</button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+
                     <div class="card border mb-3">
                         <div class="card-body small d-grid gap-2">
                             <div class="d-flex justify-content-between"><span class="text-secondary">Người dùng gói</span><strong>{{ $beneficiary->name }}</strong></div>
@@ -77,7 +118,22 @@
                                 </span>
                             </div>
                             <hr class="my-1">
-                            <div class="d-flex justify-content-between fs-6"><span>Tổng thanh toán</span><strong class="text-primary">{{ $package->priceLabel() }}</strong></div>
+                            @if ($quote)
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-secondary">Giá gói</span>
+                                    <span>{{ $package->priceLabel() }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-success">
+                                    <span>Giảm giá ({{ $quote->voucher->code }})</span>
+                                    <span>− {{ number_format($quote->discount, 0, ',', '.') }}₫</span>
+                                </div>
+                            @endif
+                            <div class="d-flex justify-content-between fs-6">
+                                <span>Tổng thanh toán</span>
+                                <strong class="text-primary">
+                                    {{ $quote ? number_format($quote->payable, 0, ',', '.') . '₫' : $package->priceLabel() }}
+                                </strong>
+                            </div>
                         </div>
                     </div>
 
@@ -87,11 +143,21 @@
                         @if ($payer->isParent())
                             <input type="hidden" name="con" value="{{ $beneficiary->id }}">
                         @endif
-                        <button class="btn btn-lg w-100 text-white" style="background:#a50064">
-                            <i class="bi bi-wallet2 me-1"></i>Thanh toán bằng MoMo
-                        </button>
+                        @if ($quote?->isFree())
+                            <button class="btn btn-lg w-100 btn-success">
+                                <i class="bi bi-gift me-1"></i>Nhận gói miễn phí
+                            </button>
+                        @else
+                            <button class="btn btn-lg w-100 text-white" style="background:#a50064">
+                                <i class="bi bi-wallet2 me-1"></i>Thanh toán bằng MoMo
+                            </button>
+                        @endif
                     </form>
-                    <p class="small text-secondary text-center mt-2 mb-0">Gói được kích hoạt ngay khi MoMo xác nhận thanh toán.</p>
+                    <p class="small text-secondary text-center mt-2 mb-0">
+                        {{ $quote?->isFree()
+                            ? 'Mã giảm 100% — gói kích hoạt ngay, không cần thanh toán.'
+                            : 'Gói được kích hoạt ngay khi MoMo xác nhận thanh toán.' }}
+                    </p>
                 @endif
             @endif
         </div>

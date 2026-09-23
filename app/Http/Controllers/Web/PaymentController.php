@@ -34,9 +34,22 @@ class PaymentController extends Controller
         }
 
         try {
-            $payment = $this->payments->checkout($user, $beneficiary, $package, $request->ip());
+            $payment = $this->payments->checkout(
+                $user,
+                $beneficiary,
+                $package,
+                $request->ip(),
+                $request->session()->get(VoucherController::SESSION_KEY),
+            );
         } catch (PaymentException $e) {
             return back()->with('error', $e->getMessage());
+        }
+
+        $request->session()->forget(VoucherController::SESSION_KEY);
+
+        // Mã giảm 100% → đơn đã thanh toán xong ngay, không có pay_url để đi tiếp.
+        if ($payment->isPaid()) {
+            return redirect()->route('payment.show', $payment);
         }
 
         return redirect()->away($payment->pay_url);

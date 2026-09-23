@@ -29,22 +29,38 @@ class PaymentService
         private readonly PaymentGatewayInterface $gateway,
         private readonly SubscriptionService $subscriptions,
         private readonly AuditLogger $audit,
+        private readonly VoucherService $vouchers,
     ) {}
 
     /**
      * Tạo đơn + đăng ký chờ, lấy link thanh toán.
      *
+     * `$voucherCode` là chuỗi người dùng gõ — số tiền giảm được TÍNH LẠI ở đây, không nhận từ client.
+     *
      * @throws PaymentException
      */
-    public function checkout(User $payer, User $beneficiary, Package $package, ?string $ip = null): Payment
+    public function checkout(User $payer, User $beneficiary, Package $package, ?string $ip = null, ?string $voucherCode = null): Payment
     {
+        try {
+            $quote = $voucherCode !== null && trim($voucherCode) !== ''
+                ? $this->vouchers->quote($voucherCode, $package, $payer)
+                : null;
+        } catch (VoucherException $e) {
+            throw new PaymentException($e->getMessage(), previous: $e);
+        }
+
+        $amount = $quote?->payable ?? (float) $package->price;
+        $discount = $quote?->discount ?? 0.0;
+
         // Bấm "Thanh toán" nhiều lần → dùng lại đơn còn hạn, không đẻ thêm đơn rác.
+        // Phải khớp cả mã đang dùng: gỡ mã ra mà vẫn nhận lại đơn đã giảm là cho không tiền.
         $reusable = Payment::query()
             ->where('user_id', $payer->id)
             ->where('package_id', $package->id)
             ->where('status', Payment::STATUS_PENDING)
             ->where('expires_at', '>', now()->addMinutes(5))
-            ->where('amount', $package->price) // admin vừa đổi giá → không dùng lại đơn giá cũ
+            ->where('amount', $amount) // admin vừa đổi giá → không dùng lại đơn giá cũ
+            ->where('voucher_id', $quote?->voucher->id)
             ->whereNotNull('pay_url')
             ->whereHas('subscription', fn ($q) => $q->where('user_id', $beneficiary->id)->where('status', Subscription::STATUS_PENDING))
             ->latest('id')
@@ -55,24 +71,41 @@ class PaymentService
         }
 
         try {
-            $payment = DB::transaction(function () use ($payer, $beneficiary, $package, $ip) {
+            $payment = DB::transaction(function () use ($payer, $beneficiary, $package, $ip, $quote, $amount, $discount) {
                 $subscription = $this->subscriptions->createPending($beneficiary, $package, $payer);
 
-                return Payment::create([
+                $payment = Payment::create([
                     'order_code' => $this->newOrderCode(),
                     'user_id' => $payer->id,
                     'package_id' => $package->id,
+                    'voucher_id' => $quote?->voucher->id,
                     'subscription_id' => $subscription->id,
-                    'amount' => $package->price, // ← giá LẤY TỪ DB
+                    'amount' => $amount,   // ← giá LẤY TỪ DB, trừ đi phần giảm tính ở server
+                    'discount_amount' => $discount,
                     'currency' => $package->currency,
-                    'method' => $this->gateway->name(),
+                    'method' => $quote?->isFree() ? Payment::METHOD_VOUCHER : $this->gateway->name(),
                     'status' => Payment::STATUS_PENDING,
                     'expires_at' => now()->addMinutes(config('payment.pending_expire_minutes')),
                     'client_ip' => $ip,
                 ]);
+
+                // Giữ chỗ NGAY khi tạo đơn, không đợi tới lúc trả tiền: mã còn 1 lượt mà 10 người
+                // cùng mang sang MoMo thì 9 người trả tiền xong mới biết mình trượt.
+                if ($quote) {
+                    $this->vouchers->hold($quote->voucher, $package, $payer, $payment);
+                }
+
+                return $payment;
             });
+        } catch (VoucherException $e) {
+            throw new PaymentException($e->getMessage(), previous: $e);
         } catch (RuntimeException $e) {
             throw new PaymentException($e->getMessage(), previous: $e);
+        }
+
+        // Mã giảm 100%: MoMo không nhận đơn 0đ → cấp gói thẳng, vẫn để lại dòng trong sổ.
+        if ($quote?->isFree()) {
+            return $this->settleFreeOrder($payment);
         }
 
         try {
@@ -174,6 +207,45 @@ class PaymentService
     // --------------------------------------------------------------------------------------
 
     /**
+     * Đơn 0đ do mã giảm 100%. Không có cổng thanh toán nào tham gia, nên kích hoạt tại chỗ —
+     * vẫn đi qua `SubscriptionService::activate()` và vẫn ghi audit như mọi đơn khác.
+     */
+    private function settleFreeOrder(Payment $payment): Payment
+    {
+        return DB::transaction(function () use ($payment) {
+            $payment = Payment::whereKey($payment->id)->lockForUpdate()->firstOrFail();
+
+            if ($payment->isPaid()) {
+                return $payment;
+            }
+
+            $payment->update([
+                'status' => Payment::STATUS_PAID,
+                'paid_at' => now(),
+                'gateway_message' => 'Miễn phí bằng mã giảm giá',
+            ]);
+
+            $subscription = $this->subscriptions->activate(
+                Subscription::lockForUpdate()->findOrFail($payment->subscription_id)
+            );
+
+            $this->vouchers->markRedeemed($payment);
+
+            $this->audit->log('payment.paid', $payment, null, [
+                'order_code' => $payment->order_code,
+                'amount' => 0,
+                'voucher_id' => $payment->voucher_id,
+                'subscription_id' => $subscription->id,
+            ]);
+
+            $payment->load('user', 'package', 'subscription.user');
+            DB::afterCommit(fn () => $payment->user->notify(new PaymentSucceeded($payment)));
+
+            return $payment;
+        });
+    }
+
+    /**
      * Bước 3–6 của §8, dùng chung cho IPN và truy vấn.
      *
      * @return array{0: string, 1?: string}
@@ -233,6 +305,7 @@ class PaymentService
             ]);
 
             $subscription = $this->subscriptions->activate($subscription);
+            $this->vouchers->markRedeemed($payment);
 
             // 7. Audit + thông báo (gửi sau commit).
             $this->audit->log('payment.paid', $payment, null, [
@@ -257,6 +330,9 @@ class PaymentService
                 'gateway_result_code' => $n?->resultCode,
                 'gateway_message' => Str::limit($n?->message ?? $message ?? '', 180),
             ]);
+
+            // Trả lượt mã về kho cho người khác dùng.
+            $this->vouchers->release($payment);
 
             Subscription::whereKey($payment->subscription_id)
                 ->where('status', Subscription::STATUS_PENDING)

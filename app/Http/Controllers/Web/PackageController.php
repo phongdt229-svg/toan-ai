@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Package;
 use App\Models\User;
+use App\Services\Payment\VoucherService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -16,7 +17,10 @@ use Illuminate\View\View;
  */
 class PackageController extends Controller
 {
-    public function __construct(private readonly SubscriptionService $subscriptions) {}
+    public function __construct(
+        private readonly SubscriptionService $subscriptions,
+        private readonly VoucherService $vouchers,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -42,8 +46,15 @@ class PackageController extends Controller
 
         $beneficiary = $this->beneficiary($user, $request->integer('con') ?: null, $children);
 
+        // Mã trong session được tính LẠI cho đúng gói này; mã không hợp lệ thì trả null,
+        // không chặn người dùng mua — chỉ là không được giảm.
+        $voucherCode = $request->session()->get(VoucherController::SESSION_KEY);
+        $quote = $beneficiary ? $this->vouchers->quoteOrNull($voucherCode, $package, $user) : null;
+
         return view('public.packages.checkout', [
             'package' => $package->load('features'),
+            'voucherCode' => $voucherCode,
+            'quote' => $quote,
             'payer' => $user,
             'beneficiary' => $beneficiary,
             'children' => $children,

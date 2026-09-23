@@ -13,6 +13,9 @@ class Payment extends Model
     public const STATUS_FAILED = 'failed';
     public const STATUS_CANCELLED = 'cancelled';
 
+    /** Đơn 0đ do mã giảm 100% — không cổng nào tham gia. */
+    public const METHOD_VOUCHER = 'voucher';
+
     public const STATUS_LABELS = [
         self::STATUS_PENDING => 'Đang chờ',
         self::STATUS_PAID => 'Thành công',
@@ -21,7 +24,8 @@ class Payment extends Model
     ];
 
     protected $fillable = [
-        'order_code', 'user_id', 'package_id', 'subscription_id', 'amount', 'currency', 'method', 'status',
+        'order_code', 'user_id', 'package_id', 'voucher_id', 'subscription_id',
+        'amount', 'discount_amount', 'currency', 'method', 'status',
         'gateway_request_id', 'gateway_transaction_id', 'gateway_result_code', 'gateway_message',
         'pay_url', 'gateway_response', 'flag_reason', 'paid_at', 'expires_at', 'client_ip',
     ];
@@ -32,6 +36,7 @@ class Payment extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'gateway_response' => 'array',
             'gateway_result_code' => 'integer',
             'paid_at' => 'datetime',
@@ -57,6 +62,22 @@ class Payment extends Model
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(Subscription::class);
+    }
+
+    public function voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class);
+    }
+
+    /** Giá gốc trước khi trừ mã — cột `amount` là số tiền thực trả. */
+    public function originalAmount(): float
+    {
+        return (float) $this->amount + (float) $this->discount_amount;
+    }
+
+    public function hasDiscount(): bool
+    {
+        return (float) $this->discount_amount > 0;
     }
 
     public function webhookLogs(): HasMany

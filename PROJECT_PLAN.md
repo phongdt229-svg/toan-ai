@@ -389,6 +389,75 @@ POST /api/v1/payment/momo/ipn   (MoMo → server, KHÔNG CSRF, KHÔNG auth)
 
 ---
 
+## 8b. Voucher giảm giá ✅ (23/09/2026)
+
+Nguyên tắc gốc không đổi: **client chỉ gửi chuỗi mã, số tiền vẫn do server tính từ DB.**
+Mã giảm giá không phải "giá do người dùng đề nghị" — nó là một phép trừ server tự làm lại từ đầu
+ở mỗi bước, kể cả khi người dùng đã thấy giá giảm trên màn hình.
+
+### Bảng
+
+`vouchers`
+| Cột | Kiểu | Ghi chú |
+|---|---|---|
+| `code` | string(32) unique | lưu **in hoa**, người dùng gõ thường vẫn nhận |
+| `type` | enum `percent` / `fixed` | |
+| `value` | decimal(12,2) | percent: 1–100 · fixed: số tiền VND |
+| `max_discount` | decimal(12,2) null | trần cho loại percent ("giảm 50% tối đa 100k") |
+| `min_order_amount` | decimal(12,2) null | giá gói tối thiểu mới áp dụng |
+| `starts_at` / `ends_at` | dateTime null | null = không giới hạn thời gian |
+| `max_uses` | int null | tổng lượt toàn hệ thống · null = vô hạn |
+| `max_uses_per_user` | int default 1 | |
+| `is_active` | bool | tắt nhanh mà không xoá, giữ lịch sử |
+| `created_by` | FK users null | |
+
+`package_voucher` (pivot) — trống = áp dụng mọi gói; có dòng = chỉ các gói được liệt kê.
+
+`voucher_redemptions` — **nguồn sự thật cho việc đếm lượt**, không dùng cột đếm sẵn để khỏi lệch số:
+`voucher_id` · `user_id` · `payment_id` (unique) · `discount_amount` · `redeemed_at` null · `released_at` null.
+
+`payments` thêm: `voucher_id` (FK null, `restrictOnDelete`) và `discount_amount` (default 0).
+`amount` vẫn là **số tiền thực trả sau giảm** — IPN so khớp cột này, không được đổi ý nghĩa.
+
+### Luồng
+
+```
+POST /goi-hoc/{slug}/ma-giam-gia  { code }      ← throttle 10/phút, chống dò mã
+  └─ VoucherService::quote(code, package, user) → hiện giá mới, mã lưu trong SESSION
+                                                   (session giữ MÃ, không giữ SỐ TIỀN)
+
+POST /goi-hoc/{slug}/mua  { con? }
+  └─ PaymentService::checkout()
+       ├─ lấy lại mã từ session → VoucherService::redeem() TÍNH LẠI TỪ ĐẦU
+       ├─ DB::transaction + lockForUpdate(voucher):
+       │     kiểm hạn, lượt tổng, lượt/người, gói áp dụng, giá tối thiểu
+       │     → tạo payments(pending, amount = giá − giảm) + voucher_redemptions (giữ chỗ)
+       ├─ amount == 0  → KHÔNG gọi cổng: đánh dấu paid, activate() ngay, method='voucher'
+       └─ amount > 0   → như cũ, gửi MoMo đúng số tiền đã giảm
+```
+
+Trả lại lượt: `markFailed()` / `expireStale()` → `released_at = now()`.
+Ghi nhận thật: IPN thành công → `redeemed_at = now()`.
+
+### Quyết định đã chốt
+
+- **Đếm lượt bằng bảng, không bằng cột `used_count`** — hai người bấm cùng lúc mã còn 1 lượt thì
+  `lockForUpdate` trên dòng voucher quyết định ai được; cột đếm sẵn dễ lệch khi đơn huỷ/hết hạn.
+- **Giữ chỗ ngay khi tạo đơn**, trả lại khi đơn hỏng. Không chờ tới lúc trả tiền mới trừ lượt,
+  nếu không mã còn 1 lượt sẽ bị 10 người cùng mang sang MoMo rồi 9 người trả tiền xong mới báo lỗi.
+- **Mã giảm 100% không đi qua cổng** — MoMo không nhận đơn 0đ. Kích hoạt thẳng qua
+  `SubscriptionService::activate()`, `payments.method = 'voucher'` để sổ sách vẫn có dòng.
+- **0 < số tiền < 1.000đ thì từ chối mã** — dưới mức tối thiểu MoMo nhận. Báo rõ cho người dùng
+  thay vì để họ bấm sang MoMo rồi gặp lỗi không hiểu.
+- **Đơn chờ dùng lại (`$reusable`) phải khớp cả `voucher_id`** — nếu không, người gỡ mã ra vẫn
+  bị trả lại đúng đơn giá đã giảm.
+- **Báo lỗi cụ thể** ("mã hết lượt", "mã không áp dụng cho gói này") chứ không gộp chung —
+  chống dò mã đã có throttle lo; gộp chung chỉ làm khách thật bối rối.
+- Admin tạo/sửa/tắt mã tại `/quan-tri/ma-giam-gia`, mọi thay đổi ghi `audit_logs`
+  (cùng nhóm với đổi giá gói — đều là thay đổi ảnh hưởng tới tiền).
+
+---
+
 ## 9. AI layer
 
 ```php
