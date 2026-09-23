@@ -20,6 +20,8 @@
                         <li><i class="bi bi-geo-alt me-1"></i>{{ config('site.address') }}</li>
                     @endif
                 </ul>
+
+                @include('public.partials.social-links')
             </div>
 
             <div class="col-6 col-lg-2">

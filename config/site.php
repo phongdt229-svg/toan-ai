@@ -23,6 +23,24 @@ return [
     'zalo_url' => env('SITE_ZALO_URL', ''),
     'facebook_url' => env('SITE_FACEBOOK_URL', ''),
 
+    /*
+    | Link mạng xã hội hiện ở footer. Để trống thì ẩn đúng biểu tượng đó — KHÔNG bịa link,
+    | dán đúng URL trang thật trước khi chạy production. Trang không tồn tại còn hại hơn là không có link.
+    |
+    | Khác với `facebook_url` ở trên: cái đó là link CHAT (m.me/...) cho nút nổi,
+    | còn `social.facebook` là link TRANG (facebook.com/...).
+    |
+    | 'google' dùng cho hồ sơ Google Doanh nghiệp / Google Maps, không phải trang mạng xã hội —
+    | đặt ở đây cho gọn vì chỗ hiển thị là một.
+    */
+    'social' => [
+        'facebook' => env('SITE_SOCIAL_FACEBOOK', ''),   // https://facebook.com/<trang>
+        'youtube' => env('SITE_SOCIAL_YOUTUBE', ''),     // https://youtube.com/@<kênh>
+        'tiktok' => env('SITE_SOCIAL_TIKTOK', ''),       // https://tiktok.com/@<tài khoản>
+        'x' => env('SITE_SOCIAL_X', ''),                 // https://x.com/<tài khoản>
+        'google' => env('SITE_SOCIAL_GOOGLE', ''),       // link hồ sơ Google Doanh nghiệp
+    ],
+
     // Số dòng mỗi trang ở khu quản trị (danh sách người dùng, giao dịch, hỗ trợ…).
     'per_page' => (int) env('SITE_PER_PAGE', 10),
 

@@ -583,6 +583,31 @@
     &__bottom { border-top: 1px solid rgba(#fff, .12); }
 }
 
+// Biểu tượng mạng xã hội ở footer. Ô 40px để ngón tay bấm trúng trên điện thoại.
+.social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+
+    &__item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 1.125rem;
+        background: rgba(#fff, .08);
+        transition: background .15s ease, transform .15s ease;
+
+        &:hover,
+        &:focus-visible {
+            background: rgba(#fff, .18);
+            transform: translateY(-2px);
+        }
+    }
+}
+
 // --- Nút nổi: chat Zalo/Facebook + chia sẻ trang (chỉ trang công khai, layouts.public) ----
 .floating-contact {
     position: fixed;
