@@ -98,6 +98,78 @@ class SeoTest extends TestCase
         }
     }
 
+    // --- Google Analytics + Search Console -------------------------------------------------
+
+    public function test_analytics_is_off_when_no_measurement_id_is_configured(): void
+    {
+        // Mặc định ở local/test là trống — lượt truy cập lúc dev không được vào số liệu thật.
+        config(['site.google_analytics_id' => '']);
+
+        $this->get('/')->assertOk()->assertDontSee('googletagmanager.com', false);
+    }
+
+    public function test_analytics_loads_on_public_and_portal_pages_when_configured(): void
+    {
+        config(['site.google_analytics_id' => 'G-TEST12345']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('https://www.googletagmanager.com/gtag/js?id=G-TEST12345', false)
+            ->assertSee('gtag(\'config\', "G-TEST12345")', false);
+
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $user->assignRole(Role::STUDENT);
+        StudentProfile::create([
+            'user_id' => $user->id,
+            'grade_id' => Grade::where('level', 6)->value('id'),
+            'link_code' => StudentProfile::generateLinkCode(),
+        ]);
+
+        $this->actingAs($user)->get(route('student.dashboard'))->assertOk()->assertSee('G-TEST12345', false);
+    }
+
+    public function test_tag_manager_loads_with_its_noscript_fallback(): void
+    {
+        config(['site.google_tag_manager_id' => 'GTM-TEST123']);
+
+        $response = $this->get('/')->assertOk();
+
+        $response->assertSee("'script','dataLayer',\"GTM-TEST123\"", false)
+            ->assertSee('https://www.googletagmanager.com/ns.html?id=GTM-TEST123', false);
+
+        // Bản dự phòng cho trình duyệt tắt JS phải nằm ngay sau <body>, không thì GTM bỏ qua.
+        $html = $response->getContent();
+        $this->assertLessThan(
+            strpos($html, 'maintenance-flag') ?: strlen($html),
+            strpos($html, 'ns.html?id=GTM-TEST123'),
+        );
+        $this->assertStringContainsString('<body>', substr($html, 0, strpos($html, 'ns.html')));
+    }
+
+    public function test_tag_manager_is_off_when_not_configured(): void
+    {
+        config(['site.google_tag_manager_id' => '']);
+
+        $this->get('/')->assertOk()->assertDontSee('gtm.js?id=', false)->assertDontSee('ns.html?id=', false);
+    }
+
+    public function test_search_console_verification_tag_is_present(): void
+    {
+        config(['site.google_site_verification' => 'abc123']);
+
+        $this->get('/')->assertOk()
+            ->assertSee('<meta name="google-site-verification" content="abc123">', false);
+    }
+
+    public function test_the_privacy_policy_discloses_analytics_tracking(): void
+    {
+        // Bật đo lường mà quên khai báo là chính sách nói sai sự thật — test giữ hai thứ đi cùng nhau.
+        $this->get(route('legal.privacy'))
+            ->assertOk()
+            ->assertSee('Google Analytics')
+            ->assertSee('Cookie phân tích');
+    }
+
     public function test_robots_points_search_engines_at_the_sitemap(): void
     {
         $robots = file_get_contents(public_path('robots.txt'));

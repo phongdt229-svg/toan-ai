@@ -6,6 +6,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="@yield('meta_description', 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.')">
 
+    {{-- Google Tag Manager — Google yêu cầu đặt càng cao trong <head> càng tốt. Trống ở local/test. --}}
+    @if (config('site.google_tag_manager_id'))
+        <script>
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer',@json(config('site.google_tag_manager_id')));
+        </script>
+    @endif
+
     <title>@yield('title', config('app.name'))</title>
 
     {{--
@@ -51,10 +62,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    @if (config('site.google_site_verification'))
+        <meta name="google-site-verification" content="{{ config('site.google_site_verification') }}">
+    @endif
+
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     @stack('head')
+
+    {{--
+        Google Analytics 4. Trống ở local/test (xem config/site.php) nên dev không làm bẩn số liệu.
+        Đặt CUỐI <head>: script `async` nhưng vẫn là một lượt tải thêm, không để nó chen trước CSS.
+        CSP hiện không khai script-src nên không phải mở thêm nguồn — xem SecurityHeaders.
+    --}}
+    @if (config('site.google_analytics_id'))
+        @php $gaId = config('site.google_analytics_id'); @endphp
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', @json($gaId));
+        </script>
+    @endif
 </head>
 <body>
+    {{-- GTM bản dự phòng cho trình duyệt tắt JS — phải nằm ngay sau <body>. --}}
+    @if (config('site.google_tag_manager_id'))
+        <noscript>
+            <iframe src="https://www.googletagmanager.com/ns.html?id={{ config('site.google_tag_manager_id') }}"
+                    height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe>
+        </noscript>
+    @endif
+
     {{--
         Đang bảo trì mà vẫn xem được trang này nghĩa là trình duyệt đang giữ cookie bỏ qua.
         Không báo rõ thì người vừa bật bảo trì dễ tưởng là bật hụt, rồi bật thêm lần nữa.

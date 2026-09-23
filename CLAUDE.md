@@ -61,6 +61,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   lệnh này còn tạo `storage/framework/maintenance.php` mà `public/index.php` nạp trước cả Composer).
   `bootstrap/app.php` cố ý **không chặn** `up`, `dang-nhap`, `quan-tri/bao-tri` — đường cứu hộ khi admin mất
   cookie bỏ qua. Thêm route vào danh sách này phải cân nhắc: mỗi mục là một cửa còn mở lúc site đang đóng.
+- Đo lường (GA4 + GTM + thẻ xác minh Search Console) khai ở `config/site.php`, nhúng ở `layouts/base`.
+  Local/test để TRỐNG để không làm bẩn số liệu thật — thử thì đặt `GOOGLE_ANALYTICS_ID` / `GOOGLE_TAG_MANAGER_ID` trong `.env`.
+  Bật thêm công cụ theo dõi nào cũng **phải khai vào Chính sách bảo mật §3 + §8** và sửa `legal_updated_at`;
+  `SeoTest` có test canh đúng chuyện này.
 - Thêm trang công khai mới → thêm vào `SitemapController`; trang sau đăng nhập thì thôi (đã `noindex` ở `layouts/app`).
   Thẻ OG/Twitter đặt sẵn ở `layouts/base`, trang nào cần preview riêng thì khai `@section('og_title'/'og_description'/'og_image')`.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).

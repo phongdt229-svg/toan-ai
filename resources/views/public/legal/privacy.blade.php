@@ -49,6 +49,7 @@
                     <li><strong>Nhà cung cấp mô hình AI:</strong> khi bạn dùng AI Tutor, nội dung câu hỏi và ngữ cảnh bài học được gửi tới nhà cung cấp AI để sinh câu trả lời. Không gửi kèm email, số điện thoại hay thông tin thanh toán.</li>
                     <li><strong>MoMo:</strong> xử lý thanh toán; nhận mã đơn và số tiền.</li>
                     <li><strong>Dịch vụ gửi email và hạ tầng máy chủ:</strong> để gửi thư và lưu trữ hệ thống.</li>
+                    <li><strong>Google Analytics / Google Tag Manager:</strong> đo lượt truy cập và cách người dùng di chuyển giữa các trang, để biết chỗ nào khó dùng mà sửa. Google nhận địa chỉ IP (đã rút gọn), loại thiết bị, trình duyệt và trang bạn xem — <strong>không</strong> nhận tên, email, số điện thoại, điểm số hay nội dung bài làm của bạn.</li>
                     <li><strong>Cơ quan nhà nước có thẩm quyền</strong> khi có yêu cầu hợp pháp bằng văn bản.</li>
                 </ul>
 
@@ -89,9 +90,16 @@
                 <p>Gửi yêu cầu tới <a href="mailto:{{ config('site.email') }}">{{ config('site.email') }}</a>. Chúng tôi phản hồi trong vòng 7 ngày làm việc.</p>
 
                 <h2>8. Cookie</h2>
+                <p>Chúng tôi dùng hai nhóm cookie:</p>
+                <ul>
+                    <li><strong>Cookie bắt buộc:</strong> giữ phiên đăng nhập và ghi nhớ lựa chọn của bạn. Xoá đi sẽ khiến bạn bị đăng xuất.</li>
+                    <li><strong>Cookie phân tích (Google Analytics):</strong> đếm lượt truy cập và đường đi giữa các trang. Đây là cookie của bên thứ ba và Google có thể nhận ra cùng một trình duyệt giữa các lần ghé thăm.</li>
+                </ul>
                 <p>
-                    Chúng tôi dùng cookie để giữ phiên đăng nhập và ghi nhớ lựa chọn của bạn. Không dùng cookie quảng cáo,
-                    không theo dõi bạn sang website khác. Xoá cookie sẽ khiến bạn bị đăng xuất.
+                    Chúng tôi <strong>không</strong> dùng cookie quảng cáo và không bán dữ liệu cho bên quảng cáo. Muốn chặn phần đo lường,
+                    bạn có thể bật "Do Not Track" hoặc cài
+                    <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener nofollow" target="_blank">tiện ích từ chối Google Analytics</a>;
+                    chặn nhóm này không ảnh hưởng gì tới việc học.
                 </p>
 
                 <h2>9. Thay đổi chính sách</h2>

@@ -30,7 +30,28 @@ return [
     // Bật từ trang Quản trị thì lấy theo ô người bật tự nhập, không dùng giá trị này.
     'maintenance_eta' => env('DEPLOY_ETA', '15 phút'),
 
+    /*
+    | Google Analytics 4. Measurement ID là thông tin công khai (ai xem mã nguồn trang cũng thấy)
+    | nên để thẳng trong repo, không phải loại phải giấu như key MoMo/OpenAI.
+    |
+    | Local và test để TRỐNG: lượt truy cập lúc dev không được làm bẩn số liệu thật.
+    | Muốn thử ở local thì đặt GOOGLE_ANALYTICS_ID trong .env.
+    |
+    | Bật GA là có cookie phân tích của bên thứ ba → phải khai trong Chính sách bảo mật §3 và §8.
+    */
+    'google_analytics_id' => env('GOOGLE_ANALYTICS_ID', env('APP_ENV') === 'production' ? 'G-QJDV1HXSGX' : ''),
+
+    /*
+    | Google Tag Manager. CẨN THẬN: nếu trong container GTM bạn cũng cấu hình một thẻ GA4 cùng
+    | Measurement ID với `google_analytics_id` ở trên thì mỗi lượt xem trang bị đếm HAI LẦN.
+    | Chọn một trong hai đường: hoặc để gtag.js ở đây, hoặc bỏ trống ID GA4 và khai GA4 bên trong GTM.
+    */
+    'google_tag_manager_id' => env('GOOGLE_TAG_MANAGER_ID', env('APP_ENV') === 'production' ? 'GTM-TR8MK5R8' : ''),
+
+    // Thẻ xác minh Google Search Console — vô hại ở mọi môi trường, Google cần thấy nó trên domain thật.
+    'google_site_verification' => env('GOOGLE_SITE_VERIFICATION', 'GuZkEv4BKbqG8cgzsFVFdNseP-XJOYhO6ki-g7CZ9Xk'),
+
     // Ngày cập nhật hai trang pháp lý — sửa nội dung thì sửa luôn ngày này.
-    'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '18/09/2026'),
+    'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '23/09/2026'),
 
 ];
