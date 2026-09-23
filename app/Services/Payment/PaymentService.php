@@ -8,6 +8,7 @@ use App\Models\PaymentRefund;
 use App\Models\PaymentWebhookLog;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Notifications\PaymentRefunded;
 use App\Notifications\PaymentSucceeded;
 use App\Services\AuditLogger;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
@@ -261,6 +262,8 @@ class PaymentService
                 'amount' => $payment->amountInt(),
                 'reason' => $reason,
             ]);
+
+            DB::afterCommit(fn () => $payment->user->notify(new PaymentRefunded($payment)));
         });
 
         return $refund->refresh();

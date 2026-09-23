@@ -988,7 +988,7 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 - [x] **Hoàn tiền MoMo (toàn bộ đơn)** — `PaymentService::refund()` + nút ở Quản trị → Giao dịch → chi tiết. Đơn chuyển
       `refunded` (mọi báo cáo lọc `status=paid` tự loại khỏi doanh thu), gói bị thu hồi, có bảng `payment_refunds`.
       Ghi yêu cầu `pending` TRƯỚC khi gọi MoMo: mất mạng giữa chừng thì nút khoá, admin phải kiểm tra bên MoMo (tránh hoàn hai lần).
-      IPN gửi lại sau khi hoàn không kích hoạt lại gói. Chưa có email báo cho người dùng khi được hoàn tiền.
+      IPN gửi lại sau khi hoàn không kích hoạt lại gói. Người trả tiền nhận email + thông báo trong app khi được hoàn (`PaymentRefunded`).
 - [x] **Số liệu GA trong Quản trị (Data API)** — `AnalyticsReportService`: tự ký JWT service account (không kéo google/apiclient),
       cache 10 phút, lỗi không làm hỏng trang. Cần `GA_PROPERTY_ID` (số) + `GA_CREDENTIALS_PATH` (file JSON ngoài repo).
 - [x] **Pint** — dọn một lượt toàn repo, thêm job `pint --test` vào CI.

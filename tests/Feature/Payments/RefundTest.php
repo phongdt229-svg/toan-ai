@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\Payment;
 use App\Models\PaymentRefund;
 use App\Models\Subscription;
+use App\Notifications\PaymentRefunded;
 use App\Services\Payment\Gateways\MomoGateway;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request as HttpRequest;
@@ -83,6 +84,7 @@ class RefundTest extends SubscriptionTestCase
         $this->assertSame('99000.00', $refund->amount);
         $this->assertSame($admin->id, $refund->requested_by);
         $this->assertTrue(AuditLog::where('action', 'payment.refunded')->exists());
+        Notification::assertSentTo($payment->user, PaymentRefunded::class);
 
         Http::assertSent(function (HttpRequest $r) use ($payment) {
             if (! str_ends_with($r->url(), '/v2/gateway/api/refund')) {
@@ -139,6 +141,7 @@ class RefundTest extends SubscriptionTestCase
         $this->assertSame(Payment::STATUS_PAID, $payment->refresh()->status);
         $this->assertSame(Subscription::STATUS_ACTIVE, $payment->subscription->status);
         $this->assertSame(PaymentRefund::STATUS_FAILED, $payment->refunds()->first()->status);
+        Notification::assertNotSentTo($payment->user, PaymentRefunded::class);
 
         // Lần bị từ chối không chặn lần thử sau.
         $this->refundResult = 0;
