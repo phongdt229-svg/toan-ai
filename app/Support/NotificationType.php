@@ -6,6 +6,7 @@ use App\Notifications\AssignmentSubmittedByStudent;
 use App\Notifications\ChildScoreLow;
 use App\Notifications\ExamResultReady;
 use App\Notifications\PaymentSucceeded;
+use App\Notifications\SubscriptionExpiringSoon;
 use App\Notifications\SupportTicketResolved;
 use App\Notifications\TeacherAccountApproved;
 use App\Notifications\WeeklyReportReady;
@@ -25,5 +26,6 @@ class NotificationType
         WeeklyReportReady::class => 'Báo cáo tuần sẵn sàng',
         SupportTicketResolved::class => 'Yêu cầu hỗ trợ đã xử lý',
         PaymentSucceeded::class => 'Thanh toán thành công',
+        SubscriptionExpiringSoon::class => 'Gói học sắp hết hạn',
     ];
 }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\Web\CookieConsentController as Consent;
 use App\Models\Grade;
 use App\Models\Role;
 use App\Models\StudentProfile;
@@ -112,6 +113,9 @@ class SeoTest extends TestCase
     {
         config(['site.google_analytics_id' => 'G-TEST12345']);
 
+        // Từ đợt 23/09 công cụ đo lường chỉ nạp khi người dùng đã đồng ý cookie.
+        $this->withCookie(Consent::COOKIE, Consent::ACCEPTED);
+
         $this->get('/')
             ->assertOk()
             ->assertSee('https://www.googletagmanager.com/gtag/js?id=G-TEST12345', false)
@@ -125,14 +129,15 @@ class SeoTest extends TestCase
             'link_code' => StudentProfile::generateLinkCode(),
         ]);
 
-        $this->actingAs($user)->get(route('student.dashboard'))->assertOk()->assertSee('G-TEST12345', false);
+        $this->withCookie(Consent::COOKIE, Consent::ACCEPTED)
+            ->actingAs($user)->get(route('student.dashboard'))->assertOk()->assertSee('G-TEST12345', false);
     }
 
     public function test_tag_manager_loads_with_its_noscript_fallback(): void
     {
         config(['site.google_tag_manager_id' => 'GTM-TEST123']);
 
-        $response = $this->get('/')->assertOk();
+        $response = $this->withCookie(Consent::COOKIE, Consent::ACCEPTED)->get('/')->assertOk();
 
         $response->assertSee("'script','dataLayer',\"GTM-TEST123\"", false)
             ->assertSee('https://www.googletagmanager.com/ns.html?id=GTM-TEST123', false);

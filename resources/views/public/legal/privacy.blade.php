@@ -96,6 +96,11 @@
                     <li><strong>Cookie phân tích (Google Analytics):</strong> đếm lượt truy cập và đường đi giữa các trang. Đây là cookie của bên thứ ba và Google có thể nhận ra cùng một trình duyệt giữa các lần ghé thăm.</li>
                 </ul>
                 <p>
+                    Lần đầu vào trang, bạn được hỏi có đồng ý cho nhóm cookie phân tích hay không. Chọn
+                    "Chỉ cookie cần thiết" thì chúng tôi <strong>không nạp</strong> Google Analytics/Tag Manager —
+                    không phải nạp rồi mới tắt. Đổi ý lúc nào cũng được bằng link <strong>"Cài đặt cookie"</strong> ở chân trang.
+                </p>
+                <p>
                     Chúng tôi <strong>không</strong> dùng cookie quảng cáo và không bán dữ liệu cho bên quảng cáo. Muốn chặn phần đo lường,
                     bạn có thể bật "Do Not Track" hoặc cài
                     <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener nofollow" target="_blank">tiện ích từ chối Google Analytics</a>;

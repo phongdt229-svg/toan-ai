@@ -583,6 +583,42 @@
     &__bottom { border-top: 1px solid rgba(#fff, .12); }
 }
 
+// Dải hỏi đồng ý cookie. Ngồi dưới cùng, trên cả bottom nav của portal (z-index cao hơn).
+.cookie-consent {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2100;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem 1.25rem;
+    padding: .875rem 1rem calc(.875rem + env(safe-area-inset-bottom, 0px));
+    background: $dark;
+    color: rgba(#fff, .85);
+    font-size: .8125rem;
+    line-height: 1.5;
+    box-shadow: 0 -6px 24px rgba(15, 23, 42, .3);
+
+    a { color: #fff; text-decoration: underline; }
+
+    &__text { flex: 1 1 320px; }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+
+        form { margin: 0; }
+    }
+
+    @include media-breakpoint-up(lg) {
+        padding-inline: 1.5rem;
+    }
+}
+
 // Biểu tượng mạng xã hội ở footer. Ô 40px để ngón tay bấm trúng trên điện thoại.
 .social-links {
     display: flex;

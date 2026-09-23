@@ -52,6 +52,7 @@ use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\LandingController;
+use App\Http\Controllers\Web\CookieConsentController;
 use App\Http\Controllers\Web\GuideController;
 use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
@@ -77,6 +78,10 @@ Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy')
 // Trung tâm hướng dẫn — nội dung tĩnh trong config/guides.php, ai cũng xem được.
 Route::get('huong-dan', [GuideController::class, 'index'])->name('guides.index');
 Route::get('huong-dan/{slug}', [GuideController::class, 'show'])->name('guides.show');
+
+// Lựa chọn cookie — ai cũng dùng được, kể cả khách chưa đăng nhập.
+Route::post('cookie', [CookieConsentController::class, 'store'])->name('cookie.store');
+Route::delete('cookie', [CookieConsentController::class, 'destroy'])->name('cookie.destroy');
 
 // Sơ đồ trang cho công cụ tìm kiếm (robots.txt trỏ tới đây).
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
@@ -406,7 +411,6 @@ Route::middleware('auth')->group(function () {
                 ->parameters(['goi-hoc' => 'package'])
                 ->names('packages');
             Route::resource('ma-giam-gia', AdminVoucherController::class)
-                ->except('show')
                 ->parameters(['ma-giam-gia' => 'voucher'])
                 ->names('vouchers');
             Route::get('dang-ky-goi', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');

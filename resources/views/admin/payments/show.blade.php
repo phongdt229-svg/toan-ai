@@ -30,7 +30,17 @@
                 <div class="d-flex justify-content-between"><span class="text-secondary">Người trả</span><span>{{ $payment->user->name }} · {{ $payment->user->email }}</span></div>
                 <div class="d-flex justify-content-between"><span class="text-secondary">Người dùng gói</span><span>{{ $payment->subscription?->user->name ?? '—' }}</span></div>
                 <div class="d-flex justify-content-between"><span class="text-secondary">Gói</span><span>{{ $payment->package->name }}</span></div>
-                <div class="d-flex justify-content-between"><span class="text-secondary">Số tiền</span><strong>{{ $payment->amountLabel() }}</strong></div>
+                @if ($payment->hasDiscount())
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Giá gốc</span>
+                        <span>{{ number_format($payment->originalAmount(), 0, ',', '.') }}₫</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-success">
+                        <span>Giảm giá @if ($payment->voucher)<span class="font-monospace">{{ $payment->voucher->code }}</span>@endif</span>
+                        <span>−{{ number_format((float) $payment->discount_amount, 0, ',', '.') }}₫</span>
+                    </div>
+                @endif
+                <div class="d-flex justify-content-between"><span class="text-secondary">Số tiền thực trả</span><strong>{{ $payment->amountLabel() }}</strong></div>
                 <div class="d-flex justify-content-between"><span class="text-secondary">Đăng ký</span><span>#{{ $payment->subscription_id }} · {{ $payment->subscription?->statusLabel() }}</span></div>
             </div></div>
         </div>

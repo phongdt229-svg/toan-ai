@@ -25,7 +25,8 @@
                 @forelse ($vouchers as $voucher)
                     <tr>
                         <td>
-                            <span class="fw-semibold font-monospace">{{ $voucher->code }}</span>
+                            <a href="{{ route('admin.vouchers.show', $voucher) }}"
+                               class="fw-semibold font-monospace text-decoration-none">{{ $voucher->code }}</a>
                             @if ($voucher->description)
                                 <div class="text-secondary">{{ $voucher->description }}</div>
                             @endif

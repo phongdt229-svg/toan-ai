@@ -875,6 +875,39 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
       (trước đó đang khẳng định "không theo dõi bạn sang website khác" — câu đó thành sai khi bật GA).
 - [x] **Link mạng xã hội ở footer** — Facebook, YouTube, TikTok, X, Google; chưa khai URL thì ẩn.
 
+### ✅ Đã làm (23/09) — đồng ý cookie · nhắc gia hạn · đối soát voucher
+
+#### 1. Bảng hỏi đồng ý cookie
+
+- **Chặn ở phía server, không chặn bằng JS.** GA/GTM chỉ được render khi cookie lựa chọn nói "đồng ý".
+  Nạp script rồi mới gọi API tắt là muộn — cookie của Google đã đặt xong từ trước đó.
+- Lựa chọn lưu bằng cookie của Laravel qua **POST route**, không phải `document.cookie`: chạy được cả khi
+  tắt JS, và cookie đi qua `EncryptCookies` như mọi cookie khác nên không bị sửa tay.
+  Hạn 180 ngày; từ chối cũng lưu để khỏi hỏi lại mỗi lần vào.
+- Dải ngang dưới màn hình, **không phải modal chặn màn**: người dùng phần lớn là trẻ em,
+  chặn đường vào bài học để hỏi cookie là đánh đổi sai.
+- Hai lựa chọn: "Đồng ý" và "Chỉ cookie cần thiết". Không có nút X — im lặng không phải là đồng ý.
+- Đổi ý: link "Cài đặt cookie" ở footer → xoá lựa chọn → dải hỏi lại.
+- Chính sách bảo mật §8 nói rõ có quyền chọn và chọn lại ở đâu.
+
+#### 2. Nhắc gói sắp hết hạn
+
+- **Lệnh riêng `subscriptions:remind-expiring` chạy 08:00**, không nhét vào `subscriptions:expire` (00:05):
+  không ai muốn nhận email gia hạn lúc nửa đêm.
+- Ngưỡng **7 / 3 / 1 ngày**. Cột mới `subscriptions.expiry_reminded_days` giữ ngưỡng đã gửi gần nhất →
+  không gửi trùng, và `SubscriptionService::activate()` đặt lại `null` khi gia hạn để lần sau còn nhắc tiếp.
+- Gửi cho **người dùng gói và người trả tiền** (`purchased_by`) nếu là hai người khác nhau —
+  phụ huynh trả tiền thì phụ huynh mới là người cần biết.
+- Chỉ gói trả phí. Gói Free không có gì để gia hạn.
+- Kênh mail + database, tôn trọng `NotificationType` (người dùng tắt được loại này).
+
+#### 3. Đối soát voucher
+
+- Quản trị → Giao dịch: hiện mã giảm và số tiền đã giảm ở cả danh sách lẫn trang chi tiết.
+- Email biên nhận `PaymentSucceeded`: có mã thì hiện **giá gốc − giảm = thực trả**.
+- Trang chi tiết một mã: danh sách lượt dùng (ai, đơn nào, giảm bao nhiêu, trạng thái, lúc nào)
+  để soi được mã bị lạm dụng.
+
 ### Còn nợ — rà lại 23/09/2026 (cập nhật sau đợt voucher + analytics)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
@@ -885,21 +918,12 @@ là **toàn bộ** việc còn lại đã biết.
 - [ ] **Nội dung thật** — mới 1/12 lớp có dữ liệu (4 bài học, 49 câu hỏi, 1 đề tính tới 21/09).
       Công cụ đã đủ cả: soạn bài, `QuestionImporter` nhập CSV, AI soạn nháp, ra đề. Thiếu **người nhập**,
       không phải thiếu code. Đây là thứ duy nhất chặn giữa "chạy được" và "bán được".
-- [ ] **Nhắc gói sắp hết hạn** *(~nửa buổi)* — mất doanh thu gia hạn.
-      Admin thấy ô "Hết hạn trong 7 ngày" (`Admin\SubscriptionController`), phụ huynh thấy "còn N ngày"
-      (`parent/dashboard.blade.php`), nhưng **không có email hay thông báo nào gửi đi**: gói cứ thế hết hạn.
-      Làm: thêm Notification + nhánh "còn 7/3/1 ngày" vào lệnh `subscriptions:expire` (đã chạy 00:05).
 
 #### B. Cam kết đã hứa nhưng chưa có công cụ
 
 - [ ] **Trang chủ quảng cáo tính năng không có** — `public/partials/hero.blade.php` có chip
       "+10 điểm" và "7 ngày liên tiếp", trong khi code **không có** streak hay điểm thưởng nào.
       Hai đường: bỏ 2 chip *(~1 giờ)*, hoặc làm gamification thật *(~2 buổi)*. **Chưa có quyết định.**
-- [ ] **Bảng hỏi đồng ý cookie** *(~nửa buổi)* — **phát sinh từ đợt bật GA/GTM ngày 23/09.**
-      Nghị định 13/2023/NĐ-CP yêu cầu có sự đồng ý trước khi xử lý dữ liệu cá nhân; hiện GA chạy ngay
-      từ lượt truy cập đầu, người dùng chỉ được *thông báo* trong Chính sách bảo mật chứ không được *chọn*.
-      Cần dải hỏi đồng ý: từ chối thì không nạp gtag/GTM (nhóm cookie bắt buộc vẫn chạy).
-      Phần lớn người dùng là trẻ em nên chỗ này không nên để nợ lâu.
 - [ ] **Tự tải bản sao dữ liệu** *(~1 buổi)* — Chính sách bảo mật §7 hứa "yêu cầu bản sao dữ liệu học tập",
       hiện chỉ xử lý tay qua email. Đúng y tình trạng của "xoá tài khoản" trước khi làm ở đợt 21/09.
       Làm theo cùng khuôn: service xuất JSON/CSV + nút trong trang Cài đặt.
@@ -911,11 +935,6 @@ là **toàn bộ** việc còn lại đã biết.
 - [ ] **Nhắc bài giao sắp đến hạn** *(~nửa buổi)* — hiện chỉ báo khi *đã có* kết quả
       (`SendActivityNotifications`), không nhắc trước deadline dù `AssignmentStudent` đủ dữ liệu.
 - [ ] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
-- [ ] **Giảm giá không hiện ở chỗ đối soát** *(~1 giờ)* — `payments.voucher_id` và `discount_amount` đã lưu
-      nhưng trang Quản trị → Giao dịch và email biên nhận `PaymentSucceeded` đều không nhắc tới.
-      Kế toán nhìn đơn 69.300₫ của gói 99.000₫ sẽ không biết vì sao.
-- [ ] **Danh sách lượt dùng của một mã** *(~nửa buổi)* — quản trị mới thấy con số tổng (đã dùng / đã giảm),
-      chưa xem được ai dùng, đơn nào, lúc nào. Thiếu cái này thì không soi được mã bị lạm dụng.
 - [ ] **URL mạng xã hội thật** — footer đã sẵn sàng nhưng 5 khoá trong `config/site.php` còn trống,
       nên khối icon đang ẩn. Chờ link thật, không bịa.
 

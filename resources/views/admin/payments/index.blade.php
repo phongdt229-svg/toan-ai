@@ -64,7 +64,16 @@
                                 <div class="text-secondary">cho {{ $payment->subscription->user->name }}</div>
                             @endif
                         </td>
-                        <td class="text-end">{{ $payment->amountLabel() }}</td>
+                        <td class="text-end">
+                            {{ $payment->amountLabel() }}
+                            @if ($payment->hasDiscount())
+                                {{-- Kế toán nhìn đơn lệ giá phải biết vì sao. --}}
+                                <div class="text-success small">
+                                    −{{ number_format((float) $payment->discount_amount, 0, ',', '.') }}₫
+                                    @if ($payment->voucher)<span class="font-monospace">{{ $payment->voucher->code }}</span>@endif
+                                </div>
+                            @endif
+                        </td>
                         <td>
                             <span class="badge text-bg-{{ $tone }}">{{ $payment->statusLabel() }}</span>
                             @if ($payment->flag_reason)<span class="badge text-bg-danger" title="{{ $payment->flag_reason }}">Nghi vấn</span>@endif

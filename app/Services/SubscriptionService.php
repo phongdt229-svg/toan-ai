@@ -189,6 +189,8 @@ class SubscriptionService
                 'starts_at' => $starts,
                 'ends_at' => $starts->copy()->addDays((int) $locked->duration_days),
                 'activated_at' => now(),
+                // Gia hạn xong thì nhắc lại từ đầu cho chu kỳ mới.
+                'expiry_reminded_days' => null,
             ]);
 
             self::$generation++;

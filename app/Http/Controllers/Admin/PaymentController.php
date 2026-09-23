@@ -21,7 +21,7 @@ class PaymentController extends Controller
 
         return view('admin.payments.index', [
             'payments' => Payment::query()
-                ->with('user', 'package', 'subscription.user')
+                ->with('user', 'package', 'voucher', 'subscription.user')
                 ->when(array_key_exists($status, Payment::STATUS_LABELS), fn ($q) => $q->where('status', $status))
                 ->when($status === 'flagged', fn ($q) => $q->whereNotNull('flag_reason'))
                 ->when($search !== '', fn ($q) => $q->where(fn ($w) => $w
@@ -77,7 +77,7 @@ class PaymentController extends Controller
     public function show(Payment $payment): View
     {
         return view('admin.payments.show', [
-            'payment' => $payment->load('user', 'package', 'subscription.user'),
+            'payment' => $payment->load('user', 'package', 'voucher', 'subscription.user'),
             'logs' => PaymentWebhookLog::where('order_code', $payment->order_code)->latest('id')->get(),
         ]);
     }

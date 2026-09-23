@@ -6,8 +6,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="@yield('meta_description', 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.')">
 
+    @php
+        // Chỉ nạp công cụ đo lường khi người dùng đã bấm "Đồng ý". Chặn ngay từ server:
+        // nạp script rồi mới gọi API tắt là muộn, cookie của Google đã đặt xong từ trước đó.
+        $analyticsAllowed = request()->cookie(\App\Http\Controllers\Web\CookieConsentController::COOKIE)
+            === \App\Http\Controllers\Web\CookieConsentController::ACCEPTED;
+    @endphp
+
     {{-- Google Tag Manager — Google yêu cầu đặt càng cao trong <head> càng tốt. Trống ở local/test. --}}
-    @if (config('site.google_tag_manager_id'))
+    @if ($analyticsAllowed && config('site.google_tag_manager_id'))
         <script>
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -74,7 +81,7 @@
         Đặt CUỐI <head>: script `async` nhưng vẫn là một lượt tải thêm, không để nó chen trước CSS.
         CSP hiện không khai script-src nên không phải mở thêm nguồn — xem SecurityHeaders.
     --}}
-    @if (config('site.google_analytics_id'))
+    @if ($analyticsAllowed && config('site.google_analytics_id'))
         @php $gaId = config('site.google_analytics_id'); @endphp
         <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
         <script>
@@ -87,7 +94,7 @@
 </head>
 <body>
     {{-- GTM bản dự phòng cho trình duyệt tắt JS — phải nằm ngay sau <body>. --}}
-    @if (config('site.google_tag_manager_id'))
+    @if ($analyticsAllowed && config('site.google_tag_manager_id'))
         <noscript>
             <iframe src="https://www.googletagmanager.com/ns.html?id={{ config('site.google_tag_manager_id') }}"
                     height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe>
@@ -124,6 +131,8 @@
     @endif
 
     @yield('body')
+
+    @include('components.cookie-consent')
 
     @stack('widgets')
     @stack('scripts')

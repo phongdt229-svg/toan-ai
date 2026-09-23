@@ -41,6 +41,18 @@ class VoucherController extends Controller
         ]);
     }
 
+    /** Danh sách lượt dùng của một mã — không có cái này thì không soi được mã bị lạm dụng. */
+    public function show(Voucher $voucher): View
+    {
+        return view('admin.vouchers.show', [
+            'voucher' => $voucher->load('packages:id,name', 'creator:id,name'),
+            'redemptions' => $voucher->redemptions()
+                ->with('user:id,name,email', 'payment:id,order_code,status,amount')
+                ->latest('id')
+                ->paginate(config('site.per_page')),
+        ]);
+    }
+
     public function create(): View
     {
         return view('admin.vouchers.form', [

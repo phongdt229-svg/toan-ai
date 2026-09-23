@@ -17,6 +17,11 @@ Schedule::command('exams:finalize-expired')
 
 // Dọn trạng thái gói: quá hạn → expired, chờ thanh toán bỏ dở > 24h → cancelled (§19).
 // Quyền truy cập vốn dựa vào ends_at nên job chạy trễ cũng không cho dùng lố hạn.
+// 08:00 chu khong gop vao subscriptions:expire luc 00:05 - khong ai muon nhan email gia han luc nua dem.
+Schedule::command('subscriptions:remind-expiring')
+    ->dailyAt('08:00')
+    ->withoutOverlapping();
+
 Schedule::command('subscriptions:expire')
     ->dailyAt('00:05')
     ->withoutOverlapping();

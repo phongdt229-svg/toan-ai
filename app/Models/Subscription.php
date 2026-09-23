@@ -23,6 +23,7 @@ class Subscription extends Model
     protected $fillable = [
         'user_id', 'purchased_by', 'package_id', 'status', 'price_paid', 'duration_days',
         'starts_at', 'ends_at', 'activated_at', 'cancelled_at', 'cancel_reason', 'source',
+        'expiry_reminded_days',
     ];
 
     protected function casts(): array

@@ -59,6 +59,17 @@
                 <ul class="list-unstyled small d-grid gap-2 mb-0">
                     <li><a href="{{ route('legal.terms') }}">Điều khoản sử dụng</a></li>
                     <li><a href="{{ route('legal.privacy') }}">Chính sách bảo mật</a></li>
+                    @if (config('site.google_analytics_id') || config('site.google_tag_manager_id'))
+                        {{-- Đổi lựa chọn cookie: xoá cookie ghi nhớ rồi dải hỏi hiện lại. --}}
+                        <li>
+                            <form method="POST" action="{{ route('cookie.destroy') }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-link p-0 border-0 align-baseline text-decoration-none small"
+                                        style="color:inherit">Cài đặt cookie</button>
+                            </form>
+                        </li>
+                    @endif
                 </ul>
             </div>
         </div>

@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Voucher;
+use App\Notifications\PaymentSucceeded;
 use App\Models\VoucherRedemption;
 use App\Services\Payment\PaymentException;
 use App\Services\Payment\PaymentService;
@@ -342,6 +343,63 @@ class VoucherTest extends SubscriptionTestCase
             ->assertSessionHas('error');
 
         $this->assertDatabaseHas('vouchers', ['id' => $voucher->id]);
+    }
+
+    public function test_the_admin_can_see_who_used_a_code(): void
+    {
+        $student = $this->makeStudent();
+        $package = $this->package('pro-thang');
+        $voucher = $this->voucher();
+
+        $this->actingAs($student)->post(route('packages.voucher.apply', $package), ['code' => 'GIAM50']);
+        $payment = $this->pay($student, $package);
+
+        $this->actingAs($this->makeAdmin())
+            ->get(route('admin.vouchers.show', $voucher))
+            ->assertOk()
+            ->assertSee($student->name)
+            ->assertSee($student->email)
+            ->assertSee($payment->order_code)
+            // Đơn chưa trả tiền xong thì lượt mới chỉ là giữ chỗ.
+            ->assertSee('Đang giữ chỗ');
+    }
+
+    public function test_the_discount_shows_up_where_accounting_looks(): void
+    {
+        $student = $this->makeStudent();
+        $package = $this->package('pro-thang');
+        $this->voucher();
+
+        $this->actingAs($student)->post(route('packages.voucher.apply', $package), ['code' => 'GIAM50']);
+        $payment = $this->pay($student, $package);
+
+        $admin = $this->makeAdmin();
+
+        $this->actingAs($admin)->get(route('admin.payments.index'))
+            ->assertOk()
+            ->assertSee('GIAM50');
+
+        $this->actingAs($admin)->get(route('admin.payments.show', $payment))
+            ->assertOk()
+            ->assertSee('Giá gốc')
+            ->assertSee('Số tiền thực trả')
+            ->assertSee(number_format((float) $package->price, 0, ',', '.'));
+    }
+
+    public function test_the_receipt_email_breaks_the_discount_down(): void
+    {
+        $student = $this->makeStudent();
+        $package = $this->package('pro-thang');
+        $this->voucher(['code' => 'MIENPHI', 'value' => 100]);
+
+        $this->actingAs($student)->post(route('packages.voucher.apply', $package), ['code' => 'MIENPHI']);
+        $payment = $this->pay($student, $package)->refresh();
+
+        $mail = (new PaymentSucceeded($payment))->toMail($student);
+        $body = collect($mail->introLines)->implode(' ');
+
+        $this->assertStringContainsString('MIENPHI', $body);
+        $this->assertStringContainsString('giảm', $body);
     }
 
     public function test_students_cannot_reach_the_admin_voucher_screens(): void
