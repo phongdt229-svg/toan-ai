@@ -8,6 +8,8 @@ use App\Notifications\ChildScoreLow;
 use App\Notifications\ExamResultReady;
 use App\Notifications\PaymentRefunded;
 use App\Notifications\PaymentSucceeded;
+use App\Notifications\QaAnswerAccepted;
+use App\Notifications\QaAnswerPosted;
 use App\Notifications\SubscriptionExpiringSoon;
 use App\Notifications\SupportTicketResolved;
 use App\Notifications\TeacherAccountApproved;
@@ -24,6 +26,8 @@ class NotificationType
         ExamResultReady::class => 'Có điểm bài kiểm tra',
         AssignmentSubmittedByStudent::class => 'Học sinh nộp bài giao',
         AssignmentDueSoon::class => 'Bài giao sắp hết hạn',
+        QaAnswerPosted::class => 'Câu hỏi của tôi có trả lời',
+        QaAnswerAccepted::class => 'Câu trả lời của tôi được chọn',
         TeacherAccountApproved::class => 'Tài khoản được duyệt',
         ChildScoreLow::class => 'Con điểm thấp',
         WeeklyReportReady::class => 'Báo cáo tuần sẵn sàng',

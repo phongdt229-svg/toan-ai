@@ -998,6 +998,49 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 - [x] **Pint** — dọn một lượt toàn repo, thêm job `pint --test` vào CI.
 - [x] Sửa: biểu đồ Chart.js tràn khỏi card đè chữ (`sizeBox`), favicon rỗng → logo TOÁN AI, trang Cài đặt quản trị gọn 2 cột.
 
+### ✅ Đã làm (24/09) — Hỏi đáp cho học sinh
+
+Chỗ hỏi bài công khai, khác AI Tutor: AI trả lời ngay nhưng không thay được lời giảng
+của giáo viên và cách nghĩ của bạn cùng lớp.
+
+#### Phạm vi v1
+
+- Học sinh đặt câu hỏi, **gắn vào một chủ đề** của khung chương trình (dùng lại 321 chủ đề
+  vừa dựng) → câu hỏi tự xếp theo lớp và chương, không cần thêm bộ lọc tay.
+- Ai đăng nhập cũng đọc được; học sinh và giáo viên đều trả lời được.
+  Giá trị lớn nhất của hỏi đáp là bạn cùng lứa giải thích cho nhau, khoá lại chỉ cho giáo viên
+  là mất phần đó.
+- Người hỏi **hoặc** giáo viên chọn **câu trả lời đúng** — người đọc sau biết tin cái nào.
+- Không nhắn riêng, không kết bạn, không avatar tự tải lên trong hỏi đáp: người dùng là trẻ em,
+  mọi thứ đều công khai và có người lớn nhìn thấy.
+
+#### An toàn — phần bắt buộc, không phải phần thêm
+
+- Nội dung qua `HtmlSanitizer` **lúc lưu** (đúng luật chung của repo).
+- **Báo xấu**: bất kỳ ai cũng báo được; 1 người 1 lần cho mỗi nội dung.
+  Đủ ngưỡng báo thì nội dung **tự ẩn** chờ giáo viên/quản trị xem — không để nội dung bẩn
+  nằm chờ suốt đêm tới lúc có người trực.
+- Giáo viên và quản trị ẩn/hiện được mọi nội dung, có audit log.
+- Throttle khi đăng: chặn spam và chặn cả việc một em bực mình dội câu hỏi liên tục.
+- Không cho sửa sau khi đã có câu trả lời (sửa sau khi được trả lời là cách kinh điển
+  để biến câu hỏi hiền thành câu hỏi bẩn).
+
+#### Quyết định đã chốt
+
+- **Không gắn vào gói trả phí.** Hỏi đáp là chỗ học sinh Free thấy giá trị của cộng đồng;
+  khoá lại thì diễn đàn chết trước khi kịp sống.
+- **Không có vote/điểm danh tiếng.** Chấm điểm lẫn nhau giữa trẻ em tạo áp lực xếp hạng,
+  và ta vừa mới bỏ hai chip gamification giả ở trang chủ vì lý do trung thực.
+- Thông báo khi câu hỏi của mình có trả lời, và khi câu trả lời của mình được chọn —
+  qua chuông + push, **không gửi email** (cùng lý do với nhắc bài giao: sẽ thành rác).
+
+#### Bảng
+
+`qa_questions`: user_id · topic_id · title · body · status (`open`/`resolved`/`hidden`) ·
+best_answer_id · answers_count · reports_count · timestamps
+`qa_answers`: question_id · user_id · body · status (`visible`/`hidden`) · reports_count · timestamps
+`qa_reports`: reportable (question/answer) · user_id · reason — unique(reportable, user) chặn báo nhiều lần
+
 ### Còn nợ — rà lại 23/09/2026 (lần 2, sau đợt cookie + nhắc gia hạn)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây

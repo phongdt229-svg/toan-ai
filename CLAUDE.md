@@ -65,6 +65,9 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Local/test để TRỐNG để không làm bẩn số liệu thật — thử thì đặt `GOOGLE_ANALYTICS_ID` / `GOOGLE_TAG_MANAGER_ID` trong `.env`.
   Bật thêm công cụ theo dõi nào cũng **phải khai vào Chính sách bảo mật §3 + §8** và sửa `legal_updated_at`;
   `SeoTest` có test canh đúng chuyện này.
+- Hỏi đáp: mọi luật an toàn ở `QaService` — lọc HTML lúc lưu, tự ẩn khi đủ `REPORTS_TO_HIDE` lượt báo,
+  không sửa được câu hỏi đã có người trả lời. `answers_count` là cột đếm sẵn: ẩn/hiện câu trả lời phải gọi lại `syncAnswerCount()`.
+  Một người chỉ báo xấu một lần cho mỗi nội dung (unique ở DB) — nếu không nó thành công cụ bắt nạt.
 - Khung chương trình 1–12 ở [database/data/curriculum.php](database/data/curriculum.php), nạp bằng
   `php artisan db:seed --class=CurriculumSkeletonSeeder` (idempotent, **không ghi đè** chương/chủ đề thêm tay).
   Đây là BỘ KHUNG — tên chương mỗi bộ sách một khác, giáo viên sửa ở Quản trị → Chương trình.

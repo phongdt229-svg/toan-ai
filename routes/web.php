@@ -40,6 +40,7 @@ use App\Http\Controllers\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Student\ParentConnectionController;
 use App\Http\Controllers\Student\PlacementController;
 use App\Http\Controllers\Student\PracticeController;
+use App\Http\Controllers\Student\QaController;
 use App\Http\Controllers\Student\SettingsController as StudentSettingsController;
 use App\Http\Controllers\Student\SubscriptionController as StudentSubscriptionController;
 use App\Http\Controllers\Teacher\AiContentController;
@@ -178,6 +179,20 @@ Route::middleware('auth')->group(function () {
         // Đăng ký nhận thông báo đẩy của từng trình duyệt (gọi bằng fetch từ trang Cài đặt).
         Route::post('thong-bao/day', [PushSubscriptionController::class, 'store'])->name('push.store');
         Route::delete('thong-bao/day', [PushSubscriptionController::class, 'destroy'])->name('push.destroy');
+
+        // Hỏi đáp: học sinh và giáo viên cùng dùng chung màn hình, Policy quyết định ai làm gì.
+        // Throttle khi đăng: chặn spam và chặn cả việc một em bực mình dội câu hỏi liên tục.
+        Route::get('hoi-dap', [QaController::class, 'index'])->name('student.qa.index');
+        Route::get('hoi-dap/dat-cau-hoi', [QaController::class, 'create'])->name('student.qa.create');
+        Route::post('hoi-dap', [QaController::class, 'store'])
+            ->middleware('throttle:10,60')->name('student.qa.store');
+        Route::get('hoi-dap/{question}', [QaController::class, 'show'])->name('student.qa.show');
+        Route::post('hoi-dap/{question}/tra-loi', [QaController::class, 'answer'])
+            ->middleware('throttle:30,60')->name('student.qa.answer');
+        Route::post('hoi-dap/{question}/chon/{answer}', [QaController::class, 'accept'])->name('student.qa.accept');
+        Route::post('hoi-dap/bao-xau/{type}/{id}', [QaController::class, 'report'])
+            ->middleware('throttle:20,60')->name('student.qa.report');
+        Route::post('hoi-dap/kiem-duyet/{type}/{id}', [QaController::class, 'moderate'])->name('student.qa.moderate');
 
         // Học sinh mua cho mình, phụ huynh mua cho con — controller tự kiểm tra role.
         Route::get('goi-hoc/{package}/mua', [PackageController::class, 'checkout'])
