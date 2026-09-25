@@ -129,6 +129,16 @@
                            @checked(old('is_active', $voucher->is_active ?? true))>
                     <label class="form-check-label" for="is_active">Đang bật</label>
                 </div>
+
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="is_public" value="1" id="is_public"
+                           @checked(old('is_public', $voucher->is_public ?? false))>
+                    <label class="form-check-label" for="is_public">Khoe ở trang Gói học</label>
+                    <div class="form-text">
+                        Bật là <strong>ai vào trang Gói học cũng thấy mã này</strong> và bấm một nút là áp được.
+                        Mã dành cho một trường hay một nhóm thử nghiệm thì để tắt.
+                    </div>
+                </div>
             </div>
         </div>
 

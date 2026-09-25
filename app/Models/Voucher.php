@@ -26,7 +26,7 @@ class Voucher extends Model
 
     protected $fillable = [
         'code', 'description', 'type', 'value', 'max_discount', 'min_order_amount',
-        'starts_at', 'ends_at', 'max_uses', 'max_uses_per_user', 'is_active', 'created_by',
+        'starts_at', 'ends_at', 'max_uses', 'max_uses_per_user', 'is_active', 'is_public', 'created_by',
     ];
 
     protected function casts(): array
@@ -40,6 +40,7 @@ class Voucher extends Model
             'max_uses' => 'integer',
             'max_uses_per_user' => 'integer',
             'is_active' => 'boolean',
+            'is_public' => 'boolean',
         ];
     }
 

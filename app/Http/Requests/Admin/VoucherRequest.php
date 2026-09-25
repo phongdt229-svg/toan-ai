@@ -19,6 +19,7 @@ class VoucherRequest extends FormRequest
         $this->merge([
             'code' => Voucher::normalizeCode($this->input('code')),
             'is_active' => $this->boolean('is_active'),
+            'is_public' => $this->boolean('is_public'),
         ]);
     }
 
@@ -41,6 +42,7 @@ class VoucherRequest extends FormRequest
             'max_uses' => ['nullable', 'integer', 'min:1', 'max:1000000'],
             'max_uses_per_user' => ['required', 'integer', 'min:1', 'max:1000'],
             'is_active' => ['boolean'],
+            'is_public' => ['boolean'],
             'packages' => ['array'],
             'packages.*' => ['integer', 'exists:packages,id'],
         ];

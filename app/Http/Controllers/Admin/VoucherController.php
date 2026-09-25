@@ -125,7 +125,7 @@ class VoucherController extends Controller
     {
         return $voucher->only([
             'code', 'type', 'value', 'max_discount', 'min_order_amount',
-            'starts_at', 'ends_at', 'max_uses', 'max_uses_per_user', 'is_active',
+            'starts_at', 'ends_at', 'max_uses', 'max_uses_per_user', 'is_active', 'is_public',
         ]);
     }
 }

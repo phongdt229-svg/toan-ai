@@ -34,6 +34,7 @@ class PackageController extends Controller
 
         return view('public.packages.index', [
             'tiers' => Package::catalog(),
+            'offers' => $this->vouchers->publicOffers(),
             'currentTier' => $user?->isStudent() ? $this->subscriptions->tier($user) : null,
             'current' => $user?->isStudent() ? $this->subscriptions->effective($user) : null,
         ]);

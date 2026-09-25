@@ -998,6 +998,14 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 - [x] **Pint** — dọn một lượt toàn repo, thêm job `pint --test` vào CI.
 - [x] Sửa: biểu đồ Chart.js tràn khỏi card đè chữ (`sizeBox`), favicon rỗng → logo TOÁN AI, trang Cài đặt quản trị gọn 2 cột.
 
+### ✅ Đã làm (25/09) — giới thiệu mã giảm giá công khai · nút cài ứng dụng
+
+- Trang Gói học hiện các mã đang chạy mà admin bật công khai (`vouchers.is_public`, mặc định tắt);
+  bấm một nút là áp mã qua link `?ma=`, chạy cả khi chưa đăng nhập.
+- **Sửa lỗi do đợt 23/09 để lại**: khách chưa đăng nhập mở link `?ma=` bị 500 vì `quote()` đòi `User`
+  không null — đúng loại link dùng để chạy quảng cáo.
+- Nút "Cài ứng dụng" ở hero, ẩn cho tới khi trình duyệt báo cài được.
+
 ### ✅ Đã làm (24/09) — Hỏi đáp cho học sinh
 
 Chỗ hỏi bài công khai, khác AI Tutor: AI trả lời ngay nhưng không thay được lời giảng

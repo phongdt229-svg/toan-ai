@@ -65,6 +65,11 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Local/test để TRỐNG để không làm bẩn số liệu thật — thử thì đặt `GOOGLE_ANALYTICS_ID` / `GOOGLE_TAG_MANAGER_ID` trong `.env`.
   Bật thêm công cụ theo dõi nào cũng **phải khai vào Chính sách bảo mật §3 + §8** và sửa `legal_updated_at`;
   `SeoTest` có test canh đúng chuyện này.
+- Mã giảm giá công khai: `vouchers.is_public` **mặc định tắt** — mã của một chiến dịch riêng đem khoe ở
+  trang Gói học là ai cũng dùng được. `VoucherService::publicOffers()` lọc luôn mã hết lượt/hết hạn.
+  `quote()` nhận user **nullable**: phần lớn người bấm link `?ma=` là khách chưa đăng nhập.
+- Nút cài ứng dụng (`resources/js/install-app.js`) gửi xuống ở trạng thái `hidden`, chỉ hiện khi trình duyệt
+  bắn `beforeinstallprompt`. Safari iPhone không bắn — bài hướng dẫn "Cài như ứng dụng" lo phần đó.
 - Hỏi đáp: mọi luật an toàn ở `QaService` — lọc HTML lúc lưu, tự ẩn khi đủ `REPORTS_TO_HIDE` lượt báo,
   không sửa được câu hỏi đã có người trả lời. `answers_count` là cột đếm sẵn: ẩn/hiện câu trả lời phải gọi lại `syncAnswerCount()`.
   Một người chỉ báo xấu một lần cho mỗi nội dung (unique ở DB) — nếu không nó thành công cụ bắt nạt.

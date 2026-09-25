@@ -24,6 +24,13 @@
                         <i class="bi bi-rocket-takeoff"></i>Bắt đầu học miễn phí
                     </a>
                     <a href="#chuong-trinh" class="btn btn-outline-primary btn-lg btn-touch">Xem chương trình</a>
+
+                    {{-- Ẩn sẵn; install-app.js chỉ hiện khi trình duyệt báo là cài được.
+                         iPhone không bắn sự kiện đó nên nút không hiện — bài hướng dẫn lo phần đó. --}}
+                    <button type="button" data-install-app hidden
+                            class="btn btn-outline-secondary btn-lg btn-touch">
+                        <i class="bi bi-download me-1"></i>Cài ứng dụng
+                    </button>
                 </div>
 
                 {{-- Chỉ nêu điều đúng với sản phẩm, không bịa số người dùng. --}}

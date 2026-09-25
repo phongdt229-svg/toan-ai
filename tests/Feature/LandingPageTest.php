@@ -33,6 +33,16 @@ class LandingPageTest extends TestCase
             ->assertSee('Cài như ứng dụng');
     }
 
+    public function test_the_install_button_is_hidden_until_the_browser_says_it_is_installable(): void
+    {
+        // Nút gửi xuống ở trạng thái `hidden`; install-app.js mới bỏ `hidden` khi trình duyệt
+        // bắn beforeinstallprompt. Safari iPhone không bắn nên nút không bao giờ hiện ở đó —
+        // hiện nút chết thì bấm vào không có gì xảy ra.
+        $this->get('/')->assertOk()
+            ->assertSee('data-install-app hidden', false)
+            ->assertSee('Cài ứng dụng');
+    }
+
     public function test_login_and_register_pages_render(): void
     {
         $this->seed(GradeSeeder::class);

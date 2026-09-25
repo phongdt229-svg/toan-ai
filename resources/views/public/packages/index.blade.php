@@ -15,6 +15,8 @@
                 Bắt đầu miễn phí. Nâng cấp khi cần luyện nhiều hơn và dùng AI Tutor thoải mái.
             </p>
 
+            @include('public.partials.voucher-offers')
+
             @if ($current)
                 <div class="alert alert-success d-flex flex-wrap align-items-center gap-2">
                     <i class="bi bi-gem"></i>

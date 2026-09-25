@@ -4,6 +4,10 @@
 @section('meta_description', 'Học Toán lớp 1–12 theo đúng chương trình: bài giảng, luyện tập chấm ngay, đề kiểm tra và AI giảng lại từng bước khi làm sai.')
 @section('html_class', 'landing-snap')
 
+@push('scripts')
+    @vite('resources/js/install-app.js')
+@endpush
+
 @section('body')
     @include('public.partials.header')
 

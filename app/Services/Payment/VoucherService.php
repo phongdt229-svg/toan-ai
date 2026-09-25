@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherRedemption;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -28,7 +29,7 @@ class VoucherService
      *
      * @throws VoucherException
      */
-    public function quote(string $code, Package $package, User $user): VoucherQuote
+    public function quote(string $code, Package $package, ?User $user = null): VoucherQuote
     {
         $voucher = Voucher::with('packages')->where('code', Voucher::normalizeCode($code))->first();
 
@@ -43,7 +44,7 @@ class VoucherService
      * Như `quote()` nhưng mã sai thì trả về null thay vì nổ — dùng khi vẽ lại trang xác nhận
      * với mã đang lưu trong session: mã vừa hết hạn không nên chặn người dùng mua gói.
      */
-    public function quoteOrNull(?string $code, Package $package, User $user): ?VoucherQuote
+    public function quoteOrNull(?string $code, Package $package, ?User $user = null): ?VoucherQuote
     {
         if ($code === null || trim($code) === '') {
             return null;
@@ -96,6 +97,29 @@ class VoucherService
             ->update(['released_at' => now()]);
     }
 
+    /**
+     * Các mã đang chạy và được phép đem khoe ở trang Gói học.
+     *
+     * Lọc luôn mã đã hết lượt: quảng cáo một mã mà bấm vào báo "hết lượt" còn tệ hơn
+     * là không quảng cáo gì.
+     *
+     * @return Collection<int, Voucher>
+     */
+    public function publicOffers(): Collection
+    {
+        return Voucher::query()
+            ->with('packages:id,name')
+            ->where('is_active', true)
+            ->where('is_public', true)
+            ->where(fn ($q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+            ->withCount(['redemptions as used' => fn ($q) => $q->whereNull('released_at')])
+            ->orderByDesc('value')
+            ->get()
+            ->filter(fn (Voucher $v) => $v->max_uses === null || $v->used < $v->max_uses)
+            ->values();
+    }
+
     /** Số lượt đang bị giữ hoặc đã dùng. */
     public function usedCount(Voucher $voucher): int
     {
@@ -110,7 +134,7 @@ class VoucherService
      *
      * @throws VoucherException
      */
-    private function evaluate(Voucher $voucher, Package $package, User $user): VoucherQuote
+    private function evaluate(Voucher $voucher, Package $package, ?User $user): VoucherQuote
     {
         if (! $voucher->is_active) {
             throw new VoucherException('Mã giảm giá đã ngừng sử dụng.');
@@ -138,9 +162,12 @@ class VoucherService
             throw new VoucherException('Mã giảm giá đã hết lượt sử dụng.');
         }
 
-        $mine = $voucher->heldRedemptions()->where('user_id', $user->id)->count();
+        // Khách chưa đăng nhập: bỏ qua bước đếm lượt của riêng họ — phần lớn người bấm link
+        // quảng cáo là chưa đăng nhập, không thể để cả luồng chết vì chưa biết họ là ai.
+        // Lượt của từng người vẫn được kiểm lại đầy đủ ở hold() lúc tạo đơn.
+        $mine = $user ? $voucher->heldRedemptions()->where('user_id', $user->id)->count() : 0;
 
-        if ($mine >= $voucher->max_uses_per_user) {
+        if ($user && $mine >= $voucher->max_uses_per_user) {
             throw new VoucherException($voucher->max_uses_per_user === 1
                 ? 'Bạn đã dùng mã này rồi.'
                 : "Bạn đã dùng hết {$voucher->max_uses_per_user} lượt của mã này.");
