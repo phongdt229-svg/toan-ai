@@ -43,6 +43,31 @@ class LandingPageTest extends TestCase
             ->assertSee('Cài ứng dụng');
     }
 
+    public function test_the_faq_answers_the_questions_a_paying_parent_asks(): void
+    {
+        $this->get('/')->assertOk()
+            ->assertSee('Hỏi thường gặp')
+            ->assertSee('Không trả tiền thì dùng được gì?')
+            ->assertSee('AI có làm bài hộ con không?');
+    }
+
+    public function test_the_faq_structured_data_matches_what_is_on_screen(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+
+        preg_match('~<script type="application/ld\+json">(.*?)</script>~s', $html, $m);
+        $this->assertNotEmpty($m, 'Thiếu dữ liệu có cấu trúc FAQ cho Google.');
+
+        $data = json_decode($m[1], true);
+        $this->assertSame('FAQPage', $data['@type']);
+
+        // Google phạt trang khai một đằng hiện một nẻo — mọi câu khai báo phải có trên màn hình.
+        foreach ($data['mainEntity'] as $entry) {
+            $this->assertStringContainsString($entry['name'], $html);
+            $this->assertNotEmpty($entry['acceptedAnswer']['text']);
+        }
+    }
+
     public function test_login_and_register_pages_render(): void
     {
         $this->seed(GradeSeeder::class);

@@ -998,7 +998,12 @@ giáo viên soạn + xuất bản được bài; admin dựng được cây chư
 - [x] **Pint** — dọn một lượt toàn repo, thêm job `pint --test` vào CI.
 - [x] Sửa: biểu đồ Chart.js tràn khỏi card đè chữ (`sizeBox`), favicon rỗng → logo TOÁN AI, trang Cài đặt quản trị gọn 2 cột.
 
-### ✅ Đã làm (25/09) — giới thiệu mã giảm giá công khai · nút cài ứng dụng
+### ✅ Đã làm (25/09) — giới thiệu mã giảm giá công khai · nút cài ứng dụng · Hỏi thường gặp
+
+- **Hỏi thường gặp** trên trang chủ, đặt NGAY SAU bảng giá: người ta xem giá xong mới sinh thắc mắc.
+  6 câu bám đúng sản phẩm đang chạy (gói Free, lớp 1–12, AI không làm bài hộ, báo cáo tuần cho phụ huynh,
+  MoMo cộng nối, chính sách dữ liệu). Kèm dữ liệu có cấu trúc `FAQPage` cho Google — câu khai báo và câu
+  hiện trên màn hình đọc từ **cùng một mảng**, vì Google phạt trang khai một đằng hiện một nẻo.
 
 - Trang Gói học hiện các mã đang chạy mà admin bật công khai (`vouchers.is_public`, mặc định tắt);
   bấm một nút là áp mã qua link `?ma=`, chạy cả khi chưa đăng nhập.

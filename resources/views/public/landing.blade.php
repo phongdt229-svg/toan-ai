@@ -21,6 +21,7 @@
         @include('public.partials.for-parent')
         @include('public.partials.grades')
         @include('public.partials.pricing')
+        @include('public.partials.faq')
         @include('public.partials.cta')
     </main>
 
