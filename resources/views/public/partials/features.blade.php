@@ -6,6 +6,11 @@
         ['bi-clipboard-check', '', 'Đề kiểm tra', 'Đề có bấm giờ, chấm điểm, xem lại từng câu sau khi nộp.'],
         ['bi-robot', 'feature-card--accent', 'AI Tutor', 'Gợi ý, giải thích, phân tích lỗi sai và cho bài tương tự.'],
         ['bi-graph-up-arrow', 'feature-card--success', 'Tiến độ', 'Biểu đồ theo chủ đề: mạnh ở đâu, yếu ở đâu, học bao lâu.'],
+        // Ba mục dưới đây đều là tính năng ĐÃ CHẠY, không phải kế hoạch:
+        // QaService, PlacementTestService + LearningPathService, và service worker + manifest.
+        ['bi-chat-dots', '', 'Hỏi đáp', 'Hỏi bài công khai, thầy cô và các bạn cùng trả lời — có lời giải được chọn.'],
+        ['bi-signpost-split', 'feature-card--accent', 'Lộ trình riêng', 'Làm bài kiểm tra đầu vào, hệ thống xếp lộ trình theo đúng sức học.'],
+        ['bi-phone', 'feature-card--success', 'Cài như ứng dụng', 'Thêm vào màn hình chính điện thoại, bài đã mở vẫn đọc được khi mất mạng.'],
     ];
 @endphp
 
@@ -14,7 +19,7 @@
         <div class="text-center mb-4">
             <span class="section__eyebrow"><i class="bi bi-grid-1x2"></i>Tính năng</span>
             <h2 class="section__title mb-2">Đủ mọi thứ cho <span class="hl">một buổi học Toán</span></h2>
-            <p class="section__subtitle mx-auto">Từ đọc lý thuyết đến kiểm tra — tất cả trong một chỗ.</p>
+            <p class="section__subtitle mx-auto">Từ đọc lý thuyết đến hỏi bài — tất cả trong một chỗ.</p>
         </div>
 
         <div class="row g-3">
