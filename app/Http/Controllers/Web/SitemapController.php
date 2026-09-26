@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlogPost;
 use Illuminate\Http\Response;
 
 /**
@@ -28,6 +29,12 @@ class SitemapController extends Controller
 
         foreach (array_keys(config('guides.articles', [])) as $slug) {
             $urls[] = ['loc' => route('guides.show', $slug), 'priority' => '0.6', 'changefreq' => 'monthly'];
+        }
+
+        $urls[] = ['loc' => route('blog.index'), 'priority' => '0.6', 'changefreq' => 'weekly'];
+
+        foreach (BlogPost::published()->pluck('slug') as $slug) {
+            $urls[] = ['loc' => route('blog.show', $slug), 'priority' => '0.5', 'changefreq' => 'monthly'];
         }
 
         $lastmod = now()->toAtomString();

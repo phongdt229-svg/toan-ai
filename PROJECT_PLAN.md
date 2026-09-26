@@ -1069,6 +1069,39 @@ Nút cài PWA trước đó nằm lẫn trong hero (một dòng nhỏ), yêu c�
 - [x] Xem trước icon trên "màn hình chính" dùng đúng `icon-192.png` thật, không dựng ảnh giả.
       Test `LandingPageTest` cập nhật theo nội dung mới.
 
+### ✅ Đã làm (26/09) — Blog / Tin tức (bài giới thiệu + khuyến mãi, có danh mục)
+
+Yêu cầu: admin viết được bài giới thiệu sản phẩm và tin khuyến mãi/sự kiện, phân theo danh mục,
+hiển thị công khai. Không dựng "loại bài" cứng (article/event) — dùng DANH MỤC làm phân loại,
+admin tự đặt tên danh mục ("Giới thiệu", "Khuyến mãi", "Sự kiện"...) qua màn quản trị, linh hoạt
+hơn enum cứng và đúng đề bài "có danh mục bài viết".
+
+- [x] **Bảng**: `blog_categories` (name, slug, sort_order) · `blog_posts` (blog_category_id
+      restrictOnDelete, title, slug unique, excerpt, content, cover_path nullable, status
+      draft/published, published_at nullable timestamp — theo đúng tiền lệ `Lesson.published_at`,
+      created_by nullOnDelete).
+- [x] **Quyền**: chỉ admin viết/sửa/xoá — kiểm `isAdmin()` thẳng trong Form Request, không cần
+      Policy riêng (`Gate::before` đã cho admin qua hết, đúng tiền lệ `ReasonRequest`/`GrantSubscriptionRequest`).
+      Đọc bài đã xuất bản thì công khai, không cần đăng nhập.
+- [x] **Route công khai**: `/tin-tuc` (danh sách, lọc `?danh-muc=slug`, phân trang), `/tin-tuc/{slug}`.
+      Thêm vào `SitemapController` (trang danh sách + từng bài đã xuất bản) và OG qua
+      `@section('og_title'/'og_description'/'og_image')` có sẵn ở `layouts/base`.
+- [x] **Route quản trị**: `/quan-tri/bai-viet` (CRUD + xuất bản/gỡ xuất bản), `/quan-tri/danh-muc-bai-viet`
+      (CRUD danh mục — chặn xoá danh mục còn bài viết, cùng kiểu chặn với Voucher đã dùng người).
+- [x] **Nội dung**: HtmlSanitizer lọc lúc lưu (mutator trên model, đúng luật chung). Trình soạn
+      dùng lại `resources/js/lesson-editor.js` (`data-rich-editor`) — không viết editor mới.
+- [x] **Ảnh bìa**: validate `image|mimes:jpg,jpeg,png,webp|max:2048`, lưu disk `public`, tên file
+      tự sinh (không tin tên gốc người upload), xoá file cũ khi thay/khi xoá bài.
+- [x] **Audit log**: `blog.created` / `blog.updated` / `blog.deleted` /
+      `blog.category_created` / `blog.category_updated` / `blog.category_deleted`.
+- [x] **Menu**: "Bài viết" + "Danh mục bài viết" vào nav admin; "Tin tức" vào header công khai.
+- [x] **Test**: CRUD, chỉ admin viết được, sanitizer chạy lúc lưu, bài nháp ẩn khỏi trang công khai,
+      thay ảnh xoá ảnh cũ, chặn xoá danh mục còn bài, bài đã xuất bản có trong sitemap — 12 test mới
+      (`tests/Feature/Blog/BlogTest.php`), 619 test toàn repo xanh, Pint sạch.
+- [x] **Báo cáo** — `BlogReportService` (tổng số bài/đã xuất bản/nháp, biểu đồ 30 ngày, biểu đồ theo
+      danh mục) hiện ngay đầu trang Quản trị → Bài viết. Tái dùng `renderCountDaily`/`renderCountBars`
+      có sẵn trong `charts.js` — không viết chart mới.
+
 ### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
 
 Rà lại tính năng Hỏi đáp (24/09, phiên khác) trước khi làm tiếp — phát hiện 2 lỗi UX,

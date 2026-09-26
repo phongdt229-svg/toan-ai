@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\AiUsageController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\BlogCategoryController;
+use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\ImpersonationController;
@@ -58,6 +60,7 @@ use App\Http\Controllers\Teacher\SearchController as TeacherSearchController;
 use App\Http\Controllers\Teacher\SettingsController as TeacherSettingsController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
+use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\CookieConsentController;
 use App\Http\Controllers\Web\GuideController;
 use App\Http\Controllers\Web\LandingController;
@@ -87,6 +90,10 @@ Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy')
 // Trung tâm hướng dẫn — nội dung tĩnh trong config/guides.php, ai cũng xem được.
 Route::get('huong-dan', [GuideController::class, 'index'])->name('guides.index');
 Route::get('huong-dan/{slug}', [GuideController::class, 'show'])->name('guides.show');
+
+// Tin tức: bài giới thiệu + khuyến mãi do admin viết (kế hoạch 26/09), ai cũng xem được.
+Route::get('tin-tuc', [BlogController::class, 'index'])->name('blog.index');
+Route::get('tin-tuc/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 
 // Lựa chọn cookie — ai cũng dùng được, kể cả khách chưa đăng nhập.
 Route::post('cookie', [CookieConsentController::class, 'store'])->name('cookie.store');
@@ -491,6 +498,18 @@ Route::middleware('auth')->group(function () {
                 ->name('curriculum.topics.store');
             Route::delete('chuong-trinh/chu-de/{topic}', [CurriculumController::class, 'destroyTopic'])
                 ->name('curriculum.topics.destroy');
+
+            Route::get('bai-viet', [BlogPostController::class, 'index'])->name('blog.index');
+            Route::get('bai-viet/tao-moi', [BlogPostController::class, 'create'])->name('blog.create');
+            Route::post('bai-viet', [BlogPostController::class, 'store'])->name('blog.store');
+            Route::get('bai-viet/{post}/sua', [BlogPostController::class, 'edit'])->name('blog.edit');
+            Route::put('bai-viet/{post}', [BlogPostController::class, 'update'])->name('blog.update');
+            Route::delete('bai-viet/{post}', [BlogPostController::class, 'destroy'])->name('blog.destroy');
+
+            Route::get('danh-muc-bai-viet', [BlogCategoryController::class, 'index'])->name('blog-categories.index');
+            Route::post('danh-muc-bai-viet', [BlogCategoryController::class, 'store'])->name('blog-categories.store');
+            Route::put('danh-muc-bai-viet/{category}', [BlogCategoryController::class, 'update'])->name('blog-categories.update');
+            Route::delete('danh-muc-bai-viet/{category}', [BlogCategoryController::class, 'destroy'])->name('blog-categories.destroy');
         });
     });
 });

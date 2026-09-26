@@ -47,6 +47,7 @@
             <div class="col-6 col-lg-2">
                 <div class="site-footer__heading">Hỗ trợ</div>
                 <ul class="list-unstyled small d-grid gap-2 mb-0">
+                    <li><a href="{{ route('blog.index') }}">Tin tức</a></li>
                     <li><a href="{{ route('guides.index') }}">Hướng dẫn sử dụng</a></li>
                     <li><a href="{{ route('password.request') }}">Quên mật khẩu</a></li>
                     <li><a href="{{ route('support.create') }}">Gửi yêu cầu hỗ trợ</a></li>

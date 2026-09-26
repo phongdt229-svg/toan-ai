@@ -106,6 +106,9 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   TRƯỚC khi gọi MoMo và không tự gửi lại khi chưa rõ kết quả. Thêm chỗ nào kiểm "đã xử lý xong" cho đơn thì nhớ `isRefunded()`.
   Doanh thu luôn tính ròng `amount - refunded_amount` (hoàn một phần vẫn để đơn `paid`) — truy vấn doanh thu mới phải theo đúng công thức này.
 - Số liệu GA trong Quản trị đọc qua `AnalyticsReportService` (service account chỉ đọc). File khoá JSON để ngoài repo, không commit.
+- Blog/Tin tức: chỉ `App\Services\Content\BlogService` tạo/sửa/xoá (slug tự sinh, published_at chỉ đổi khi
+  chuyển trạng thái, xoá ảnh bìa cũ khi thay/khi xoá bài). Chỉ admin viết — kiểm `isAdmin()` thẳng trong Form
+  Request (không cần Policy riêng, `Gate::before` đã cho admin qua hết). Nội dung qua `HtmlSanitizer` như Lesson.
 - Tạo đề bằng AI: chỉ câu giáo viên đã chấp nhận mới vào đề, đề luôn ở trạng thái Nháp (`createExamFromDraft`).
 - Đổi model AI → thêm dòng giá ở `config/ai.php → pricing`, nếu không trang AI usage hiện 0₫ (có cảnh báo).
 - Chart.js: canvas được bọc khung riêng bởi `sizeBox()` trong `resources/js/charts.js` — đừng đặt height lên `card-body`.

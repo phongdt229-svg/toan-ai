@@ -54,6 +54,8 @@ return [
         ['label' => 'Duyệt giáo viên', 'icon' => 'bi-person-check', 'route' => 'admin.teachers.pending', 'bottom' => true],
         ['label' => 'Người dùng', 'icon' => 'bi-people', 'route' => 'admin.users.index', 'bottom' => true],
         ['label' => 'Chương trình', 'icon' => 'bi-diagram-3', 'route' => 'admin.curriculum.index', 'bottom' => true],
+        ['label' => 'Bài viết', 'icon' => 'bi-newspaper', 'route' => 'admin.blog.index', 'bottom' => false],
+        ['label' => 'Danh mục bài viết', 'icon' => 'bi-tags', 'route' => 'admin.blog-categories.index', 'bottom' => false],
         ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => 'admin.packages.index', 'bottom' => false],
         ['label' => 'Mã giảm giá', 'icon' => 'bi-ticket-perforated', 'route' => 'admin.vouchers.index', 'bottom' => false],
         ['label' => 'Đăng ký gói', 'icon' => 'bi-person-vcard', 'route' => 'admin.subscriptions.index', 'bottom' => false],
