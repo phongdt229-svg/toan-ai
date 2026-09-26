@@ -598,6 +598,18 @@
         opacity: .4;
     }
 
+    // Hai quầng sáng xanh — cùng công thức với .hero__blob nhưng tông lạnh hơn cho hợp nền tối.
+    // Trôi nhẹ giống hero, tắt hẳn khi người dùng chọn "giảm chuyển động" (prefers-reduced-motion).
+    &__glow {
+        &--1 { @include blob(460px, #38bdf8, .3); top: -160px; right: -100px; }
+        &--2 { @include blob(340px, #818cf8, .22); bottom: -160px; left: -80px; }
+
+        @media (prefers-reduced-motion: no-preference) {
+            animation: drift 20s ease-in-out infinite;
+            &--2 { animation-duration: 25s; animation-delay: -10s; }
+        }
+    }
+
     > .container { position: relative; z-index: 1; }
 
     &__eyebrow {

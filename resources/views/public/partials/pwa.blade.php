@@ -20,6 +20,9 @@
 @endphp
 
 <section class="pwa-band" id="cai-dat-ung-dung">
+    <span class="pwa-band__glow pwa-band__glow--1" aria-hidden="true"></span>
+    <span class="pwa-band__glow pwa-band__glow--2" aria-hidden="true"></span>
+
     <div class="container">
         <div class="row align-items-center g-4 g-lg-5">
             <div class="col-12 col-lg-7">
