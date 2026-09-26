@@ -1108,6 +1108,11 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       không có font tiếng Việt để in chữ lên ảnh và ảnh stock ngoài dễ dính bản quyền.
 - [x] **Section "Tin tức" ở trang chủ** — 6 bài mới nhất đã xuất bản, đặt trước dải CTA cuối trang
       (`public.partials.news`), nút "Xem tất cả" sang `/tin-tuc`. Ẩn hẳn section khi chưa có bài nào.
+- [x] **Bài liên quan ở trang chi tiết** — đổi từ link chữ trơn sang thẻ `feature-card` + ảnh bìa,
+      đúng kiểu thẻ dùng ở `public.partials.news`/`public.blog.index`. `latest('id')` tie-break
+      giống chỗ khác. 3 test mới (cùng danh mục/loại trừ bài đang xem/loại nháp, giới hạn 3, có ảnh).
+      `SampleBlogSeeder` mở rộng lên 17 bài (4 bài mỗi danh mục, 1 nháp) để mọi bài đều đủ 3 thẻ
+      liên quan khi xem demo — trước đó 2 danh mục chỉ có 2 bài nên phần này bị cụt.
 
 ### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
 

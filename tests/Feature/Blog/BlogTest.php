@@ -286,4 +286,81 @@ class BlogTest extends TestCase
             ->assertSeeText('Đã xuất bản')
             ->assertSeeText('Bản nháp');
     }
+
+    // --- Bài liên quan -------------------------------------------------------------------------
+
+    public function test_related_posts_are_same_category_excluding_self_drafts_and_other_categories(): void
+    {
+        $sameCategory = $this->category();
+        $otherCategory = BlogCategory::create(['name' => 'Giới thiệu', 'slug' => 'gioi-thieu']);
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post(route('admin.blog.store'), [
+            'blog_category_id' => $sameCategory->id, 'title' => 'Bài đang xem', 'content' => 'Nội dung.', 'status' => 'published',
+        ]);
+        $viewing = BlogPost::where('title', 'Bài đang xem')->firstOrFail();
+
+        $this->post(route('admin.blog.store'), [
+            'blog_category_id' => $sameCategory->id, 'title' => 'Cùng danh mục', 'content' => 'Nội dung.', 'status' => 'published',
+        ]);
+        $this->post(route('admin.blog.store'), [
+            'blog_category_id' => $sameCategory->id, 'title' => 'Cùng danh mục nhưng nháp', 'content' => 'Nội dung.', 'status' => 'draft',
+        ]);
+        $this->post(route('admin.blog.store'), [
+            'blog_category_id' => $otherCategory->id, 'title' => 'Khác danh mục', 'content' => 'Nội dung.', 'status' => 'published',
+        ]);
+
+        auth()->logout();
+
+        $this->get(route('blog.show', $viewing))->assertOk()
+            ->assertSee('Bài liên quan')
+            ->assertSee('Cùng danh mục')
+            ->assertDontSee('Cùng danh mục nhưng nháp')
+            ->assertDontSee('Khác danh mục')
+            // Không tự liệt kê chính nó vào "bài liên quan".
+            ->assertSeeInOrder(['Bài đang xem', 'Bài liên quan', 'Cùng danh mục']);
+    }
+
+    public function test_related_posts_are_capped_at_three(): void
+    {
+        // 4 bài cùng danh mục ngoài bài đang xem — trang chi tiết chỉ được hiện tối đa 3.
+        $category = $this->category();
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post(route('admin.blog.store'), [
+            'blog_category_id' => $category->id, 'title' => 'Bài đang xem', 'content' => 'Nội dung.', 'status' => 'published',
+        ]);
+        $viewing = BlogPost::where('title', 'Bài đang xem')->firstOrFail();
+
+        foreach (range(1, 4) as $i) {
+            $this->post(route('admin.blog.store'), [
+                'blog_category_id' => $category->id, 'title' => "Liên quan {$i}", 'content' => 'Nội dung.', 'status' => 'published',
+            ]);
+        }
+
+        $content = $this->get(route('blog.show', $viewing))->getContent();
+        $shown = collect(range(1, 4))->filter(fn ($i) => str_contains($content, "Liên quan {$i}"));
+
+        $this->assertCount(3, $shown);
+    }
+
+    public function test_related_post_card_shows_its_cover_image(): void
+    {
+        $category = $this->category();
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post(route('admin.blog.store'), [
+            'blog_category_id' => $category->id, 'title' => 'Bài đang xem', 'content' => 'Nội dung.', 'status' => 'published',
+        ]);
+        $viewing = BlogPost::where('title', 'Bài đang xem')->firstOrFail();
+
+        $this->post(route('admin.blog.store'), [
+            'blog_category_id' => $category->id, 'title' => 'Có ảnh bìa', 'content' => 'Nội dung.', 'status' => 'published',
+            'cover' => UploadedFile::fake()->image('a.jpg', 800, 450),
+        ]);
+        $related = BlogPost::where('title', 'Có ảnh bìa')->firstOrFail();
+
+        $this->get(route('blog.show', $viewing))->assertOk()
+            ->assertSee('src="'.$related->coverUrl().'"', false);
+    }
 }

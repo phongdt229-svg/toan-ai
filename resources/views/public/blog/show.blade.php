@@ -40,8 +40,13 @@
                 <div class="row g-3 mb-4">
                     @foreach ($related as $item)
                         <div class="col-12 col-sm-4">
-                            <a href="{{ route('blog.show', $item) }}" class="text-decoration-none text-body small fw-semibold">
-                                {{ $item->title }}
+                            <a href="{{ route('blog.show', $item) }}" class="feature-card d-block h-100 text-decoration-none text-body">
+                                @if ($item->coverUrl())
+                                    <img src="{{ $item->coverUrl() }}" alt="" class="w-100 rounded-3 mb-3"
+                                         style="aspect-ratio:16/9;object-fit:cover">
+                                @endif
+                                <div class="small fw-semibold">{{ $item->title }}</div>
+                                <div class="text-secondary small mt-1">{{ $item->published_at->format('d/m/Y') }}</div>
                             </a>
                         </div>
                     @endforeach

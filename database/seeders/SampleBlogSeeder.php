@@ -195,11 +195,32 @@ class SampleBlogSeeder extends Seeder
                     .$p('5. Sai thì hỏi AI Tutor ngay lúc đó — đừng để dồn tới cuối tuần.'),
             ],
             [
+                'category' => 'Giới thiệu', 'status' => BlogPost::STATUS_PUBLISHED,
+                'title' => 'Vì sao đáp án đúng chỉ đọc từ máy chủ?',
+                'excerpt' => 'Bộ câu hỏi và đáp án đúng luôn giữ phía máy chủ — trình duyệt không bao giờ biết trước đáp án.',
+                'content' => $p('Nhiều app học tập lưu đáp án ngay trong mã nguồn trang, học sinh mở công cụ trình duyệt là thấy hết.')
+                    .$p('TOÁN AI giữ đáp án đúng và thời gian làm bài ở máy chủ, chấm xong mới trả kết quả về — không có đường lách.'),
+            ],
+            [
                 'category' => 'Mẹo học tập', 'status' => BlogPost::STATUS_PUBLISHED,
                 'title' => 'Phụ huynh nên đồng hành cùng con như thế nào?',
                 'excerpt' => 'Không cần giỏi Toán — phụ huynh chỉ cần xem báo cáo tuần và hỏi con học tới đâu.',
                 'content' => $p('Phụ huynh liên kết tài khoản với con để xem tiến độ học, điểm số và thời gian học mỗi tuần.')
                     .$p('Báo cáo tuần gửi qua email, tóm tắt chủ đề con đang yếu và bài đã hoàn thành.'),
+            ],
+            [
+                'category' => 'Mẹo học tập', 'status' => BlogPost::STATUS_PUBLISHED,
+                'title' => 'Học 15 phút mỗi ngày hiệu quả hơn 2 tiếng cuối tuần',
+                'excerpt' => 'Luyện đều đặn từng chút một giúp nhớ lâu hơn dồn hết vào một buổi.',
+                'content' => $p('Não bộ ghi nhớ tốt hơn khi ôn lại kiến thức cách nhau vài ngày, thay vì học dồn một lần rồi quên.')
+                    .$p('Đặt mục tiêu nhỏ mỗi ngày — ví dụ 10 câu luyện tập — dễ duy trì hơn một buổi học dài cuối tuần.'),
+            ],
+            [
+                'category' => 'Mẹo học tập', 'status' => BlogPost::STATUS_PUBLISHED,
+                'title' => 'Đọc lời giải AI Tutor thế nào cho đúng cách',
+                'excerpt' => 'Đừng đọc lướt qua đáp án — hãy tự làm lại bước AI vừa gợi ý trước khi xem tiếp.',
+                'content' => $p('Khi AI Tutor gợi ý từng bước, hãy dừng lại tự thử trước khi đọc bước tiếp theo.')
+                    .$p('Làm lại đúng dạng bài đó ngay sau khi hiểu — đừng để hôm sau mới ôn lại.'),
             ],
             [
                 'category' => 'Khuyến mãi', 'status' => BlogPost::STATUS_PUBLISHED,
@@ -216,6 +237,20 @@ class SampleBlogSeeder extends Seeder
                     .$p('Mỗi tài khoản dùng được tối đa 2 lần. Xem chi tiết ở trang Gói học.'),
             ],
             [
+                'category' => 'Khuyến mãi', 'status' => BlogPost::STATUS_PUBLISHED,
+                'title' => 'Rủ bạn học cùng — cả hai cùng được giảm giá',
+                'excerpt' => 'Mã BANBE20 giảm 10% cho người được rủ, tối đa 30.000₫.',
+                'content' => $p('Rủ bạn cùng lớp đăng ký gói Pro hoặc Premium, cả hai đều dùng được mã BANBE20.')
+                    .$p('Giảm 10%, tối đa 30.000₫ mỗi đơn — áp dụng cho tài khoản mới.'),
+            ],
+            [
+                'category' => 'Khuyến mãi', 'status' => BlogPost::STATUS_PUBLISHED,
+                'title' => 'Ưu đãi riêng cho gói Premium tháng 10',
+                'excerpt' => 'Mã PREMIUM15 giảm 15% khi nâng cấp lên gói Premium trong tháng 10.',
+                'content' => $p('Gói Premium mở thêm quyền lợi luyện đề không giới hạn và báo cáo chi tiết hơn cho phụ huynh.')
+                    .$p('Nâng cấp trong tháng 10, nhập mã PREMIUM15 để giảm 15% ngay khi thanh toán.'),
+            ],
+            [
                 'category' => 'Sự kiện', 'status' => BlogPost::STATUS_PUBLISHED,
                 'title' => 'Livestream ôn thi học kỳ 1 cùng giáo viên TOÁN AI',
                 'excerpt' => 'Buổi ôn tập trực tuyến miễn phí cho học sinh lớp 6–9, giải đáp thắc mắc trực tiếp.',
@@ -228,6 +263,20 @@ class SampleBlogSeeder extends Seeder
                 'excerpt' => 'Học sinh làm đề thử thách trong 15 phút, top điểm cao được vinh danh trên hệ thống.',
                 'content' => $p('Cuộc thi giải Toán nhanh diễn ra trong tháng 10, mở cho tất cả học sinh đang học tại TOÁN AI.')
                     .$p('Đề thi gồm 15 câu trong 15 phút, top điểm cao nhất mỗi lớp được vinh danh.'),
+            ],
+            [
+                'category' => 'Sự kiện', 'status' => BlogPost::STATUS_PUBLISHED,
+                'title' => 'Workshop hướng dẫn phụ huynh dùng báo cáo tuần',
+                'excerpt' => 'Buổi hướng dẫn trực tuyến 30 phút, giúp phụ huynh đọc hiểu báo cáo tuần của con.',
+                'content' => $p('Buổi workshop ngắn 30 phút, hướng dẫn phụ huynh cách đọc báo cáo tuần và liên kết tài khoản với con.')
+                    .$p('Không cần chuẩn bị gì trước — chỉ cần có tài khoản phụ huynh đã đăng ký.'),
+            ],
+            [
+                'category' => 'Sự kiện', 'status' => BlogPost::STATUS_PUBLISHED,
+                'title' => 'Vinh danh học sinh chăm chỉ nhất tháng 9',
+                'excerpt' => 'Danh sách học sinh luyện tập đều đặn nhất tháng 9, mỗi lớp một gương mặt tiêu biểu.',
+                'content' => $p('Mỗi tháng, TOÁN AI vinh danh học sinh luyện tập đều đặn nhất ở từng lớp.')
+                    .$p('Tháng 9 vừa qua có nhiều gương mặt học đều mỗi ngày, dù chỉ 10–15 phút.'),
             ],
             [
                 'category' => 'Sự kiện', 'status' => BlogPost::STATUS_DRAFT,
