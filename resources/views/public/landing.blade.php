@@ -21,4 +21,8 @@
     </main>
 
     @include('public.partials.footer')
+
+    @push('scripts')
+        @vite('resources/js/pwa-install.js')
+    @endpush
 @endsection

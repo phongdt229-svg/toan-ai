@@ -33,6 +33,21 @@ class LandingPageTest extends TestCase
             ->assertSee('Cài như ứng dụng');
     }
 
+    public function test_pwa_install_button_starts_hidden_and_only_the_homepage_loads_its_script(): void
+    {
+        $response = $this->get('/');
+        $response->assertOk()
+            // Ẩn mặc định: JS mới hiện khi trình duyệt thực sự bắn beforeinstallprompt, không hiện
+            // nút bấm không ra gì trên trình duyệt không hỗ trợ.
+            ->assertSee('id="pwa-install-btn"', false)
+            ->assertSee('d-none', false)
+            ->assertSee('pwa-install', false);
+
+        // Trang khác không nạp entry riêng này — Vite tách file để không cõng thêm JS vào mọi trang.
+        $this->seed(GradeSeeder::class);
+        $this->get(route('login'))->assertOk()->assertDontSee('pwa-install', false);
+    }
+
     public function test_login_and_register_pages_render(): void
     {
         $this->seed(GradeSeeder::class);

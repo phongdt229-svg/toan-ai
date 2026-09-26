@@ -1041,6 +1041,18 @@ best_answer_id · answers_count · reports_count · timestamps
 `qa_answers`: question_id · user_id · body · status (`visible`/`hidden`) · reports_count · timestamps
 `qa_reports`: reportable (question/answer) · user_id · reason — unique(reportable, user) chặn báo nhiều lần
 
+### ✅ Đã làm (26/09, đợt 2) — nút "Cài đặt ứng dụng" ở trang chủ
+
+Trang chủ chỉ có dòng chữ "Cài được như ứng dụng trên điện thoại", không có cách nào bấm để cài —
+người đọc phải tự biết vào menu trình duyệt. Thêm nút thật:
+
+- [x] `resources/js/pwa-install.js` (entry Vite riêng, chỉ trang chủ nạp): bắt `beforeinstallprompt`,
+      ẩn nút mặc định và chỉ hiện khi trình duyệt thực sự cho cài (Chrome/Edge/Android) — không có nút
+      chết trên trình duyệt không hỗ trợ. Đã cài rồi (`display-mode: standalone`) thì không hiện.
+      iOS Safari không có API này → thay bằng dòng hướng dẫn "Chia sẻ → Thêm vào MH chính".
+- [x] Nút đặt trong `hero.blade.php`, cạnh dòng chữ cũ. Test mới trong `LandingPageTest` canh nút ẩn
+      mặc định và chỉ trang chủ nạp file JS này (0.7KB, không cõng thêm vào các trang khác).
+
 ### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
 
 Rà lại tính năng Hỏi đáp (24/09, phiên khác) trước khi làm tiếp — phát hiện 2 lỗi UX,
