@@ -1101,6 +1101,8 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
 - [x] **Báo cáo** — `BlogReportService` (tổng số bài/đã xuất bản/nháp, biểu đồ 30 ngày, biểu đồ theo
       danh mục) hiện ngay đầu trang Quản trị → Bài viết. Tái dùng `renderCountDaily`/`renderCountBars`
       có sẵn trong `charts.js` — không viết chart mới.
+- [x] **Dữ liệu mẫu** — `SampleBlogSeeder` (local): 4 danh mục, 10 bài (9 đã xuất bản trải 30 ngày,
+      1 nháp) qua `admin@gmail.com`, đi qua `BlogService` thật rồi lùi ngày cho biểu đồ có số liệu.
 
 ### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
 
