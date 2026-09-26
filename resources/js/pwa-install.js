@@ -1,10 +1,12 @@
 /**
  * Nút "Cài đặt ứng dụng" ở trang chủ (entry riêng: chỉ trang chủ cần, không nạp ở trang khác).
  *
- * Trình duyệt chỉ bắn `beforeinstallprompt` khi đủ điều kiện PWA thật (manifest hợp lệ,
- * service worker đã đăng ký, chưa cài) — nút ẩn mặc định, chỉ hiện khi trình duyệt thực sự
- * cho cài. Safari (desktop lẫn iOS) không có API này nên không bao giờ hiện nút chết —
- * iOS thay bằng một dòng hướng dẫn (chỉ cài được qua menu Chia sẻ).
+ * Nút hiện ngay trên mọi trình duyệt desktop/Android (trừ đã cài rồi hoặc iOS) — không chờ
+ * `beforeinstallprompt` mới hiện, vì sự kiện này có thể tới trễ vài giây hoặc không tới (Chrome
+ * yêu cầu một ít tương tác với trang trước, hoặc người dùng đã từ chối lần trước). Bấm mà
+ * trình duyệt đã có sẵn lời mời cài thì dùng lời mời thật; chưa có thì hướng dẫn thủ công
+ * thay vì im lặng không phản hồi. iOS Safari không có API cài đặt nên thay bằng dòng hướng dẫn
+ * riêng (chỉ cài được qua menu Chia sẻ).
  */
 let deferredPrompt = null;
 
@@ -18,30 +20,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!btn || isStandalone()) return; // đã mở từ bản đã cài — không cần mời cài nữa
 
-    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    const ua = navigator.userAgent;
+    const isIos = /iphone|ipad|ipod/i.test(ua) && !window.MSStream;
 
     if (isIos) {
         iosHint?.classList.remove('d-none');
         return;
     }
 
+    btn.classList.remove('d-none');
+
     window.addEventListener('beforeinstallprompt', (event) => {
-        event.preventDefault(); // tự hiện nút của mình thay vì banner mini mặc định của Chrome
+        event.preventDefault(); // tự hỏi qua nút của mình thay vì banner mini mặc định của Chrome
         deferredPrompt = event;
-        btn.classList.remove('d-none');
     });
 
     btn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
+        if (deferredPrompt) {
+            btn.disabled = true;
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice; // Chấp nhận hay Từ chối đều dọn nút — không mời lại
+            deferredPrompt = null;
+            btn.classList.add('d-none');
+            btn.disabled = false;
+            return;
+        }
 
-        btn.disabled = true;
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice; // Chấp nhận hay Từ chối đều dọn nút — không mời lại
-        deferredPrompt = null;
-        btn.classList.add('d-none');
-        btn.disabled = false;
+        // Chưa có lời mời cài sẵn (trình duyệt chưa bắn sự kiện, hoặc không hỗ trợ) — hướng dẫn
+        // thủ công. Dùng hộp thoại của app (window.alertDialog), không dùng alert() mặc định.
+        const isFirefox = /firefox/i.test(ua);
+        const message = isFirefox
+            ? 'Firefox trên máy tính chưa hỗ trợ cài ứng dụng kiểu này. Hãy mở trang bằng Chrome hoặc Edge, hoặc mở trên điện thoại.'
+            : 'Mở menu trình duyệt (dấu ⋮ ở góc trên bên phải), hoặc bấm biểu tượng cài đặt trên thanh địa chỉ, rồi chọn "Cài đặt TOÁN AI".';
+
+        if (window.alertDialog) {
+            await window.alertDialog(message, { title: 'Cài đặt ứng dụng' });
+        }
     });
 
-    // Cài qua đường khác (menu trình duyệt) trong lúc nút vẫn hiện — cũng phải ẩn đi.
     window.addEventListener('appinstalled', () => btn.classList.add('d-none'));
 });

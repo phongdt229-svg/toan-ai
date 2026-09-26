@@ -33,14 +33,13 @@ class LandingPageTest extends TestCase
             ->assertSee('Cài như ứng dụng');
     }
 
-    public function test_pwa_install_button_starts_hidden_and_only_the_homepage_loads_its_script(): void
+    public function test_pwa_install_button_markup_is_present_and_only_the_homepage_loads_its_script(): void
     {
-        $response = $this->get('/');
-        $response->assertOk()
-            // Ẩn mặc định: JS mới hiện khi trình duyệt thực sự bắn beforeinstallprompt, không hiện
-            // nút bấm không ra gì trên trình duyệt không hỗ trợ.
+        // Nút hiện ngay bằng JS (pwa-install.js) trên hầu hết trình duyệt — HTML chỉ cần đủ id/nội
+        // dung để JS tìm thấy; d-none trong markup là để không loé ra một nhịp trước khi JS chạy.
+        $this->get('/')->assertOk()
             ->assertSee('id="pwa-install-btn"', false)
-            ->assertSee('d-none', false)
+            ->assertSee('Cài đặt ứng dụng')
             ->assertSee('pwa-install', false);
 
         // Trang khác không nạp entry riêng này — Vite tách file để không cõng thêm JS vào mọi trang.
