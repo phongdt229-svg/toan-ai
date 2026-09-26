@@ -1055,6 +1055,20 @@ người đọc phải tự biết vào menu trình duyệt. Thêm nút thật:
 - [x] Nút đặt trong `hero.blade.php`, cạnh dòng chữ cũ. Test mới trong `LandingPageTest` canh có mặt
       nút và chỉ trang chủ nạp file JS này (1.15KB, không cõng thêm vào các trang khác).
 
+### ✅ Đã làm (26/09, đợt 3) — tách "Cài đặt ứng dụng" thành section riêng nổi bật
+
+Nút cài PWA trước đó nằm lẫn trong hero (một dòng nhỏ), yêu cầu tách riêng cho nổi bật:
+
+- [x] `public.partials.pwa` — section nền tối riêng (`.pwa-band`, cùng công thức viền chấm với
+      `.cta-band` nhưng đổi tông để không lẫn với dải CTA cuối trang), đặt sau AI Tutor. Liệt kê
+      4 lợi ích đều là thứ `sw.js`/`manifest.webmanifest` đang làm thật (đọc bài offline, standalone
+      display, cài không qua store) — không thêm cái nào chưa có.
+- [x] Nút cài + gợi ý iOS chuyển từ hero sang section mới (không còn 2 nút trùng id trên trang).
+      Hero giữ lại một dòng nhỏ, bấm nhảy neo `#cai-dat-ung-dung` xuống section.
+      Thẻ nhỏ "Cài như ứng dụng" trong lưới tính năng bị xoá (tránh lặp, đã có section riêng).
+- [x] Xem trước icon trên "màn hình chính" dùng đúng `icon-192.png` thật, không dựng ảnh giả.
+      Test `LandingPageTest` cập nhật theo nội dung mới.
+
 ### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
 
 Rà lại tính năng Hỏi đáp (24/09, phiên khác) trước khi làm tiếp — phát hiện 2 lỗi UX,

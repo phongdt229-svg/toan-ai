@@ -43,19 +43,7 @@
 
                 <div class="d-flex flex-wrap gap-3 mt-3 text-secondary small">
                     <span><i class="bi bi-check-circle-fill text-success me-1"></i>Không cần thẻ tín dụng</span>
-                    <span><i class="bi bi-phone me-1"></i>Cài được như ứng dụng trên điện thoại</span>
-                </div>
-
-                {{--
-                    Ẩn mặc định — pwa-install.js chỉ hiện nút khi trình duyệt thực sự bắn
-                    beforeinstallprompt (đủ điều kiện cài thật), tránh nút bấm không ra gì.
-                --}}
-                <button type="button" id="pwa-install-btn" class="btn btn-outline-primary btn-sm btn-touch mt-3 d-none">
-                    <i class="bi bi-download me-1"></i>Cài đặt ứng dụng
-                </button>
-                <div id="pwa-ios-hint" class="small text-secondary mt-3 d-none">
-                    <i class="bi bi-share me-1"></i>Trên iPhone: mở bằng Safari, bấm <strong>Chia sẻ</strong>
-                    → <strong>Thêm vào MH chính</strong>.
+                    <a href="#cai-dat-ung-dung" class="text-secondary text-decoration-none"><i class="bi bi-phone me-1"></i>Cài được như ứng dụng — xem bên dưới</a>
                 </div>
             </div>
 

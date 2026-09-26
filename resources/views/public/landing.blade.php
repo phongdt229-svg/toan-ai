@@ -11,6 +11,7 @@
         @include('public.partials.hero')
         @include('public.partials.features')
         @include('public.partials.ai-tutor')
+        @include('public.partials.pwa')
         @include('public.partials.role-nav')
         @include('public.partials.for-student')
         @include('public.partials.for-teacher')

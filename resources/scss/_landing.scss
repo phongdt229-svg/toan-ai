@@ -280,6 +280,14 @@
         }
     }
 
+    // Cùng lý do ở .cta-band: nền tối của .pwa-band làm gradient chữ chìm mất.
+    .pwa-band & .hl {
+        background: none;
+        -webkit-background-clip: border-box;
+        background-clip: border-box;
+        color: #7dd3fc;
+    }
+
     &__subtitle {
         color: $secondary;
         max-width: 42rem;
@@ -565,6 +573,92 @@
 
     > .container { position: relative; }
 }
+
+// Mục "Cài đặt ứng dụng" (PWA) — nền tối riêng để tách hẳn khỏi các khối trắng/xám xung
+// quanh, cùng công thức viền chấm với .cta-band nhưng đổi màu để không lẫn với dải CTA cuối
+// trang. Dùng tông tối như khung .device (điện thoại giả lập ở hero) cho hợp ngữ cảnh "app".
+.pwa-band {
+    position: relative;
+    overflow: hidden;
+    scroll-margin-top: 76px;
+    padding: 3rem 0;
+    background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%);
+    color: #fff;
+
+    @include media-breakpoint-up(lg) {
+        padding: 4.5rem 0;
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(#fff, .14) 1px, transparent 1px);
+        background-size: 24px 24px;
+        opacity: .4;
+    }
+
+    > .container { position: relative; z-index: 1; }
+
+    &__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: .375rem;
+        padding: .25rem .75rem;
+        margin-bottom: .75rem;
+        border-radius: 999px;
+        background: rgba(#fff, .12);
+        font-size: .8125rem;
+        font-weight: 600;
+    }
+
+    &__lead {
+        color: rgba(#fff, .75);
+        max-width: 34rem;
+    }
+
+    &__hint {
+        color: rgba(#fff, .68);
+        font-size: .8125rem;
+    }
+
+    &__benefit {
+        display: flex;
+        gap: .625rem;
+        align-items: flex-start;
+        height: 100%;
+        padding: .75rem;
+        border-radius: $border-radius;
+        background: rgba(#fff, .06);
+        border: 1px solid rgba(#fff, .12);
+
+        i { color: #7dd3fc; font-size: 1.125rem; margin-top: .0625rem; }
+        span { color: rgba(#fff, .85); }
+    }
+
+    // Xem trước biểu tượng trên "màn hình chính" — dùng đúng icon-192.png thật, không dựng ảnh giả.
+    &__phone {
+        max-width: 220px;
+        margin-inline: auto;
+        padding: 1.75rem 1rem;
+        border-radius: 1.5rem;
+        text-align: center;
+        background: rgba(#fff, .05);
+        border: 1px solid rgba(#fff, .12);
+    }
+
+    &__tile {
+        width: 84px;
+        height: 84px;
+        margin: 0 auto .625rem;
+        overflow: hidden;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px -16px rgba(0, 0, 0, .6);
+
+        img { display: block; width: 100%; height: 100%; }
+    }
+}
+
 
 // --- Footer ----------------------------------------------------------------
 .site-footer {

@@ -30,7 +30,10 @@ class LandingPageTest extends TestCase
         $this->get('/')->assertOk()
             ->assertSee('Hỏi đáp')
             ->assertSee('Lộ trình riêng')
-            ->assertSee('Cài như ứng dụng');
+            // "Cài như ứng dụng" đổi từ thẻ nhỏ trong lưới tính năng sang section riêng nổi bật
+            // (public.partials.pwa) — canh đúng nội dung của section đó, không phải thẻ cũ.
+            ->assertSee('Cài đặt ứng dụng')
+            ->assertSee('Cài TOÁN AI');
     }
 
     public function test_pwa_install_button_markup_is_present_and_only_the_homepage_loads_its_script(): void
