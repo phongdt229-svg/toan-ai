@@ -2,7 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\BlogCategory;
+use App\Models\Role;
+use App\Models\User;
+use App\Services\Content\BlogService;
 use Database\Seeders\GradeSeeder;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -48,6 +53,45 @@ class LandingPageTest extends TestCase
         // Trang khác không nạp entry riêng này — Vite tách file để không cõng thêm JS vào mọi trang.
         $this->seed(GradeSeeder::class);
         $this->get(route('login'))->assertOk()->assertDontSee('pwa-install', false);
+    }
+
+    public function test_news_section_shows_published_posts_but_not_drafts_and_hides_when_empty(): void
+    {
+        $this->seed([GradeSeeder::class, RolePermissionSeeder::class]);
+
+        // Chưa có bài nào — section ẩn hẳn, không quảng cáo mục trống.
+        $this->get('/')->assertOk()->assertDontSee('id="tin-tuc"', false);
+
+        $category = BlogCategory::create(['name' => 'Giới thiệu', 'slug' => 'gioi-thieu']);
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::ADMIN);
+        $blog = app(BlogService::class);
+
+        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài đã xuất bản trên trang chủ', 'content' => 'Nội dung.', 'status' => 'published'], $admin);
+        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài nháp không nên lộ', 'content' => 'Nội dung.', 'status' => 'draft'], $admin);
+
+        $this->get('/')->assertOk()
+            ->assertSee('id="tin-tuc"', false)
+            ->assertSee('Bài đã xuất bản trên trang chủ')
+            ->assertDontSee('Bài nháp không nên lộ');
+    }
+
+    public function test_news_section_shows_at_most_six_latest_posts(): void
+    {
+        $this->seed([GradeSeeder::class, RolePermissionSeeder::class]);
+
+        $category = BlogCategory::create(['name' => 'Giới thiệu', 'slug' => 'gioi-thieu']);
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::ADMIN);
+        $blog = app(BlogService::class);
+
+        foreach (range(1, 7) as $i) {
+            $blog->create(['blog_category_id' => $category->id, 'title' => "Bài số {$i}", 'content' => 'Nội dung.', 'status' => 'published'], $admin);
+        }
+
+        $response = $this->get('/')->assertOk();
+        $response->assertDontSee('Bài số 1</h3>', false); // cũ nhất, rớt khỏi top 6 mới nhất
+        $response->assertSee('Bài số 7</h3>', false);
     }
 
     public function test_login_and_register_pages_render(): void

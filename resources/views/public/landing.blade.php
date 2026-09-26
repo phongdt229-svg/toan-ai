@@ -18,6 +18,7 @@
         @include('public.partials.for-parent')
         @include('public.partials.grades')
         @include('public.partials.pricing')
+        @include('public.partials.news')
         @include('public.partials.cta')
     </main>
 

@@ -1103,6 +1103,11 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       có sẵn trong `charts.js` — không viết chart mới.
 - [x] **Dữ liệu mẫu** — `SampleBlogSeeder` (local): 4 danh mục, 10 bài (9 đã xuất bản trải 30 ngày,
       1 nháp) qua `admin@gmail.com`, đi qua `BlogService` thật rồi lùi ngày cho biểu đồ có số liệu.
+- [x] **Ảnh bìa demo tự vẽ** — `SampleBlogSeeder` tự sinh ảnh bìa 1200×675 bằng GD (2 quầng sáng
+      mượt + lưới chấm, đúng ngôn ngữ hình ảnh `.hero`/`.pwa-band`) thay vì tải ảnh ngoài — container
+      không có font tiếng Việt để in chữ lên ảnh và ảnh stock ngoài dễ dính bản quyền.
+- [x] **Section "Tin tức" ở trang chủ** — 6 bài mới nhất đã xuất bản, đặt trước dải CTA cuối trang
+      (`public.partials.news`), nút "Xem tất cả" sang `/tin-tuc`. Ẩn hẳn section khi chưa có bài nào.
 
 ### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
 

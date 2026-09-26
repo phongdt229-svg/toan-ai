@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Services\Content\BlogService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Bài viết Blog / Tin tức demo — để trang công khai /tin-tuc và báo cáo ở
@@ -17,9 +19,24 @@ use Illuminate\Support\Facades\DB;
  * published_at trải đều 30 ngày cho biểu đồ không phẳng. Chỉ chạy ở local/testing.
  * Guard theo bảng blog_posts — chạy lại (php artisan db:seed --class=SampleBlogSeeder)
  * không nhân đôi.
+ *
+ * Ảnh bìa TỰ VẼ bằng GD (blob + lưới chấm, đúng ngôn ngữ hình ảnh của trang chủ — xem
+ * resources/scss/_landing.scss) thay vì tải ảnh ngoài: container không có font tiếng Việt
+ * để in chữ lên ảnh, và ảnh stock ngoài có thể dính bản quyền — chữ tiêu đề đã hiện
+ * ngay dưới ảnh trong HTML nên không cần in chữ vào ảnh.
  */
 class SampleBlogSeeder extends Seeder
 {
+    private const DISK = 'public';
+
+    /** Cặp màu theo danh mục — cùng bảng màu thương hiệu ở resources/scss/_variables.scss. */
+    private const PALETTES = [
+        'Giới thiệu' => ['#2563eb', '#0ea5e9'],   // primary/info
+        'Khuyến mãi' => ['#f97316', '#f59e0b'],   // accent/warning
+        'Sự kiện' => ['#0f172a', '#2563eb'],      // dark/primary
+        'Mẹo học tập' => ['#16a34a', '#0ea5e9'],  // success/info
+    ];
+
     public function run(): void
     {
         if (BlogPost::count() > 0) {
@@ -46,17 +63,82 @@ class SampleBlogSeeder extends Seeder
                 'status' => $data['status'],
             ], $admin);
 
+            $updates = ['cover_path' => $this->generateCover($data['category'], $i)];
+
             if ($data['status'] === BlogPost::STATUS_PUBLISHED) {
                 // Trải đều trong 30 ngày gần đây, mới nhất là bài đầu danh sách.
                 $publishedAt = now()->subDays($i * 3 + mt_rand(0, 2))->setTime(mt_rand(8, 20), mt_rand(0, 59));
+                $updates += ['published_at' => $publishedAt, 'created_at' => $publishedAt, 'updated_at' => $publishedAt];
+            }
 
-                DB::table('blog_posts')->where('id', $post->id)->update([
-                    'published_at' => $publishedAt,
-                    'created_at' => $publishedAt,
-                    'updated_at' => $publishedAt,
-                ]);
+            DB::table('blog_posts')->where('id', $post->id)->update($updates);
+        }
+    }
+
+    /**
+     * Ảnh bìa 1200×675 (16:9, khớp CSS `aspect-ratio:16/9` của thẻ bài viết): nền màu đậm của
+     * cặp, hai quầng sáng mờ chồng lên nhau (đúng mixin `blob()` dùng ở hero/.pwa-band) + lưới
+     * chấm nhẹ (đúng công thức `.cta-band::before`). $seed lệch vị trí quầng sáng cho 10 ảnh
+     * không giống hệt nhau dù cùng danh mục.
+     */
+    private function generateCover(string $category, int $seed): string
+    {
+        [$colorA, $colorB] = self::PALETTES[$category] ?? self::PALETTES['Giới thiệu'];
+        [$w, $h] = [1200, 675];
+
+        $im = imagecreatetruecolor($w, $h);
+        imagealphablending($im, true);
+
+        [$r1, $g1, $b1] = $this->hex2rgb($colorA);
+        imagefill($im, 0, 0, imagecolorallocate($im, (int) ($r1 * 0.55), (int) ($g1 * 0.55), (int) ($b1 * 0.55)));
+
+        // Lưới chấm mờ trước (nền), quầng sáng vẽ đè lên sau — đúng thứ tự nổi ở .pwa-band.
+        $dot = imagecolorallocatealpha($im, 255, 255, 255, 112);
+        for ($y = 12; $y < $h; $y += 26) {
+            for ($x = 12; $x < $w; $x += 26) {
+                imagefilledellipse($im, $x, $y, 3, 3, $dot);
             }
         }
+
+        $this->blob($im, $colorA, (int) (0.72 * $w) + $seed * 17 % 160, (int) (-0.08 * $h), (int) (0.46 * $w));
+        $this->blob($im, $colorB, (int) (-0.05 * $w), (int) (1.06 * $h) - $seed * 13 % 140, (int) (0.4 * $w));
+
+        $path = 'blog/cover-'.Str::random(12).'.jpg';
+        ob_start();
+        imagejpeg($im, null, 82);
+        Storage::disk(self::DISK)->put($path, ob_get_clean());
+        imagedestroy($im);
+
+        return $path;
+    }
+
+    /**
+     * Một quầng sáng tròn mờ dần ra ngoài — GD không có radial-gradient thật nên dựng bằng
+     * nhiều vòng tròn lồng nhau, alpha đổi rất nhỏ mỗi vòng (nhiều bước) để mắt không thấy
+     * "bậc thang". Alpha GD ngược trực giác: 0 = đặc, 127 = trong suốt hẳn — vẽ vòng NGOÀI
+     * (gần trong suốt) trước, vòng TRONG (rõ màu hơn) sau, đúng chiều một quầng sáng thật.
+     */
+    private function blob($im, string $hex, int $cx, int $cy, int $radius): void
+    {
+        [$r, $g, $b] = $this->hex2rgb($hex);
+        $steps = 130;
+
+        for ($i = $steps; $i >= 1; $i--) {
+            $ratio = $i / $steps; // 1 ở rìa ngoài cùng → ~0 ở tâm
+            // Ease-in: rìa trong suốt kéo dài, đậm dần nhanh hơn khi gần tâm — giống radial-gradient CSS.
+            $alpha = 127 - (int) round((1 - $ratio ** 2) * 95);
+            $color = imagecolorallocatealpha($im, $r, $g, $b, max(0, min(127, $alpha)));
+            $d = (int) ($radius * 2 * $ratio);
+            imagefilledellipse($im, $cx, $cy, $d, $d, $color);
+        }
+    }
+
+    /** @return array{0:int,1:int,2:int} */
+    private function hex2rgb(string $hex): array
+    {
+        $hex = ltrim($hex, '#');
+
+        return [hexdec(substr($hex, 0, 2)), hexdec(substr($hex, 2, 2)), hexdec(substr($hex, 4, 2))];
     }
 
     /** @return array<string, BlogCategory> theo slug */

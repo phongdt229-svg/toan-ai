@@ -21,7 +21,7 @@ class BlogController extends Controller
                 ->published()
                 ->with('category:id,name,slug')
                 ->when($category, fn ($q) => $q->where('blog_category_id', $category->id))
-                ->latest('published_at')
+                ->latest('published_at')->latest('id')
                 ->paginate(9)
                 ->withQueryString(),
             'categories' => BlogCategory::ordered()->withCount(['posts' => fn ($q) => $q->published()])->get(),
@@ -38,7 +38,7 @@ class BlogController extends Controller
             'related' => BlogPost::published()
                 ->where('blog_category_id', $post->blog_category_id)
                 ->where('id', '!=', $post->id)
-                ->latest('published_at')
+                ->latest('published_at')->latest('id')
                 ->limit(3)
                 ->get(),
         ]);
