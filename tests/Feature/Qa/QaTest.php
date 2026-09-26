@@ -62,6 +62,14 @@ class QaTest extends TestCase
         return Topic::firstOrFail();
     }
 
+    private function admin(): User
+    {
+        $user = User::factory()->create(['name' => 'Admin', 'status' => User::STATUS_ACTIVE]);
+        $user->assignRole(Role::ADMIN);
+
+        return $user;
+    }
+
     private function ask(User $user, string $title = 'Em quy đồng mẫu số xong thì cộng sai'): QaQuestion
     {
         return app(QaService::class)->ask($user, $this->topic(), $title, 'Đề bài là 1/2 + 1/3, em làm ra 2/5.');
@@ -295,5 +303,31 @@ class QaTest extends TestCase
     public function test_guests_cannot_reach_the_q_and_a(): void
     {
         $this->get(route('student.qa.index'))->assertRedirect(route('login'));
+    }
+
+    // --- Lối vào từ menu (25/09: teacher/admin trả lời/kiểm duyệt được nhưng không thấy đường vào) ---
+
+    public function test_teacher_and_admin_have_a_menu_entry_to_reach_it(): void
+    {
+        $this->actingAs($this->teacher())->get(route('teacher.dashboard'))
+            ->assertOk()->assertSee(route('student.qa.index'), false);
+
+        $this->actingAs($this->admin())->get(route('admin.dashboard'))
+            ->assertOk()->assertSee(route('student.qa.index'), false);
+    }
+
+    public function test_page_shows_the_visiting_role_own_sidebar(): void
+    {
+        // Trước 25/09: admin rơi vào nhánh 'student' (isTeacher() ? 'teacher' : 'student') và thấy
+        // nhầm sidebar học sinh — không thấy menu quản trị của chính mình.
+        $this->actingAs($this->admin())->get(route('student.qa.index'))
+            ->assertOk()->assertSee(route('admin.dashboard'), false)->assertDontSee(route('student.dashboard'), false);
+
+        $this->actingAs($this->teacher())->get(route('student.qa.index'))
+            ->assertOk()->assertSee(route('teacher.dashboard'), false);
+
+        $student = $this->student();
+        $this->actingAs($student)->get(route('student.qa.index'))
+            ->assertOk()->assertSee(route('student.dashboard'), false);
     }
 }

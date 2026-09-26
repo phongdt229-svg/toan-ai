@@ -1041,6 +1041,23 @@ best_answer_id · answers_count · reports_count · timestamps
 `qa_answers`: question_id · user_id · body · status (`visible`/`hidden`) · reports_count · timestamps
 `qa_reports`: reportable (question/answer) · user_id · reason — unique(reportable, user) chặn báo nhiều lần
 
+### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
+
+Rà lại tính năng Hỏi đáp (24/09, phiên khác) trước khi làm tiếp — phát hiện 2 lỗi UX,
+tính năng chạy đúng nhưng không dùng được đúng thiết kế:
+
+- [x] **Giáo viên/quản trị không có lối vào** — route `/hoi-dap` dùng chung cho mọi portal (chỉ
+      `auth`, không giới hạn role), nhưng `config/navigation.php` chỉ thêm mục cho `student`.
+      Giáo viên trả lời/kiểm duyệt được (Policy cho phép) nhưng không có menu nào dẫn tới, phải biết
+      URL mới vào được. Thêm mục "Hỏi đáp" vào nav `teacher` và `admin`, trỏ cùng route
+      `student.qa.index` (tên route không đổi, chỉ là URL chung).
+- [x] **Admin thấy nhầm sidebar học sinh** — 3 view Hỏi đáp chọn portal bằng
+      `isTeacher() ? 'teacher' : 'student'`, không tính trường hợp admin → admin vào trang này bị rơi
+      xuống nhánh `student`, hiện sai menu (mất luôn lối quay lại Quản trị). Sửa thành
+      `isAdmin() ? 'admin' : (isTeacher() ? 'teacher' : 'student')`.
+- 2 test mới trong `QaTest` canh cả hai: có mục menu từ dashboard giáo viên/admin, và mỗi vai trò
+  thấy đúng sidebar của mình khi vào `/hoi-dap`.
+
 ### Còn nợ — rà lại 23/09/2026 (lần 2, sau đợt cookie + nhắc gia hạn)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
@@ -1064,10 +1081,6 @@ là **toàn bộ** việc còn lại đã biết.
 - [x] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
       Giáo viên đang phải nhờ AI sinh câu rồi tự bốc vào đề. Xem ghi chú cuối Phase 7A.
 - [x] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
-- [ ] **URL mạng xã hội đang là link giả** *(footer đã tự ẩn link giả từ 24/09, vẫn cần URL thật)* — `.env` ở máy dev đang đặt `https://facebook.com/x`,
-      `https://google.com/x`… nên footer hiện đủ 5 biểu tượng nhưng bấm vào là trang không tồn tại.
-      Ở local thì vô hại; **chép nhầm sang production là mất uy tín ngay trang chủ**.
-      Dán URL thật, hoặc xoá dòng nào chưa có trang để biểu tượng đó tự ẩn.
 
 #### E. Vận hành thật — chưa có gì khi sự cố xảy ra
 
@@ -1080,12 +1093,6 @@ là **toàn bộ** việc còn lại đã biết.
       "em không thấy bài" của học sinh. Cần chức năng đăng nhập hộ có audit log và dải cảnh báo rõ
       trong lúc đang mượn tài khoản.
 
-- [ ] **Chốt nhà cung cấp AI + bảng giá** *(trang AI usage đã cảnh báo khi thiếu giá, từ 24/09)* *(~1 giờ)* — `OpenAiProvider` đã gọi chuẩn
-      `/chat/completions` và `OPENAI_BASE_URL` là biến môi trường, nên cắm Gemini/Groq/OpenRouter
-      chỉ cần đổi `.env`, không sửa code. Nhưng `config/ai.php` → `pricing` mới có `gpt-4o-mini`
-      và `gpt-4o`: đổi model mà quên thêm dòng giá thì trang **Quản trị → AI usage** hiện chi phí 0₫,
-      nhìn tưởng miễn phí. Lưu ý bậc miễn phí thường dùng dữ liệu để huấn luyện — không hợp với
-      bài làm của trẻ em khi chạy thật.
 
 - [x] **Hoàn tiền tự động qua MoMo** — xong 24/09 (xem mục Đã làm). *Chưa thử với MoMo sandbox thật — chỉ test bằng Http::fake.*
 - [x] **Số liệu GA ngay trong Quản trị bằng Data API** — xong 24/09. *Chưa thử với GA thật — cần service account + Property ID.*
@@ -1096,7 +1103,10 @@ là **toàn bộ** việc còn lại đã biết.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định
 
-middleware
+URL mạng xã hội thật (footer đã tự ẩn link giả `facebook.com/x`… nên không lộ; dán link thật là việc
+điền `.env`, không phải code — quyết định 26/09: không cần Claude làm) · chốt nhà cung cấp AI + bảng giá
+(hạ tầng đã đổi được qua `.env`, trang AI usage đã cảnh báo thiếu giá; chọn nhà cung cấp là quyết định
+kinh doanh của người vận hành, không phải việc code — quyết định 26/09: không cần Claude làm) · middleware
 `subscription:pro|premium` theo route (khoá ở mức nội dung đúng hơn) · spec §37 bị cắt nội dung nguồn
 nên đang chạy bản mặc định ghi ở Phase 7B.
 
