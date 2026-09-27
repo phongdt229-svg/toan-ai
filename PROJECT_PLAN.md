@@ -1114,6 +1114,32 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       `SampleBlogSeeder` mở rộng lên 17 bài (4 bài mỗi danh mục, 1 nháp) để mọi bài đều đủ 3 thẻ
       liên quan khi xem demo — trước đó 2 danh mục chỉ có 2 bài nên phần này bị cụt.
 
+### ✅ Đã làm (27/09, đợt 5) — Rà SEO từng trang một, toàn site
+
+Rà lại TỪNG trang công khai một (không chỉ landing/blog/goi-hoc đã làm trước đó), tìm 2 loại lỗi:
+
+- [x] **6 trang lẽ ra phải `noindex` lại đang bị index mặc định** — dùng `layouts.guest`/`layouts.public`/
+      `layouts.base` (không tự noindex như `layouts.app`) nhưng thực chất là trang sau đăng nhập hoặc
+      trang có token nhạy cảm trên URL:
+      - `dat-lai-mat-khau/{token}` (`reset-password.blade.php`) — **quan trọng nhất**: URL chứa token
+        đặt lại mật khẩu. Google index cache lại URL này là rủi ro thật, không chỉ chuyện SEO.
+      - `dang-nhap/xac-thuc-2-buoc` (`two-factor.blade.php`) — chỉ có ý nghĩa giữa luồng đăng nhập,
+        không có phiên chờ thì tự về `/dang-nhap`, index vô nghĩa.
+      - `xac-thuc-email` (`verify-email.blade.php`) và `tai-khoan/cho-duyet` (`account/pending.blade.php`)
+        — đều yêu cầu `auth`, không phải trang khách vãng lai.
+      - `goi-hoc/{package}/mua` (`packages/checkout.blade.php`) — yêu cầu `auth`+`verified`, nội dung
+        theo từng người ("Mua gói cho [tên con]"), không có giá trị SEO.
+      - `thanh-toan/{payment}/gia-lap` (`payment/simulator.blade.php`) — trang giả lập MoMo chỉ dùng
+        khi dev, `layouts.base` trực tiếp nên không tự noindex như `layouts.app`.
+      `robots.txt` có `Disallow` cho `/thanh-toan`/`/tai-khoan` nhưng đó chỉ chặn CRAWL, không chặn
+      INDEX nếu Google đã biết URL qua nơi khác — phải có `<meta name="robots" content="noindex">`
+      mới chắc chắn.
+- [x] **6 trang công khai hợp lệ nhưng chưa có `meta_description` riêng** (đăng nhập, chọn vai trò
+      đăng ký, đăng ký học sinh/giáo viên/phụ huynh, quên mật khẩu) — trước đó rơi về mô tả chung của
+      cả site ở mọi trang, Google coi là nội dung trùng lặp (duplicate meta description) giữa các trang.
+- Test: `SeoTest` — 6 trang trên phải có `noindex,nofollow`; 6 trang kia phải có `meta_description`
+  khác mô tả mặc định của site và khác nhau giữa các trang.
+
 ### ✅ Đã làm (27/09, đợt 4) — Nén HTML trả về, bật/tắt qua .env
 
 - [x] `App\Http\Middleware\MinifyHtml` — bỏ khoảng trắng thừa giữa thẻ, bỏ comment HTML thường

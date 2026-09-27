@@ -1,6 +1,7 @@
 @extends('layouts.guest')
 
 @section('title', 'Đăng ký — TOÁN AI')
+@section('meta_description', 'Tạo tài khoản TOÁN AI miễn phí cho học sinh, giáo viên hoặc phụ huynh — bắt đầu học Toán lớp 1–12 ngay.')
 
 @section('content')
     <h1 class="h4 fw-bold text-center mb-1">Bạn là ai?</h1>

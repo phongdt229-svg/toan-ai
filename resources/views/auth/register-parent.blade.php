@@ -1,6 +1,7 @@
 @extends('layouts.guest')
 
 @section('title', 'Đăng ký phụ huynh — TOÁN AI')
+@section('meta_description', 'Đăng ký tài khoản phụ huynh TOÁN AI để liên kết và theo dõi tiến độ học Toán của con.')
 
 @section('content')
     <div class="card border-0 shadow-sm">

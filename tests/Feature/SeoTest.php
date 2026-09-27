@@ -76,6 +76,54 @@ class SeoTest extends TestCase
         $this->get('/')->assertSee('content="index,follow"', false);
     }
 
+    /**
+     * Rà từng trang một (27/09, đợt 5): 6 trang dùng layouts.guest/public/base (không tự noindex
+     * như layouts.app) nhưng thực chất là trang sau đăng nhập hoặc có token nhạy cảm trên URL.
+     */
+    public function test_pages_that_only_make_sense_logged_in_or_mid_flow_are_noindex(): void
+    {
+        $this->assertStringContainsString(
+            'content="noindex,nofollow"',
+            $this->get(route('password.reset', 'sample-token'))->getContent(),
+        );
+
+        $student = User::factory()->create(['status' => User::STATUS_PENDING]);
+        $student->assignRole(Role::STUDENT);
+
+        $this->actingAs($student)->get(route('account.pending'))
+            ->assertSee('content="noindex,nofollow"', false);
+
+        $unverified = User::factory()->unverified()->create(['status' => User::STATUS_ACTIVE]);
+        $unverified->assignRole(Role::STUDENT);
+        $this->actingAs($unverified)->get(route('verification.notice'))
+            ->assertSee('content="noindex,nofollow"', false);
+
+        auth()->logout();
+        $this->session(['two_factor' => ['id' => $student->id, 'remember' => false, 'expires' => now()->addMinutes(5)->timestamp]]);
+        $this->get(route('two-factor.challenge'))
+            ->assertSee('content="noindex,nofollow"', false);
+    }
+
+    public function test_public_auth_pages_have_their_own_meta_description(): void
+    {
+        $default = 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.';
+
+        $descriptions = collect([
+            route('login'), route('register'), route('register.student'),
+            route('register.teacher'), route('register.parent'), route('password.request'),
+        ])->map(function ($url) use ($default) {
+            $html = $this->get($url)->assertOk()->assertSee('content="index,follow"', false)->getContent();
+            preg_match('/<meta name="description" content="(.*?)">/', $html, $m);
+            $this->assertNotEmpty($m, "thiếu meta description ở {$url}");
+            $this->assertNotSame($default, $m[1], "vẫn dùng mô tả mặc định của site ở {$url}");
+
+            return $m[1];
+        });
+
+        // Không trang nào lặp mô tả của trang khác — mỗi trang một nội dung riêng.
+        $this->assertSame($descriptions->count(), $descriptions->unique()->count());
+    }
+
     // --- Dữ liệu có cấu trúc (JSON-LD) -----------------------------------------------------
 
     /** Đọc mọi khối <script type="application/ld+json"> trên trang, gộp @type của từng @graph lại. */
