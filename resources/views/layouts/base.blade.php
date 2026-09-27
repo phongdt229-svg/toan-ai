@@ -4,7 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="@yield('meta_description', 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.')">
+
+    @php
+        // Admin sửa được ở Quản trị → SEO (App\Models\SeoPage) mà không cần đụng code — ưu tiên
+        // override đó, rơi về @section('meta_description') của từng trang, rồi mô tả mặc định site.
+        $defaultMetaDescription = 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.';
+        $metaDescription = app(\App\Services\Content\SeoPageService::class)
+                ->descriptionFor(optional(request()->route())->getName())
+            ?: trim($__env->yieldContent('meta_description', $defaultMetaDescription))
+            ?: $defaultMetaDescription;
+    @endphp
+    <meta name="description" content="{{ $metaDescription }}">
 
     @php
         // Chỉ nạp công cụ đo lường khi người dùng đã bấm "Đồng ý". Chặn ngay từ server:
@@ -34,8 +44,7 @@
     --}}
     @php
         $ogTitle = trim($__env->yieldContent('og_title')) ?: trim($__env->yieldContent('title', config('app.name')));
-        $ogDescription = trim($__env->yieldContent('og_description'))
-            ?: trim($__env->yieldContent('meta_description', 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.'));
+        $ogDescription = trim($__env->yieldContent('og_description')) ?: $metaDescription;
         $ogImage = trim($__env->yieldContent('og_image')) ?: asset('og-cover.png');
     @endphp
 

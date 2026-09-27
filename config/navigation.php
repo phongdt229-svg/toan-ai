@@ -65,6 +65,7 @@ return [
         ['label' => 'Hỗ trợ', 'icon' => 'bi-life-preserver', 'route' => 'admin.support.index', 'bottom' => false],
         ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => 'admin.audit-logs.index', 'bottom' => false],
         ['label' => 'Bảo trì', 'icon' => 'bi-cone-striped', 'route' => 'admin.maintenance.edit', 'bottom' => false],
+        ['label' => 'SEO', 'icon' => 'bi-search', 'route' => 'admin.seo.index', 'bottom' => false],
         // Cùng lý do ở nav teacher: admin kiểm duyệt được (Gate::before) nhưng không có lối vào riêng.
         ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'bottom' => false],
         ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'admin.settings', 'bottom' => false],

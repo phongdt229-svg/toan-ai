@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Admin\MaintenanceController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\SeoPageController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\SupportTicketController;
@@ -512,6 +513,9 @@ Route::middleware('auth')->group(function () {
             Route::post('danh-muc-bai-viet', [BlogCategoryController::class, 'store'])->name('blog-categories.store');
             Route::put('danh-muc-bai-viet/{category}', [BlogCategoryController::class, 'update'])->name('blog-categories.update');
             Route::delete('danh-muc-bai-viet/{category}', [BlogCategoryController::class, 'destroy'])->name('blog-categories.destroy');
+
+            Route::get('seo', [SeoPageController::class, 'index'])->name('seo.index');
+            Route::put('seo', [SeoPageController::class, 'update'])->name('seo.update');
         });
     });
 });
