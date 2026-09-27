@@ -10,7 +10,7 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/** Sửa meta_description các trang tĩnh công khai từ Quản trị → SEO, không cần đụng code. */
+/** Sửa title/meta_description/meta_keywords các trang tĩnh công khai từ Quản trị → SEO, không cần đụng code. */
 class SeoPageManagementTest extends TestCase
 {
     use RefreshDatabase;
@@ -49,36 +49,52 @@ class SeoPageManagementTest extends TestCase
             ->assertSee('Quên mật khẩu');
     }
 
-    public function test_saving_an_override_changes_the_rendered_meta_description(): void
+    public function test_saving_an_override_changes_the_rendered_title_description_and_keywords(): void
     {
         $this->actingAs($this->admin)->put(route('admin.seo.update'), [
             'route_name' => 'login',
+            'title' => 'Đăng nhập TOÁN AI — tiêu đề tuỳ chỉnh',
             'meta_description' => 'Mô tả mới do admin tự viết ở Quản trị.',
+            'meta_keywords' => 'đăng nhập toán ai, học toán online',
         ])->assertRedirect();
 
         $this->assertDatabaseHas('seo_pages', [
             'route_name' => 'login',
+            'title' => 'Đăng nhập TOÁN AI — tiêu đề tuỳ chỉnh',
             'meta_description' => 'Mô tả mới do admin tự viết ở Quản trị.',
+            'meta_keywords' => 'đăng nhập toán ai, học toán online',
         ]);
 
         // Trang đăng nhập chặn người đã đăng nhập (middleware guest) — đăng xuất trước khi xem.
         auth()->logout();
         $this->get(route('login'))
-            ->assertSee('<meta name="description" content="Mô tả mới do admin tự viết ở Quản trị.">', false);
+            ->assertSee('<title>Đăng nhập TOÁN AI — tiêu đề tuỳ chỉnh</title>', false)
+            ->assertSee('<meta name="description" content="Mô tả mới do admin tự viết ở Quản trị.">', false)
+            ->assertSee('<meta name="keywords" content="đăng nhập toán ai, học toán online">', false);
     }
 
-    public function test_clearing_the_override_falls_back_to_the_description_written_in_the_blade_file(): void
+    public function test_clearing_the_overrides_falls_back_to_the_values_written_in_the_blade_file(): void
     {
-        SeoPage::query()->create(['route_name' => 'login', 'meta_description' => 'Mô tả tạm']);
+        SeoPage::query()->create([
+            'route_name' => 'login',
+            'title' => 'Tiêu đề tạm',
+            'meta_description' => 'Mô tả tạm',
+            'meta_keywords' => 'từ khoá tạm',
+        ]);
 
         $this->actingAs($this->admin)->put(route('admin.seo.update'), [
             'route_name' => 'login',
+            'title' => '',
             'meta_description' => '',
+            'meta_keywords' => '',
         ])->assertRedirect();
 
         auth()->logout();
-        $this->get(route('login'))
-            ->assertSee('<meta name="description" content="Đăng nhập TOÁN AI để tiếp tục học Toán lớp 1–12 cùng AI Tutor.">', false);
+        $response = $this->get(route('login'));
+        $response
+            ->assertSee('<title>Đăng nhập — TOÁN AI</title>', false)
+            ->assertSee('<meta name="description" content="Đăng nhập TOÁN AI để tiếp tục học Toán lớp 1–12 cùng AI Tutor.">', false)
+            ->assertDontSee('name="keywords"', false);
     }
 
     public function test_route_name_outside_the_configured_list_is_rejected(): void

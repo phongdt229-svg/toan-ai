@@ -7,14 +7,25 @@
 
     @php
         // Admin sửa được ở Quản trị → SEO (App\Models\SeoPage) mà không cần đụng code — ưu tiên
-        // override đó, rơi về @section('meta_description') của từng trang, rồi mô tả mặc định site.
+        // override đó, rơi về @section(...) của từng trang, rồi giá trị mặc định của site.
+        $seoRouteName = optional(request()->route())->getName();
+        $seoPages = app(\App\Services\Content\SeoPageService::class);
+
         $defaultMetaDescription = 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.';
-        $metaDescription = app(\App\Services\Content\SeoPageService::class)
-                ->descriptionFor(optional(request()->route())->getName())
+        $metaDescription = $seoPages->descriptionFor($seoRouteName)
             ?: trim($__env->yieldContent('meta_description', $defaultMetaDescription))
             ?: $defaultMetaDescription;
+
+        $pageTitle = $seoPages->titleFor($seoRouteName)
+            ?: trim($__env->yieldContent('title', config('app.name')))
+            ?: config('app.name');
+
+        $metaKeywords = $seoPages->keywordsFor($seoRouteName);
     @endphp
     <meta name="description" content="{{ $metaDescription }}">
+    @if ($metaKeywords)
+        <meta name="keywords" content="{{ $metaKeywords }}">
+    @endif
 
     @php
         // Chỉ nạp công cụ đo lường khi người dùng đã bấm "Đồng ý". Chặn ngay từ server:
@@ -34,7 +45,7 @@
         </script>
     @endif
 
-    <title>@yield('title', config('app.name'))</title>
+    <title>{{ $pageTitle }}</title>
 
     {{--
         Thẻ chia sẻ mạng xã hội (Zalo, Facebook, Messenger). Trang nào muốn preview riêng thì
@@ -43,7 +54,7 @@
         Ảnh mặc định: public/og-cover.png (1200×630) — đổi ảnh thì thay đúng file này.
     --}}
     @php
-        $ogTitle = trim($__env->yieldContent('og_title')) ?: trim($__env->yieldContent('title', config('app.name')));
+        $ogTitle = trim($__env->yieldContent('og_title')) ?: $pageTitle;
         $ogDescription = trim($__env->yieldContent('og_description')) ?: $metaDescription;
         $ogImage = trim($__env->yieldContent('og_image')) ?: asset('og-cover.png');
     @endphp

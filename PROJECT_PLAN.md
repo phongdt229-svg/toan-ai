@@ -1147,25 +1147,28 @@ Sau đợt 5, admin hỏi có chỗ nào trong Quản trị để tự sửa cá
 
 - [x] Trang mới **Quản trị → SEO** (`admin.seo.index`) liệt kê các trang tĩnh công khai (khai ở
       `config/seo_pages.php` — danh sách CỐ ĐỊNH tên route, không cho nhập route tự do để tránh
-      gõ sai/ghi đè route không định trước), mỗi dòng một ô textarea sửa `meta_description`.
-      Để trống ô = quay lại mô tả gốc viết trong Blade (`@section('meta_description', ...)`), không
-      phải xoá là mất mô tả.
+      gõ sai/ghi đè route không định trước), mỗi dòng ba ô sửa `title`/`meta_description`/`meta_keywords`.
+      Để trống ô nào = quay lại giá trị gốc viết trong Blade (`@section('title'|'meta_description', ...)`),
+      không phải xoá là mất.
       Danh sách: `home`, `register`, `login`, `register.student`, `register.teacher`,
       `register.parent`, `password.request`, `packages.index`, `guides.index`, `support.create`,
-      `legal.terms`, `legal.privacy`. KHÔNG gồm `blog.*`/`guides.show` — hai loại đó đã có mô tả
+      `legal.terms`, `legal.privacy`. KHÔNG gồm `blog.*`/`guides.show` — hai loại đó đã có tiêu đề/mô tả
       riêng theo từng bài (từ `BlogPost`/`config/guides.php`), thêm override chung vào đây chỉ gây
       rối hai nguồn sự thật.
-- [x] `SeoPage` (bảng `seo_pages`: `route_name` unique + `meta_description` nullable) + `SeoPageService`
-      — cache 10 phút như `AnalyticsService` (đọc ở `layouts.base` mỗi lượt render), `forget()` khi lưu.
-      `SeoPageRequest` chỉ admin (`isAdmin()` thẳng trong Form Request, đúng kiểu `BlogCategoryRequest`
-      — không cần Policy riêng vì `Gate::before` đã cho admin qua hết); `route_name` phải nằm trong
-      `config('seo_pages')` (`Rule::in`), không nhận route_name tuỳ ý.
-- [x] `layouts/base.blade.php`: `meta_description` giờ ưu tiên override DB (theo route hiện tại) →
-      rơi về `@yield('meta_description', ...)` → rơi về mô tả mặc định site, giữ nguyên logic OG/Twitter
-      dùng lại đúng giá trị này (không đổi hành vi của phần đó).
-- Test: `SeoPageManagementTest` — chỉ admin vào được trang; lưu override đổi đúng `meta_description`
-  render ra ở trang tương ứng; để trống ô quay lại mô tả gốc trong Blade; `route_name` ngoài danh sách
-  cấu hình bị từ chối (422).
+- [x] `SeoPage` (bảng `seo_pages`: `route_name` unique + `title`/`meta_description`/`meta_keywords`
+      nullable) + `SeoPageService` — cache 10 phút như `AnalyticsService` (đọc ở `layouts.base` mỗi lượt
+      render), `forget()` khi lưu. `SeoPageRequest` chỉ admin (`isAdmin()` thẳng trong Form Request,
+      đúng kiểu `BlogCategoryRequest` — không cần Policy riêng vì `Gate::before` đã cho admin qua hết);
+      `route_name` phải nằm trong `config('seo_pages')` (`Rule::in`), không nhận route_name tuỳ ý.
+      `title` giới hạn 70 ký tự (Google cắt tiêu đề dài hơn khoảng này trên kết quả tìm kiếm).
+- [x] `layouts/base.blade.php`: `<title>`/`meta description`/`meta keywords` giờ ưu tiên override DB
+      (theo route hiện tại) → rơi về `@yield('title'|'meta_description', ...)` của từng trang → rơi về
+      giá trị mặc định site; không có `meta_keywords` mặc định nên override rỗng thì bỏ hẳn thẻ, không
+      in ra `content=""`. OG/Twitter dùng lại đúng `$pageTitle`/`$metaDescription` đã tính (không đổi
+      hành vi phần đó).
+- Test: `SeoPageManagementTest` — chỉ admin vào được trang; lưu override đổi đúng cả ba giá trị render
+  ra ở trang tương ứng; để trống ô nào quay lại giá trị gốc trong Blade (kể cả bỏ hẳn thẻ `keywords`
+  khi không có override); `route_name` ngoài danh sách cấu hình bị từ chối (422).
 
 ### ✅ Đã làm (27/09, đợt 4) — Nén HTML trả về, bật/tắt qua .env
 
