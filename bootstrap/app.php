@@ -3,6 +3,7 @@
 use App\Http\Middleware\BlockWhenImpersonating;
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureUserHasRole;
+use App\Http\Middleware\MinifyHtml;
 use App\Http\Middleware\RequireAdminTwoFactor;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
@@ -47,6 +48,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->append(SecurityHeaders::class);
         $middleware->appendToGroup('web', BlockWhenImpersonating::class);
+        // Nén HTML — đặt cuối nhóm 'web' (API không trả HTML nên không cần) để chắc chắn nén
+        // đúng bản HTML cuối cùng, sau khi mọi middleware khác đã xong việc với response.
+        $middleware->appendToGroup('web', MinifyHtml::class);
 
         // Giới hạn chung chống cào dữ liệu / spam — các route nhạy cảm có throttle riêng chặt hơn.
         $middleware->appendToGroup('web', 'throttle:global');

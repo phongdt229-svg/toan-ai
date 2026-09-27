@@ -115,6 +115,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - JSON-LD trong Blade: viết `'@context'` làm key mảng PHP thì Blade nuốt mất — `@context` trùng tên directive
   mới của Laravel, bị thay bằng code PHP dù nằm trong chuỗi. Luôn viết `'@@context'` (và cho chắc `'@@graph'`)
   để Blade nhả ra đúng ký tự `@`. Xem `layouts/base.blade.php`, test canh bẫy này ở `SeoTest`.
+- Nén HTML: `MINIFY_HTML=true` trong `.env` mới bật (`App\Http\Middleware\MinifyHtml`), mặc định TẮT —
+  local để nguyên cho dễ đọc "View source". Test hành vi nén phải chạy trên **trang thật** (`$this->get('/')`),
+  không chỉ HTML tự soạn — mẫu tự soạn dễ toàn đúng kiểu `>   <` nên không bắt được khoảng trắng lọt lưới
+  cạnh nội dung được bảo vệ (`<script>`/`<pre>`/...), xem `MinifyHtmlTest`.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
   Job `pint --test` đã bật (repo đã dọn 24/09) — trước khi commit chạy `vendor/bin/pint`.
 

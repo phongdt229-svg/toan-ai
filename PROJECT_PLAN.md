@@ -1114,6 +1114,27 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       `SampleBlogSeeder` mở rộng lên 17 bài (4 bài mỗi danh mục, 1 nháp) để mọi bài đều đủ 3 thẻ
       liên quan khi xem demo — trước đó 2 danh mục chỉ có 2 bài nên phần này bị cụt.
 
+### ✅ Đã làm (27/09, đợt 4) — Nén HTML trả về, bật/tắt qua .env
+
+- [x] `App\Http\Middleware\MinifyHtml` — bỏ khoảng trắng thừa giữa thẻ, bỏ comment HTML thường
+      (giữ comment điều kiện `<!--[if ...]-->`). KHÔNG đụng nội dung trong `<script>`, `<style>`,
+      `<pre>`, `<textarea>` (thay placeholder trước khi nén, trả lại nguyên văn sau) — tránh vỡ
+      JS/CSS/khoảng trắng có ý nghĩa. Chỉ áp dụng response `Content-Type: text/html`, response
+      JSON/XML (sitemap.xml, RSS, API) không bị đụng vào.
+- [x] Bật/tắt qua `MINIFY_HTML` trong `.env` → `config('site.minify_html')`. **Mặc định TẮT** —
+      bật ở local làm "View source" khó đọc lúc debug giao diện. Đăng ký ở `bootstrap/app.php`,
+      chỉ nhóm route `web` (API vốn không trả HTML).
+- **Bẫy phát hiện lúc code**: bước gộp khoảng trắng đầu tiên chỉ bắt khoảng trắng nằm NGAY GIỮA
+  `>` và `<` — placeholder bảo vệ script/pre không phải ký tự `>`/`<` nên xuống dòng đơn lẻ cạnh nó
+  (và cạnh cuối text node trước thẻ đóng, kiểu `chữ\n</span>`) lọt qua, HTML trang chủ thật vẫn còn
+  rải rác `\n`. Bài test tay 5 mẫu tự soạn không bắt được vì mẫu nào cũng đúng kiểu `>   <`; chỉ lộ
+  ra ở test chạy trên trang thật. Sửa: gộp CHUNG mọi khoảng trắng còn sót (kể cả 1 dấu xuống dòng)
+  thành đúng 1 dấu cách — trình duyệt vốn hiển thị mọi chuỗi khoảng trắng trong text thường như 1
+  dấu cách nên không đổi cách hiển thị.
+- Test: response có bật cờ được nén (khoảng trắng giữa thẻ mất, `<script>` giữ nguyên byte-for-byte
+  kể cả khoảng trắng bên trong), tắt cờ thì giữ nguyên, response XML (sitemap) không bị đụng dù bật
+  cờ, và **test trên trang chủ thật** (không phải HTML tự soạn) để bắt đúng bẫy trên.
+
 ### ✅ Đã làm (27/09, đợt 3) — SEO cho toàn site
 
 Đã có từ trước: OG/Twitter card, `<link rel="canonical">` (dùng `url()->current()`, tự bỏ query
