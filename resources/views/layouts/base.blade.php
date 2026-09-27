@@ -75,6 +75,41 @@
         <meta name="google-site-verification" content="{{ config('site.google_site_verification') }}">
     @endif
 
+    {{--
+        JSON-LD sitewide (schema.org) — chỉ đặt trên trang được lập chỉ mục (@yield('robots') không
+        chứa "noindex"); đặt cả ở trang sau đăng nhập là vô nghĩa, Google không đọc trang đó.
+        `name` lấy config('site.brand') (tên hiển thị công khai, vd "MATH AI"), `legalName` lấy
+        config('site.company') (tên pháp nhân, vd "TOÁN AI") — hai trường khác nhau thật trong
+        config/site.php, không gộp làm một cho "gọn".
+    --}}
+    @php $robotsMeta = trim($__env->yieldContent('robots', 'index,follow')); @endphp
+    @unless (str_contains($robotsMeta, 'noindex'))
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@@context' => 'https://schema.org',
+                '@graph' => [
+                    array_filter([
+                        '@type' => 'EducationalOrganization',
+                        '@id' => url('/').'#organization',
+                        'name' => config('site.brand'),
+                        'legalName' => config('site.company'),
+                        'url' => url('/'),
+                        'logo' => asset('icons/icon-512.png'),
+                        'email' => config('site.email') ?: null,
+                        'telephone' => config('site.hotline') ?: null,
+                    ]),
+                    [
+                        '@type' => 'WebSite',
+                        '@id' => url('/').'#website',
+                        'name' => config('site.brand'),
+                        'url' => url('/'),
+                        'inLanguage' => 'vi',
+                    ],
+                ],
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+        </script>
+    @endunless
+
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     @stack('head')
 

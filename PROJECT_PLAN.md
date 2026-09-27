@@ -1114,6 +1114,34 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       `SampleBlogSeeder` mở rộng lên 17 bài (4 bài mỗi danh mục, 1 nháp) để mọi bài đều đủ 3 thẻ
       liên quan khi xem demo — trước đó 2 danh mục chỉ có 2 bài nên phần này bị cụt.
 
+### ✅ Đã làm (27/09, đợt 3) — SEO cho toàn site
+
+Đã có từ trước: OG/Twitter card, `<link rel="canonical">` (dùng `url()->current()`, tự bỏ query
+string nên không cần xử lý riêng cho trang lọc/phân trang), meta description mọi trang công khai,
+robots.txt, sitemap.xml (+ảnh), sitemap-news.xml, RSS Tin tức. Rà lại toàn site thấy còn thiếu:
+
+- [x] **JSON-LD `EducationalOrganization` + `WebSite`** — sitewide ở `layouts/base.blade.php`, chỉ
+      render trên trang được lập chỉ mục (`@yield('robots')` không chứa `noindex`). `name` lấy
+      `config('site.brand')`, `legalName` lấy `config('site.company')` — hai trường khác nhau thật
+      trong config, không gộp làm một. **Bẫy phát hiện lúc code**: key `"@context"` trùng tên
+      directive `@context` mới của Laravel, Blade nuốt mất thành code PHP dù nằm trong chuỗi —
+      phải escape `@@context` (và `@@graph` cho chắc) mới ra đúng JSON. Có test canh riêng bẫy này.
+- [x] **JSON-LD `Article` + `BreadcrumbList`** ở trang chi tiết Tin tức — headline/ảnh/ngày xuất bản
+      lấy thẳng từ `BlogPost`. Tác giả khai là tổ chức (`Organization`), không khai `Person` vì
+      `BlogPost.author` là tài khoản admin nội bộ, không phải bút danh công khai.
+- [x] **JSON-LD `Product`/`Offer`** ở trang Gói học (`/goi-hoc`) — giá lấy thẳng từ bảng `packages`.
+      Gói Free không có trang checkout riêng (`PackageController` chặn 404) nên `Offer.url` trỏ về
+      chính trang bảng giá thay vì một URL biết trước sẽ lỗi.
+- [x] **Ảnh bìa Tin tức hết `alt=""`** (4 chỗ: trang chủ, danh sách, chi tiết, bài liên quan) — đổi
+      sang dùng tiêu đề bài làm alt, vì đây là ảnh nội dung thật, không phải trang trí.
+- [x] **`lastmod` trong sitemap.xml hết luôn là `now()`** — bài viết dùng `updated_at` thật, trang
+      tĩnh dùng `filemtime()` của file Blade/config tương ứng (`view($name)->getPath()`), bài hướng
+      dẫn dùng chung `filemtime(config_path('guides.php'))`. Không có ngày thật thì bỏ hẳn thẻ
+      `<lastmod>` chứ không đoán.
+- 9 test mới trong `SeoTest` (JSON-LD hợp lệ/đúng trường/vắng mặt ở trang noindex, alt text, lastmod
+  đúng ngày thật — có test riêng phân biệt với `now()` bằng `travel()`). 638 test toàn repo xanh,
+  Pint sạch.
+
 ### ✅ Đã làm (27/09) — RSS Tin tức + ảnh trong sitemap
 
 `robots.txt`/`sitemap.xml` đã có sẵn từ trước — thêm 2 việc còn thiếu quanh SEO cho Blog:

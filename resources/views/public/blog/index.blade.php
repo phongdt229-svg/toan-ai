@@ -44,7 +44,7 @@
                         <div class="col-12 col-sm-6 col-lg-4">
                             <a href="{{ route('blog.show', $post) }}" class="feature-card d-block h-100 text-decoration-none text-body">
                                 @if ($post->coverUrl())
-                                    <img src="{{ $post->coverUrl() }}" alt="" class="w-100 rounded-3 mb-3"
+                                    <img src="{{ $post->coverUrl() }}" alt="{{ $post->title }}" class="w-100 rounded-3 mb-3"
                                          style="aspect-ratio:16/9;object-fit:cover">
                                 @endif
                                 <span class="badge text-bg-light border mb-2">{{ $post->category->name }}</span>

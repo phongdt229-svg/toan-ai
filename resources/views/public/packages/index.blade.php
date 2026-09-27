@@ -3,6 +3,33 @@
 @section('title', 'Gói học — TOÁN AI')
 @section('meta_description', 'Bảng giá các gói học Toán Free, Pro, Premium của TOÁN AI.')
 
+@push('head')
+    {{--
+        JSON-LD Product/Offer cho từng gói — giá lấy thẳng từ $tiers (đã nạp từ bảng packages
+        trong PackageController, đúng luật "giá luôn đọc từ DB"). Gói Free giá 0 vẫn khai Offer
+        bình thường, schema.org không bắt buộc giá dương.
+    --}}
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@@context' => 'https://schema.org',
+            '@@graph' => $tiers->flatMap->packages->map(fn ($package) => array_filter([
+                '@type' => 'Product',
+                'name' => $package->name,
+                'description' => $package->description ?: null,
+                'offers' => [
+                    '@type' => 'Offer',
+                    // Gói Free không có trang checkout riêng (chặn 404, xem PackageController)
+                    // — trỏ về chính trang bảng giá thay vì một URL biết trước sẽ lỗi.
+                    'url' => $package->isFree() ? route('packages.index') : route('packages.checkout', $package),
+                    'priceCurrency' => $package->currency,
+                    'price' => (string) $package->price,
+                    'availability' => 'https://schema.org/InStock',
+                ],
+            ]))->values(),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
+@endpush
+
 @section('body')
     @include('public.partials.header')
 

@@ -112,6 +112,9 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Tạo đề bằng AI: chỉ câu giáo viên đã chấp nhận mới vào đề, đề luôn ở trạng thái Nháp (`createExamFromDraft`).
 - Đổi model AI → thêm dòng giá ở `config/ai.php → pricing`, nếu không trang AI usage hiện 0₫ (có cảnh báo).
 - Chart.js: canvas được bọc khung riêng bởi `sizeBox()` trong `resources/js/charts.js` — đừng đặt height lên `card-body`.
+- JSON-LD trong Blade: viết `'@context'` làm key mảng PHP thì Blade nuốt mất — `@context` trùng tên directive
+  mới của Laravel, bị thay bằng code PHP dù nằm trong chuỗi. Luôn viết `'@@context'` (và cho chắc `'@@graph'`)
+  để Blade nhả ra đúng ký tự `@`. Xem `layouts/base.blade.php`, test canh bẫy này ở `SeoTest`.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
   Job `pint --test` đã bật (repo đã dọn 24/09) — trước khi commit chạy `vendor/bin/pint`.
 

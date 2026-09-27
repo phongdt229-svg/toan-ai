@@ -8,6 +8,46 @@
     @section('og_image', $post->coverUrl())
 @endif
 
+@push('head')
+    {{--
+        JSON-LD Article + BreadcrumbList. Tác giả khai là tổ chức (Organization) chứ không phải
+        Person — $post->author là tài khoản admin nội bộ, không phải bút danh công khai, khai
+        Person ở đây là nói sai ai thực sự viết bài. @@context escape "@" để Blade không hiểu
+        nhầm thành directive @context của Laravel (xem layouts/base.blade.php).
+    --}}
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@@context' => 'https://schema.org',
+            '@@graph' => [
+                array_filter([
+                    '@type' => 'Article',
+                    'headline' => $post->title,
+                    'description' => $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content), 160),
+                    'image' => $post->coverUrl() ?: null,
+                    'datePublished' => $post->published_at->toIso8601String(),
+                    'dateModified' => $post->updated_at->toIso8601String(),
+                    'mainEntityOfPage' => route('blog.show', $post->slug),
+                    'author' => ['@type' => 'Organization', 'name' => config('site.brand')],
+                    'publisher' => [
+                        '@type' => 'Organization',
+                        'name' => config('site.brand'),
+                        'logo' => ['@type' => 'ImageObject', 'url' => asset('icons/icon-512.png')],
+                    ],
+                ]),
+                [
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Trang chủ', 'item' => route('home')],
+                        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Tin tức', 'item' => route('blog.index')],
+                        ['@type' => 'ListItem', 'position' => 3, 'name' => $post->category->name, 'item' => route('blog.index', ['danh-muc' => $post->category->slug])],
+                        ['@type' => 'ListItem', 'position' => 4, 'name' => $post->title, 'item' => route('blog.show', $post->slug)],
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
+@endpush
+
 @section('body')
     @include('public.partials.header')
 
@@ -28,7 +68,7 @@
             </div>
 
             @if ($post->coverUrl())
-                <img src="{{ $post->coverUrl() }}" alt="" class="w-100 rounded-3 mb-4" style="max-height:420px;object-fit:cover">
+                <img src="{{ $post->coverUrl() }}" alt="{{ $post->title }}" class="w-100 rounded-3 mb-4" style="max-height:420px;object-fit:cover">
             @endif
 
             {{-- Nội dung đã lọc qua HtmlSanitizer lúc lưu (BlogPost::content mutator). --}}
@@ -42,7 +82,7 @@
                         <div class="col-12 col-sm-4">
                             <a href="{{ route('blog.show', $item) }}" class="feature-card d-block h-100 text-decoration-none text-body">
                                 @if ($item->coverUrl())
-                                    <img src="{{ $item->coverUrl() }}" alt="" class="w-100 rounded-3 mb-3"
+                                    <img src="{{ $item->coverUrl() }}" alt="{{ $item->title }}" class="w-100 rounded-3 mb-3"
                                          style="aspect-ratio:16/9;object-fit:cover">
                                 @endif
                                 <div class="small fw-semibold">{{ $item->title }}</div>

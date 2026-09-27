@@ -6,14 +6,17 @@ use App\Http\Controllers\Web\CookieConsentController as Consent;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\Grade;
+use App\Models\Package;
 use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Services\Content\BlogService;
 use Database\Seeders\GradeSeeder;
+use Database\Seeders\PackageSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 /** Thẻ chia sẻ mạng xã hội + sitemap (§ bổ sung sau roadmap). */
@@ -73,6 +76,90 @@ class SeoTest extends TestCase
         $this->get('/')->assertSee('content="index,follow"', false);
     }
 
+    // --- Dữ liệu có cấu trúc (JSON-LD) -----------------------------------------------------
+
+    /** Đọc mọi khối <script type="application/ld+json"> trên trang, gộp @type của từng @graph lại. */
+    private function structuredDataTypes(string $html): array
+    {
+        preg_match_all('/<script type="application\/ld\+json">(.*?)<\/script>/s', $html, $matches);
+
+        return collect($matches[1])
+            ->flatMap(fn ($json) => collect(json_decode(trim($json), true)['@graph'] ?? [])->pluck('@type'))
+            ->all();
+    }
+
+    public function test_organization_structured_data_uses_the_configured_brand_and_legal_name(): void
+    {
+        config(['site.brand' => 'MATH AI', 'site.company' => 'TOÁN AI']);
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        // "@context" trùng tên directive @context của Laravel — phải escape @@context trong Blade
+        // (xem layouts/base.blade.php), test này canh nó không bị Blade nuốt mất lúc render thật.
+        $this->assertStringContainsString('"@context":"https://schema.org"', $html);
+        $this->assertSame(['EducationalOrganization', 'WebSite'], $this->structuredDataTypes($html));
+        $this->assertStringContainsString('"name":"MATH AI"', $html);
+        $this->assertStringContainsString('"legalName":"TOÁN AI"', $html);
+    }
+
+    public function test_structured_data_is_absent_on_pages_that_are_not_indexed(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $user->assignRole(Role::STUDENT);
+        StudentProfile::create([
+            'user_id' => $user->id,
+            'grade_id' => Grade::where('level', 6)->value('id'),
+            'link_code' => StudentProfile::generateLinkCode(),
+        ]);
+
+        $this->actingAs($user)->get(route('student.dashboard'))
+            ->assertOk()->assertDontSee('application/ld+json', false);
+    }
+
+    public function test_blog_post_page_has_article_and_breadcrumb_structured_data(): void
+    {
+        [$admin, $category] = $this->blogAuthor();
+        $post = app(BlogService::class)->create([
+            'blog_category_id' => $category->id, 'title' => 'Bài kiểm tra dữ liệu có cấu trúc',
+            'excerpt' => 'Tóm tắt.', 'content' => 'Nội dung.', 'status' => 'published',
+        ], $admin);
+
+        $html = $this->get(route('blog.show', $post))->assertOk()->getContent();
+
+        $this->assertContains('Article', $this->structuredDataTypes($html));
+        $this->assertContains('BreadcrumbList', $this->structuredDataTypes($html));
+        $this->assertStringContainsString('"headline":"Bài kiểm tra dữ liệu có cấu trúc"', $html);
+        // Tác giả khai la Organization — BlogPost.author la tai khoan admin noi bo, khong phai
+        // but danh cong khai, khai Person o day la noi sai su that.
+        $this->assertStringContainsString('"author":{"@type":"Organization"', $html);
+    }
+
+    public function test_packages_page_has_product_offer_structured_data_with_real_prices(): void
+    {
+        $this->seed(PackageSeeder::class);
+        $package = Package::where('slug', 'pro-thang')->firstOrFail();
+
+        $html = $this->get(route('packages.index'))->assertOk()->getContent();
+
+        $this->assertContains('Product', $this->structuredDataTypes($html));
+        $this->assertStringContainsString('"price":"'.number_format((float) $package->price, 2, '.', '').'"', $html);
+        $this->assertStringContainsString('"priceCurrency":"'.$package->currency.'"', $html);
+    }
+
+    public function test_blog_cover_images_have_descriptive_alt_text_not_empty(): void
+    {
+        [$admin, $category] = $this->blogAuthor();
+        app(BlogService::class)->create([
+            'blog_category_id' => $category->id, 'title' => 'Bài có ảnh cần alt mô tả',
+            'content' => 'Nội dung.', 'status' => 'published',
+        ], $admin, UploadedFile::fake()->image('a.jpg', 800, 450));
+
+        $html = $this->get(route('blog.index'))->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('alt=""', $html);
+        $this->assertStringContainsString('alt="Bài có ảnh cần alt mô tả"', $html);
+    }
+
     // --- Sitemap --------------------------------------------------------------------------
 
     public function test_sitemap_lists_public_pages_and_every_guide(): void
@@ -101,6 +188,41 @@ class SeoTest extends TestCase
         foreach (['/hoc-sinh', '/giao-vien', '/phu-huynh', '/quan-tri', '/tai-khoan'] as $private) {
             $this->assertStringNotContainsString($private.'<', $xml);
         }
+    }
+
+    public function test_sitemap_lastmod_for_a_blog_post_matches_its_real_updated_at(): void
+    {
+        [$admin, $category] = $this->blogAuthor();
+        $post = app(BlogService::class)->create([
+            'blog_category_id' => $category->id, 'title' => 'Bài kiểm tra lastmod',
+            'content' => 'Nội dung.', 'status' => 'published',
+        ], $admin);
+        $post->refresh();
+        $editedAt = $post->updated_at;
+
+        // Thời gian trôi tiếp SAU lần sửa cuối, KHÔNG sửa gì thêm — nếu code lỡ dùng lại now() thay
+        // vì updated_at (đúng lỗi cũ), lastmod sẽ nhảy theo mốc mới này thay vì đứng yên ở $editedAt.
+        $this->travel(3)->days();
+
+        $xml = $this->get('/sitemap.xml')->getContent();
+
+        $this->assertStringContainsString(
+            '<loc>'.route('blog.show', $post->slug).'</loc>'."\n".'    <lastmod>'.$editedAt->toAtomString().'</lastmod>',
+            $xml,
+        );
+        $this->assertStringNotContainsString('<lastmod>'.now()->toAtomString(), $xml);
+    }
+
+    public function test_sitemap_lastmod_for_static_pages_is_the_files_real_modification_time(): void
+    {
+        $xml = $this->get('/sitemap.xml')->getContent();
+
+        $expected = Carbon::createFromTimestamp(filemtime(view('public.legal.privacy')->getPath()))->toAtomString();
+
+        $this->assertStringContainsString(
+            '<loc>'.route('legal.privacy').'</loc>'."\n".'    <lastmod>'.$expected.'</lastmod>',
+            $xml,
+        );
     }
 
     /** @return array{0: User, 1: BlogCategory} */
