@@ -3,13 +3,17 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\Web\CookieConsentController as Consent;
+use App\Models\BlogCategory;
+use App\Models\BlogPost;
 use App\Models\Grade;
 use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\User;
+use App\Services\Content\BlogService;
 use Database\Seeders\GradeSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 /** Thẻ chia sẻ mạng xã hội + sitemap (§ bổ sung sau roadmap). */
@@ -97,6 +101,79 @@ class SeoTest extends TestCase
         foreach (['/hoc-sinh', '/giao-vien', '/phu-huynh', '/quan-tri', '/tai-khoan'] as $private) {
             $this->assertStringNotContainsString($private.'<', $xml);
         }
+    }
+
+    /** @return array{0: User, 1: BlogCategory} */
+    private function blogAuthor(): array
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::ADMIN);
+
+        return [$admin, BlogCategory::create(['name' => 'Giới thiệu', 'slug' => 'gioi-thieu'])];
+    }
+
+    public function test_sitemap_declares_the_cover_image_of_blog_posts_that_have_one(): void
+    {
+        [$admin, $category] = $this->blogAuthor();
+
+        app(BlogService::class)->create([
+            'blog_category_id' => $category->id, 'title' => 'Bài có ảnh bìa cho sitemap',
+            'content' => 'Nội dung.', 'status' => 'published',
+        ], $admin, UploadedFile::fake()->image('a.jpg', 800, 450));
+        $post = BlogPost::firstOrFail();
+
+        $xml = $this->get('/sitemap.xml')->assertOk()->getContent();
+
+        $this->assertStringContainsString('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"', $xml);
+        $this->assertStringContainsString('<image:loc>'.e($post->coverUrl()).'</image:loc>', $xml);
+        $this->assertStringContainsString('<image:title>Bài có ảnh bìa cho sitemap</image:title>', $xml);
+        $this->assertNotFalse(simplexml_load_string($xml));
+    }
+
+    public function test_sitemap_has_no_image_tag_for_posts_without_a_cover(): void
+    {
+        [$admin, $category] = $this->blogAuthor();
+
+        app(BlogService::class)->create([
+            'blog_category_id' => $category->id, 'title' => 'Bài không có ảnh bìa',
+            'content' => 'Nội dung.', 'status' => 'published',
+        ], $admin);
+
+        $xml = $this->get('/sitemap.xml')->getContent();
+
+        $this->assertStringNotContainsString('<image:image>', $xml);
+    }
+
+    // --- RSS Tin tức -------------------------------------------------------------------------
+
+    public function test_rss_feed_lists_published_posts_newest_first_and_excludes_drafts(): void
+    {
+        [$admin, $category] = $this->blogAuthor();
+        $blog = app(BlogService::class);
+
+        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài cũ hơn', 'excerpt' => 'Tóm tắt cũ.', 'content' => 'Nội dung.', 'status' => 'published'], $admin);
+        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài nháp không nên lộ', 'content' => 'Nội dung.', 'status' => 'draft'], $admin);
+        $this->travel(1)->hours();
+        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài mới nhất', 'excerpt' => 'Tóm tắt mới.', 'content' => 'Nội dung.', 'status' => 'published'], $admin);
+
+        $response = $this->get(route('blog.feed'))->assertOk();
+        $response->assertHeader('Content-Type', 'application/rss+xml; charset=UTF-8');
+
+        $xml = $response->getContent();
+        $this->assertNotFalse(simplexml_load_string($xml));
+        $this->assertStringNotContainsString('Bài nháp không nên lộ', $xml);
+        $this->assertStringContainsString('Tóm tắt mới.', $xml);
+        $this->assertStringContainsString(route('blog.show', 'bai-moi-nhat'), $xml);
+
+        // Bài mới nhất phải đứng trước bài cũ hơn trong feed.
+        $this->assertLessThan(strpos($xml, 'Bài cũ hơn'), strpos($xml, 'Bài mới nhất'));
+    }
+
+    public function test_blog_index_links_to_the_rss_feed(): void
+    {
+        $this->get(route('blog.index'))->assertOk()
+            ->assertSee('type="application/rss+xml"', false)
+            ->assertSee(route('blog.feed'), false);
     }
 
     // --- Google Analytics + Search Console -------------------------------------------------

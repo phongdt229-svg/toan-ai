@@ -3,6 +3,10 @@
 @section('title', ($activeCategory ? $activeCategory->name . ' — ' : '') . 'Tin tức — TOÁN AI')
 @section('meta_description', 'Tin tức, bài giới thiệu và khuyến mãi mới nhất từ TOÁN AI.')
 
+@push('head')
+    <link rel="alternate" type="application/rss+xml" title="Tin tức — TOÁN AI" href="{{ route('blog.feed') }}">
+@endpush
+
 @section('body')
     @include('public.partials.header')
 

@@ -93,6 +93,7 @@ Route::get('huong-dan/{slug}', [GuideController::class, 'show'])->name('guides.s
 
 // Tin tức: bài giới thiệu + khuyến mãi do admin viết (kế hoạch 26/09), ai cũng xem được.
 Route::get('tin-tuc', [BlogController::class, 'index'])->name('blog.index');
+Route::get('tin-tuc/rss.xml', [BlogController::class, 'feed'])->name('blog.feed');
 Route::get('tin-tuc/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 
 // Lựa chọn cookie — ai cũng dùng được, kể cả khách chưa đăng nhập.

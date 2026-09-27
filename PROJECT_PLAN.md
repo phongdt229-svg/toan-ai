@@ -1114,6 +1114,19 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       `SampleBlogSeeder` mở rộng lên 17 bài (4 bài mỗi danh mục, 1 nháp) để mọi bài đều đủ 3 thẻ
       liên quan khi xem demo — trước đó 2 danh mục chỉ có 2 bài nên phần này bị cụt.
 
+### ✅ Đã làm (27/09) — RSS Tin tức + ảnh trong sitemap
+
+`robots.txt`/`sitemap.xml` đã có sẵn từ trước — thêm 2 việc còn thiếu quanh SEO cho Blog:
+
+- [x] **RSS 2.0 cho Tin tức** — `/tin-tuc/rss.xml` (`BlogController::feed`), 20 bài mới nhất, loại
+      bài nháp. Route đặt TRƯỚC `tin-tuc/{post:slug}` (nếu không Laravel khớp "rss.xml" thành slug
+      bài viết trước). `<link rel="alternate" type="application/rss+xml">` khai ở trang `/tin-tuc`.
+- [x] **Ảnh trong sitemap.xml** — bài có ảnh bìa thêm thẻ `<image:image>` (namespace Google Image
+      Sitemap), giúp Google index ảnh nhanh hơn thay vì tự dò trong HTML. `SitemapController` đổi
+      từ `pluck('slug')` sang lấy nguyên model để gọi `coverUrl()`.
+- 6 test mới trong `SeoTest` (ảnh có/không, RSS đúng thứ tự mới→cũ, loại nháp, link alternate).
+  628 test toàn repo xanh, Pint sạch.
+
 ### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
 
 Rà lại tính năng Hỏi đáp (24/09, phiên khác) trước khi làm tiếp — phát hiện 2 lỗi UX,
