@@ -7,7 +7,7 @@
     ];
 @endphp
 
-<aside class="sidebar">
+<aside class="sidebar @if ($portal === 'admin') sidebar--admin @endif">
     <a href="{{ route('home') }}" class="sidebar__brand text-decoration-none">
         <x-brand variant="light" size="md" />
     </a>
