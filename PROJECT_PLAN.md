@@ -1127,6 +1127,21 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
 - 6 test mới trong `SeoTest` (ảnh có/không, RSS đúng thứ tự mới→cũ, loại nháp, link alternate).
   628 test toàn repo xanh, Pint sạch.
 
+### ✅ Đã làm (27/09, đợt 2) — Google News Sitemap
+
+> **Giới hạn không phải việc code:** dựng đúng sitemap không đồng nghĩa site được Google News nhận.
+> Phải tự đăng ký qua [Google Publisher Center](https://publishercenter.google.com/) và được duyệt thủ
+> công — không có API để làm thay bước này. Nội dung Blog hiện tại (bài giới thiệu + khuyến mãi) thiên
+> marketing hơn tin thời sự, Google News ưu tiên nội dung biên tập/thời sự nên **chưa chắc được duyệt**
+> kể cả khi sitemap đúng chuẩn. Phần dưới chỉ là hạ tầng kỹ thuật, phần đăng ký/duyệt là việc của bạn.
+
+- [x] **`/sitemap-news.xml`** (`SitemapController::news`) — chỉ liệt kê bài đã xuất bản trong
+      **48 giờ gần đây** (đúng yêu cầu bắt buộc của Google News, khác sitemap thường không giới hạn
+      thời gian). Namespace `news` (`sitemap-news/0.9`), mỗi `<url>` có `<news:publication>` (tên lấy
+      từ `config('site.brand')`, ngôn ngữ `vi`), `<news:publication_date>`, `<news:title>`.
+- [x] Thêm dòng `Sitemap: .../sitemap-news.xml` vào `robots.txt`.
+- Test mới trong `SeoTest`: chỉ bài trong 48 giờ, loại bài cũ hơn và bài nháp, đúng namespace/tên.
+
 ### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
 
 Rà lại tính năng Hỏi đáp (24/09, phiên khác) trước khi làm tiếp — phát hiện 2 lỗi UX,

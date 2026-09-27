@@ -71,4 +71,41 @@ class SitemapController extends Controller
 
         return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
     }
+
+    /**
+     * sitemap-news.xml — Google News chỉ chấp nhận URL đã xuất bản trong 48 giờ gần đây (yêu cầu
+     * bắt buộc, khác sitemap.xml thường không giới hạn thời gian); URL cũ hơn phải RỚT khỏi
+     * sitemap này dù bài vẫn còn trên site. Có sitemap đúng chuẩn không đồng nghĩa được Google
+     * News nhận — còn phải đăng ký & duyệt qua Google Publisher Center (xem PROJECT_PLAN.md).
+     */
+    public function news(): Response
+    {
+        $publication = config('site.brand', config('app.name'));
+
+        $posts = BlogPost::published()
+            ->where('published_at', '>=', now()->subHours(48))
+            ->latest('published_at')->latest('id')
+            ->get(['slug', 'title', 'published_at']);
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
+            .'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'."\n";
+
+        foreach ($posts as $post) {
+            $xml .= '  <url>'."\n"
+                .'    <loc>'.e(route('blog.show', $post->slug)).'</loc>'."\n"
+                .'    <news:news>'."\n"
+                .'      <news:publication>'."\n"
+                .'        <news:name>'.e($publication).'</news:name>'."\n"
+                .'        <news:language>vi</news:language>'."\n"
+                .'      </news:publication>'."\n"
+                .'      <news:publication_date>'.$post->published_at->toIso8601String().'</news:publication_date>'."\n"
+                .'      <news:title>'.e($post->title).'</news:title>'."\n"
+                .'    </news:news>'."\n"
+                .'  </url>'."\n";
+        }
+
+        $xml .= '</urlset>'."\n";
+
+        return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+    }
 }

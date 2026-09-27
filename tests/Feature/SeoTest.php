@@ -176,6 +176,45 @@ class SeoTest extends TestCase
             ->assertSee(route('blog.feed'), false);
     }
 
+    // --- Google News Sitemap -----------------------------------------------------------------
+
+    public function test_news_sitemap_only_lists_posts_published_within_the_last_48_hours(): void
+    {
+        [$admin, $category] = $this->blogAuthor();
+        $blog = app(BlogService::class);
+
+        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài quá 48 giờ', 'content' => 'Nội dung.', 'status' => 'published'], $admin);
+        BlogPost::where('title', 'Bài quá 48 giờ')->update(['published_at' => now()->subHours(49)]);
+
+        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài nháp trong 48 giờ', 'content' => 'Nội dung.', 'status' => 'draft'], $admin);
+
+        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài mới trong 48 giờ', 'content' => 'Nội dung.', 'status' => 'published'], $admin);
+
+        $xml = $this->get('/sitemap-news.xml')->assertOk()->getContent();
+
+        $this->assertStringContainsString('xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"', $xml);
+        $this->assertStringContainsString('<news:title>Bài mới trong 48 giờ</news:title>', $xml);
+        $this->assertStringNotContainsString('Bài quá 48 giờ', $xml);
+        $this->assertStringNotContainsString('Bài nháp trong 48 giờ', $xml);
+        $this->assertStringContainsString('<news:language>vi</news:language>', $xml);
+        $this->assertNotFalse(simplexml_load_string($xml));
+    }
+
+    public function test_news_sitemap_is_empty_when_nothing_was_published_recently(): void
+    {
+        $xml = $this->get('/sitemap-news.xml')->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('<url>', $xml);
+        $this->assertNotFalse(simplexml_load_string($xml));
+    }
+
+    public function test_robots_also_points_at_the_news_sitemap(): void
+    {
+        $robots = file_get_contents(public_path('robots.txt'));
+
+        $this->assertStringContainsString('Sitemap: https://toanai.vn/sitemap-news.xml', $robots);
+    }
+
     // --- Google Analytics + Search Console -------------------------------------------------
 
     public function test_analytics_is_off_when_no_measurement_id_is_configured(): void
