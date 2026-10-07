@@ -18,6 +18,13 @@
     $accent = $portal === 'student' ? auth()->user()->studentProfile?->accentColor() : null;
 @endphp
 
+@if ($portal === 'student')
+    @push('head')
+        {{-- Bật đo thời gian học thật (resources/js/activity-tracker.js) — chỉ portal học sinh. --}}
+        <meta name="activity-endpoint" content="{{ route('api.activity') }}">
+    @endpush
+@endif
+
 @if ($accent)
     @push('head')
         {{-- Giá trị đã qua ThemeColor::accent (chỉ #rrggbb / số) nên in thẳng an toàn. --}}

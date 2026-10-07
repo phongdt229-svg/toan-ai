@@ -3,6 +3,7 @@ import './bootstrap';
 import * as bootstrap from 'bootstrap';
 import renderMathInElement from 'katex/contrib/auto-render';
 import { initAiTutor } from './ai-tutor';
+import { initActivityTracker } from './activity-tracker';
 import './confirm-dialog';
 
 window.bootstrap = bootstrap;
@@ -34,6 +35,7 @@ window.renderMath = renderMath;
 document.addEventListener('DOMContentLoaded', () => {
     renderMath();
     initAiTutor();
+    initActivityTracker();
 
     registerServiceWorker();
 

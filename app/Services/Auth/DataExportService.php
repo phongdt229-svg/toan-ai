@@ -64,6 +64,8 @@ class DataExportService
                     ->map(fn ($r) => (array) $r)->all(),
                 'assignment_results' => $mine('assignment_students', 'student_id', ['due_reminded_at']),
                 'assignment_submissions' => $mine('assignment_submissions', 'student_id'),
+                'daily_activity' => $mine('student_daily_activity'),
+                'activity_logs' => $mine('student_activity_logs'),
             ],
             'ai' => [
                 'conversations' => $mine('ai_conversations'),

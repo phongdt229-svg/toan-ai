@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ActivityController;
 use App\Http\Controllers\Api\V1\AiController;
 use App\Http\Controllers\Api\V1\MomoIpnController;
 use App\Http\Controllers\Api\V1\VnpayIpnController;
@@ -84,6 +85,14 @@ Route::middleware(['web', 'auth', 'active', 'throttle:ai'])
 Route::post('payment/momo/ipn', MomoIpnController::class)
     ->middleware('throttle:60,1')
     ->name('api.payment.momo.ipn');
+
+/*
+| Thời gian học thật — trình duyệt của học sinh gửi heartbeat mỗi 30 giây (session + CSRF như AI Tutor).
+| 6 lượt/phút đủ cho 2 tab; số giây được cộng do server tính nên gửi dồn cũng không lợi gì.
+*/
+Route::post('activity', ActivityController::class)
+    ->middleware(['web', 'auth', 'active', 'throttle:6,1'])
+    ->name('api.activity');
 
 // IPN VNPAY là GET nên không đụng CSRF; URL này phải khai trong trang quản trị merchant của VNPAY.
 Route::get('payment/vnpay/ipn', VnpayIpnController::class)
