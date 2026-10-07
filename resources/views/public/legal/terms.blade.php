@@ -1,5 +1,5 @@
 {{--
-    Điều khoản sử dụng. Mô tả đúng cách hệ thống đang vận hành (gói học §18–19, thanh toán MoMo §20–25,
+    Điều khoản sử dụng. Mô tả đúng cách hệ thống đang vận hành (gói học §18–19, thanh toán MoMo/VNPAY §20–25,
     AI Tutor §10). Đổi chính sách giá / hoàn tiền thì sửa trang này và config('site.legal_updated_at').
     Trước khi phát hành thật: nhờ bộ phận pháp lý rà lại và điền thông tin đơn vị vận hành trong config/site.php.
 --}}
@@ -65,7 +65,7 @@
                 <h2>6. Gói học và thanh toán</h2>
                 <ul>
                     <li>Giá của từng gói hiển thị tại trang <a href="{{ route('packages.index') }}">Gói học</a> và là giá đã bao gồm thuế (nếu có).</li>
-                    <li>Thanh toán qua ví MoMo. Gói được kích hoạt ngay khi MoMo xác nhận giao dịch thành công.</li>
+                    <li>Thanh toán qua ví MoMo hoặc cổng VNPAY (thẻ ATM, Internet Banking, QR ngân hàng). Gói được kích hoạt ngay khi cổng thanh toán xác nhận giao dịch thành công.</li>
                     <li>Phụ huynh có thể mua gói cho con đã liên kết; quyền lợi gói thuộc về tài khoản học sinh.</li>
                     <li>Mua thêm gói cùng hạng khi gói cũ còn hạn thì thời hạn được <strong>cộng nối tiếp</strong>, không mất phần còn lại.</li>
                     <li>Gói <strong>không tự động gia hạn</strong>. Hết hạn, tài khoản trở về gói Free và dữ liệu học tập vẫn được giữ.</li>
@@ -74,7 +74,7 @@
 
                 <h2>7. Hoàn tiền</h2>
                 <ul>
-                    <li>Nếu bị trừ tiền mà gói không được kích hoạt, chúng tôi kiểm tra lại với MoMo và kích hoạt hoặc hoàn tiền đầy đủ.</li>
+                    <li>Nếu bị trừ tiền mà gói không được kích hoạt, chúng tôi kiểm tra lại với cổng thanh toán và kích hoạt hoặc hoàn tiền đầy đủ.</li>
                     <li>Yêu cầu hoàn tiền trong vòng <strong>7 ngày</strong> kể từ khi thanh toán và khi bạn dùng dưới 20% thời hạn gói sẽ được xem xét.</li>
                     <li>Gửi yêu cầu kèm mã đơn tới <a href="mailto:{{ config('site.email') }}">{{ config('site.email') }}</a>; chúng tôi phản hồi trong 7 ngày làm việc.</li>
                 </ul>

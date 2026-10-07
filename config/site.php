@@ -79,7 +79,7 @@ return [
     'looker_studio_embed_url' => env('LOOKER_STUDIO_EMBED_URL', ''),
 
     // Ngày cập nhật hai trang pháp lý — sửa nội dung thì sửa luôn ngày này.
-    'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '24/09/2026'),
+    'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '07/10/2026'),
 
     // Nén HTML trả về (App\Http\Middleware\MinifyHtml) — bỏ khoảng trắng thừa, bỏ comment.
     // Mặc định TẮT: bật ở local/test làm "View source" khó đọc lúc debug UI. Bật ở production

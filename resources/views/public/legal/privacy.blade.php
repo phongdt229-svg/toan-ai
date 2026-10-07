@@ -1,6 +1,6 @@
 {{--
     Chính sách bảo mật. Nội dung mô tả ĐÚNG những gì hệ thống đang làm (xem PROJECT_PLAN §29):
-    dữ liệu học tập, AI Tutor gửi câu hỏi sang nhà cung cấp AI, thanh toán qua MoMo, audit log, sao lưu.
+    dữ liệu học tập, AI Tutor gửi câu hỏi sang nhà cung cấp AI, thanh toán qua MoMo/VNPAY, audit log, sao lưu.
     Sửa tính năng nào có đụng tới dữ liệu cá nhân thì sửa trang này và cập nhật config('site.legal_updated_at').
     Trước khi phát hành thật: nhờ bộ phận pháp lý rà lại và điền thông tin đơn vị vận hành trong config/site.php.
 --}}
@@ -28,8 +28,8 @@
                     <li><strong>Thông tin tài khoản:</strong> họ tên, email, số điện thoại (nếu bạn điền), mật khẩu đã băm, vai trò (học sinh / giáo viên / phụ huynh), lớp đang học.</li>
                     <li><strong>Dữ liệu học tập:</strong> bài đã học, câu trả lời từng câu hỏi, điểm, thời gian làm bài, mức độ thành thạo theo chủ đề, lộ trình học, kết quả kiểm tra đầu vào.</li>
                     <li><strong>Nội dung trao đổi với AI Tutor:</strong> câu hỏi bạn gửi, bài làm bạn dán vào và câu trả lời của AI.</li>
-                    <li><strong>Dữ liệu thanh toán:</strong> gói đã mua, số tiền, mã đơn, trạng thái giao dịch và mã giao dịch do MoMo trả về.
-                        Chúng tôi <strong>không</strong> lưu số thẻ, số ví hay mật khẩu thanh toán — phần đó do MoMo xử lý.</li>
+                    <li><strong>Dữ liệu thanh toán:</strong> gói đã mua, số tiền, mã đơn, trạng thái giao dịch và mã giao dịch do cổng thanh toán (MoMo hoặc VNPAY) trả về.
+                        Chúng tôi <strong>không</strong> lưu số thẻ, số ví hay mật khẩu thanh toán — phần đó do cổng thanh toán bạn chọn xử lý.</li>
                     <li><strong>Dữ liệu kỹ thuật:</strong> địa chỉ IP, loại trình duyệt, thời điểm đăng nhập, nhật ký thao tác quan trọng (duyệt giáo viên, đổi giá gói, khoá tài khoản, thanh toán).</li>
                 </ul>
 
@@ -47,7 +47,7 @@
                 <p>Chỉ chia sẻ ở mức cần thiết để dịch vụ chạy được:</p>
                 <ul>
                     <li><strong>Nhà cung cấp mô hình AI:</strong> khi bạn dùng AI Tutor, nội dung câu hỏi và ngữ cảnh bài học được gửi tới nhà cung cấp AI để sinh câu trả lời. Không gửi kèm email, số điện thoại hay thông tin thanh toán.</li>
-                    <li><strong>MoMo:</strong> xử lý thanh toán; nhận mã đơn và số tiền.</li>
+                    <li><strong>MoMo, VNPAY:</strong> xử lý thanh toán qua cổng bạn chọn; nhận mã đơn, số tiền và địa chỉ IP lúc tạo giao dịch (VNPAY yêu cầu để chống gian lận).</li>
                     <li><strong>Dịch vụ gửi email và hạ tầng máy chủ:</strong> để gửi thư và lưu trữ hệ thống.</li>
                     <li><strong>Google Analytics / Google Tag Manager:</strong> đo lượt truy cập và cách người dùng di chuyển giữa các trang, để biết chỗ nào khó dùng mà sửa. Google nhận địa chỉ IP (đã rút gọn), loại thiết bị, trình duyệt và trang bạn xem — <strong>không</strong> nhận tên, email, số điện thoại, điểm số hay nội dung bài làm của bạn.</li>
                     <li><strong>Sentry (giám sát lỗi):</strong> khi hệ thống gặp lỗi, chi tiết kỹ thuật của lỗi (đường dẫn trang, dòng code lỗi) được gửi tới Sentry để chúng tôi sửa nhanh. Chúng tôi <strong>không</strong> gửi tên, email, địa chỉ IP, nội dung biểu mẫu hay bài làm kèm theo.</li>

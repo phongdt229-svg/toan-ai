@@ -28,6 +28,7 @@ class InfrastructureTest extends SubscriptionTestCase
         $csp = $this->get(route('home'))->headers->get('Content-Security-Policy');
         $this->assertStringContainsString("frame-ancestors 'self'", $csp);
         $this->assertStringContainsString('https://*.momo.vn', $csp);
+        $this->assertStringContainsString('https://*.vnpayment.vn', $csp);
     }
 
     public function test_hsts_only_over_https_and_private_pages_are_not_cached(): void
