@@ -29,7 +29,7 @@ class MomoGateway implements PaymentGatewayInterface
 
     public function name(): string
     {
-        return 'momo';
+        return Payment::METHOD_MOMO;
     }
 
     public function createPayment(Payment $payment, string $orderInfo): GatewayCheckout
@@ -102,6 +102,11 @@ class MomoGateway implements PaymentGatewayInterface
             message: (string) ($payload['message'] ?? ''),
             raw: $payload,
         );
+    }
+
+    public function notificationOrderCode(array $payload): ?string
+    {
+        return is_scalar($payload['orderId'] ?? null) ? (string) $payload['orderId'] : null;
     }
 
     public function queryStatus(Payment $payment): ?GatewayNotification

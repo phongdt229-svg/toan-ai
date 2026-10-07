@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('title', 'Giả lập MoMo — TOÁN AI')
+@section('title', 'Giả lập '.$payment->methodLabel().' — TOÁN AI')
 {{-- Trang giả lập chỉ dùng khi dev, dùng layouts.base trực tiếp nên không tự noindex như layouts.app. --}}
 @section('robots', 'noindex,nofollow')
 
@@ -8,13 +8,13 @@
     <main class="container py-5" style="max-width:480px">
         <div class="alert alert-warning small">
             <i class="bi bi-cone-striped me-1"></i>
-            <strong>Môi trường dev</strong> — đây là trang giả lập MoMo (<code>PAYMENT_GATEWAY=fake</code>).
-            Nút bên dưới gửi IPN có chữ ký đúng chuẩn MoMo vào hệ thống.
+            <strong>Môi trường dev</strong> — đây là trang giả lập {{ $payment->methodLabel() }} (<code>PAYMENT_GATEWAY=fake</code>).
+            Nút bên dưới gửi IPN có chữ ký đúng chuẩn {{ $payment->methodLabel() }} vào hệ thống.
         </div>
 
         <div class="card border" style="border-color:#a50064!important">
             <div class="card-body text-center p-4">
-                <div class="fw-bold fs-4 mb-1" style="color:#a50064">MoMo</div>
+                <div class="fw-bold fs-4 mb-1" style="color:{{ $payment->method === \App\Models\Payment::METHOD_VNPAY ? '#005baa' : '#a50064' }}">{{ $payment->methodLabel() }}</div>
                 <div class="text-secondary small mb-3">Đơn {{ $payment->order_code }}</div>
                 <div class="mb-1">{{ $payment->package->name }}</div>
                 <div class="display-6 fw-bold mb-4">{{ $payment->amountLabel() }}</div>

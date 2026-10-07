@@ -11,7 +11,6 @@ use App\Models\User;
 use App\Notifications\PaymentRefunded;
 use App\Notifications\PaymentSucceeded;
 use App\Services\AuditLogger;
-use App\Services\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\SubscriptionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -28,7 +27,7 @@ use Throwable;
 class PaymentService
 {
     public function __construct(
-        private readonly PaymentGatewayInterface $gateway,
+        private readonly PaymentGatewayManager $gateways,
         private readonly SubscriptionService $subscriptions,
         private readonly AuditLogger $audit,
         private readonly VoucherService $vouchers,
@@ -41,8 +40,15 @@ class PaymentService
      *
      * @throws PaymentException
      */
-    public function checkout(User $payer, User $beneficiary, Package $package, ?string $ip = null, ?string $voucherCode = null): Payment
+    public function checkout(User $payer, User $beneficiary, Package $package, ?string $ip = null, ?string $voucherCode = null, ?string $method = null): Payment
     {
+        $method ??= $this->gateways->default();
+
+        // Chuỗi lấy từ form — chỉ nhận cổng đang bật.
+        if (! $this->gateways->isEnabled($method)) {
+            throw new PaymentException('Phương thức thanh toán không hợp lệ.');
+        }
+
         try {
             $quote = $voucherCode !== null && trim($voucherCode) !== ''
                 ? $this->vouchers->quote($voucherCode, $package, $payer)
@@ -63,6 +69,7 @@ class PaymentService
             ->where('expires_at', '>', now()->addMinutes(5))
             ->where('amount', $amount) // admin vừa đổi giá → không dùng lại đơn giá cũ
             ->where('voucher_id', $quote?->voucher->id)
+            ->where('method', $method) // đổi sang cổng khác → tạo đơn mới cho cổng đó
             ->whereNotNull('pay_url')
             ->whereHas('subscription', fn ($q) => $q->where('user_id', $beneficiary->id)->where('status', Subscription::STATUS_PENDING))
             ->latest('id')
@@ -73,7 +80,7 @@ class PaymentService
         }
 
         try {
-            $payment = DB::transaction(function () use ($payer, $beneficiary, $package, $ip, $quote, $amount, $discount) {
+            $payment = DB::transaction(function () use ($payer, $beneficiary, $package, $ip, $quote, $amount, $discount, $method) {
                 $subscription = $this->subscriptions->createPending($beneficiary, $package, $payer);
 
                 $payment = Payment::create([
@@ -85,7 +92,7 @@ class PaymentService
                     'amount' => $amount,   // ← giá LẤY TỪ DB, trừ đi phần giảm tính ở server
                     'discount_amount' => $discount,
                     'currency' => $package->currency,
-                    'method' => $quote?->isFree() ? Payment::METHOD_VOUCHER : $this->gateway->name(),
+                    'method' => $quote?->isFree() ? Payment::METHOD_VOUCHER : $method,
                     'status' => Payment::STATUS_PENDING,
                     'expires_at' => now()->addMinutes(config('payment.pending_expire_minutes')),
                     'client_ip' => $ip,
@@ -105,14 +112,14 @@ class PaymentService
             throw new PaymentException($e->getMessage(), previous: $e);
         }
 
-        // Mã giảm 100%: MoMo không nhận đơn 0đ → cấp gói thẳng, vẫn để lại dòng trong sổ.
+        // Mã giảm 100%: cổng không nhận đơn 0đ → cấp gói thẳng, vẫn để lại dòng trong sổ.
         if ($quote?->isFree()) {
             return $this->settleFreeOrder($payment);
         }
 
         try {
             // Gọi cổng NGOÀI transaction: không giữ khoá DB trong lúc chờ mạng.
-            $checkout = $this->gateway->createPayment($payment, $this->orderInfo($package, $beneficiary));
+            $checkout = $this->gateways->get($method)->createPayment($payment, $this->orderInfo($package, $beneficiary));
         } catch (PaymentException $e) {
             $this->markFailed($payment, null, $e->getMessage());
 
@@ -134,13 +141,17 @@ class PaymentService
      *
      * @param  array<string, mixed>  $payload
      * @param  array<string, mixed>  $headers
+     * @param  string  $provider  cổng gửi IPN — mỗi cổng một route riêng nên controller biết chắc
      */
-    public function handleNotification(array $payload, ?string $ip = null, array $headers = []): string
+    public function handleNotification(array $payload, ?string $ip = null, array $headers = [], string $provider = Payment::METHOD_MOMO): string
     {
+        $gateway = $this->gateways->get($provider);
+        $orderCode = $gateway->notificationOrderCode($payload);
+
         // 1. Ghi log payload thô TRƯỚC khi xử lý — kể cả khi các bước sau nổ.
         $log = PaymentWebhookLog::create([
-            'provider' => $this->gateway->name(),
-            'order_code' => is_scalar($payload['orderId'] ?? null) ? Str::limit((string) $payload['orderId'], 50, '') : null,
+            'provider' => $gateway->name(),
+            'order_code' => $orderCode !== null ? Str::limit($orderCode, 50, '') : null,
             'payload' => $payload,
             'headers' => $headers,
             'ip_address' => $ip,
@@ -148,13 +159,13 @@ class PaymentService
 
         try {
             // 2. Chữ ký
-            if (! $this->gateway->verifyNotification($payload)) {
+            if (! $gateway->verifyNotification($payload)) {
                 return $this->finish($log, PaymentWebhookLog::RESULT_INVALID_SIGNATURE);
             }
 
             $log->update(['signature_valid' => true]);
 
-            return $this->finish($log, ...$this->apply($this->gateway->parseNotification($payload)));
+            return $this->finish($log, ...$this->apply($gateway->parseNotification($payload), $gateway->name()));
         } catch (Throwable $e) {
             Log::error('Xử lý IPN lỗi', ['log_id' => $log->id, 'error' => $e->getMessage()]);
 
@@ -163,26 +174,27 @@ class PaymentService
     }
 
     /**
-     * IPN không tới được (localhost, MoMo lỗi mạng) → hỏi thẳng cổng. Kết quả truy vấn đi server → cổng
+     * IPN không tới được (localhost, cổng lỗi mạng) → hỏi thẳng cổng. Kết quả truy vấn đi server → cổng
      * qua HTTPS nên tin được như IPN có chữ ký.
      */
     public function reconcile(Payment $payment): Payment
     {
-        if (! $payment->isPending()) {
+        if (! $payment->isPending() || $payment->method === Payment::METHOD_VOUCHER) {
             return $payment;
         }
 
-        $result = $this->gateway->queryStatus($payment);
+        $gateway = $this->gateways->get($payment->method);
+        $result = $gateway->queryStatus($payment);
 
         if ($result) {
             $log = PaymentWebhookLog::create([
-                'provider' => $this->gateway->name().'-query',
+                'provider' => $gateway->name().'-query',
                 'order_code' => $payment->order_code,
                 'signature_valid' => true,
                 'payload' => $result->raw,
             ]);
 
-            $this->finish($log, ...$this->apply($result));
+            $this->finish($log, ...$this->apply($result, $gateway->name()));
         }
 
         return $payment->refresh();
@@ -214,7 +226,7 @@ class PaymentService
             }
 
             if ($payment->refunds()->where('status', PaymentRefund::STATUS_PENDING)->exists()) {
-                throw new PaymentException('Đơn này có yêu cầu hoàn tiền chưa rõ kết quả. Kiểm tra trên cổng MoMo trước khi làm lại.');
+                throw new PaymentException("Đơn này có yêu cầu hoàn tiền chưa rõ kết quả. Kiểm tra trên cổng {$payment->methodLabel()} trước khi làm lại.");
             }
 
             $refundable = $payment->refundableInt();
@@ -235,8 +247,8 @@ class PaymentService
 
         $payment->refresh();
 
-        // Gọi mạng NGOÀI transaction: không giữ khoá dòng trong lúc chờ MoMo.
-        $result = $this->gateway->refund($payment, $refund->refund_code, (int) $refund->amount, $reason);
+        // Gọi mạng NGOÀI transaction: không giữ khoá dòng trong lúc chờ cổng.
+        $result = $this->gateways->get($payment->method)->refund($payment, $refund->refund_code, (int) $refund->amount, $reason);
 
         if (! $result->succeeded) {
             $refund->update([
@@ -247,7 +259,7 @@ class PaymentService
 
             $this->audit->log('payment.refund_failed', $payment, null, ['refund_code' => $refund->refund_code, 'result' => $result->resultCode]);
 
-            throw new PaymentException('MoMo từ chối hoàn tiền: '.($result->message ?: "mã {$result->resultCode}").'.');
+            throw new PaymentException("{$payment->methodLabel()} từ chối hoàn tiền: ".($result->message ?: "mã {$result->resultCode}").'.');
         }
 
         DB::transaction(function () use ($payment, $refund, $result, $admin, $reason) {
@@ -353,11 +365,12 @@ class PaymentService
      *
      * @return array{0: string, 1?: string}
      */
-    private function apply(GatewayNotification $n): array
+    private function apply(GatewayNotification $n, string $provider): array
     {
-        return DB::transaction(function () use ($n) {
+        return DB::transaction(function () use ($n, $provider) {
             // 3. Tìm đơn — khoá dòng để hai IPN đến cùng lúc không cùng cấp gói.
-            $payment = Payment::where('order_code', $n->orderCode)->lockForUpdate()->first();
+            // Chỉ nhận đơn tạo bằng ĐÚNG cổng gửi báo: chữ ký VNPAY hợp lệ không được quyết định đơn MoMo.
+            $payment = Payment::where('order_code', $n->orderCode)->where('method', $provider)->lockForUpdate()->first();
 
             if (! $payment) {
                 return [PaymentWebhookLog::RESULT_NOT_FOUND];
@@ -467,7 +480,7 @@ class PaymentService
 
     private function orderInfo(Package $package, User $beneficiary): string
     {
-        // MoMo hiển thị chuỗi này cho người trả tiền — ASCII để tránh lỗi font trên app cũ.
+        // Cổng hiển thị chuỗi này cho người trả tiền — ASCII: VNPAY từ chối dấu, MoMo lỗi font trên app cũ.
         return Str::limit(Str::ascii("TOAN AI - {$package->name} cho {$beneficiary->name}"), 190, '');
     }
 }

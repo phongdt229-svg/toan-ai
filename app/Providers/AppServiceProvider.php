@@ -9,8 +9,7 @@ use App\Services\AI\Contracts\AiProviderInterface;
 use App\Services\AI\Providers\FakeProvider;
 use App\Services\AI\Providers\OpenAiProvider;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
-use App\Services\Payment\Gateways\FakeMomoGateway;
-use App\Services\Payment\Gateways\MomoGateway;
+use App\Services\Payment\PaymentGatewayManager;
 use App\Support\HtmlSanitizer;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -53,12 +52,11 @@ class AppServiceProvider extends ServiceProvider
             };
         });
 
-        // Cổng thanh toán (§20). `fake` chỉ dùng ở local/testing — production luôn gọi MoMo thật.
-        $this->app->bind(PaymentGatewayInterface::class, function ($app) {
-            $useFake = $app['config']['payment.gateway'] === 'fake' && ! $app->environment('production');
-
-            return $useFake ? new FakeMomoGateway : new MomoGateway;
-        });
+        // Cổng thanh toán (§20) — cổng mặc định; chọn cổng theo đơn thì đi qua PaymentGatewayManager.
+        // `fake` chỉ dùng ở local/testing — production luôn gọi cổng thật.
+        $this->app->bind(PaymentGatewayInterface::class, fn ($app) => $app->make(PaymentGatewayManager::class)->get(
+            $app->make(PaymentGatewayManager::class)->default()
+        ));
     }
 
     public function boot(): void

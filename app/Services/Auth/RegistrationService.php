@@ -47,28 +47,12 @@ class RegistrationService
                 'math_average_score' => $score,
                 'tutor_persona' => $data['tutor_persona'] ?? 'co',
                 'favorite_color' => $data['favorite_color'] ?? null,
-                'interests' => $this->parseInterests($data['interests'] ?? null),
+                'interests' => StudentProfile::parseInterests($data['interests'] ?? null),
                 'link_code' => StudentProfile::generateLinkCode(),
             ]);
 
             return $user;
         });
-    }
-
-    /** "bóng đá, game" → ['bóng đá', 'game'] */
-    private function parseInterests(?string $raw): ?array
-    {
-        if (! $raw) {
-            return null;
-        }
-
-        $items = collect(explode(',', $raw))
-            ->map(fn ($s) => trim($s))
-            ->filter()
-            ->take(10)
-            ->values();
-
-        return $items->isEmpty() ? null : $items->all();
     }
 
     /**

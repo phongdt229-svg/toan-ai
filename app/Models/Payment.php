@@ -21,6 +21,16 @@ class Payment extends Model
     /** Đơn 0đ do mã giảm 100% — không cổng nào tham gia. */
     public const METHOD_VOUCHER = 'voucher';
 
+    public const METHOD_MOMO = 'momo';
+
+    public const METHOD_VNPAY = 'vnpay';
+
+    public const METHOD_LABELS = [
+        self::METHOD_MOMO => 'MoMo',
+        self::METHOD_VNPAY => 'VNPAY',
+        self::METHOD_VOUCHER => 'Mã giảm giá',
+    ];
+
     public const STATUS_LABELS = [
         self::STATUS_PENDING => 'Đang chờ',
         self::STATUS_PAID => 'Thành công',
@@ -139,6 +149,11 @@ class Payment extends Model
     public function statusLabel(): string
     {
         return self::STATUS_LABELS[$this->status] ?? $this->status;
+    }
+
+    public function methodLabel(): string
+    {
+        return self::METHOD_LABELS[$this->method] ?? (string) $this->method;
     }
 
     public function amountLabel(): string

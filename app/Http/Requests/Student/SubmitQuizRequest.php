@@ -14,6 +14,11 @@ class SubmitQuizRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        return ['answers' => ['nullable', 'array', 'max:20']];
+        return [
+            'answers' => ['nullable', 'array', 'max:20'],
+            // Giây làm từng câu do trình duyệt đo — chỉ dùng làm tín hiệu tốc độ, không ảnh hưởng điểm.
+            'time_spent' => ['nullable', 'array', 'max:20'],
+            'time_spent.*' => ['nullable', 'integer', 'min:0', 'max:900'],
+        ];
     }
 }

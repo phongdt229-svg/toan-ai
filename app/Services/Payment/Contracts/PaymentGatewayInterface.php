@@ -10,6 +10,7 @@ use App\Services\Payment\PaymentException;
 
 interface PaymentGatewayInterface
 {
+    /** Khoá lưu ở `payments.method` — `momo`, `vnpay`. */
     public function name(): string;
 
     /**
@@ -24,6 +25,9 @@ interface PaymentGatewayInterface
 
     /** Chuẩn hoá payload IPN đã verify. */
     public function parseNotification(array $payload): GatewayNotification;
+
+    /** Mã đơn trong payload IPN CHƯA verify — chỉ để ghi log, không dùng ra quyết định. */
+    public function notificationOrderCode(array $payload): ?string;
 
     /**
      * Hỏi trạng thái giao dịch trực tiếp từ cổng (server → cổng qua HTTPS) — dùng khi IPN không tới được

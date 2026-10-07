@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Package;
 use App\Models\Payment;
-use App\Services\Payment\Contracts\PaymentGatewayInterface;
-use App\Services\Payment\Gateways\MomoGateway;
+use App\Services\Payment\Contracts\SimulatesPayments;
 use App\Services\Payment\PaymentException;
+use App\Services\Payment\PaymentGatewayManager;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +18,10 @@ class PaymentController extends Controller
 {
     public function __construct(private readonly PaymentService $payments) {}
 
-    /** Bấm "Thanh toán MoMo" trên trang xác nhận. Số tiền không nhận từ form — lấy từ gói trong DB. */
+    /**
+     * Bấm "Thanh toán bằng MoMo/VNPAY" trên trang xác nhận. Số tiền không nhận từ form — lấy từ gói trong DB;
+     * `method` chỉ là tên cổng, PaymentService từ chối cổng không bật.
+     */
     public function store(Request $request, Package $package): RedirectResponse
     {
         abort_if(! $package->is_active || $package->isFree(), 404);
@@ -40,6 +43,7 @@ class PaymentController extends Controller
                 $package,
                 $request->ip(),
                 $request->session()->get(VoucherController::SESSION_KEY),
+                $request->filled('method') ? (string) $request->input('method') : null,
             );
         } catch (PaymentException $e) {
             return back()->with('error', $e->getMessage());
@@ -56,12 +60,13 @@ class PaymentController extends Controller
     }
 
     /**
-     * Return URL của MoMo. CHỈ hiển thị trạng thái đọc từ DB — không tin query string (§8).
-     * Nếu IPN chưa tới thì hỏi thẳng MoMo một lần (localhost không nhận được IPN).
+     * Return URL của MoMo (`orderId`) và VNPAY (`vnp_TxnRef`). CHỈ dùng để tìm đơn — trạng thái đọc từ DB,
+     * không tin các tham số kết quả trên URL (§8). IPN chưa tới thì trang đơn tự hỏi thẳng cổng.
      */
     public function handleReturn(Request $request): RedirectResponse
     {
-        $payment = Payment::where('order_code', (string) $request->query('orderId'))->first();
+        $orderCode = (string) ($request->query('orderId') ?? $request->query('vnp_TxnRef'));
+        $payment = Payment::where('order_code', $orderCode)->first();
 
         if (! $payment?->isOwnedBy($request->user())) {
             return redirect()->route('payment.history')->with('error', 'Không tìm thấy giao dịch.');
@@ -99,46 +104,40 @@ class PaymentController extends Controller
         ]);
     }
 
-    // --- Giả lập MoMo (chỉ khi PAYMENT_GATEWAY=fake, không bao giờ ở production) ---------------
+    // --- Giả lập cổng (chỉ khi PAYMENT_GATEWAY=fake, không bao giờ ở production) ---------------
 
-    public function simulator(Request $request, Payment $payment): View
+    public function simulator(Request $request, Payment $payment, PaymentGatewayManager $gateways): View
     {
-        $this->ensureSimulator($request, $payment);
+        $this->ensureSimulator($request, $payment, $gateways);
 
         return view('payment.simulator', ['payment' => $payment->load('package')]);
     }
 
-    public function simulate(Request $request, Payment $payment, PaymentGatewayInterface $gateway): RedirectResponse
+    public function simulate(Request $request, Payment $payment, PaymentGatewayManager $gateways): RedirectResponse
     {
-        $this->ensureSimulator($request, $payment);
-        /** @var MomoGateway $gateway */
-        $success = $request->input('result') === 'success';
+        $gateway = $this->ensureSimulator($request, $payment, $gateways);
 
-        $payload = [
-            'partnerCode' => $gateway->partnerCode(),
-            'orderId' => $payment->order_code,
-            'requestId' => (string) $payment->gateway_request_id,
-            'amount' => $payment->amountInt(),
-            'orderInfo' => 'Gia lap',
-            'orderType' => 'momo_wallet',
-            'transId' => $success ? (string) random_int(1_000_000_000, 9_999_999_999) : '',
-            'resultCode' => $success ? 0 : 1006,
-            'message' => $success ? 'Thành công.' : 'Người dùng đã từ chối xác nhận thanh toán.',
-            'payType' => 'qr',
-            'responseTime' => now()->getTimestampMs(),
-            'extraData' => '',
-        ];
-        $payload['signature'] = $gateway->signNotification($payload);
+        $payload = $gateway->simulatedNotification($payment, $request->input('result') === 'success');
 
         // Đi qua đúng hàm xử lý IPN thật (verify chữ ký, so tiền, idempotency).
-        $this->payments->handleNotification($payload, $request->ip(), ['simulator' => true]);
+        $this->payments->handleNotification($payload, $request->ip(), ['simulator' => true], $payment->method);
 
-        return redirect()->route('payment.return', ['orderId' => $payment->order_code, 'resultCode' => $payload['resultCode']]);
+        return redirect()->route('payment.return', ['orderId' => $payment->order_code]);
     }
 
-    private function ensureSimulator(Request $request, Payment $payment): void
+    private function ensureSimulator(Request $request, Payment $payment, PaymentGatewayManager $gateways): SimulatesPayments
     {
-        abort_if(config('payment.gateway') !== 'fake' || app()->environment('production'), 404);
+        abort_unless($gateways->usesFake(), 404);
         abort_unless($payment->isOwnedBy($request->user()), 404);
+
+        try {
+            $gateway = $gateways->get((string) $payment->method);
+        } catch (PaymentException) {
+            abort(404); // đơn mã giảm 100% không có cổng để giả lập
+        }
+
+        abort_unless($gateway instanceof SimulatesPayments, 404);
+
+        return $gateway;
     }
 }

@@ -139,8 +139,8 @@
                         </div>
                     </div>
 
-                    {{-- Chỉ gửi gói + con; số tiền server lấy từ DB. --}}
-                    <form method="POST" action="{{ route('packages.pay', $package) }}">
+                    {{-- Chỉ gửi gói + con + TÊN cổng; số tiền server lấy từ DB, cổng lạ bị từ chối. --}}
+                    <form method="POST" action="{{ route('packages.pay', $package) }}" class="d-grid gap-2">
                         @csrf
                         @if ($payer->isParent())
                             <input type="hidden" name="con" value="{{ $beneficiary->id }}">
@@ -150,15 +150,24 @@
                                 <i class="bi bi-gift me-1"></i>Nhận gói miễn phí
                             </button>
                         @else
-                            <button class="btn btn-lg w-100 text-white" style="background:#a50064">
-                                <i class="bi bi-wallet2 me-1"></i>Thanh toán bằng MoMo
-                            </button>
+                            @foreach ($paymentMethods as $method)
+                                @if ($method === \App\Models\Payment::METHOD_VNPAY)
+                                    <button name="method" value="vnpay" class="btn btn-lg w-100 text-white" style="background:#005baa">
+                                        <i class="bi bi-credit-card me-1"></i>Thanh toán qua VNPAY
+                                        <span class="d-block small fw-normal opacity-75">Thẻ ATM, Internet Banking, QR ngân hàng</span>
+                                    </button>
+                                @else
+                                    <button name="method" value="momo" class="btn btn-lg w-100 text-white" style="background:#a50064">
+                                        <i class="bi bi-wallet2 me-1"></i>Thanh toán bằng MoMo
+                                    </button>
+                                @endif
+                            @endforeach
                         @endif
                     </form>
                     <p class="small text-secondary text-center mt-2 mb-0">
                         {{ $quote?->isFree()
                             ? 'Mã giảm 100% — gói kích hoạt ngay, không cần thanh toán.'
-                            : 'Gói được kích hoạt ngay khi MoMo xác nhận thanh toán.' }}
+                            : 'Gói được kích hoạt ngay khi cổng thanh toán xác nhận giao dịch.' }}
                     </p>
                 @endif
             @endif

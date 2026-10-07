@@ -13,7 +13,39 @@
 
     $recentNotifications = auth()->user()->notifications()->latest()->take(8)->get();
     $unreadNotificationCount = auth()->user()->unreadNotifications()->count();
+
+    // Màu nhấn theo màu yêu thích chỉ áp cho portal học sinh — trang công khai và portal khác giữ nhận diện chung.
+    $accent = $portal === 'student' ? auth()->user()->studentProfile?->accentColor() : null;
 @endphp
+
+@if ($accent)
+    @push('head')
+        {{-- Giá trị đã qua ThemeColor::accent (chỉ #rrggbb / số) nên in thẳng an toàn. --}}
+        <style>
+            :root {
+                --bs-primary: {{ $accent['hex'] }};
+                --bs-primary-rgb: {{ $accent['rgb'] }};
+                --bs-link-color: {{ $accent['hex'] }};
+                --bs-link-color-rgb: {{ $accent['rgb'] }};
+                --bs-link-hover-color: {{ $accent['hover'] }};
+            }
+            .btn-primary {
+                --bs-btn-bg: {{ $accent['hex'] }}; --bs-btn-border-color: {{ $accent['hex'] }};
+                --bs-btn-hover-bg: {{ $accent['hover'] }}; --bs-btn-hover-border-color: {{ $accent['hover'] }};
+                --bs-btn-active-bg: {{ $accent['hover'] }}; --bs-btn-active-border-color: {{ $accent['hover'] }};
+                --bs-btn-disabled-bg: {{ $accent['hex'] }}; --bs-btn-disabled-border-color: {{ $accent['hex'] }};
+            }
+            .btn-outline-primary {
+                --bs-btn-color: {{ $accent['hex'] }}; --bs-btn-border-color: {{ $accent['hex'] }};
+                --bs-btn-hover-bg: {{ $accent['hex'] }}; --bs-btn-hover-border-color: {{ $accent['hex'] }};
+                --bs-btn-active-bg: {{ $accent['hex'] }}; --bs-btn-active-border-color: {{ $accent['hex'] }};
+                --bs-btn-disabled-color: {{ $accent['hex'] }}; --bs-btn-disabled-border-color: {{ $accent['hex'] }};
+            }
+            .progress-bar { --bs-progress-bar-bg: {{ $accent['hex'] }}; }
+            .nav-pills { --bs-nav-pills-link-active-bg: {{ $accent['hex'] }}; }
+        </style>
+    @endpush
+@endif
 
 @section('body')
     @if (session(\App\Services\Admin\ImpersonationService::SESSION_KEY))

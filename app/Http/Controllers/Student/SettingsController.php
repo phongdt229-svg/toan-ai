@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Student\UpdatePersonalizationRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Services\AccountService;
@@ -16,7 +17,7 @@ class SettingsController extends Controller
 
     public function edit(Request $request): View
     {
-        return view('student.settings', ['user' => $request->user()]);
+        return view('student.settings', ['user' => $request->user()->load('studentProfile')]);
     }
 
     public function updateProfile(UpdateProfileRequest $request): RedirectResponse
@@ -24,6 +25,13 @@ class SettingsController extends Controller
         $this->account->updateProfile($request->user(), $request->validated());
 
         return back()->with('status', 'Đã lưu hồ sơ.');
+    }
+
+    public function updatePersonalization(UpdatePersonalizationRequest $request): RedirectResponse
+    {
+        $this->account->updateStudentPersonalization($request->user(), $request->validated());
+
+        return back()->with('status', 'Đã lưu cá nhân hoá.');
     }
 
     public function updatePassword(UpdatePasswordRequest $request): RedirectResponse

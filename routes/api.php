@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AiController;
 use App\Http\Controllers\Api\V1\MomoIpnController;
+use App\Http\Controllers\Api\V1\VnpayIpnController;
 use App\Models\Package;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
@@ -83,3 +84,8 @@ Route::middleware(['web', 'auth', 'active', 'throttle:ai'])
 Route::post('payment/momo/ipn', MomoIpnController::class)
     ->middleware('throttle:60,1')
     ->name('api.payment.momo.ipn');
+
+// IPN VNPAY là GET nên không đụng CSRF; URL này phải khai trong trang quản trị merchant của VNPAY.
+Route::get('payment/vnpay/ipn', VnpayIpnController::class)
+    ->middleware('throttle:60,1')
+    ->name('api.payment.vnpay.ipn');

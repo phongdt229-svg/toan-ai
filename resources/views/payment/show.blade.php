@@ -10,7 +10,7 @@
 
 @section('content')
     <div class="mx-auto" style="max-width:560px">
-        {{-- Trạng thái đọc từ DB — không dựa vào tham số MoMo gắn trên URL trả về. --}}
+        {{-- Trạng thái đọc từ DB — không dựa vào tham số của cổng gắn trên URL trả về. --}}
         <div class="card border-{{ $tone }} mb-3" @if ($payment->isPending()) data-payment-poll="{{ route('payment.status', $payment) }}" @endif>
             <div class="card-body text-center p-4">
                 <i class="bi {{ $icon }} text-{{ $tone }}" style="font-size:3rem"></i>
@@ -27,7 +27,7 @@
                         </p>
                         @break
                     @case('pending')
-                        <h1 class="h4 fw-bold mt-2">Đang chờ xác nhận từ MoMo</h1>
+                        <h1 class="h4 fw-bold mt-2">Đang chờ xác nhận từ {{ $payment->methodLabel() }}</h1>
                         <p class="text-secondary mb-0">Trang sẽ tự cập nhật. Nếu đã trừ tiền, gói sẽ được kích hoạt trong ít phút.</p>
                         @break
                     @case('failed')
@@ -36,7 +36,7 @@
                         @break
                     @case('refunded')
                         <h1 class="h4 fw-bold mt-2">Đơn đã được hoàn tiền</h1>
-                        <p class="text-secondary mb-0">Số tiền đã được hoàn về MoMo của bạn và gói tương ứng đã được thu hồi.</p>
+                        <p class="text-secondary mb-0">Số tiền đã được hoàn về {{ $payment->method === \App\Models\Payment::METHOD_VNPAY ? 'tài khoản/thẻ đã thanh toán' : 'ví MoMo' }} của bạn và gói tương ứng đã được thu hồi.</p>
                         @break
                     @default
                         <h1 class="h4 fw-bold mt-2">Đơn đã huỷ</h1>
@@ -50,9 +50,9 @@
                 <div class="d-flex justify-content-between"><span class="text-secondary">Mã đơn</span><code>{{ $payment->order_code }}</code></div>
                 <div class="d-flex justify-content-between"><span class="text-secondary">Gói</span><span>{{ $payment->package->name }}</span></div>
                 <div class="d-flex justify-content-between"><span class="text-secondary">Số tiền</span><strong>{{ $payment->amountLabel() }}</strong></div>
-                <div class="d-flex justify-content-between"><span class="text-secondary">Phương thức</span><span>MoMo</span></div>
+                <div class="d-flex justify-content-between"><span class="text-secondary">Phương thức</span><span>{{ $payment->methodLabel() }}</span></div>
                 @if ($payment->gateway_transaction_id)
-                    <div class="d-flex justify-content-between"><span class="text-secondary">Mã giao dịch MoMo</span><span>{{ $payment->gateway_transaction_id }}</span></div>
+                    <div class="d-flex justify-content-between"><span class="text-secondary">Mã giao dịch {{ $payment->methodLabel() }}</span><span>{{ $payment->gateway_transaction_id }}</span></div>
                 @endif
                 <div class="d-flex justify-content-between"><span class="text-secondary">Thời gian</span><span>{{ ($payment->paid_at ?? $payment->created_at)->format('H:i d/m/Y') }}</span></div>
             </div>

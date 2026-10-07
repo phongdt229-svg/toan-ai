@@ -36,6 +36,38 @@ class LearningPathService
 
     public const QUIZ_PASS_PERCENT = 50;
 
+    /** Đặc tả module 5: kiểm tra cuối buổi 15 phút. */
+    public const QUIZ_MINUTES = 15;
+
+    /**
+     * Luật gợi ý buổi sau theo điểm kiểm tra cuối buổi (đặc tả Logic §4, thang 10 → %):
+     * ≥ 8 mở bài mới · 5 → dưới 8 bài mới kèm ~30% ôn · dưới 5 ôn trước rồi mới học tiếp.
+     */
+    public const QUIZ_ADVANCE_PERCENT = 80;
+
+    public const REVIEW_SHARE = 0.3;
+
+    public const NEXT_NEW = 'new';
+
+    public const NEXT_REVIEW_SHARE = 'new_with_review';
+
+    public const NEXT_REVIEW_FIRST = 'review_first';
+
+    public function nextStepFor(int $percent): string
+    {
+        return match (true) {
+            $percent >= self::QUIZ_ADVANCE_PERCENT => self::NEXT_NEW,
+            $percent >= self::QUIZ_PASS_PERCENT => self::NEXT_REVIEW_SHARE,
+            default => self::NEXT_REVIEW_FIRST,
+        };
+    }
+
+    /** 30% của buổi 3 mục ≈ 1 mục ôn; luôn ít nhất 1 để luật có tác dụng. */
+    public static function reviewItemsPerSession(): int
+    {
+        return max(1, (int) round(self::ITEMS_PER_SESSION * self::REVIEW_SHARE));
+    }
+
     public function __construct(
         private readonly MasteryService $mastery,
         private readonly GradingService $grading,
@@ -352,6 +384,14 @@ class LearningPathService
             $session->update(['quiz_question_ids' => $ids]);
         }
 
+        // Đồng hồ chạy từ lúc mở đề lần đầu; tải lại trang không được tính lại giờ.
+        if (! $session->quiz_expires_at) {
+            $session->update([
+                'quiz_started_at' => now(),
+                'quiz_expires_at' => now()->addMinutes(self::QUIZ_MINUTES),
+            ]);
+        }
+
         $order = array_flip($session->quiz_question_ids);
 
         return Question::whereIn('id', $session->quiz_question_ids)
@@ -363,16 +403,24 @@ class LearningPathService
 
     /**
      * @param  array<int, mixed>  $answers
-     * @return array{percent: int, passed: bool, review_topics: array<int, string>}
+     * @param  array<int, int|null>  $timeSpent  giây làm từng câu (trình duyệt đo)
+     * @return array{percent: int, passed: bool, review_topics: array<int, string>, next: string, auto: bool}
      */
-    public function submitQuiz(StudySession $session, array $answers): array
+    public function submitQuiz(StudySession $session, array $answers, array $timeSpent = [], bool $auto = false): array
     {
-        return DB::transaction(function () use ($session, $answers) {
+        return DB::transaction(function () use ($session, $answers, $timeSpent, $auto) {
             /** @var StudySession $locked */
             $locked = StudySession::with('path.user')->whereKey($session->id)->lockForUpdate()->firstOrFail();
 
             if ($locked->status !== StudySession::STATUS_QUIZ_PENDING || ! $locked->quiz_question_ids) {
                 throw new PlacementException('Bài kiểm tra cuối buổi này đã nộp hoặc chưa bắt đầu.');
+            }
+
+            // Quá giờ (đã cộng thời gian ân hạn) → bài làm gửi trễ không được tính, như đề kiểm tra.
+            // Trình duyệt tự nộp lúc 00:00 nên học sinh làm bình thường không bao giờ rơi vào nhánh này.
+            if ($auto || $locked->quizIsOverdue()) {
+                $answers = [];
+                $auto = true;
             }
 
             $student = $locked->path->user;
@@ -393,26 +441,42 @@ class LearningPathService
                     'answer' => ['value' => $answers[$q->id] ?? null],
                     'is_correct' => $result->isCorrect,
                     'score' => $result->score,
+                    'time_spent_seconds' => (int) ($timeSpent[$q->id] ?? 0),
                 ]);
 
                 if ($result->isCorrect !== true && $q->topic) {
-                    $wrongTopics->put($q->topic_id, $q->topic->name);
+                    $wrongTopics->push(['id' => $q->topic_id, 'name' => $q->topic->name]);
                 }
             }
 
             $percent = $graded['max_score'] > 0 ? (int) round($graded['score'] / $graded['max_score'] * 100) : 0;
             $passed = $percent >= self::QUIZ_PASS_PERCENT;
 
-            // Chưa đạt vẫn sang buổi mới — nhưng buổi kế tiếp có thêm mục ôn đúng chỗ còn sai.
-            if (! $passed) {
-                foreach ($wrongTopics->keys() as $topicId) {
-                    $this->insertReview($locked->path, $topicId);
+            // Chủ đề sai nhiều nhất đứng trước — phần ôn có hạn thì ôn chỗ hổng nhất.
+            $reviewTopics = $wrongTopics->groupBy('id')
+                ->sortByDesc(fn ($rows) => $rows->count())
+                ->map(fn ($rows) => $rows->first()['name']);
+
+            $decision = $this->nextStepFor($percent);
+
+            if ($decision === self::NEXT_REVIEW_SHARE) {
+                // Học bài mới nhưng ~30% buổi sau là ôn (đặc tả Logic §4).
+                $reviewTopics = $reviewTopics->take(self::reviewItemsPerSession());
+                foreach ($reviewTopics->keys() as $topicId) {
+                    $this->insertReview($locked->path, (int) $topicId);
                 }
+            } elseif ($decision === self::NEXT_REVIEW_FIRST) {
+                // Điểm thấp: chèn hẳn một buổi ôn ngay sau buổi này, bài mới lùi lại một buổi.
+                $this->insertReviewSession($locked->path, $locked, $reviewTopics->keys()->map(fn ($id) => (int) $id));
+            } else {
+                $reviewTopics = collect();
             }
 
             $locked->update([
                 'quiz_percent' => $percent,
-                'quiz_submitted_at' => now(),
+                // Tự nộp do hết giờ → thời điểm nộp là lúc hết giờ, không phải lúc cron chạy.
+                'quiz_submitted_at' => $auto && $locked->quiz_expires_at ? $locked->quiz_expires_at : now(),
+                'quiz_auto_submitted' => $auto,
                 'status' => StudySession::STATUS_DONE,
                 'completed_at' => now(),
             ]);
@@ -423,9 +487,34 @@ class LearningPathService
             return [
                 'percent' => $percent,
                 'passed' => $passed,
-                'review_topics' => $passed ? [] : $wrongTopics->values()->all(),
+                'review_topics' => $reviewTopics->values()->all(),
+                'next' => $decision,
+                'auto' => $auto,
             ];
         });
+    }
+
+    /** Chốt các bài kiểm tra cuối buổi đã mở mà bỏ dở quá giờ (đóng tab, mất mạng) — chạy cùng `exams:finalize-expired`. */
+    public function finalizeExpiredQuizzes(): int
+    {
+        $count = 0;
+
+        StudySession::query()
+            ->where('status', StudySession::STATUS_QUIZ_PENDING)
+            ->whereNotNull('quiz_expires_at')
+            ->where('quiz_expires_at', '<', now()->subSeconds(StudySession::GRACE_SECONDS))
+            ->chunkById(100, function ($sessions) use (&$count) {
+                foreach ($sessions as $session) {
+                    try {
+                        $this->submitQuiz($session, [], auto: true);
+                        $count++;
+                    } catch (PlacementException) {
+                        // Học sinh vừa nộp xong giữa lúc lệnh chạy — bỏ qua.
+                    }
+                }
+            });
+
+        return $count;
     }
 
     // --- Nội bộ -----------------------------------------------------------------------------
@@ -537,6 +626,70 @@ class LearningPathService
             'title' => "Ôn lại «{$topic->name}»",
             'sort_order' => (int) $path->items()->max('learning_path_items.sort_order') + 1,
         ]);
+    }
+
+    /**
+     * Chèn một "buổi ôn" ngay sau $after: các buổi phía sau lùi số thứ tự một bậc.
+     * Chủ đề đã có mục ôn chưa làm ở buổi khác thì kéo mục đó về đây thay vì tạo trùng.
+     *
+     * @param  Collection<int, int>  $topicIds
+     */
+    private function insertReviewSession(LearningPath $path, StudySession $after, Collection $topicIds): void
+    {
+        $topics = Topic::whereIn('id', $topicIds)->get()->keyBy('id');
+
+        if ($topics->isEmpty()) {
+            return;
+        }
+
+        // Dời từ số lớn xuống để không đụng unique(learning_path_id, session_no) giữa chừng.
+        StudySession::where('learning_path_id', $path->id)
+            ->where('session_no', '>', $after->session_no)
+            ->orderByDesc('session_no')
+            ->increment('session_no');
+
+        $session = StudySession::create([
+            'user_id' => $path->user_id,
+            'learning_path_id' => $path->id,
+            'session_no' => $after->session_no + 1,
+        ]);
+
+        $stage = $path->stages()->where('status', '!=', 'done')->first() ?? $path->stages()->latest('sort_order')->first();
+        $sortOrder = (int) $path->items()->max('learning_path_items.sort_order');
+
+        foreach ($topicIds as $topicId) {
+            if (! $topic = $topics->get($topicId)) {
+                continue;
+            }
+
+            $existing = $path->items()
+                ->where('topic_id', $topicId)
+                ->where('origin', 'review')
+                ->where('learning_path_items.status', 'pending')
+                ->value('learning_path_items.id');
+
+            if ($existing) {
+                LearningPathItem::whereKey($existing)->update(['study_session_id' => $session->id]);
+
+                continue;
+            }
+
+            $stage->items()->create([
+                'study_session_id' => $session->id,
+                'item_type' => LearningPathItem::TYPE_PRACTICE,
+                'topic_id' => $topicId,
+                'difficulty' => 'easy',
+                'origin' => 'review',
+                'title' => "Ôn lại «{$topic->name}»",
+                'sort_order' => ++$sortOrder,
+            ]);
+        }
+
+        // Buổi chỉ có mỗi mục ôn vừa bị kéo đi thì rỗng — để lại sẽ thành "buổi hiện tại" không có gì để học.
+        StudySession::where('learning_path_id', $path->id)
+            ->where('status', StudySession::STATUS_PLANNED)
+            ->whereDoesntHave('items')
+            ->delete();
     }
 
     /** Buổi ngay sau buổi hiện tại; hết buổi thì mở buổi mới ở cuối lộ trình. */

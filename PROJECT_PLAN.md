@@ -1320,6 +1320,22 @@ là **toàn bộ** việc còn lại đã biết.
 
 - [x] `vendor/bin/pint` một lượt cho toàn repo và job lint trong CI — xong 24/09/2026.
 
+#### F. Đặc tả bổ sung "Đặc tả chức năng & Logic.xlsx" — rà 07/10/2026
+
+Chi tiết + tiêu chí nghiệm thu từng việc: [docs/SPEC_XLSX_PLANE.md](docs/SPEC_XLSX_PLANE.md) (dùng để đưa lên Plane).
+Sheet "Task" trong file Excel mô tả một bản khác (MongoDB) — **không** phản ánh repo này.
+
+- [ ] **Cần chốt trước:** có lịch học theo giờ không (D-01, chặn điểm danh/vắng mặt) · lớp 6→12 hay 1→12 (D-02) ·
+      model vision cho giải bài từ ảnh (D-03) · cách tính streak (D-04)
+- [ ] Lộ trình thích ứng: quiz cuối buổi 15' bấm giờ server (TA-01) · luật ≥8 / 5–8 +30% ôn / <5 (TA-02) ·
+      buổi 20/60/20 (TA-03) · tín hiệu đa chiều (TA-04) · hồ sơ năng lực (TA-05) · thời lượng + mục tiêu (TA-06)
+- [ ] Thời gian học thật & điểm danh: activity log (TA-07) · effective study time (TA-08) · Present/Partial/Absent (TA-09) · flow vắng mặt (TA-10)
+- [ ] Phụ huynh & thông báo: risk score (TA-11) · cảnh báo theo luật (TA-12) · báo bắt đầu/xong buổi + cuối ngày (TA-13) ·
+      nhắc học + sắp quên (TA-14) · streak (TA-15) · trang giám sát 6 mục (TA-16)
+- [ ] AI Solver: giải bài từ ảnh (TA-17) · đo "học hay xin đáp án" (TA-18)
+- [ ] Cá nhân hoá: sửa sở thích/màu/thầy-cô trong hồ sơ (TA-19) · theme theo màu yêu thích (TA-20) · microcopy theo sở thích (TA-21)
+- [ ] Thanh toán: cổng VNPAY (TA-22)
+
 #### Cố tình không làm — vẫn giữ nguyên quyết định
 
 URL mạng xã hội thật (footer đã tự ẩn link giả `facebook.com/x`… nên không lộ; dán link thật là việc
@@ -1381,5 +1397,6 @@ Phase 7A (AI Tutor) có thể chạy song song với 5–6 nếu có người th
 Phase 7B (placement test + giáo trình) **phải sau 3 và 7A** — cần ngân hàng câu hỏi để sinh đề và cần provider AI để chấm.
 
 **Giờ làm gì tiếp:** toàn bộ 10 phase đã xong, nên việc còn lại nằm ở mục
-[Còn nợ](#còn-nợ--rà-lại-23092026) cuối §10 — xếp sẵn theo thứ tự nên làm. Nhóm A (nội dung + nhắc gia hạn)
+[Còn nợ](#còn-nợ--rà-lại-23092026) cuối §10 — xếp sẵn theo thứ tự nên làm. Đặc tả bổ sung 07/10 (nhóm F)
+có thứ tự riêng ở [docs/SPEC_XLSX_PLANE.md §4](docs/SPEC_XLSX_PLANE.md). Nhóm A (nội dung + nhắc gia hạn)
 là thứ đang chặn doanh thu; nhóm B là cam kết đã hứa với người dùng mà chưa có công cụ thực thi.

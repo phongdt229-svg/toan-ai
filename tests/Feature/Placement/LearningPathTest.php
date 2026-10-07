@@ -194,14 +194,7 @@ class LearningPathTest extends PlacementTestCase
 
         $this->actingAs($student)->get(route('student.path.quiz', $session))->assertOk()->assertSee('Kiểm tra cuối buổi');
 
-        $questions = Question::whereIn('id', $session->fresh()->quiz_question_ids)->with('options')->get();
-        $answers = $questions->mapWithKeys(fn ($q) => [$q->id => match ($q->type) {
-            'single_choice' => (string) $q->options->firstWhere('is_correct', true)->id,
-            'multiple_choice' => $q->options->where('is_correct', true)->pluck('id')->map(fn ($v) => (string) $v)->all(),
-            'true_false' => $q->correct_answer['value'] ? '1' : '0',
-            'fill_blank' => collect($q->correct_answer['blanks'])->map(fn ($b) => $b[0])->all(),
-            'short_answer' => $q->correct_answer['accepted'][0],
-        }])->all();
+        $answers = $this->correctAnswers($session);
 
         $this->actingAs($student)
             ->post(route('student.path.quiz.submit', $session), ['answers' => $answers])
@@ -248,6 +241,151 @@ class LearningPathTest extends PlacementTestCase
         $this->actingAs($student)
             ->post(route('student.path.quiz.submit', $session), ['answers' => []])
             ->assertSessionHas('error');
+    }
+
+    /** @return array<int, mixed> đáp án đúng cho bộ câu cuối buổi, giữ thứ tự câu */
+    private function correctAnswers(StudySession $session): array
+    {
+        $ids = $session->fresh()->quiz_question_ids;
+        $questions = Question::whereIn('id', $ids)->with('options')->get()->sortBy(fn ($q) => array_search($q->id, $ids));
+
+        return $questions->mapWithKeys(fn ($q) => [$q->id => match ($q->type) {
+            'single_choice' => (string) $q->options->firstWhere('is_correct', true)->id,
+            'multiple_choice' => $q->options->where('is_correct', true)->pluck('id')->map(fn ($v) => (string) $v)->all(),
+            'true_false' => $q->correct_answer['value'] ? '1' : '0',
+            'fill_blank' => collect($q->correct_answer['blanks'])->map(fn ($b) => $b[0])->all(),
+            'short_answer' => $q->correct_answer['accepted'][0],
+        }])->all();
+    }
+
+    private function sessionAtQuiz(User $student): StudySession
+    {
+        $this->completePlacement($student);
+        $session = $this->pathFor($student)->sessions()->orderBy('session_no')->first();
+        $this->finishSessionItems($session);
+        $this->paths()->quizQuestions($session->fresh());
+
+        return $session->fresh();
+    }
+
+    public function test_quiz_score_maps_to_next_step_rule(): void
+    {
+        $this->assertSame(LearningPathService::NEXT_NEW, $this->paths()->nextStepFor(80));
+        $this->assertSame(LearningPathService::NEXT_REVIEW_SHARE, $this->paths()->nextStepFor(79));
+        $this->assertSame(LearningPathService::NEXT_REVIEW_SHARE, $this->paths()->nextStepFor(50));
+        $this->assertSame(LearningPathService::NEXT_REVIEW_FIRST, $this->paths()->nextStepFor(49));
+    }
+
+    public function test_mid_score_learns_new_lessons_with_a_review_share(): void
+    {
+        $student = $this->makeStudent();
+        $session = $this->sessionAtQuiz($student);
+        $this->assertCount(5, $session->quiz_question_ids);
+
+        // Đúng 3/5 câu → khoảng 50–79% (điểm từng câu khác nhau) → nhánh "bài mới + ~30% ôn".
+        $answers = array_slice($this->correctAnswers($session), 0, 3, true);
+        $result = $this->paths()->submitQuiz($session, $answers);
+
+        $this->assertGreaterThanOrEqual(LearningPathService::QUIZ_PASS_PERCENT, $result['percent']);
+        $this->assertLessThan(LearningPathService::QUIZ_ADVANCE_PERCENT, $result['percent']);
+        $this->assertSame(LearningPathService::NEXT_REVIEW_SHARE, $result['next']);
+
+        $path = $this->pathFor($student);
+        $reviews = $path->items()->where('origin', 'review')->get();
+        $this->assertCount(LearningPathService::reviewItemsPerSession(), $reviews);
+
+        // Mục ôn nằm chung buổi kế tiếp với bài mới, không chèn buổi riêng.
+        $next = StudySession::find($reviews[0]->study_session_id);
+        $this->assertSame($session->session_no + 1, $next->session_no);
+        $this->assertTrue($next->items()->where('origin', 'plan')->exists());
+    }
+
+    public function test_low_score_inserts_a_review_session_before_new_lessons(): void
+    {
+        $student = $this->makeStudent();
+        $session = $this->sessionAtQuiz($student);
+        $path = $this->pathFor($student);
+        $planned = $path->sessions()->where('session_no', $session->session_no + 1)->first();
+
+        $result = $this->paths()->submitQuiz($session, []);
+
+        $this->assertSame(LearningPathService::NEXT_REVIEW_FIRST, $result['next']);
+
+        $reviewSession = $path->sessions()->where('session_no', $session->session_no + 1)->first();
+        $this->assertNotSame($planned?->id, $reviewSession->id);
+        $this->assertTrue($reviewSession->items()->get()->every(fn ($i) => $i->origin === 'review'));
+        $this->assertSame($reviewSession->id, $this->paths()->currentSession($path)->id, 'Buổi hiện tại phải là buổi ôn.');
+
+        if ($planned) {
+            $this->assertSame($session->session_no + 2, $planned->fresh()->session_no, 'Bài mới lùi lại một buổi.');
+        }
+    }
+
+    // --- Kiểm tra cuối buổi 15 phút (đặc tả module 5) ---------------------------------------------
+
+    public function test_opening_quiz_starts_a_fifteen_minute_server_timer(): void
+    {
+        $student = $this->makeStudent();
+        $this->completePlacement($student);
+        $session = $this->pathFor($student)->sessions()->first();
+        $this->finishSessionItems($session);
+
+        $this->actingAs($student)->get(route('student.path.quiz', $session))->assertOk()->assertSee('quiz-timer', false);
+        $expires = $session->fresh()->quiz_expires_at;
+        $this->assertEqualsWithDelta(now()->addMinutes(15)->timestamp, $expires->timestamp, 5);
+
+        // Tải lại trang không được đặt lại đồng hồ.
+        $this->travel(5)->minutes();
+        $this->actingAs($student)->get(route('student.path.quiz', $session))->assertOk();
+        $this->assertEquals($expires, $session->fresh()->quiz_expires_at);
+    }
+
+    public function test_answers_sent_after_the_deadline_are_not_graded(): void
+    {
+        $student = $this->makeStudent();
+        $session = $this->sessionAtQuiz($student);
+        $answers = $this->correctAnswers($session);
+
+        $this->travel(16)->minutes();
+
+        $this->actingAs($student)
+            ->post(route('student.path.quiz.submit', $session), ['answers' => $answers])
+            ->assertRedirect(route('student.path.show'))
+            ->assertSessionHas('error');
+
+        $session->refresh();
+        $this->assertSame(StudySession::STATUS_DONE, $session->status);
+        $this->assertSame(0, $session->quiz_percent);
+        $this->assertTrue($session->quiz_auto_submitted);
+    }
+
+    public function test_submitting_within_grace_period_is_still_graded(): void
+    {
+        $student = $this->makeStudent();
+        $session = $this->sessionAtQuiz($student);
+        $answers = $this->correctAnswers($session);
+
+        // Đồng hồ trình duyệt tự nộp lúc 00:00, request tới server trễ vài giây.
+        $this->travel(15 * 60 + 10)->seconds();
+
+        $this->actingAs($student)->post(route('student.path.quiz.submit', $session), ['answers' => $answers]);
+
+        $this->assertSame(100, $session->fresh()->quiz_percent);
+        $this->assertFalse($session->fresh()->quiz_auto_submitted);
+    }
+
+    public function test_abandoned_quiz_is_closed_by_the_finalize_command(): void
+    {
+        $student = $this->makeStudent();
+        $session = $this->sessionAtQuiz($student);
+
+        $this->travel(20)->minutes();
+        $this->artisan('exams:finalize-expired')->assertSuccessful();
+
+        $session->refresh();
+        $this->assertSame(StudySession::STATUS_DONE, $session->status);
+        $this->assertTrue($session->quiz_auto_submitted);
+        $this->assertEquals($session->quiz_expires_at, $session->quiz_submitted_at);
     }
 
     public function test_other_student_cannot_open_session_quiz(): void

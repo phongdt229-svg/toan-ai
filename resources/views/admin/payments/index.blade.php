@@ -33,7 +33,7 @@
     </div>
 
     <form method="GET" class="filter-bar">
-        <input name="q" class="form-control" style="max-width:280px" placeholder="Mã đơn, mã MoMo, email" value="{{ $search }}">
+        <input name="q" class="form-control" style="max-width:280px" placeholder="Mã đơn, mã giao dịch, email" value="{{ $search }}">
         <select name="status" class="form-select" style="max-width:200px">
             <option value="">Mọi trạng thái</option>
             @foreach (\App\Models\Payment::STATUS_LABELS as $value => $label)

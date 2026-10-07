@@ -12,7 +12,7 @@
         @if (! in_array($payment->status, ['paid', 'refunded'], true))
             <form method="POST" action="{{ route('admin.payments.reconcile', $payment) }}" class="ms-auto">
                 @csrf
-                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-arrow-repeat me-1"></i>Đối soát với MoMo</button>
+                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-arrow-repeat me-1"></i>Đối soát với {{ $payment->methodLabel() }}</button>
             </form>
         @endif
     </div>
@@ -20,7 +20,7 @@
     @if ($payment->flag_reason)
         <div class="alert alert-danger small">
             <i class="bi bi-exclamation-octagon me-1"></i><strong>Cần xử lý tay:</strong> {{ $payment->flag_reason }}.
-            Hệ thống không tự cấp gói — kiểm tra trên cổng MoMo rồi cấp tay ở trang Đăng ký gói nếu hợp lệ.
+            Hệ thống không tự cấp gói — kiểm tra trên cổng {{ $payment->methodLabel() }} rồi cấp tay ở trang Đăng ký gói nếu hợp lệ.
         </div>
     @endif
 
@@ -51,7 +51,7 @@
         </div>
         <div class="col-12 col-lg-6">
             <div class="card border h-100"><div class="card-body small d-grid gap-2">
-                <div class="d-flex justify-content-between"><span class="text-secondary">Mã giao dịch MoMo</span><span>{{ $payment->gateway_transaction_id ?? '—' }}</span></div>
+                <div class="d-flex justify-content-between"><span class="text-secondary">Mã giao dịch {{ $payment->methodLabel() }}</span><span>{{ $payment->gateway_transaction_id ?? '—' }}</span></div>
                 <div class="d-flex justify-content-between"><span class="text-secondary">resultCode</span><span>{{ $payment->gateway_result_code ?? '—' }}</span></div>
                 <div class="d-flex justify-content-between"><span class="text-secondary">Thông điệp</span><span>{{ $payment->gateway_message ?? '—' }}</span></div>
                 <div class="d-flex justify-content-between"><span class="text-secondary">Tạo lúc</span><span>{{ $payment->created_at->format('H:i:s d/m/Y') }} · IP {{ $payment->client_ip ?? '—' }}</span></div>
@@ -61,7 +61,7 @@
     </div>
 
     @php
-        // Còn dòng hoàn tiền `pending` = đã gửi MoMo mà chưa rõ kết quả → khoá nút, admin phải kiểm tra bên MoMo.
+        // Còn dòng hoàn tiền `pending` = đã gửi cổng mà chưa rõ kết quả → khoá nút, admin phải kiểm tra bên cổng.
         $blockingRefund = $payment->refunds->first(fn ($r) => $r->status === 'pending');
         $canRefund = $payment->isPaid() && $payment->method !== 'voucher' && $payment->refundableInt() > 0 && ! $blockingRefund;
     @endphp
@@ -74,7 +74,7 @@
                 @if ($blockingRefund)
                     <div class="alert alert-warning small">
                         Có yêu cầu hoàn <code>{{ $blockingRefund->refund_code }}</code> đã gửi nhưng chưa rõ kết quả
-                        ({{ $blockingRefund->gateway_message ?: 'chưa có phản hồi' }}). Kiểm tra trên cổng MoMo —
+                        ({{ $blockingRefund->gateway_message ?: 'chưa có phản hồi' }}). Kiểm tra trên cổng {{ $payment->methodLabel() }} —
                         hệ thống khoá nút để tránh hoàn hai lần.
                     </div>
                 @endif

@@ -25,8 +25,8 @@ class SecurityHeaders
             // Không trang nào cần camera/micro/vị trí; thanh toán do MoMo xử lý ở domain của họ.
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=(), payment=()',
             'Cross-Origin-Opener-Policy' => 'same-origin',
-            // form-action cần *.momo.vn: Chrome áp form-action cho cả redirect sau POST "Thanh toán".
-            'Content-Security-Policy' => "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://*.momo.vn",
+            // form-action cần domain các cổng: Chrome áp form-action cho cả redirect sau POST "Thanh toán".
+            'Content-Security-Policy' => "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://*.momo.vn https://*.vnpayment.vn",
         ];
 
         // HSTS chỉ khi đang chạy HTTPS thật — gửi qua HTTP ở local sẽ làm trình duyệt kẹt HTTPS với localhost.

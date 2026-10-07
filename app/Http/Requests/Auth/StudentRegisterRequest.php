@@ -32,7 +32,7 @@ class StudentRegisterRequest extends FormRequest
             'math_average_score' => ['nullable', 'numeric', 'min:0', 'max:10'],
             // Form đã pre-check "cô"; không gửi thì service dùng mặc định đó.
             'tutor_persona' => ['nullable', Rule::in(array_keys(StudentProfile::PERSONAS))],
-            'favorite_color' => ['nullable', 'string', 'max:20'],
+            'favorite_color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'interests' => ['nullable', 'string', 'max:255'],
         ];
     }

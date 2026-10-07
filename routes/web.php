@@ -222,6 +222,7 @@ Route::middleware('auth')->group(function () {
 
         // §8: return URL chỉ hiển thị trạng thái đọc từ DB.
         Route::get('payment/momo/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
+        Route::get('payment/vnpay/return', [PaymentController::class, 'handleReturn'])->name('payment.return.vnpay');
         Route::get('thanh-toan', [PaymentController::class, 'history'])->name('payment.history');
         Route::get('thanh-toan/{payment}', [PaymentController::class, 'show'])->name('payment.show');
         Route::get('thanh-toan/{payment}/trang-thai', [PaymentController::class, 'status'])
@@ -236,6 +237,7 @@ Route::middleware('auth')->group(function () {
             Route::get('cai-dat', [StudentSettingsController::class, 'edit'])->name('settings');
             Route::put('cai-dat/ho-so', [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
             Route::put('cai-dat/mat-khau', [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
+            Route::put('cai-dat/ca-nhan-hoa', [StudentSettingsController::class, 'updatePersonalization'])->name('settings.personalization');
 
             Route::get('hoc', [LearnController::class, 'index'])->name('learn.index');
             Route::get('hoc/chu-de/{topic}', [LearnController::class, 'topic'])->name('learn.topic');

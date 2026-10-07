@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Support\ThemeColor;
 use Illuminate\Support\Str;
 
 class StudentProfile extends Model
@@ -69,6 +70,28 @@ class StudentProfile extends Model
             $averageScore <= 8 => 'good',
             default => 'excellent',
         };
+    }
+
+    /** "bóng đá, game" → ['bóng đá', 'game'] — dùng chung cho form đăng ký và trang Cài đặt. */
+    public static function parseInterests(?string $raw): ?array
+    {
+        if (! $raw) {
+            return null;
+        }
+
+        $items = collect(explode(',', $raw))
+            ->map(fn ($s) => trim($s))
+            ->filter()
+            ->take(10)
+            ->values();
+
+        return $items->isEmpty() ? null : $items->all();
+    }
+
+    /** Màu nhấn đã tối đủ để chữ trắng đọc được; null = dùng theme mặc định. */
+    public function accentColor(): ?array
+    {
+        return ThemeColor::accent($this->favorite_color);
     }
 
     /** Mã 8 ký tự, không gồm ký tự dễ nhầm (0/O, 1/I). */

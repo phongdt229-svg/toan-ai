@@ -3,6 +3,7 @@
 namespace App\Services\Payment\Gateways;
 
 use App\Models\Payment;
+use App\Services\Payment\Contracts\SimulatesPayments;
 use App\Services\Payment\GatewayCheckout;
 use App\Services\Payment\GatewayNotification;
 use App\Services\Payment\GatewayRefund;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
  * Trang giả lập tạo IPN ký bằng đúng thuật toán MoMo rồi đưa qua PaymentService::handleNotification —
  * nên luồng verify chữ ký / so tiền / idempotency chạy thật khi dev.
  */
-class FakeMomoGateway extends MomoGateway
+class FakeMomoGateway extends MomoGateway implements SimulatesPayments
 {
     public function createPayment(Payment $payment, string $orderInfo): GatewayCheckout
     {
@@ -29,6 +30,27 @@ class FakeMomoGateway extends MomoGateway
     public function refund(Payment $payment, string $refundCode, int $amount, string $reason): GatewayRefund
     {
         return new GatewayRefund(true, 'FAKE-RF-'.Str::upper(Str::random(8)), 0, 'Thành công (giả lập)', ['fake' => true]);
+    }
+
+    public function simulatedNotification(Payment $payment, bool $success): array
+    {
+        $payload = [
+            'partnerCode' => $this->partnerCode(),
+            'orderId' => $payment->order_code,
+            'requestId' => (string) $payment->gateway_request_id,
+            'amount' => $payment->amountInt(),
+            'orderInfo' => 'Gia lap',
+            'orderType' => 'momo_wallet',
+            'transId' => $success ? (string) random_int(1_000_000_000, 9_999_999_999) : '',
+            'resultCode' => $success ? 0 : 1006,
+            'message' => $success ? 'Thành công.' : 'Người dùng đã từ chối xác nhận thanh toán.',
+            'payType' => 'qr',
+            'responseTime' => now()->getTimestampMs(),
+            'extraData' => '',
+        ];
+        $payload['signature'] = $this->signNotification($payload);
+
+        return $payload;
     }
 
     protected function credentials(): array

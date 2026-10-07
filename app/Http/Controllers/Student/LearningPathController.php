@@ -38,6 +38,13 @@ class LearningPathController extends Controller
     {
         $this->ensureOwner($request, $session);
 
+        // Mở lại đề đã quá giờ → chốt luôn (cron cũng chốt, nhưng học sinh quay lại sớm hơn cron chạy).
+        if ($session->status === StudySession::STATUS_QUIZ_PENDING && $session->quizIsOverdue()) {
+            $result = $this->paths->submitQuiz($session, [], auto: true);
+
+            return redirect()->route('student.path.show')->with('error', $this->resultMessage($session, $result));
+        }
+
         try {
             $questions = $this->paths->quizQuestions($session);
         } catch (PlacementException $e) {
@@ -49,7 +56,10 @@ class LearningPathController extends Controller
                 ->with('status', "Hoàn thành buổi {$session->session_no}!");
         }
 
-        return view('student.path.quiz', ['session' => $session, 'questions' => $questions]);
+        return view('student.path.quiz', [
+            'session' => $session->refresh(),
+            'questions' => $questions,
+        ]);
     }
 
     public function submitQuiz(SubmitQuizRequest $request, StudySession $session): RedirectResponse
@@ -57,16 +67,30 @@ class LearningPathController extends Controller
         $data = $request->validated();
 
         try {
-            $result = $this->paths->submitQuiz($session, $data['answers'] ?? []);
+            $result = $this->paths->submitQuiz($session, $data['answers'] ?? [], $data['time_spent'] ?? []);
         } catch (PlacementException $e) {
             return redirect()->route('student.path.show')->with('error', $e->getMessage());
         }
 
-        $message = $result['passed']
-            ? "Hoàn thành buổi {$session->session_no} — kiểm tra cuối buổi đạt {$result['percent']}%."
-            : "Kiểm tra cuối buổi đạt {$result['percent']}%. Buổi sau có thêm phần ôn: ".implode(', ', $result['review_topics']).'.';
+        return redirect()->route('student.path.show')
+            ->with($result['auto'] ? 'error' : 'status', $this->resultMessage($session, $result));
+    }
 
-        return redirect()->route('student.path.show')->with('status', $message);
+    /** @param  array{percent: int, passed: bool, review_topics: array<int, string>, next: string, auto: bool}  $result */
+    private function resultMessage(StudySession $session, array $result): string
+    {
+        if ($result['auto']) {
+            return "Bài kiểm tra cuối buổi {$session->session_no} đã quá ".LearningPathService::QUIZ_MINUTES
+                .' phút nên câu trả lời gửi trễ không được chấm. Buổi sau có thêm phần ôn cho các chủ đề này.';
+        }
+
+        $topics = implode(', ', $result['review_topics']);
+
+        return match (true) {
+            $result['next'] === LearningPathService::NEXT_REVIEW_FIRST && $topics !== '' => "Kiểm tra cuối buổi đạt {$result['percent']}%. Buổi tiếp theo là buổi ôn: {$topics} — ôn chắc rồi mình học bài mới nhé.",
+            $result['next'] === LearningPathService::NEXT_REVIEW_SHARE && $topics !== '' => "Hoàn thành buổi {$session->session_no} — đạt {$result['percent']}%. Buổi sau học bài mới, kèm phần ôn: {$topics}.",
+            default => "Hoàn thành buổi {$session->session_no} — kiểm tra cuối buổi đạt {$result['percent']}%.",
+        };
     }
 
     private function ensureOwner(Request $request, StudySession $session): void

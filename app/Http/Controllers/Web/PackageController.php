@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Package;
 use App\Models\User;
+use App\Services\Payment\PaymentGatewayManager;
 use App\Services\Payment\VoucherService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
@@ -71,6 +72,7 @@ class PackageController extends Controller
             'children' => $children,
             'current' => $beneficiary ? $this->subscriptions->effective($beneficiary) : null,
             'startsAt' => $beneficiary ? $this->subscriptions->nextStartFor($beneficiary, $package) : null,
+            'paymentMethods' => app(PaymentGatewayManager::class)->enabled(),
         ]);
     }
 
