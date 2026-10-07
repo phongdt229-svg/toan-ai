@@ -470,6 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('canvas[data-chart-type="subscription-donut"]').forEach(renderSubscriptionDonut);
     document.querySelectorAll('canvas[data-chart-type="tickets-daily"]').forEach((c) => renderCountDaily(c, 'Yêu cầu mới'));
     document.querySelectorAll('canvas[data-chart-type="signups-daily"]').forEach((c) => renderCountDaily(c, 'Tài khoản mới'));
+    document.querySelectorAll('canvas[data-chart-type="blog-daily"]').forEach((c) => renderCountDaily(c, 'Bài xuất bản'));
     document.querySelectorAll('canvas[data-chart-type="feature-bars"]').forEach(renderFeatureBars);
     document.querySelectorAll('canvas[data-chart-type="count-bars"]').forEach(renderCountBars);
     document.querySelectorAll('canvas[data-chart-type="payments-daily"]').forEach(renderPaymentsDaily);

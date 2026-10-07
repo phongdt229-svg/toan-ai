@@ -50,7 +50,7 @@
 
                 <div class="d-flex flex-wrap gap-3 mt-3 text-secondary small">
                     <span><i class="bi bi-check-circle-fill text-success me-1"></i>Không cần thẻ tín dụng</span>
-                    <span><i class="bi bi-phone me-1"></i>Cài được như ứng dụng trên điện thoại</span>
+                    <a href="#cai-dat-ung-dung" class="text-secondary text-decoration-none"><i class="bi bi-phone me-1"></i>Cài được như ứng dụng — xem bên dưới</a>
                 </div>
             </div>
 

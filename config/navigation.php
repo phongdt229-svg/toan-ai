@@ -34,6 +34,9 @@ return [
         ['label' => 'Giao bài', 'icon' => 'bi-send-check', 'route' => 'teacher.assignments.index', 'bottom' => false],
         ['label' => 'Học sinh', 'icon' => 'bi-mortarboard', 'route' => 'teacher.students.index', 'bottom' => false],
         ['label' => 'AI soạn bài', 'icon' => 'bi-robot', 'route' => 'teacher.ai.index', 'bottom' => false],
+        // Hỏi đáp dùng chung một URL cho mọi portal (route auth, không riêng học sinh) — giáo viên
+        // trả lời và kiểm duyệt được nhưng không có lối vào từ menu của họ thì không ai biết mà bấm.
+        ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'bottom' => false],
         ['label' => 'Báo cáo', 'icon' => 'bi-bar-chart', 'route' => 'teacher.reports.index', 'bottom' => false],
         ['label' => 'Tìm kiếm', 'icon' => 'bi-search', 'route' => 'teacher.search', 'bottom' => false],
         ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'teacher.settings', 'bottom' => false],
@@ -51,6 +54,8 @@ return [
         ['label' => 'Duyệt giáo viên', 'icon' => 'bi-person-check', 'route' => 'admin.teachers.pending', 'bottom' => true],
         ['label' => 'Người dùng', 'icon' => 'bi-people', 'route' => 'admin.users.index', 'bottom' => true],
         ['label' => 'Chương trình', 'icon' => 'bi-diagram-3', 'route' => 'admin.curriculum.index', 'bottom' => true],
+        ['label' => 'Bài viết', 'icon' => 'bi-newspaper', 'route' => 'admin.blog.index', 'bottom' => false],
+        ['label' => 'Danh mục bài viết', 'icon' => 'bi-tags', 'route' => 'admin.blog-categories.index', 'bottom' => false],
         ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => 'admin.packages.index', 'bottom' => false],
         ['label' => 'Mã giảm giá', 'icon' => 'bi-ticket-perforated', 'route' => 'admin.vouchers.index', 'bottom' => false],
         ['label' => 'Đăng ký gói', 'icon' => 'bi-person-vcard', 'route' => 'admin.subscriptions.index', 'bottom' => false],
@@ -60,6 +65,9 @@ return [
         ['label' => 'Hỗ trợ', 'icon' => 'bi-life-preserver', 'route' => 'admin.support.index', 'bottom' => false],
         ['label' => 'Audit log', 'icon' => 'bi-shield-check', 'route' => 'admin.audit-logs.index', 'bottom' => false],
         ['label' => 'Bảo trì', 'icon' => 'bi-cone-striped', 'route' => 'admin.maintenance.edit', 'bottom' => false],
+        ['label' => 'SEO', 'icon' => 'bi-search', 'route' => 'admin.seo.index', 'bottom' => false],
+        // Cùng lý do ở nav teacher: admin kiểm duyệt được (Gate::before) nhưng không có lối vào riêng.
+        ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'bottom' => false],
         ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'admin.settings', 'bottom' => false],
     ],
 

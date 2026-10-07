@@ -6,11 +6,11 @@
         ['bi-clipboard-check', '', 'Đề kiểm tra', 'Đề có bấm giờ, chấm điểm, xem lại từng câu sau khi nộp.'],
         ['bi-robot', 'feature-card--accent', 'AI Tutor', 'Gợi ý, giải thích, phân tích lỗi sai và cho bài tương tự.'],
         ['bi-graph-up-arrow', 'feature-card--success', 'Tiến độ', 'Biểu đồ theo chủ đề: mạnh ở đâu, yếu ở đâu, học bao lâu.'],
-        // Ba mục dưới đây đều là tính năng ĐÃ CHẠY, không phải kế hoạch:
-        // QaService, PlacementTestService + LearningPathService, và service worker + manifest.
+        // Hai mục dưới đây đều là tính năng ĐÃ CHẠY, không phải kế hoạch: QaService và
+        // PlacementTestService + LearningPathService. "Cài như ứng dụng" có section riêng nổi bật
+        // hơn ngay bên dưới (public.partials.pwa), không lặp lại ở đây.
         ['bi-chat-dots', '', 'Hỏi đáp', 'Hỏi bài công khai, thầy cô và các bạn cùng trả lời — có lời giải được chọn.'],
         ['bi-signpost-split', 'feature-card--accent', 'Lộ trình riêng', 'Làm bài kiểm tra đầu vào, hệ thống xếp lộ trình theo đúng sức học.'],
-        ['bi-phone', 'feature-card--success', 'Cài như ứng dụng', 'Thêm vào màn hình chính điện thoại, bài đã mở vẫn đọc được khi mất mạng.'],
     ];
 @endphp
 

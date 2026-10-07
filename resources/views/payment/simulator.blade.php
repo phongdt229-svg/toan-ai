@@ -1,6 +1,8 @@
 @extends('layouts.base')
 
 @section('title', 'Giả lập MoMo — TOÁN AI')
+{{-- Trang giả lập chỉ dùng khi dev, dùng layouts.base trực tiếp nên không tự noindex như layouts.app. --}}
+@section('robots', 'noindex,nofollow')
 
 @section('body')
     <main class="container py-5" style="max-width:480px">

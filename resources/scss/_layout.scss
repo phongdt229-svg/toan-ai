@@ -77,6 +77,11 @@ body {
         color: rgba(#fff, .8);
         overflow-y: auto;
 
+        // Quản trị dùng nền riêng — tách biệt trực quan khỏi 3 portal còn lại, xem _variables.scss.
+        &--admin {
+            background: $admin-sidebar-bg;
+        }
+
         &__brand {
             display: flex;
             align-items: center;

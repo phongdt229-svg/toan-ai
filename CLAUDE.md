@@ -111,9 +111,19 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   TRƯỚC khi gọi MoMo và không tự gửi lại khi chưa rõ kết quả. Thêm chỗ nào kiểm "đã xử lý xong" cho đơn thì nhớ `isRefunded()`.
   Doanh thu luôn tính ròng `amount - refunded_amount` (hoàn một phần vẫn để đơn `paid`) — truy vấn doanh thu mới phải theo đúng công thức này.
 - Số liệu GA trong Quản trị đọc qua `AnalyticsReportService` (service account chỉ đọc). File khoá JSON để ngoài repo, không commit.
+- Blog/Tin tức: chỉ `App\Services\Content\BlogService` tạo/sửa/xoá (slug tự sinh, published_at chỉ đổi khi
+  chuyển trạng thái, xoá ảnh bìa cũ khi thay/khi xoá bài). Chỉ admin viết — kiểm `isAdmin()` thẳng trong Form
+  Request (không cần Policy riêng, `Gate::before` đã cho admin qua hết). Nội dung qua `HtmlSanitizer` như Lesson.
 - Tạo đề bằng AI: chỉ câu giáo viên đã chấp nhận mới vào đề, đề luôn ở trạng thái Nháp (`createExamFromDraft`).
 - Đổi model AI → thêm dòng giá ở `config/ai.php → pricing`, nếu không trang AI usage hiện 0₫ (có cảnh báo).
 - Chart.js: canvas được bọc khung riêng bởi `sizeBox()` trong `resources/js/charts.js` — đừng đặt height lên `card-body`.
+- JSON-LD trong Blade: viết `'@context'` làm key mảng PHP thì Blade nuốt mất — `@context` trùng tên directive
+  mới của Laravel, bị thay bằng code PHP dù nằm trong chuỗi. Luôn viết `'@@context'` (và cho chắc `'@@graph'`)
+  để Blade nhả ra đúng ký tự `@`. Xem `layouts/base.blade.php`, test canh bẫy này ở `SeoTest`.
+- Nén HTML: `MINIFY_HTML=true` trong `.env` mới bật (`App\Http\Middleware\MinifyHtml`), mặc định TẮT —
+  local để nguyên cho dễ đọc "View source". Test hành vi nén phải chạy trên **trang thật** (`$this->get('/')`),
+  không chỉ HTML tự soạn — mẫu tự soạn dễ toàn đúng kiểu `>   <` nên không bắt được khoảng trắng lọt lưới
+  cạnh nội dung được bảo vệ (`<script>`/`<pre>`/...), xem `MinifyHtmlTest`.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
   Job `pint --test` đã bật (repo đã dọn 24/09) — trước khi commit chạy `vendor/bin/pint`.
 

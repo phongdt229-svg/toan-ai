@@ -1,6 +1,8 @@
 @extends('layouts.guest')
 
 @section('title', 'Xác thực 2 bước — TOÁN AI')
+{{-- Chỉ có ý nghĩa giữa luồng đăng nhập (cần phiên chờ xác thực) — không phải trang cho khách vãng lai. --}}
+@section('robots', 'noindex,nofollow')
 
 @section('content')
     <div class="card border mx-auto" style="max-width:26rem">

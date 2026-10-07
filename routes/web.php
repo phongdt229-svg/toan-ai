@@ -3,12 +3,15 @@
 use App\Http\Controllers\Admin\AiUsageController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\BlogCategoryController;
+use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Admin\MaintenanceController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\SeoPageController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\SupportTicketController;
@@ -58,6 +61,7 @@ use App\Http\Controllers\Teacher\SearchController as TeacherSearchController;
 use App\Http\Controllers\Teacher\SettingsController as TeacherSettingsController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Web\AccountController;
+use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\CookieConsentController;
 use App\Http\Controllers\Web\GuideController;
 use App\Http\Controllers\Web\LandingController;
@@ -88,12 +92,18 @@ Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy')
 Route::get('huong-dan', [GuideController::class, 'index'])->name('guides.index');
 Route::get('huong-dan/{slug}', [GuideController::class, 'show'])->name('guides.show');
 
+// Tin tức: bài giới thiệu + khuyến mãi do admin viết (kế hoạch 26/09), ai cũng xem được.
+Route::get('tin-tuc', [BlogController::class, 'index'])->name('blog.index');
+Route::get('tin-tuc/rss.xml', [BlogController::class, 'feed'])->name('blog.feed');
+Route::get('tin-tuc/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
+
 // Lựa chọn cookie — ai cũng dùng được, kể cả khách chưa đăng nhập.
 Route::post('cookie', [CookieConsentController::class, 'store'])->name('cookie.store');
 Route::delete('cookie', [CookieConsentController::class, 'destroy'])->name('cookie.destroy');
 
 // Sơ đồ trang cho công cụ tìm kiếm (robots.txt trỏ tới đây).
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('sitemap-news.xml', [SitemapController::class, 'news'])->name('sitemap.news');
 
 Route::get('ho-tro', [SupportController::class, 'create'])->name('support.create');
 Route::post('ho-tro', [SupportController::class, 'store'])->middleware('throttle:20,60')->name('support.store');
@@ -491,6 +501,21 @@ Route::middleware('auth')->group(function () {
                 ->name('curriculum.topics.store');
             Route::delete('chuong-trinh/chu-de/{topic}', [CurriculumController::class, 'destroyTopic'])
                 ->name('curriculum.topics.destroy');
+
+            Route::get('bai-viet', [BlogPostController::class, 'index'])->name('blog.index');
+            Route::get('bai-viet/tao-moi', [BlogPostController::class, 'create'])->name('blog.create');
+            Route::post('bai-viet', [BlogPostController::class, 'store'])->name('blog.store');
+            Route::get('bai-viet/{post}/sua', [BlogPostController::class, 'edit'])->name('blog.edit');
+            Route::put('bai-viet/{post}', [BlogPostController::class, 'update'])->name('blog.update');
+            Route::delete('bai-viet/{post}', [BlogPostController::class, 'destroy'])->name('blog.destroy');
+
+            Route::get('danh-muc-bai-viet', [BlogCategoryController::class, 'index'])->name('blog-categories.index');
+            Route::post('danh-muc-bai-viet', [BlogCategoryController::class, 'store'])->name('blog-categories.store');
+            Route::put('danh-muc-bai-viet/{category}', [BlogCategoryController::class, 'update'])->name('blog-categories.update');
+            Route::delete('danh-muc-bai-viet/{category}', [BlogCategoryController::class, 'destroy'])->name('blog-categories.destroy');
+
+            Route::get('seo', [SeoPageController::class, 'index'])->name('seo.index');
+            Route::put('seo', [SeoPageController::class, 'update'])->name('seo.update');
         });
     });
 });

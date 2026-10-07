@@ -1054,6 +1054,229 @@ best_answer_id · answers_count · reports_count · timestamps
 `qa_answers`: question_id · user_id · body · status (`visible`/`hidden`) · reports_count · timestamps
 `qa_reports`: reportable (question/answer) · user_id · reason — unique(reportable, user) chặn báo nhiều lần
 
+### ✅ Đã làm (26/09, đợt 2) — nút "Cài đặt ứng dụng" ở trang chủ
+
+Trang chủ chỉ có dòng chữ "Cài được như ứng dụng trên điện thoại", không có cách nào bấm để cài —
+người đọc phải tự biết vào menu trình duyệt. Thêm nút thật:
+
+- [x] `resources/js/pwa-install.js` (entry Vite riêng, chỉ trang chủ nạp): bắt `beforeinstallprompt`,
+      hiện ngay trên desktop/Android (không chờ `beforeinstallprompt` mới hiện — sự kiện này tới trễ
+      hoặc đôi khi không tới), đã cài rồi (`display-mode: standalone`) thì ẩn. Bấm mà trình duyệt
+      chưa có sẵn lời mời thật thì hướng dẫn thủ công qua `window.alertDialog` (không dùng `alert()`
+      mặc định — đúng luật chung của repo), Firefox desktop có thông điệp riêng vì không hỗ trợ.
+      iOS Safari không có API này → thay bằng dòng hướng dẫn "Chia sẻ → Thêm vào MH chính".
+- [x] Nút đặt trong `hero.blade.php`, cạnh dòng chữ cũ. Test mới trong `LandingPageTest` canh có mặt
+      nút và chỉ trang chủ nạp file JS này (1.15KB, không cõng thêm vào các trang khác).
+
+### ✅ Đã làm (26/09, đợt 3) — tách "Cài đặt ứng dụng" thành section riêng nổi bật
+
+Nút cài PWA trước đó nằm lẫn trong hero (một dòng nhỏ), yêu cầu tách riêng cho nổi bật:
+
+- [x] `public.partials.pwa` — section nền tối riêng (`.pwa-band`, cùng công thức viền chấm với
+      `.cta-band` nhưng đổi tông để không lẫn với dải CTA cuối trang), đặt sau AI Tutor. Liệt kê
+      4 lợi ích đều là thứ `sw.js`/`manifest.webmanifest` đang làm thật (đọc bài offline, standalone
+      display, cài không qua store) — không thêm cái nào chưa có.
+- [x] Nút cài + gợi ý iOS chuyển từ hero sang section mới (không còn 2 nút trùng id trên trang).
+      Hero giữ lại một dòng nhỏ, bấm nhảy neo `#cai-dat-ung-dung` xuống section.
+      Thẻ nhỏ "Cài như ứng dụng" trong lưới tính năng bị xoá (tránh lặp, đã có section riêng).
+- [x] Xem trước icon trên "màn hình chính" dùng đúng `icon-192.png` thật, không dựng ảnh giả.
+      Test `LandingPageTest` cập nhật theo nội dung mới.
+
+### ✅ Đã làm (26/09) — Blog / Tin tức (bài giới thiệu + khuyến mãi, có danh mục)
+
+Yêu cầu: admin viết được bài giới thiệu sản phẩm và tin khuyến mãi/sự kiện, phân theo danh mục,
+hiển thị công khai. Không dựng "loại bài" cứng (article/event) — dùng DANH MỤC làm phân loại,
+admin tự đặt tên danh mục ("Giới thiệu", "Khuyến mãi", "Sự kiện"...) qua màn quản trị, linh hoạt
+hơn enum cứng và đúng đề bài "có danh mục bài viết".
+
+- [x] **Bảng**: `blog_categories` (name, slug, sort_order) · `blog_posts` (blog_category_id
+      restrictOnDelete, title, slug unique, excerpt, content, cover_path nullable, status
+      draft/published, published_at nullable timestamp — theo đúng tiền lệ `Lesson.published_at`,
+      created_by nullOnDelete).
+- [x] **Quyền**: chỉ admin viết/sửa/xoá — kiểm `isAdmin()` thẳng trong Form Request, không cần
+      Policy riêng (`Gate::before` đã cho admin qua hết, đúng tiền lệ `ReasonRequest`/`GrantSubscriptionRequest`).
+      Đọc bài đã xuất bản thì công khai, không cần đăng nhập.
+- [x] **Route công khai**: `/tin-tuc` (danh sách, lọc `?danh-muc=slug`, phân trang), `/tin-tuc/{slug}`.
+      Thêm vào `SitemapController` (trang danh sách + từng bài đã xuất bản) và OG qua
+      `@section('og_title'/'og_description'/'og_image')` có sẵn ở `layouts/base`.
+- [x] **Route quản trị**: `/quan-tri/bai-viet` (CRUD + xuất bản/gỡ xuất bản), `/quan-tri/danh-muc-bai-viet`
+      (CRUD danh mục — chặn xoá danh mục còn bài viết, cùng kiểu chặn với Voucher đã dùng người).
+- [x] **Nội dung**: HtmlSanitizer lọc lúc lưu (mutator trên model, đúng luật chung). Trình soạn
+      dùng lại `resources/js/lesson-editor.js` (`data-rich-editor`) — không viết editor mới.
+- [x] **Ảnh bìa**: validate `image|mimes:jpg,jpeg,png,webp|max:2048`, lưu disk `public`, tên file
+      tự sinh (không tin tên gốc người upload), xoá file cũ khi thay/khi xoá bài.
+- [x] **Audit log**: `blog.created` / `blog.updated` / `blog.deleted` /
+      `blog.category_created` / `blog.category_updated` / `blog.category_deleted`.
+- [x] **Menu**: "Bài viết" + "Danh mục bài viết" vào nav admin; "Tin tức" vào header công khai.
+- [x] **Test**: CRUD, chỉ admin viết được, sanitizer chạy lúc lưu, bài nháp ẩn khỏi trang công khai,
+      thay ảnh xoá ảnh cũ, chặn xoá danh mục còn bài, bài đã xuất bản có trong sitemap — 12 test mới
+      (`tests/Feature/Blog/BlogTest.php`), 619 test toàn repo xanh, Pint sạch.
+- [x] **Báo cáo** — `BlogReportService` (tổng số bài/đã xuất bản/nháp, biểu đồ 30 ngày, biểu đồ theo
+      danh mục) hiện ngay đầu trang Quản trị → Bài viết. Tái dùng `renderCountDaily`/`renderCountBars`
+      có sẵn trong `charts.js` — không viết chart mới.
+- [x] **Dữ liệu mẫu** — `SampleBlogSeeder` (local): 4 danh mục, 10 bài (9 đã xuất bản trải 30 ngày,
+      1 nháp) qua `admin@gmail.com`, đi qua `BlogService` thật rồi lùi ngày cho biểu đồ có số liệu.
+- [x] **Ảnh bìa demo tự vẽ** — `SampleBlogSeeder` tự sinh ảnh bìa 1200×675 bằng GD (2 quầng sáng
+      mượt + lưới chấm, đúng ngôn ngữ hình ảnh `.hero`/`.pwa-band`) thay vì tải ảnh ngoài — container
+      không có font tiếng Việt để in chữ lên ảnh và ảnh stock ngoài dễ dính bản quyền.
+- [x] **Section "Tin tức" ở trang chủ** — 6 bài mới nhất đã xuất bản, đặt trước dải CTA cuối trang
+      (`public.partials.news`), nút "Xem tất cả" sang `/tin-tuc`. Ẩn hẳn section khi chưa có bài nào.
+- [x] **Bài liên quan ở trang chi tiết** — đổi từ link chữ trơn sang thẻ `feature-card` + ảnh bìa,
+      đúng kiểu thẻ dùng ở `public.partials.news`/`public.blog.index`. `latest('id')` tie-break
+      giống chỗ khác. 3 test mới (cùng danh mục/loại trừ bài đang xem/loại nháp, giới hạn 3, có ảnh).
+      `SampleBlogSeeder` mở rộng lên 17 bài (4 bài mỗi danh mục, 1 nháp) để mọi bài đều đủ 3 thẻ
+      liên quan khi xem demo — trước đó 2 danh mục chỉ có 2 bài nên phần này bị cụt.
+
+### ✅ Đã làm (27/09, đợt 5) — Rà SEO từng trang một, toàn site
+
+Rà lại TỪNG trang công khai một (không chỉ landing/blog/goi-hoc đã làm trước đó), tìm 2 loại lỗi:
+
+- [x] **6 trang lẽ ra phải `noindex` lại đang bị index mặc định** — dùng `layouts.guest`/`layouts.public`/
+      `layouts.base` (không tự noindex như `layouts.app`) nhưng thực chất là trang sau đăng nhập hoặc
+      trang có token nhạy cảm trên URL:
+      - `dat-lai-mat-khau/{token}` (`reset-password.blade.php`) — **quan trọng nhất**: URL chứa token
+        đặt lại mật khẩu. Google index cache lại URL này là rủi ro thật, không chỉ chuyện SEO.
+      - `dang-nhap/xac-thuc-2-buoc` (`two-factor.blade.php`) — chỉ có ý nghĩa giữa luồng đăng nhập,
+        không có phiên chờ thì tự về `/dang-nhap`, index vô nghĩa.
+      - `xac-thuc-email` (`verify-email.blade.php`) và `tai-khoan/cho-duyet` (`account/pending.blade.php`)
+        — đều yêu cầu `auth`, không phải trang khách vãng lai.
+      - `goi-hoc/{package}/mua` (`packages/checkout.blade.php`) — yêu cầu `auth`+`verified`, nội dung
+        theo từng người ("Mua gói cho [tên con]"), không có giá trị SEO.
+      - `thanh-toan/{payment}/gia-lap` (`payment/simulator.blade.php`) — trang giả lập MoMo chỉ dùng
+        khi dev, `layouts.base` trực tiếp nên không tự noindex như `layouts.app`.
+      `robots.txt` có `Disallow` cho `/thanh-toan`/`/tai-khoan` nhưng đó chỉ chặn CRAWL, không chặn
+      INDEX nếu Google đã biết URL qua nơi khác — phải có `<meta name="robots" content="noindex">`
+      mới chắc chắn.
+- [x] **6 trang công khai hợp lệ nhưng chưa có `meta_description` riêng** (đăng nhập, chọn vai trò
+      đăng ký, đăng ký học sinh/giáo viên/phụ huynh, quên mật khẩu) — trước đó rơi về mô tả chung của
+      cả site ở mọi trang, Google coi là nội dung trùng lặp (duplicate meta description) giữa các trang.
+- Test: `SeoTest` — 6 trang trên phải có `noindex,nofollow`; 6 trang kia phải có `meta_description`
+  khác mô tả mặc định của site và khác nhau giữa các trang.
+
+### ✅ Đã làm (27/09, đợt 6) — Quản lý SEO trong Quản trị (sửa meta_description không cần deploy)
+
+Sau đợt 5, admin hỏi có chỗ nào trong Quản trị để tự sửa các mô tả này không — trước đó toàn bộ
+`meta_description` nằm hard-code trong Blade, sửa gì cũng phải đụng code + deploy.
+
+- [x] Trang mới **Quản trị → SEO** (`admin.seo.index`) liệt kê các trang tĩnh công khai (khai ở
+      `config/seo_pages.php` — danh sách CỐ ĐỊNH tên route, không cho nhập route tự do để tránh
+      gõ sai/ghi đè route không định trước), mỗi dòng ba ô sửa `title`/`meta_description`/`meta_keywords`.
+      Để trống ô nào = quay lại giá trị gốc viết trong Blade (`@section('title'|'meta_description', ...)`),
+      không phải xoá là mất.
+      Danh sách: `home`, `register`, `login`, `register.student`, `register.teacher`,
+      `register.parent`, `password.request`, `packages.index`, `guides.index`, `support.create`,
+      `legal.terms`, `legal.privacy`. KHÔNG gồm `blog.*`/`guides.show` — hai loại đó đã có tiêu đề/mô tả
+      riêng theo từng bài (từ `BlogPost`/`config/guides.php`), thêm override chung vào đây chỉ gây
+      rối hai nguồn sự thật.
+- [x] `SeoPage` (bảng `seo_pages`: `route_name` unique + `title`/`meta_description`/`meta_keywords`
+      nullable) + `SeoPageService` — cache 10 phút như `AnalyticsService` (đọc ở `layouts.base` mỗi lượt
+      render), `forget()` khi lưu. `SeoPageRequest` chỉ admin (`isAdmin()` thẳng trong Form Request,
+      đúng kiểu `BlogCategoryRequest` — không cần Policy riêng vì `Gate::before` đã cho admin qua hết);
+      `route_name` phải nằm trong `config('seo_pages')` (`Rule::in`), không nhận route_name tuỳ ý.
+      `title` giới hạn 70 ký tự (Google cắt tiêu đề dài hơn khoảng này trên kết quả tìm kiếm).
+- [x] `layouts/base.blade.php`: `<title>`/`meta description`/`meta keywords` giờ ưu tiên override DB
+      (theo route hiện tại) → rơi về `@yield('title'|'meta_description', ...)` của từng trang → rơi về
+      giá trị mặc định site; không có `meta_keywords` mặc định nên override rỗng thì bỏ hẳn thẻ, không
+      in ra `content=""`. OG/Twitter dùng lại đúng `$pageTitle`/`$metaDescription` đã tính (không đổi
+      hành vi phần đó).
+- Test: `SeoPageManagementTest` — chỉ admin vào được trang; lưu override đổi đúng cả ba giá trị render
+  ra ở trang tương ứng; để trống ô nào quay lại giá trị gốc trong Blade (kể cả bỏ hẳn thẻ `keywords`
+  khi không có override); `route_name` ngoài danh sách cấu hình bị từ chối (422).
+
+### ✅ Đã làm (27/09, đợt 4) — Nén HTML trả về, bật/tắt qua .env
+
+- [x] `App\Http\Middleware\MinifyHtml` — bỏ khoảng trắng thừa giữa thẻ, bỏ comment HTML thường
+      (giữ comment điều kiện `<!--[if ...]-->`). KHÔNG đụng nội dung trong `<script>`, `<style>`,
+      `<pre>`, `<textarea>` (thay placeholder trước khi nén, trả lại nguyên văn sau) — tránh vỡ
+      JS/CSS/khoảng trắng có ý nghĩa. Chỉ áp dụng response `Content-Type: text/html`, response
+      JSON/XML (sitemap.xml, RSS, API) không bị đụng vào.
+- [x] Bật/tắt qua `MINIFY_HTML` trong `.env` → `config('site.minify_html')`. **Mặc định TẮT** —
+      bật ở local làm "View source" khó đọc lúc debug giao diện. Đăng ký ở `bootstrap/app.php`,
+      chỉ nhóm route `web` (API vốn không trả HTML).
+- **Bẫy phát hiện lúc code**: bước gộp khoảng trắng đầu tiên chỉ bắt khoảng trắng nằm NGAY GIỮA
+  `>` và `<` — placeholder bảo vệ script/pre không phải ký tự `>`/`<` nên xuống dòng đơn lẻ cạnh nó
+  (và cạnh cuối text node trước thẻ đóng, kiểu `chữ\n</span>`) lọt qua, HTML trang chủ thật vẫn còn
+  rải rác `\n`. Bài test tay 5 mẫu tự soạn không bắt được vì mẫu nào cũng đúng kiểu `>   <`; chỉ lộ
+  ra ở test chạy trên trang thật. Sửa: gộp CHUNG mọi khoảng trắng còn sót (kể cả 1 dấu xuống dòng)
+  thành đúng 1 dấu cách — trình duyệt vốn hiển thị mọi chuỗi khoảng trắng trong text thường như 1
+  dấu cách nên không đổi cách hiển thị.
+- Test: response có bật cờ được nén (khoảng trắng giữa thẻ mất, `<script>` giữ nguyên byte-for-byte
+  kể cả khoảng trắng bên trong), tắt cờ thì giữ nguyên, response XML (sitemap) không bị đụng dù bật
+  cờ, và **test trên trang chủ thật** (không phải HTML tự soạn) để bắt đúng bẫy trên.
+
+### ✅ Đã làm (27/09, đợt 3) — SEO cho toàn site
+
+Đã có từ trước: OG/Twitter card, `<link rel="canonical">` (dùng `url()->current()`, tự bỏ query
+string nên không cần xử lý riêng cho trang lọc/phân trang), meta description mọi trang công khai,
+robots.txt, sitemap.xml (+ảnh), sitemap-news.xml, RSS Tin tức. Rà lại toàn site thấy còn thiếu:
+
+- [x] **JSON-LD `EducationalOrganization` + `WebSite`** — sitewide ở `layouts/base.blade.php`, chỉ
+      render trên trang được lập chỉ mục (`@yield('robots')` không chứa `noindex`). `name` lấy
+      `config('site.brand')`, `legalName` lấy `config('site.company')` — hai trường khác nhau thật
+      trong config, không gộp làm một. **Bẫy phát hiện lúc code**: key `"@context"` trùng tên
+      directive `@context` mới của Laravel, Blade nuốt mất thành code PHP dù nằm trong chuỗi —
+      phải escape `@@context` (và `@@graph` cho chắc) mới ra đúng JSON. Có test canh riêng bẫy này.
+- [x] **JSON-LD `Article` + `BreadcrumbList`** ở trang chi tiết Tin tức — headline/ảnh/ngày xuất bản
+      lấy thẳng từ `BlogPost`. Tác giả khai là tổ chức (`Organization`), không khai `Person` vì
+      `BlogPost.author` là tài khoản admin nội bộ, không phải bút danh công khai.
+- [x] **JSON-LD `Product`/`Offer`** ở trang Gói học (`/goi-hoc`) — giá lấy thẳng từ bảng `packages`.
+      Gói Free không có trang checkout riêng (`PackageController` chặn 404) nên `Offer.url` trỏ về
+      chính trang bảng giá thay vì một URL biết trước sẽ lỗi.
+- [x] **Ảnh bìa Tin tức hết `alt=""`** (4 chỗ: trang chủ, danh sách, chi tiết, bài liên quan) — đổi
+      sang dùng tiêu đề bài làm alt, vì đây là ảnh nội dung thật, không phải trang trí.
+- [x] **`lastmod` trong sitemap.xml hết luôn là `now()`** — bài viết dùng `updated_at` thật, trang
+      tĩnh dùng `filemtime()` của file Blade/config tương ứng (`view($name)->getPath()`), bài hướng
+      dẫn dùng chung `filemtime(config_path('guides.php'))`. Không có ngày thật thì bỏ hẳn thẻ
+      `<lastmod>` chứ không đoán.
+- 9 test mới trong `SeoTest` (JSON-LD hợp lệ/đúng trường/vắng mặt ở trang noindex, alt text, lastmod
+  đúng ngày thật — có test riêng phân biệt với `now()` bằng `travel()`). 638 test toàn repo xanh,
+  Pint sạch.
+
+### ✅ Đã làm (27/09) — RSS Tin tức + ảnh trong sitemap
+
+`robots.txt`/`sitemap.xml` đã có sẵn từ trước — thêm 2 việc còn thiếu quanh SEO cho Blog:
+
+- [x] **RSS 2.0 cho Tin tức** — `/tin-tuc/rss.xml` (`BlogController::feed`), 20 bài mới nhất, loại
+      bài nháp. Route đặt TRƯỚC `tin-tuc/{post:slug}` (nếu không Laravel khớp "rss.xml" thành slug
+      bài viết trước). `<link rel="alternate" type="application/rss+xml">` khai ở trang `/tin-tuc`.
+- [x] **Ảnh trong sitemap.xml** — bài có ảnh bìa thêm thẻ `<image:image>` (namespace Google Image
+      Sitemap), giúp Google index ảnh nhanh hơn thay vì tự dò trong HTML. `SitemapController` đổi
+      từ `pluck('slug')` sang lấy nguyên model để gọi `coverUrl()`.
+- 6 test mới trong `SeoTest` (ảnh có/không, RSS đúng thứ tự mới→cũ, loại nháp, link alternate).
+  628 test toàn repo xanh, Pint sạch.
+
+### ✅ Đã làm (27/09, đợt 2) — Google News Sitemap
+
+> **Giới hạn không phải việc code:** dựng đúng sitemap không đồng nghĩa site được Google News nhận.
+> Phải tự đăng ký qua [Google Publisher Center](https://publishercenter.google.com/) và được duyệt thủ
+> công — không có API để làm thay bước này. Nội dung Blog hiện tại (bài giới thiệu + khuyến mãi) thiên
+> marketing hơn tin thời sự, Google News ưu tiên nội dung biên tập/thời sự nên **chưa chắc được duyệt**
+> kể cả khi sitemap đúng chuẩn. Phần dưới chỉ là hạ tầng kỹ thuật, phần đăng ký/duyệt là việc của bạn.
+
+- [x] **`/sitemap-news.xml`** (`SitemapController::news`) — chỉ liệt kê bài đã xuất bản trong
+      **48 giờ gần đây** (đúng yêu cầu bắt buộc của Google News, khác sitemap thường không giới hạn
+      thời gian). Namespace `news` (`sitemap-news/0.9`), mỗi `<url>` có `<news:publication>` (tên lấy
+      từ `config('site.brand')`, ngôn ngữ `vi`), `<news:publication_date>`, `<news:title>`.
+- [x] Thêm dòng `Sitemap: .../sitemap-news.xml` vào `robots.txt`.
+- Test mới trong `SeoTest`: chỉ bài trong 48 giờ, loại bài cũ hơn và bài nháp, đúng namespace/tên.
+
+### ✅ Đã làm (26/09) — sửa lối vào Hỏi đáp cho giáo viên/quản trị
+
+Rà lại tính năng Hỏi đáp (24/09, phiên khác) trước khi làm tiếp — phát hiện 2 lỗi UX,
+tính năng chạy đúng nhưng không dùng được đúng thiết kế:
+
+- [x] **Giáo viên/quản trị không có lối vào** — route `/hoi-dap` dùng chung cho mọi portal (chỉ
+      `auth`, không giới hạn role), nhưng `config/navigation.php` chỉ thêm mục cho `student`.
+      Giáo viên trả lời/kiểm duyệt được (Policy cho phép) nhưng không có menu nào dẫn tới, phải biết
+      URL mới vào được. Thêm mục "Hỏi đáp" vào nav `teacher` và `admin`, trỏ cùng route
+      `student.qa.index` (tên route không đổi, chỉ là URL chung).
+- [x] **Admin thấy nhầm sidebar học sinh** — 3 view Hỏi đáp chọn portal bằng
+      `isTeacher() ? 'teacher' : 'student'`, không tính trường hợp admin → admin vào trang này bị rơi
+      xuống nhánh `student`, hiện sai menu (mất luôn lối quay lại Quản trị). Sửa thành
+      `isAdmin() ? 'admin' : (isTeacher() ? 'teacher' : 'student')`.
+- 2 test mới trong `QaTest` canh cả hai: có mục menu từ dashboard giáo viên/admin, và mỗi vai trò
+  thấy đúng sidebar của mình khi vào `/hoi-dap`.
+
 ### Còn nợ — rà lại 23/09/2026 (lần 2, sau đợt cookie + nhắc gia hạn)
 
 Xếp theo thứ tự nên làm. Roadmap Phase 0–10 và 4 trụ cột ở spec §38 đã xong, nên phần dưới đây
@@ -1077,10 +1300,6 @@ là **toàn bộ** việc còn lại đã biết.
 - [x] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
       Giáo viên đang phải nhờ AI sinh câu rồi tự bốc vào đề. Xem ghi chú cuối Phase 7A.
 - [x] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
-- [ ] **URL mạng xã hội đang là link giả** *(footer đã tự ẩn link giả từ 24/09, vẫn cần URL thật)* — `.env` ở máy dev đang đặt `https://facebook.com/x`,
-      `https://google.com/x`… nên footer hiện đủ 5 biểu tượng nhưng bấm vào là trang không tồn tại.
-      Ở local thì vô hại; **chép nhầm sang production là mất uy tín ngay trang chủ**.
-      Dán URL thật, hoặc xoá dòng nào chưa có trang để biểu tượng đó tự ẩn.
 
 #### E. Vận hành thật — chưa có gì khi sự cố xảy ra
 
@@ -1093,12 +1312,6 @@ là **toàn bộ** việc còn lại đã biết.
       "em không thấy bài" của học sinh. Cần chức năng đăng nhập hộ có audit log và dải cảnh báo rõ
       trong lúc đang mượn tài khoản.
 
-- [ ] **Chốt nhà cung cấp AI + bảng giá** *(trang AI usage đã cảnh báo khi thiếu giá, từ 24/09)* *(~1 giờ)* — `OpenAiProvider` đã gọi chuẩn
-      `/chat/completions` và `OPENAI_BASE_URL` là biến môi trường, nên cắm Gemini/Groq/OpenRouter
-      chỉ cần đổi `.env`, không sửa code. Nhưng `config/ai.php` → `pricing` mới có `gpt-4o-mini`
-      và `gpt-4o`: đổi model mà quên thêm dòng giá thì trang **Quản trị → AI usage** hiện chi phí 0₫,
-      nhìn tưởng miễn phí. Lưu ý bậc miễn phí thường dùng dữ liệu để huấn luyện — không hợp với
-      bài làm của trẻ em khi chạy thật.
 
 - [x] **Hoàn tiền tự động qua MoMo** — xong 24/09 (xem mục Đã làm). *Chưa thử với MoMo sandbox thật — chỉ test bằng Http::fake.*
 - [x] **Số liệu GA ngay trong Quản trị bằng Data API** — xong 24/09. *Chưa thử với GA thật — cần service account + Property ID.*
@@ -1109,7 +1322,10 @@ là **toàn bộ** việc còn lại đã biết.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định
 
-middleware
+URL mạng xã hội thật (footer đã tự ẩn link giả `facebook.com/x`… nên không lộ; dán link thật là việc
+điền `.env`, không phải code — quyết định 26/09: không cần Claude làm) · chốt nhà cung cấp AI + bảng giá
+(hạ tầng đã đổi được qua `.env`, trang AI usage đã cảnh báo thiếu giá; chọn nhà cung cấp là quyết định
+kinh doanh của người vận hành, không phải việc code — quyết định 26/09: không cần Claude làm) · middleware
 `subscription:pro|premium` theo route (khoá ở mức nội dung đúng hơn) · spec §37 bị cắt nội dung nguồn
 nên đang chạy bản mặc định ghi ở Phase 7B.
 

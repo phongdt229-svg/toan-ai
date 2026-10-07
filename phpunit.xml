@@ -29,6 +29,9 @@
         <env name="DB_DATABASE" value="toan_ai_test"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
+        <!-- .env máy dev có thể để MINIFY_HTML=true khi thử tính năng — ép false ở đây để
+             test không phụ thuộc trạng thái .env cục bộ (đã từng làm ClassReportTest fail oan). -->
+        <env name="MINIFY_HTML" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>

@@ -13,3 +13,4 @@ Disallow: /xac-thuc-email
 
 # Chuẩn robots.txt yêu cầu URL tuyệt đối — đổi tên miền thì sửa luôn dòng này.
 Sitemap: https://toanai.vn/sitemap.xml
+Sitemap: https://toanai.vn/sitemap-news.xml

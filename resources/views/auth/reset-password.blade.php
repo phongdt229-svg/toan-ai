@@ -1,6 +1,9 @@
 @extends('layouts.guest')
 
 @section('title', 'Đặt mật khẩu mới — TOÁN AI')
+{{-- URL chứa token đặt lại mật khẩu — Google cache/index lại trang này là rủi ro bảo mật thật,
+     không chỉ chuyện SEO. robots.txt Disallow chỉ chặn crawl, không chắc chặn được index. --}}
+@section('robots', 'noindex,nofollow')
 
 @section('content')
     <div class="card border-0 shadow-sm">

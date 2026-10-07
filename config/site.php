@@ -81,4 +81,9 @@ return [
     // Ngày cập nhật hai trang pháp lý — sửa nội dung thì sửa luôn ngày này.
     'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '24/09/2026'),
 
+    // Nén HTML trả về (App\Http\Middleware\MinifyHtml) — bỏ khoảng trắng thừa, bỏ comment.
+    // Mặc định TẮT: bật ở local/test làm "View source" khó đọc lúc debug UI. Bật ở production
+    // qua .env, không sửa code. Không đụng <script>/<style>/<pre>/<textarea> hay response JSON/XML.
+    'minify_html' => (bool) env('MINIFY_HTML', false),
+
 ];

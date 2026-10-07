@@ -4,7 +4,28 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="@yield('meta_description', 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.')">
+
+    @php
+        // Admin sửa được ở Quản trị → SEO (App\Models\SeoPage) mà không cần đụng code — ưu tiên
+        // override đó, rơi về @section(...) của từng trang, rồi giá trị mặc định của site.
+        $seoRouteName = optional(request()->route())->getName();
+        $seoPages = app(\App\Services\Content\SeoPageService::class);
+
+        $defaultMetaDescription = 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.';
+        $metaDescription = $seoPages->descriptionFor($seoRouteName)
+            ?: trim($__env->yieldContent('meta_description', $defaultMetaDescription))
+            ?: $defaultMetaDescription;
+
+        $pageTitle = $seoPages->titleFor($seoRouteName)
+            ?: trim($__env->yieldContent('title', config('app.name')))
+            ?: config('app.name');
+
+        $metaKeywords = $seoPages->keywordsFor($seoRouteName);
+    @endphp
+    <meta name="description" content="{{ $metaDescription }}">
+    @if ($metaKeywords)
+        <meta name="keywords" content="{{ $metaKeywords }}">
+    @endif
 
     @php
         // Chỉ nạp công cụ đo lường khi người dùng đã bấm "Đồng ý". Chặn ngay từ server:
@@ -24,7 +45,7 @@
         </script>
     @endif
 
-    <title>@yield('title', config('app.name'))</title>
+    <title>{{ $pageTitle }}</title>
 
     {{--
         Thẻ chia sẻ mạng xã hội (Zalo, Facebook, Messenger). Trang nào muốn preview riêng thì
@@ -33,9 +54,8 @@
         Ảnh mặc định: public/og-cover.png (1200×630) — đổi ảnh thì thay đúng file này.
     --}}
     @php
-        $ogTitle = trim($__env->yieldContent('og_title')) ?: trim($__env->yieldContent('title', config('app.name')));
-        $ogDescription = trim($__env->yieldContent('og_description'))
-            ?: trim($__env->yieldContent('meta_description', 'Nền tảng học Toán trực tuyến lớp 1–12 cùng AI Tutor.'));
+        $ogTitle = trim($__env->yieldContent('og_title')) ?: $pageTitle;
+        $ogDescription = trim($__env->yieldContent('og_description')) ?: $metaDescription;
         $ogImage = trim($__env->yieldContent('og_image')) ?: asset('og-cover.png');
     @endphp
 
@@ -74,6 +94,41 @@
     @if (config('site.google_site_verification'))
         <meta name="google-site-verification" content="{{ config('site.google_site_verification') }}">
     @endif
+
+    {{--
+        JSON-LD sitewide (schema.org) — chỉ đặt trên trang được lập chỉ mục (@yield('robots') không
+        chứa "noindex"); đặt cả ở trang sau đăng nhập là vô nghĩa, Google không đọc trang đó.
+        `name` lấy config('site.brand') (tên hiển thị công khai, vd "MATH AI"), `legalName` lấy
+        config('site.company') (tên pháp nhân, vd "TOÁN AI") — hai trường khác nhau thật trong
+        config/site.php, không gộp làm một cho "gọn".
+    --}}
+    @php $robotsMeta = trim($__env->yieldContent('robots', 'index,follow')); @endphp
+    @unless (str_contains($robotsMeta, 'noindex'))
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@@context' => 'https://schema.org',
+                '@graph' => [
+                    array_filter([
+                        '@type' => 'EducationalOrganization',
+                        '@id' => url('/').'#organization',
+                        'name' => config('site.brand'),
+                        'legalName' => config('site.company'),
+                        'url' => url('/'),
+                        'logo' => asset('icons/icon-512.png'),
+                        'email' => config('site.email') ?: null,
+                        'telephone' => config('site.hotline') ?: null,
+                    ]),
+                    [
+                        '@type' => 'WebSite',
+                        '@id' => url('/').'#website',
+                        'name' => config('site.brand'),
+                        'url' => url('/'),
+                        'inLanguage' => 'vi',
+                    ],
+                ],
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+        </script>
+    @endunless
 
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     @stack('head')

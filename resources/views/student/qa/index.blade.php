@@ -1,4 +1,4 @@
-@extends('layouts.app', ['portal' => auth()->user()->isTeacher() ? 'teacher' : 'student'])
+@extends('layouts.app', ['portal' => auth()->user()->isAdmin() ? 'admin' : (auth()->user()->isTeacher() ? 'teacher' : 'student')])
 
 @php use App\Models\QaQuestion; @endphp
 

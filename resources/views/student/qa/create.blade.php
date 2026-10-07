@@ -1,4 +1,4 @@
-@extends('layouts.app', ['portal' => auth()->user()->isTeacher() ? 'teacher' : 'student'])
+@extends('layouts.app', ['portal' => auth()->user()->isAdmin() ? 'admin' : (auth()->user()->isTeacher() ? 'teacher' : 'student')])
 
 @section('title', 'Đặt câu hỏi — TOÁN AI')
 @section('page_title', 'Đặt câu hỏi')
