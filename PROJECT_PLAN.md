@@ -1379,12 +1379,22 @@ Sheet "Task" trong file Excel mô tả một bản khác (MongoDB) — **không*
 - [x] **TA-21** (09/10): `App\Support\Microcopy` — lời chào theo giờ + câu động viên theo sở thích (khớp có dấu để "vệ sinh"
       không bị hiểu là "vẽ"); AI Tutor vốn đã lấy ví dụ theo sở thích.
 
-**Còn lại:**
+- [x] **TA-15 Streak** (09/10): `StreakService` — một ngày tính khi học thực ≥ 10 phút (D-04 **tạm chốt**, đổi ở
+      `MIN_ACTIVE_MINUTES`); hôm nay chưa đủ thì chuỗi vẫn sống tới hết ngày. Dashboard HS (chuỗi, kỷ lục, còn thiếu mấy phút),
+      báo cáo PH, lời nhắc 19:00 "Giữ chuỗi N ngày". Trang chủ được phép nhắc streak (điểm thưởng thì vẫn chưa).
+- [x] Sửa `LandingPageTest` FAQ: trang có 2 khối JSON-LD (khối @graph của layouts/base đứng trước) — test tìm đúng khối FAQPage.
 
-- [ ] **Cần chốt trước:** lớp 6→12 hay 1→12 (D-02) ·
-      cách tính streak (D-04 — chặn TA-15). D-03 đã tạm chốt: dùng chính `OPENAI_MODEL` (gpt-4o-mini đọc được ảnh).
-- [ ] Streak (TA-15, chờ D-04)
-- [ ] Thử VNPAY với sandbox thật (mới test bằng `Http::fake`) — cần `VNPAY_TMN_CODE`/`VNPAY_HASH_SECRET` + khai IPN URL trong trang merchant.
+- [x] **D-02 phạm vi lớp** (09/10): `config/learning.php` (`GRADE_MIN`/`GRADE_MAX`, mặc định 1→12 như đang chạy).
+      `Grade::active()` lọc theo khoảng này nên đăng ký, chọn lớp, trang chủ… cùng theo; chữ "lớp 1 → 12" ở hero / chương trình /
+      FAQ / footer / meta đọc từ `Grade::rangeLabel()`. Chỉ nhận THCS–THPT thì đặt `GRADE_MIN=6` — không xoá nội dung.
+- [x] **D-04 streak** (09/10): ngưỡng chuyển sang `STREAK_MIN_MINUTES` (mặc định 10 phút học thực/ngày).
+- [x] **VNPAY sẵn sàng chạy thật** (09/10): lệnh `php artisan payments:check-vnpay` in URL cần khai + gọi thử API truy vấn
+      (91 = key đúng, 97 = sai hash secret, 02 = sai TMN code), kèm kiểm thứ tự chữ ký phản hồi. Hướng dẫn: [docs/DEPLOY.md §2.1](docs/DEPLOY.md).
+
+**Còn lại** (việc của người vận hành, không phải code):
+
+- [ ] Đăng ký VNPAY sandbox, điền `VNPAY_TMN_CODE`/`VNPAY_HASH_SECRET`, khai IPN URL, chạy `payments:check-vnpay` rồi thử một đơn bằng thẻ test.
+- [ ] Chọn phạm vi lớp kinh doanh thật (`GRADE_MIN`) nếu khác 1→12. D-03: đang dùng chính `OPENAI_MODEL` cho đọc ảnh.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định
 

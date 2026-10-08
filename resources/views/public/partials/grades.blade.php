@@ -5,6 +5,8 @@
         ['THCS', 'Lớp 6 → 9', 'grade-group__dot--mid', $grades->whereBetween('level', [6, 9])],
         ['THPT', 'Lớp 10 → 12', 'grade-group__dot--high', $grades->where('level', '>=', 10)],
     ];
+    // D-02: cấp học nằm ngoài phạm vi nhận học sinh (vd GRADE_MIN=6 → bỏ Tiểu học) thì không hiện.
+    $levels = array_values(array_filter($levels, fn ($l) => $l[3]->isNotEmpty()));
     $target = auth()->check() ? auth()->user()->homeRoute() : route('login');
 @endphp
 
@@ -12,7 +14,7 @@
     <div class="container">
         <div class="text-center mb-4">
             <span class="section__eyebrow"><i class="bi bi-diagram-3"></i>Chương trình</span>
-            <h2 class="section__title mb-2">Chương trình Toán <span class="hl">lớp 1 → 12</span></h2>
+            <h2 class="section__title mb-2">Chương trình Toán <span class="hl">lớp {{ \App\Models\Grade::rangeLabel() }}</span></h2>
             <p class="section__subtitle mx-auto">
                 Mỗi lớp được chia theo chương → chủ đề → bài học, đi từ dễ đến khó.
             </p>
@@ -20,7 +22,7 @@
 
         <div class="row g-3">
             @foreach ($levels as [$name, $range, $dotClass, $items])
-                <div class="col-12 col-lg-4">
+                <div class="col-12 col-lg-{{ 12 / max(1, count($levels)) }}">
                     <div class="grade-group">
                         <div class="grade-group__label">
                             <span class="grade-group__dot {{ $dotClass }}"></span>

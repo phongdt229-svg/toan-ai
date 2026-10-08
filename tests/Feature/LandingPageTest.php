@@ -116,11 +116,10 @@ class LandingPageTest extends TestCase
     {
         $html = $this->get('/')->assertOk()->getContent();
 
-        preg_match('~<script type="application/ld\+json">(.*?)</script>~s', $html, $m);
-        $this->assertNotEmpty($m, 'Thiếu dữ liệu có cấu trúc FAQ cho Google.');
-
-        $data = json_decode($m[1], true);
-        $this->assertSame('FAQPage', $data['@type']);
+        // Trang có nhiều khối JSON-LD (khối @graph chung của site ở layouts/base đứng trước) — tìm đúng khối FAQ.
+        preg_match_all('~<script type="application/ld\+json">(.*?)</script>~s', $html, $m);
+        $data = collect($m[1])->map(fn ($json) => json_decode($json, true))->firstWhere('@type', 'FAQPage');
+        $this->assertNotNull($data, 'Thiếu dữ liệu có cấu trúc FAQ cho Google.');
 
         // Google phạt trang khai một đằng hiện một nẻo — mọi câu khai báo phải có trên màn hình.
         foreach ($data['mainEntity'] as $entry) {

@@ -16,6 +16,9 @@ return [
     */
     'methods' => array_values(array_filter(array_map('trim', explode(',', (string) env('PAYMENT_METHODS', 'momo'))))),
 
+    // Khi PAYMENT_GATEWAY=fake: các cổng liệt kê ở đây vẫn gọi sandbox/production thật ("vnpay").
+    'live' => array_values(array_filter(array_map('trim', explode(',', (string) env('PAYMENT_LIVE_GATEWAYS', ''))))),
+
     // Đơn chờ thanh toán quá thời gian này → huỷ (link thanh toán của cổng cũng tự hết hạn).
     'pending_expire_minutes' => (int) env('PAYMENT_PENDING_EXPIRE_MINUTES', 30),
 

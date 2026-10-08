@@ -21,6 +21,7 @@ class StudyReminder extends Notification implements ShouldQueue
         public readonly ?string $forgettingTopic,
         public readonly ?int $sessionNo,
         public readonly string $url,
+        public readonly int $streak = 0,
     ) {}
 
     /** @return list<string> */
@@ -48,10 +49,22 @@ class StudyReminder extends Notification implements ShouldQueue
 
     private function title(): string
     {
-        return $this->forgettingTopic ? 'Sắp quên bài rồi' : 'Hôm nay em chưa học';
+        return match (true) {
+            $this->forgettingTopic !== null => 'Sắp quên bài rồi',
+            $this->streak >= 2 => "Giữ chuỗi {$this->streak} ngày nhé 🔥",
+            default => 'Hôm nay em chưa học',
+        };
     }
 
     private function line(): string
+    {
+        // Chuỗi đang dài là lý do mạnh nhất để mở app tối nay — nói nó trước.
+        $keep = $this->streak >= 2 ? "Em đang có chuỗi {$this->streak} ngày học liên tiếp — học thêm vài phút để giữ chuỗi. " : '';
+
+        return $keep.$this->body();
+    }
+
+    private function body(): string
     {
         if ($this->forgettingTopic) {
             return "Lâu rồi em chưa ôn «{$this->forgettingTopic}» — dành 10 phút luyện lại kẻo quên nhé.";

@@ -12,6 +12,7 @@ use App\Services\Learning\LearningPathService;
 use App\Services\Learning\MasteryService;
 use App\Services\Learning\ProgressService;
 use App\Services\Learning\RecommendationService;
+use App\Services\Learning\StreakService;
 use App\Services\Learning\StudentReportService;
 use App\Services\Learning\StudyScheduleService;
 use App\Services\Learning\TopicSignalService;
@@ -31,6 +32,7 @@ class DashboardController extends Controller
         private readonly ActivityService $activity,
         private readonly StudyScheduleService $schedules,
         private readonly TopicSignalService $signals,
+        private readonly StreakService $streaks,
     ) {}
 
     public function index(Request $request): View
@@ -50,6 +52,7 @@ class DashboardController extends Controller
         return view('student.dashboard', [
             'user' => $user,
             'activityToday' => $this->activity->today($user),
+            'streak' => $this->streaks->forStudent($user),
             // TA-18: nhắc nhẹ khi em hay xem lời giải thay vì tự làm sau gợi ý.
             'helpNudge' => $this->signals->helpSeeking($user)['nudge'],
             'todaySlot' => $this->schedules->slotOn($user, today()),

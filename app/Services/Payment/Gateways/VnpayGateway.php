@@ -122,24 +122,8 @@ class VnpayGateway implements PaymentGatewayInterface
             return null;
         }
 
-        $body = [
-            'vnp_RequestId' => Str::limit(str_replace('-', '', (string) Str::uuid()), 32, ''),
-            'vnp_Version' => self::VERSION,
-            'vnp_Command' => 'querydr',
-            'vnp_TmnCode' => $config['tmn_code'],
-            'vnp_TxnRef' => $payment->order_code,
-            'vnp_OrderInfo' => 'Truy van '.$payment->order_code,
-            'vnp_TransactionDate' => $this->transactionDate($payment),
-            'vnp_CreateDate' => now(self::TZ)->format('YmdHis'),
-            'vnp_IpAddr' => $this->serverIp(),
-        ];
-        $body['vnp_SecureHash'] = $this->hmac(implode('|', [
-            $body['vnp_RequestId'], $body['vnp_Version'], $body['vnp_Command'], $body['vnp_TmnCode'], $body['vnp_TxnRef'],
-            $body['vnp_TransactionDate'], $body['vnp_CreateDate'], $body['vnp_IpAddr'], $body['vnp_OrderInfo'],
-        ]));
-
         try {
-            $json = (array) Http::timeout($config['timeout'])->acceptJson()->post($config['api_url'], $body)->json();
+            $json = $this->querydr($payment->order_code, $this->transactionDate($payment));
         } catch (ConnectionException) {
             return null;
         }
@@ -157,6 +141,60 @@ class VnpayGateway implements PaymentGatewayInterface
 
         // Phản hồi truy vấn: vnp_ResponseCode là kết quả CỦA LỆNH TRUY VẤN, trạng thái giao dịch nằm ở vnp_TransactionStatus.
         return $this->toNotification($json, ['vnp_ResponseCode' => $json['vnp_TransactionStatus'] ?? '99'] + $json);
+    }
+
+    /**
+     * Kiểm tra cấu hình với VNPAY thật (lệnh `payments:check-vnpay`): truy vấn một mã đơn KHÔNG tồn tại.
+     * VNPAY trả 91 (không tìm thấy giao dịch) nghĩa là mã website + chữ ký đúng; 97 = sai chữ ký (sai hash secret);
+     * 02 = mã website (TMN code) không hợp lệ.
+     *
+     * @return array{ok: bool, code: ?string, message: string, response_signature_valid: ?bool, raw: array<string, mixed>}
+     *
+     * @throws ConnectionException
+     */
+    public function probe(): array
+    {
+        $json = $this->querydr('PROBE'.now()->format('ymdHis').Str::upper(Str::random(4)), now(self::TZ)->format('YmdHis'));
+        $code = isset($json['vnp_ResponseCode']) ? (string) $json['vnp_ResponseCode'] : null;
+
+        return [
+            'ok' => $code === '91',
+            'code' => $code,
+            'message' => match ($code) {
+                '91' => 'Kết nối được, mã website và hash secret đúng (VNPAY báo không tìm thấy đơn thử — đúng như mong đợi).',
+                '97' => 'Sai chữ ký — kiểm tra VNPAY_HASH_SECRET (copy đủ, không thừa khoảng trắng).',
+                '02' => 'Mã website không hợp lệ — kiểm tra VNPAY_TMN_CODE.',
+                null => 'VNPAY không trả mã phản hồi — kiểm tra VNPAY_API_URL.',
+                default => 'VNPAY trả mã '.$code.': '.($json['vnp_Message'] ?? ''),
+            },
+            // Phản hồi có chữ ký thì thử luôn thứ tự trường mình dùng để kiểm chữ ký phản hồi querydr.
+            'response_signature_valid' => isset($json['vnp_SecureHash']) ? $this->verifyApiResponse($json) : null,
+            'raw' => $json,
+        ];
+    }
+
+    /** @return array<string, mixed> @throws ConnectionException */
+    private function querydr(string $txnRef, string $transactionDate): array
+    {
+        $config = $this->credentials();
+
+        $body = [
+            'vnp_RequestId' => Str::limit(str_replace('-', '', (string) Str::uuid()), 32, ''),
+            'vnp_Version' => self::VERSION,
+            'vnp_Command' => 'querydr',
+            'vnp_TmnCode' => $config['tmn_code'],
+            'vnp_TxnRef' => $txnRef,
+            'vnp_OrderInfo' => 'Truy van '.$txnRef,
+            'vnp_TransactionDate' => $transactionDate,
+            'vnp_CreateDate' => now(self::TZ)->format('YmdHis'),
+            'vnp_IpAddr' => $this->serverIp(),
+        ];
+        $body['vnp_SecureHash'] = $this->hmac(implode('|', [
+            $body['vnp_RequestId'], $body['vnp_Version'], $body['vnp_Command'], $body['vnp_TmnCode'], $body['vnp_TxnRef'],
+            $body['vnp_TransactionDate'], $body['vnp_CreateDate'], $body['vnp_IpAddr'], $body['vnp_OrderInfo'],
+        ]));
+
+        return (array) Http::timeout($config['timeout'])->acceptJson()->post($config['api_url'], $body)->json();
     }
 
     public function refund(Payment $payment, string $refundCode, int $amount, string $reason): GatewayRefund

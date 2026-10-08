@@ -6,7 +6,7 @@
         <div class="row align-items-center g-4 g-lg-5">
             <div class="col-12 col-lg-6">
                 <span class="section__eyebrow">
-                    <i class="bi bi-stars"></i>Lớp 1 → Lớp 12 · Bám sát chương trình
+                    <i class="bi bi-stars"></i>Lớp {{ config('learning.grade_min') }} → Lớp {{ config('learning.grade_max') }} · Bám sát chương trình
                 </span>
 
                 <h1 class="hero__title mb-3">
@@ -36,7 +36,7 @@
                 {{-- Chỉ nêu điều đúng với sản phẩm, không bịa số người dùng. --}}
                 <div class="hero__stats">
                     @foreach ([
-                        ['12', 'lớp từ 1 → 12'],
+                        [config('learning.grade_max') - config('learning.grade_min') + 1, 'lớp từ '.\App\Models\Grade::rangeLabel()],
                         ['6', 'dạng câu hỏi'],
                         ['5', 'chế độ AI Tutor'],
                         ['0₫', 'để bắt đầu'],

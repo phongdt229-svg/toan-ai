@@ -10,6 +10,7 @@ use App\Models\StudySession;
 use App\Models\User;
 use App\Notifications\StudyReminder;
 use App\Services\Learning\LearningPathService;
+use App\Services\Learning\StreakService;
 use Illuminate\Console\Command;
 
 /**
@@ -83,6 +84,7 @@ class RemindStudy extends Command
             forgettingTopic: $forgetting?->topic?->name,
             sessionNo: $session?->session_no,
             url: $session ? route('student.path.show') : route('student.dashboard'),
+            streak: app(StreakService::class)->forStudent($student)['current'],
         );
     }
 }

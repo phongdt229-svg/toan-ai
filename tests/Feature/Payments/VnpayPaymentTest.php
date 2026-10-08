@@ -263,6 +263,36 @@ class VnpayPaymentTest extends SubscriptionTestCase
             && $r['vnp_TransactionNo'] === '14512345');
     }
 
+    // --- Lệnh kiểm tra cấu hình --------------------------------------------------------------
+
+    public function test_check_command_confirms_credentials_when_vnpay_says_order_not_found(): void
+    {
+        Http::fake([self::API => Http::response(['vnp_ResponseCode' => '91', 'vnp_Message' => 'Transaction not found'])]);
+
+        $this->artisan('payments:check-vnpay')
+            ->expectsOutputToContain('IPN URL')
+            ->expectsOutputToContain('mã website và hash secret đúng')
+            ->assertSuccessful();
+
+        Http::assertSent(fn (HttpRequest $r) => $r['vnp_Command'] === 'querydr' && str_starts_with($r['vnp_TxnRef'], 'PROBE'));
+    }
+
+    public function test_check_command_flags_a_wrong_secret(): void
+    {
+        Http::fake([self::API => Http::response(['vnp_ResponseCode' => '97', 'vnp_Message' => 'Invalid Checksum'])]);
+
+        $this->artisan('payments:check-vnpay')->expectsOutputToContain('VNPAY_HASH_SECRET')->assertFailed();
+    }
+
+    public function test_check_command_lists_missing_env_without_calling_vnpay(): void
+    {
+        config(['payment.vnpay.hash_secret' => null]);
+        Http::fake();
+
+        $this->artisan('payments:check-vnpay')->expectsOutputToContain('Thiếu: VNPAY_HASH_SECRET')->assertFailed();
+        Http::assertNothingSent();
+    }
+
     // --- Giả lập local ---------------------------------------------------------------------
 
     public function test_fake_vnpay_simulator_runs_the_real_ipn_flow(): void

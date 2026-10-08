@@ -235,6 +235,12 @@
             <div class="card border mb-4" data-testid="activity-week">
                 <div class="card-body">
                     <div class="fw-semibold mb-1"><i class="bi bi-activity text-primary me-1"></i>Thời gian học 7 ngày qua</div>
+                    @if ($streak['current'] > 0 || $streak['best'] > 0)
+                        <p class="small mb-2" data-testid="child-streak">
+                            Chuỗi ngày học: <strong>🔥 {{ $streak['current'] }} ngày</strong>
+                            <span class="text-secondary">(kỷ lục {{ $streak['best'] }} ngày; một ngày tính khi con học thực từ {{ \App\Services\Learning\StreakService::minActiveMinutes() }} phút)</span>
+                        </p>
+                    @endif
                     {{-- TA-18: con đang tự học hay chủ yếu xin lời giải từ AI (14 ngày). --}}
                     @if ($helpSeeking['hints'] + $helpSeeking['explains'] > 0)
                         <p class="small mb-2" data-testid="help-seeking">

@@ -33,9 +33,17 @@ class Grade extends Model
         return $this->hasMany(Subject::class);
     }
 
+    /** Lớp đang mở VÀ nằm trong phạm vi hệ thống nhận học sinh (D-02, config/learning.php). */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', true)
+            ->whereBetween('level', [config('learning.grade_min'), config('learning.grade_max')]);
+    }
+
+    /** "1 → 12" / "6 → 12" — dùng cho chữ trên trang công khai, để không quảng cáo lớp không nhận. */
+    public static function rangeLabel(string $separator = ' → '): string
+    {
+        return config('learning.grade_min').$separator.config('learning.grade_max');
     }
 
     public function scopeOrdered(Builder $query): Builder

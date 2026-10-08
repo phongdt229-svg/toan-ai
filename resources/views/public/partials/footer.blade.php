@@ -4,7 +4,7 @@
             <div class="col-12 col-lg-4">
                 <x-brand variant="light" size="lg" class="mb-3" />
                 <p class="small mb-3">
-                    Nền tảng học Toán trực tuyến lớp 1–12: lý thuyết, luyện tập, đề kiểm tra,
+                    Nền tảng học Toán trực tuyến lớp {{ \App\Models\Grade::rangeLabel('–') }}: lý thuyết, luyện tập, đề kiểm tra,
                     lộ trình cá nhân hoá và AI Tutor giúp học sinh hiểu bài thay vì chép đáp án.
                 </p>
 

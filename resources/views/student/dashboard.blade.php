@@ -117,6 +117,24 @@
         </div>
     @endif
 
+    {{-- TA-15: chuỗi ngày học (một ngày = học thực ≥ 10 phút). Chưa có chuỗi thì mời bắt đầu, không hiện số 0. --}}
+    <div class="d-flex flex-wrap align-items-center gap-2 small mb-3" data-testid="streak">
+        @if ($streak['current'] > 0)
+            <span class="badge text-bg-warning fs-6">🔥 {{ $streak['current'] }} ngày liên tiếp</span>
+            @if ($streak['best'] > $streak['current'])
+                <span class="text-secondary">kỷ lục {{ $streak['best'] }} ngày</span>
+            @endif
+        @else
+            <span class="badge text-bg-light border">🔥 Bắt đầu chuỗi ngày học</span>
+        @endif
+        @if (! $streak['today_done'])
+            <span class="text-secondary">· học thực thêm <strong class="text-body">{{ $streak['minutes_to_keep'] }} phút</strong> hôm nay
+                {{ $streak['current'] > 0 ? 'để giữ chuỗi' : 'để có ngày đầu tiên' }}</span>
+        @else
+            <span class="text-success">· hôm nay đã tính ✓</span>
+        @endif
+    </div>
+
     {{-- Thời gian học thật hôm nay — chỉ tính lúc có tương tác, không phải lúc để tab mở. --}}
     @if ($activityToday && $activityToday->online_seconds >= 60)
         <p class="small text-secondary mb-4" data-testid="activity-today">

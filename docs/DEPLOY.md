@@ -77,6 +77,27 @@ BACKUP_KEEP_DAYS=14
 > Hoàn tiền dùng chung khoá MoMo ở trên (`/v2/gateway/api/refund`) — thử trên sandbox trước khi bấm ở production.
 > Không commit `.env`. Key MoMo/OpenAI chỉ cấu hình trực tiếp trên server.
 
+### 2.1. Bật VNPAY (song song MoMo)
+
+1. Đăng ký tài khoản **sandbox** tại https://sandbox.vnpayment.vn/devreg/ — VNPAY gửi email gồm **mã website (TMN code)** và **hash secret**.
+2. Điền `.env`:
+   ```
+   PAYMENT_METHODS=momo,vnpay          # thứ tự = thứ tự nút ở trang mua
+   VNPAY_TMN_CODE=...
+   VNPAY_HASH_SECRET=...
+   VNPAY_PAY_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+   VNPAY_API_URL=https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+   VNPAY_RETURN_URL="${APP_URL}/payment/vnpay/return"
+   ```
+3. Khai **IPN URL** `https://<domain>/api/v1/payment/vnpay/ipn` trong trang quản trị merchant của VNPAY
+   (VNPAY chỉ gọi URL đã khai ở đó; local cần ngrok vì phải là HTTPS public).
+4. Chạy `php artisan payments:check-vnpay` — lệnh in các URL cần khai và gọi thử API truy vấn với một mã đơn không tồn tại:
+   báo "mã website và hash secret đúng" là xong; 97 = sai hash secret; 02 = sai TMN code. Không tạo giao dịch, không trừ tiền.
+5. Thử một đơn thật trên sandbox bằng thẻ test NCB trong tài liệu VNPAY, xem kết quả ở Quản trị → Giao dịch.
+6. Lên production: đổi `VNPAY_PAY_URL` / `VNPAY_API_URL` sang domain production VNPAY cấp, key production, chạy lại bước 4.
+
+> Trang mua chỉ hiện nút VNPAY khi `vnpay` có trong `PAYMENT_METHODS`. Gỡ ra thì đơn VNPAY cũ vẫn đối soát / hoàn tiền được.
+
 ## 3. Các bước deploy (mỗi lần phát hành)
 
 Dùng sẵn script [deploy/deploy.sh](../deploy/deploy.sh) — nó bật trang bảo trì, làm đủ các bước dưới đây,

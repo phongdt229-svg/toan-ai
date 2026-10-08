@@ -14,7 +14,7 @@
         ],
         [
             'Con tôi học lớp mấy thì dùng được?',
-            'Từ lớp 1 đến lớp 12. Chương trình chia theo chương và chủ đề bám sát chương trình phổ thông, '
+            'Từ lớp '.config('learning.grade_min').' đến lớp '.config('learning.grade_max').'. Chương trình chia theo chương và chủ đề bám sát chương trình phổ thông, '
             .'nên con học tới đâu là mở đúng phần đó.',
         ],
         [

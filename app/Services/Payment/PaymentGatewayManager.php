@@ -33,7 +33,7 @@ class PaymentGatewayManager
     /** @throws PaymentException */
     public function get(string $name): PaymentGatewayInterface
     {
-        $map = $this->usesFake() ? self::FAKE : self::REAL;
+        $map = $this->usesFake($name) ? self::FAKE : self::REAL;
 
         if (! isset($map[$name])) {
             throw new PaymentException('Phương thức thanh toán không hợp lệ.');
@@ -60,9 +60,17 @@ class PaymentGatewayManager
         return $this->enabled()[0];
     }
 
-    /** Giả lập chỉ ở local/testing — production luôn gọi cổng thật dù .env ghi gì. */
-    public function usesFake(): bool
+    /**
+     * Giả lập chỉ ở local/testing — production luôn gọi cổng thật dù .env ghi gì.
+     * Cổng nằm trong `payment.live` thì chạy thật ngay cả khi đang giả lập: thử sandbox VNPAY
+     * mà chưa có key MoMo thì không phải tắt giả lập cho cả hai.
+     */
+    public function usesFake(?string $name = null): bool
     {
+        if ($name !== null && in_array($name, (array) config('payment.live'), true)) {
+            return false;
+        }
+
         return config('payment.gateway') === 'fake' && ! app()->environment('production');
     }
 }

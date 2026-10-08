@@ -90,9 +90,9 @@ Mỗi mục là một Work item; copy tiêu đề + mô tả + tiêu chí nghi�
 
 | State trên Plane | Work item |
 |---|---|
-| **Done** | TA-01 → TA-14, TA-16 → TA-22 (21/22 việc) |
-| **Blocked** — chờ D-04 (cách tính streak) | TA-15 |
-| **Decision** còn mở | D-02, D-04 · D-03 tạm chốt: dùng `OPENAI_MODEL` hiện tại · **D-01 Done** (08/10): lịch tuần, HS tự đặt + PH đã liên kết sửa được |
+| **Done** | TA-01 → TA-22 (22/22 việc) |
+| **Decision — Done** | D-01 lịch tuần (HS tự đặt + PH sửa được) · D-02 phạm vi lớp cấu hình `GRADE_MIN`/`GRADE_MAX` (mặc định 1→12) · D-03 dùng `OPENAI_MODEL` hiện tại · D-04 `STREAK_MIN_MINUTES` = 10 |
+| **Việc vận hành** (không phải code) | Đăng ký VNPAY sandbox → điền key → `php artisan payments:check-vnpay` (xem docs/DEPLOY.md §2.1) |
 
 Ghi chú khi Done: TA-22 mới test bằng `Http::fake`, chưa thử sandbox VNPAY thật. TA-03 dùng ngưỡng "quên" 7 ngày,
 "lỗi gần đây" 14 ngày (hằng số trong `LearningPathService`).

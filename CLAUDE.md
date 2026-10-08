@@ -76,8 +76,9 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Khung chương trình 1–12 ở [database/data/curriculum.php](database/data/curriculum.php), nạp bằng
   `php artisan db:seed --class=CurriculumSkeletonSeeder` (idempotent, **không ghi đè** chương/chủ đề thêm tay).
   Đây là BỘ KHUNG — tên chương mỗi bộ sách một khác, giáo viên sửa ở Quản trị → Chương trình.
-- Trang chủ **chỉ được quảng cáo thứ sản phẩm có thật**. Chưa có streak/điểm thưởng nên hero không được
-  nói tới — `FooterSocialLinksTest` canh chuyện này.
+- Trang chủ **chỉ được quảng cáo thứ sản phẩm có thật**. Chưa có điểm thưởng nên hero không được
+  nói tới — `FooterSocialLinksTest` canh chuyện này. Chuỗi ngày học (streak) đã có từ 09/10: một ngày tính khi
+  học thực ≥ `learning.streak_min_minutes` phút (`STREAK_MIN_MINUTES`, mặc định 10 — D-04).
 - Đổi email: **không đổi thẳng** — địa chỉ mới nằm ở `users.pending_email` cho tới khi người dùng bấm link
   gửi TỚI ĐỊA CHỈ MỚI (`EmailChangeService`). Địa chỉ cũ luôn được báo ngay kèm link huỷ.
   Thư xác nhận phải gửi qua `Notification::route('mail', $newEmail)` — `$user->notify()` sẽ đi về địa chỉ cũ.

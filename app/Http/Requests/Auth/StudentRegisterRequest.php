@@ -22,7 +22,9 @@ class StudentRegisterRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'regex:/^0\d{9}$/'],
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
-            'grade_id' => ['required', 'integer', 'exists:grades,id'],
+            // D-02: chỉ nhận lớp đang mở trong phạm vi config/learning.php — form chỉ liệt kê các lớp đó.
+            'grade_id' => ['required', 'integer', Rule::exists('grades', 'id')->where('is_active', true)
+                ->where(fn ($q) => $q->whereBetween('level', [config('learning.grade_min'), config('learning.grade_max')]))],
 
             // §33 — dữ liệu đầu vào cho AI cá nhân hóa.
             'birth_date' => ['nullable', 'date', 'before:today', 'after:'.now()->subYears(30)->toDateString()],

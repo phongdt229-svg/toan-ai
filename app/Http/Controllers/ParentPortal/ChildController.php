@@ -9,6 +9,7 @@ use App\Services\AccessControlService;
 use App\Services\Learning\ActivityService;
 use App\Services\Learning\AttendanceService;
 use App\Services\Learning\RiskScoreService;
+use App\Services\Learning\StreakService;
 use App\Services\Learning\StudentReportService;
 use App\Services\Learning\StudyScheduleService;
 use App\Services\Learning\TopicSignalService;
@@ -28,6 +29,7 @@ class ChildController extends Controller
         private readonly AttendanceService $attendance,
         private readonly RiskScoreService $risk,
         private readonly TopicSignalService $signals,
+        private readonly StreakService $streaks,
     ) {}
 
     public function linkForm(): View
@@ -92,6 +94,7 @@ class ChildController extends Controller
             'risk' => $risk = $this->risk->forStudent($student),
             'interventions' => $this->risk->interventions($risk),
             'helpSeeking' => $this->signals->helpSeeking($student),
+            'streak' => $this->streaks->forStudent($student),
             // Mục 1–2 của trang giám sát: hôm nay có buổi nào, con đã vào chưa.
             'todaySlot' => $this->schedules->slotOn($student, today()),
             'todayAttendance' => $this->attendance->recent($student, 1)->first(fn ($a) => $a->attendance_date->isToday()),
