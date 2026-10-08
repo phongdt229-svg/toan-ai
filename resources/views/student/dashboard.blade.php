@@ -94,6 +94,29 @@
         @endforeach
     </div>
 
+    {{-- Lịch học (D-01): nhắc giờ hôm nay; chưa đặt lịch thì mời đặt — điểm danh và nhắc học dựa vào lịch này. --}}
+    @if ($todaySlot)
+        <div class="alert alert-light border small d-flex align-items-center gap-2 py-2 mb-3" data-testid="schedule-today">
+            <i class="bi bi-calendar-check text-primary"></i>
+            <span>Lịch hôm nay: <strong>{{ $todaySlot->startLabel() }}</strong> · {{ $todaySlot->duration_minutes }} phút</span>
+            <a href="{{ route('student.schedule.edit') }}" class="ms-auto text-decoration-none">Sửa lịch</a>
+        </div>
+    @elseif (! $hasSchedule)
+        <div class="alert alert-light border small d-flex align-items-center gap-2 py-2 mb-3">
+            <i class="bi bi-calendar-plus text-primary"></i>
+            <span>Em chưa có lịch học. Đặt giờ học cố định mỗi tuần để học đều hơn nhé.</span>
+            <a href="{{ route('student.schedule.edit') }}" class="ms-auto text-decoration-none">Đặt lịch</a>
+        </div>
+    @endif
+
+    {{-- Thời gian học thật hôm nay — chỉ tính lúc có tương tác, không phải lúc để tab mở. --}}
+    @if ($activityToday && $activityToday->online_seconds >= 60)
+        <p class="small text-secondary mb-4" data-testid="activity-today">
+            <i class="bi bi-activity me-1"></i>Hôm nay em học thực <strong class="text-body">{{ $activityToday->activeMinutes() }} phút</strong>
+            / online {{ $activityToday->onlineMinutes() }} phút.
+        </p>
+    @endif
+
     {{-- Gợi ý học hôm nay: buổi học hiện tại của lộ trình, hoặc đề xuất §11 khi chưa có lộ trình --}}
     @if ($currentSession)
         <div class="card border-primary mb-4">

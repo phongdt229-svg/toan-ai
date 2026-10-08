@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ParentPortal\LinkChildRequest;
 use App\Models\User;
 use App\Services\AccessControlService;
+use App\Services\Learning\ActivityService;
 use App\Services\Learning\StudentReportService;
+use App\Services\Learning\StudyScheduleService;
 use App\Services\Parenting\ChildLinkService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +20,8 @@ class ChildController extends Controller
         private readonly ChildLinkService $links,
         private readonly StudentReportService $reports,
         private readonly AccessControlService $access,
+        private readonly ActivityService $activity,
+        private readonly StudyScheduleService $schedules,
     ) {}
 
     public function linkForm(): View
@@ -69,6 +73,9 @@ class ChildController extends Controller
             // §18 Premium: "Báo cáo nâng cao" — theo gói của CON (người được dùng gói).
             'advancedReports' => $this->access->allows($student, 'reports.advanced'),
             'tier' => $this->access->currentTier($student),
+            // Thời gian học thật 7 ngày: phụ huynh thấy "online bao lâu / học thực bao lâu", không chỉ điểm.
+            'activityDays' => $this->activity->lastDays($student, 7),
+            'schedule' => $this->schedules->forStudent($student),
         ]);
     }
 

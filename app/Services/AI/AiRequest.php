@@ -9,6 +9,7 @@ final readonly class AiRequest
      * @param  string  $task  chế độ nghiệp vụ (hint, explain…) — FakeProvider dựa vào đây để trả mẫu phù hợp
      * @param  bool  $json  yêu cầu model trả về JSON hợp lệ
      * @param  array<string, mixed>  $meta  tham số phụ (vd số câu cần sinh) — không gửi lên provider
+     * @param  array<int, string>  $images  ảnh dạng data URI (đã vẽ lại, bỏ EXIF) — đính vào tin nhắn user cuối cùng
      */
     public function __construct(
         public array $messages,
@@ -17,5 +18,6 @@ final readonly class AiRequest
         public float $temperature = 0.4,
         public bool $json = false,
         public array $meta = [],
+        public array $images = [],
     ) {}
 }

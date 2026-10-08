@@ -8,6 +8,7 @@ use App\Models\LearningPath;
 use App\Models\LearningPathItem;
 use App\Models\Lesson;
 use App\Models\Question;
+use App\Models\QuestionAttempt;
 use App\Models\StudentTopicMastery;
 use App\Models\StudySession;
 use App\Models\Topic;
@@ -205,7 +206,74 @@ class LearningPathTest extends PlacementTestCase
         $this->assertSame(StudySession::STATUS_DONE, $session->status);
         $this->assertSame(100, $session->quiz_percent);
         $this->assertSame(1, $path->fresh()->completed_sessions);
-        $this->assertSame(0, $path->items()->where('origin', 'review')->count());
+        // Đạt hết thì không ôn lại chính các chủ đề vừa kiểm tra (mục chống quên / lỗi cũ là chuyện khác — xem test 20/60/20).
+        $quizTopics = Question::whereIn('id', $session->quiz_question_ids)->pluck('topic_id');
+        $this->assertSame(0, $path->items()->where('origin', 'review')->whereIn('learning_path_items.topic_id', $quizTopics)->count());
+    }
+
+    // --- Cấu trúc buổi 20% ôn dễ quên · 60% mới · 20% lỗi gần đây (đặc tả Logic §5) -----------------
+
+    /** Chủ đề thuộc lộ trình nhưng không nằm trong bài kiểm tra cuối buổi đầu tiên. */
+    private function otherPathTopicId(User $student, StudySession $session): int
+    {
+        $quizTopics = Question::whereIn('id', $session->quiz_question_ids)->pluck('topic_id');
+        $id = $this->pathFor($student)->items()->whereNotNull('learning_path_items.topic_id')
+            ->whereNotIn('learning_path_items.topic_id', $quizTopics)->value('learning_path_items.topic_id');
+        $this->assertNotNull($id, 'Dữ liệu mẫu phải có chủ đề ngoài bài kiểm tra.');
+
+        return (int) $id;
+    }
+
+    public function test_good_quiz_still_schedules_review_of_a_topic_not_practiced_for_a_week(): void
+    {
+        $student = $this->makeStudent();
+        $session = $this->sessionAtQuiz($student);
+        $topicId = $this->otherPathTopicId($student, $session);
+
+        StudentTopicMastery::updateOrCreate(['user_id' => $student->id, 'topic_id' => $topicId], [
+            'mastery_score' => 90, 'correct_count' => 9, 'wrong_count' => 1,
+            'last_practiced_at' => now()->subDays(LearningPathService::FORGET_AFTER_DAYS + 3),
+        ]);
+
+        $this->paths()->submitQuiz($session, $this->correctAnswers($session));
+
+        $item = $this->pathFor($student)->items()->where('origin', 'review')->where('learning_path_items.topic_id', $topicId)->first();
+        $this->assertNotNull($item);
+        $this->assertStringStartsWith('Ôn lại kẻo quên', $item->title);
+        $this->assertSame($session->session_no + 1, StudySession::find($item->study_session_id)->session_no);
+    }
+
+    public function test_good_quiz_reinforces_the_most_frequent_recent_mistake(): void
+    {
+        $student = $this->makeStudent();
+        $session = $this->sessionAtQuiz($student);
+        $topicId = $this->otherPathTopicId($student, $session);
+        $questionId = Question::where('topic_id', $topicId)->value('id') ?? Question::value('id');
+
+        foreach (range(1, 6) as $i) {
+            QuestionAttempt::create([
+                'user_id' => $student->id, 'question_id' => $questionId, 'topic_id' => $topicId,
+                'context' => QuestionAttempt::CONTEXT_PRACTICE, 'difficulty' => 'easy',
+                'answer' => ['value' => 'x'], 'is_correct' => false, 'score' => 0,
+            ]);
+        }
+
+        $this->paths()->submitQuiz($session, $this->correctAnswers($session));
+
+        $item = $this->pathFor($student)->items()->where('origin', 'review')->where('learning_path_items.topic_id', $topicId)->first();
+        $this->assertNotNull($item);
+        $this->assertStringStartsWith('Củng cố lỗi sai', $item->title);
+    }
+
+    public function test_spaced_review_never_adds_more_than_two_items_to_a_session(): void
+    {
+        $student = $this->makeStudent();
+        $session = $this->sessionAtQuiz($student);
+
+        $this->paths()->submitQuiz($session, array_slice($this->correctAnswers($session), 0, 3, true));
+
+        $next = $this->pathFor($student)->sessions()->where('session_no', $session->session_no + 1)->first();
+        $this->assertLessThanOrEqual(2, $next->items()->where('origin', 'review')->count());
     }
 
     public function test_failing_quiz_adds_review_to_next_session(): void

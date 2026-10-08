@@ -21,6 +21,7 @@ return [
         ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false],
         ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'bottom' => false],
         ['label' => 'Lộ trình', 'icon' => 'bi-signpost-split', 'route' => 'student.path.show', 'bottom' => false],
+        ['label' => 'Lịch học', 'icon' => 'bi-calendar-week', 'route' => 'student.schedule.edit', 'bottom' => false],
         ['label' => 'Gói của tôi', 'icon' => 'bi-gem', 'route' => 'student.subscription.index', 'bottom' => false],
         ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'student.settings', 'bottom' => false],
     ],

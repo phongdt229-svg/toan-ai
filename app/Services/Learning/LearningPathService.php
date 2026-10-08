@@ -12,6 +12,7 @@ use App\Models\PlacementTest;
 use App\Models\Question;
 use App\Models\QuestionAttempt;
 use App\Models\StudentLessonProgress;
+use App\Models\StudentTopicMastery;
 use App\Models\StudySession;
 use App\Models\Topic;
 use App\Models\User;
@@ -61,6 +62,12 @@ class LearningPathService
             default => self::NEXT_REVIEW_FIRST,
         };
     }
+
+    /** Chủ đề đã vững mà chừng này ngày không luyện → coi là "dễ quên", cần ôn lại (đặc tả Logic §5). */
+    public const FORGET_AFTER_DAYS = 7;
+
+    /** Cửa sổ tìm "lỗi sai gần đây" — xấp xỉ 3–5 buổi học gần nhất. */
+    public const RECENT_MISTAKE_DAYS = 14;
 
     /** 30% của buổi 3 mục ≈ 1 mục ôn; luôn ít nhất 1 để luật có tác dụng. */
     public static function reviewItemsPerSession(): int
@@ -472,6 +479,17 @@ class LearningPathService
                 $reviewTopics = collect();
             }
 
+            // Buổi học bài mới vẫn giữ cấu trúc 20% ôn phần dễ quên · 60% mới · 20% lỗi sai gần đây (đặc tả Logic §5).
+            // Buổi ôn (điểm thấp) thì thôi — đã toàn là ôn rồi.
+            if ($decision !== self::NEXT_REVIEW_FIRST) {
+                $this->fillSpacedReview(
+                    $locked->path,
+                    $student,
+                    exclude: $questions->pluck('topic_id')->filter()->unique()->values(),
+                    needMistakeSlot: $reviewTopics->isEmpty(),
+                );
+            }
+
             $locked->update([
                 'quiz_percent' => $percent,
                 // Tự nộp do hết giờ → thời điểm nộp là lúc hết giờ, không phải lúc cron chạy.
@@ -599,8 +617,55 @@ class LearningPathService
         }
     }
 
+    /**
+     * Thêm vào buổi kế tiếp tối đa hai mục ôn: một chủ đề đã vững nhưng lâu không luyện (chống quên),
+     * và — nếu bài kiểm tra vừa rồi chưa tạo mục ôn nào — một chủ đề sai nhiều nhất gần đây.
+     * Chỉ lấy chủ đề thuộc lộ trình; chủ đề vừa có trong bài kiểm tra thì bỏ qua (vừa luyện xong).
+     *
+     * @param  Collection<int, int>  $exclude
+     */
+    private function fillSpacedReview(LearningPath $path, User $student, Collection $exclude, bool $needMistakeSlot): void
+    {
+        $pathTopics = $path->items()->whereNotNull('topic_id')->pluck('learning_path_items.topic_id')->unique();
+        $pendingReview = $path->items()->where('origin', 'review')->where('learning_path_items.status', 'pending')
+            ->pluck('learning_path_items.topic_id');
+        $skip = $exclude->merge($pendingReview)->unique();
+
+        $forgotten = StudentTopicMastery::query()
+            ->where('user_id', $student->id)
+            ->whereIn('topic_id', $pathTopics)
+            ->whereNotIn('topic_id', $skip)
+            ->where('mastery_score', '>=', StudentTopicMastery::WEAK_THRESHOLD)
+            ->where('last_practiced_at', '<', now()->subDays(self::FORGET_AFTER_DAYS))
+            ->orderBy('last_practiced_at')
+            ->value('topic_id');
+
+        if ($forgotten) {
+            $this->insertReview($path, (int) $forgotten, 'Ôn lại kẻo quên');
+            $skip->push($forgotten);
+        }
+
+        if (! $needMistakeSlot) {
+            return;
+        }
+
+        $mistake = QuestionAttempt::query()
+            ->where('user_id', $student->id)
+            ->where('is_correct', false)
+            ->whereIn('topic_id', $pathTopics)
+            ->whereNotIn('topic_id', $skip)
+            ->where('created_at', '>=', now()->subDays(self::RECENT_MISTAKE_DAYS))
+            ->groupBy('topic_id')
+            ->orderByRaw('COUNT(*) DESC')
+            ->value('topic_id');
+
+        if ($mistake) {
+            $this->insertReview($path, (int) $mistake, 'Củng cố lỗi sai');
+        }
+    }
+
     /** Chèn một mục ôn tập (luyện Dễ) cho chủ đề vào buổi kế tiếp — không chèn trùng khi đã có mục ôn chưa làm. */
-    private function insertReview(LearningPath $path, int $topicId): void
+    private function insertReview(LearningPath $path, int $topicId, string $label = 'Ôn lại'): void
     {
         $exists = $path->items()
             ->where('topic_id', $topicId)
@@ -623,7 +688,7 @@ class LearningPathService
             'topic_id' => $topicId,
             'difficulty' => 'easy',
             'origin' => 'review',
-            'title' => "Ôn lại «{$topic->name}»",
+            'title' => "{$label} «{$topic->name}»",
             'sort_order' => (int) $path->items()->max('learning_path_items.sort_order') + 1,
         ]);
     }

@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Support\ImageLoader;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use RuntimeException;
 
 /**
  * Ảnh đại diện. Không lưu file người dùng gửi lên mà VẼ LẠI thành JPEG vuông 256px:
@@ -58,21 +58,7 @@ class AvatarService
     /** @return \GdImage */
     private function load(UploadedFile $file)
     {
-        $info = @getimagesize($file->getRealPath());
-        $loader = match ($info[2] ?? null) {
-            IMAGETYPE_JPEG => 'imagecreatefromjpeg',
-            IMAGETYPE_PNG => 'imagecreatefrompng',
-            IMAGETYPE_WEBP => 'imagecreatefromwebp',
-            default => null,
-        };
-
-        $image = ($loader && function_exists($loader)) ? @$loader($file->getRealPath()) : false;
-
-        if (! $image) {
-            throw new RuntimeException('Không đọc được ảnh này. Hãy dùng file JPG, PNG hoặc WebP hợp lệ.');
-        }
-
-        return $image;
+        return ImageLoader::fromUpload($file);
     }
 
     /** Cắt vuông giữa ảnh rồi thu về SIZE×SIZE; nền trắng cho ảnh PNG/WebP có nền trong suốt. */

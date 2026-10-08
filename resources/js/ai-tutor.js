@@ -181,6 +181,51 @@ export function initAiTutor() {
         }
     });
 
+    // Chụp đề: gửi ảnh để AI CHÉP lại đề, đổ vào ô nhập cho em đọc lại/sửa rồi tự bấm gửi.
+    const imageInput = form.querySelector('[data-ai-image]');
+    imageInput?.addEventListener('change', async () => {
+        const file = imageInput.files?.[0];
+        imageInput.value = '';
+        if (!file || busy) return;
+
+        textBubble('user', '📷 Ảnh đề bài');
+        const wait = bubble('assistant', '<span class="spinner-grow spinner-grow-sm me-1"></span>Đang đọc đề trong ảnh…', 'text-secondary');
+        busy = true;
+
+        try {
+            const body = new FormData();
+            body.append('image', file);
+            const res = await fetch(`${apiBase}/read-image`, {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': token },
+                body,
+            });
+            const json = await res.json().catch(() => ({}));
+            if (!res.ok || !json.success) {
+                const err = new Error(json.message || (json.errors && Object.values(json.errors)[0]?.[0]) || 'Không đọc được ảnh, thử lại nhé.');
+                err.upgrade = json.upgrade || null;
+                throw err;
+            }
+            updateUsage(json.meta?.usage);
+            wait.remove();
+
+            const note = json.data.confidence === 'high'
+                ? 'Đây là đề AI đọc được. Em kiểm tra lại trong ô nhập rồi bấm gửi nhé.'
+                : 'Ảnh hơi khó đọc — em <strong>sửa lại cho đúng đề</strong> trong ô nhập trước khi gửi nhé.';
+            bubble('assistant', `<div class="mb-1">${json.data.problem_html}</div><div class="small text-secondary">${note}</div>`);
+            input.value = json.data.problem;
+            input.focus();
+        } catch (err) {
+            wait.remove();
+            const upsell = err.upgrade
+                ? `<div class="mt-2"><a class="btn btn-sm btn-warning" href="${encodeURI(err.upgrade.url)}">Xem gói ${escapeText(err.upgrade.name)} · ${escapeText(err.upgrade.price)}</a></div>`
+                : '';
+            bubble('assistant', escapeText(err.message) + upsell, 'border-warning');
+        } finally {
+            busy = false;
+        }
+    });
+
     // Enter gửi, Shift+Enter xuống dòng.
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {

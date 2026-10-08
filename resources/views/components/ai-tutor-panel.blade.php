@@ -33,7 +33,12 @@
         </div>
 
         <form class="border-top p-2 d-flex gap-2 align-items-end" data-ai-form>
-            <textarea class="form-control" rows="2" maxlength="2000" placeholder="Hỏi về bài học…"
+            {{-- Chụp đề: AI chỉ CHÉP đề vào ô này, em sửa chỗ đọc sai rồi mới gửi (đặc tả module 7). --}}
+            <label class="btn btn-outline-secondary mb-0" title="Chụp ảnh đề bài" aria-label="Chụp ảnh đề bài">
+                <i class="bi bi-camera"></i>
+                <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" class="d-none" data-ai-image>
+            </label>
+            <textarea class="form-control" rows="2" maxlength="2000" placeholder="Hỏi về bài học, hoặc bấm 📷 để chụp đề…"
                       aria-label="Câu hỏi cho AI"></textarea>
             <button class="btn btn-primary" type="submit" aria-label="Gửi"><i class="bi bi-send"></i></button>
         </form>

@@ -67,6 +67,7 @@ Route::middleware(['web', 'auth', 'active', 'throttle:ai'])
     ->controller(AiController::class)
     ->group(function () {
         Route::post('chat', 'chat')->name('chat');
+        Route::post('read-image', 'readImage')->name('read-image');
         Route::post('hint', 'hint')->name('hint');
         Route::post('explain', 'explain')->name('explain');
         Route::post('check-answer', 'checkAnswer')->name('check-answer');

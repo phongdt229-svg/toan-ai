@@ -120,6 +120,64 @@
                 </div>
             </div>
 
+            {{-- Lịch học tuần (D-01) — phụ huynh đặt / sửa được cho con. --}}
+            <div class="card border mb-4" data-testid="schedule-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-semibold"><i class="bi bi-calendar-week text-primary me-1"></i>Lịch học</div>
+                        <a href="{{ route('parent.children.schedule.edit', $student) }}" class="small text-decoration-none">
+                            {{ $schedule->isEmpty() ? 'Đặt lịch' : 'Sửa lịch' }}
+                        </a>
+                    </div>
+                    @if ($schedule->isEmpty())
+                        <p class="text-secondary small mb-0">Con chưa có lịch học cố định. Đặt lịch để hệ thống biết con có vào học đúng giờ không.</p>
+                    @else
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach ($schedule as $slot)
+                                <span @class(['badge border', 'text-bg-primary' => $slot->weekday === today()->isoWeekday(), 'text-bg-light' => $slot->weekday !== today()->isoWeekday()])>
+                                    {{ $slot->weekdayLabel() }} · {{ $slot->startLabel() }} · {{ $slot->duration_minutes }}'
+                                </span>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Thời gian học thật (đặc tả "Logic"): online ≠ đang học. Không khoá theo gói — đây là giám sát cơ bản. --}}
+            <div class="card border mb-4" data-testid="activity-week">
+                <div class="card-body">
+                    <div class="fw-semibold mb-1"><i class="bi bi-activity text-primary me-1"></i>Thời gian học 7 ngày qua</div>
+                    <p class="text-secondary small mb-2">"Học thực" chỉ tính lúc con có thao tác trên trang học (đọc, làm bài, hỏi AI) — mở app để đó không được tính.</p>
+                    @if ($activityDays->sum('online') === 0)
+                        <p class="text-secondary small mb-0">Chưa ghi nhận thời gian học nào trong 7 ngày qua.</p>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-sm small align-middle mb-0">
+                                <thead><tr><th>Ngày</th><th class="text-end">Học thực</th><th class="text-end">Online</th><th class="text-end">Mức tập trung</th></tr></thead>
+                                <tbody>
+                                    @foreach ($activityDays->reverse() as $day)
+                                        <tr @class(['text-secondary' => $day['online'] === 0])>
+                                            <td>{{ $day['date']->isToday() ? 'Hôm nay' : $day['date']->format('d/m') }}</td>
+                                            <td class="text-end fw-semibold">{{ $day['active'] }} phút</td>
+                                            <td class="text-end">{{ $day['online'] }} phút</td>
+                                            <td class="text-end">
+                                                @if ($day['focus'])
+                                                    <span class="badge text-bg-{{ ['high' => 'success', 'medium' => 'warning', 'low' => 'danger'][$day['focus']] }}">
+                                                        {{ \App\Services\Learning\ActivityService::focusLabel($day['focus']) }}
+                                                    </span>
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             @if ($advancedReports)
                 {{-- Đề xuất học tập (§11) --}}
                 @if ($r['recommendations']->isNotEmpty())

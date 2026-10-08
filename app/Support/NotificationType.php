@@ -10,6 +10,8 @@ use App\Notifications\PaymentRefunded;
 use App\Notifications\PaymentSucceeded;
 use App\Notifications\QaAnswerAccepted;
 use App\Notifications\QaAnswerPosted;
+use App\Notifications\StudyReminder;
+use App\Notifications\StudyScheduleChanged;
 use App\Notifications\SubscriptionExpiringSoon;
 use App\Notifications\SupportTicketResolved;
 use App\Notifications\TeacherAccountApproved;
@@ -26,6 +28,8 @@ class NotificationType
         ExamResultReady::class => 'Có điểm bài kiểm tra',
         AssignmentSubmittedByStudent::class => 'Học sinh nộp bài giao',
         AssignmentDueSoon::class => 'Bài giao sắp hết hạn',
+        StudyReminder::class => 'Nhắc học hằng ngày & ôn bài sắp quên',
+        StudyScheduleChanged::class => 'Lịch học thay đổi',
         QaAnswerPosted::class => 'Câu hỏi của tôi có trả lời',
         QaAnswerAccepted::class => 'Câu trả lời của tôi được chọn',
         TeacherAccountApproved::class => 'Tài khoản được duyệt',

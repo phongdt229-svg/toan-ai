@@ -11,6 +11,7 @@ class PackageFeature extends Model
     public const KEYS = [
         'ai.daily_requests' => 'Số lượt hỏi AI mỗi ngày (giới hạn)',
         'ai.advanced_modes' => 'AI nâng cao: Phân tích lỗi, Bài tương tự (bật/tắt)',
+        'ai.image_daily' => 'Số lần chụp ảnh đề cho AI đọc mỗi ngày (giới hạn)',
         'practice.daily_questions' => 'Số câu luyện tập mỗi ngày (giới hạn)',
         'reports.advanced' => 'Báo cáo nâng cao cho phụ huynh (bật/tắt)',
     ];
@@ -19,6 +20,7 @@ class PackageFeature extends Model
     public const KEY_TYPES = [
         'ai.daily_requests' => 'limit',
         'ai.advanced_modes' => 'toggle',
+        'ai.image_daily' => 'limit',
         'practice.daily_questions' => 'limit',
         'reports.advanced' => 'toggle',
     ];

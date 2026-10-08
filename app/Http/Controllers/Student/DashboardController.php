@@ -7,11 +7,13 @@ use App\Models\AssignmentStudent;
 use App\Models\Package;
 use App\Models\PlacementTest;
 use App\Models\StudentLessonProgress;
+use App\Services\Learning\ActivityService;
 use App\Services\Learning\LearningPathService;
 use App\Services\Learning\MasteryService;
 use App\Services\Learning\ProgressService;
 use App\Services\Learning\RecommendationService;
 use App\Services\Learning\StudentReportService;
+use App\Services\Learning\StudyScheduleService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -25,6 +27,8 @@ class DashboardController extends Controller
         private readonly StudentReportService $reports,
         private readonly MasteryService $mastery,
         private readonly SubscriptionService $subscriptions,
+        private readonly ActivityService $activity,
+        private readonly StudyScheduleService $schedules,
     ) {}
 
     public function index(Request $request): View
@@ -43,6 +47,9 @@ class DashboardController extends Controller
 
         return view('student.dashboard', [
             'user' => $user,
+            'activityToday' => $this->activity->today($user),
+            'todaySlot' => $this->schedules->slotOn($user, today()),
+            'hasSchedule' => $this->schedules->forStudent($user)->isNotEmpty(),
 
             // Gói đang dùng: học sinh gói Free thấy thẻ mời nâng cấp ngay trên trang chủ.
             'subscription' => $this->subscriptions->effective($user),

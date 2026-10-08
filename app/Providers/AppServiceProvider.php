@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 use App\Services\Admin\MaintenanceModeService;
 use App\Services\AI\Contracts\AiProviderInterface;
 use App\Services\AI\Providers\FakeProvider;
@@ -103,6 +104,7 @@ class AppServiceProvider extends ServiceProvider
         // không mã hoá — nội dung chỉ là HMAC theo mã bỏ qua, không chứa gì nhạy cảm.
         EncryptCookies::except(MaintenanceModeService::BYPASS_COOKIE);
 
+        $this->registerRelationGates();
         $this->registerPermissionGates();
     }
 
@@ -132,5 +134,13 @@ class AppServiceProvider extends ServiceProvider
         foreach ($names as $permission) {
             Gate::define($permission, fn ($user) => $user->hasPermission($permission));
         }
+    }
+
+    /** Gate theo quan hệ (không phải permission trong DB) — đặt TRƯỚC khi đọc bảng permissions để luôn có. */
+    private function registerRelationGates(): void
+    {
+        // Lịch học (D-01): chính học sinh, hoặc phụ huynh ĐÃ liên kết. Giáo viên không đặt lịch ở nhà cho học sinh.
+        Gate::define('manage-study-schedule', fn (User $actor, User $student) => $student->isStudent()
+            && ($actor->is($student) || $actor->isParentOf($student)));
     }
 }

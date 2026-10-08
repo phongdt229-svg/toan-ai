@@ -4,6 +4,7 @@ namespace Tests\Feature\Subscriptions;
 
 use App\Models\AuditLog;
 use App\Models\Package;
+use App\Models\PackageFeature;
 use App\Models\Subscription;
 use Laravel\Sanctum\Sanctum;
 
@@ -148,7 +149,8 @@ class PackagePagesTest extends SubscriptionTestCase
         ])->assertRedirect(route('admin.packages.index'));
 
         $package = Package::where('slug', 'pro-he-2026')->firstOrFail();
-        $this->assertCount(4, $package->features);
+        // Gói mới có sẵn một dòng cho mỗi khoá tính năng hệ thống kiểm tra.
+        $this->assertCount(count(PackageFeature::KEYS), $package->features);
 
         $this->subscribe($this->makeStudent(), 'pro-he-2026');
         $this->actingAs($admin)->delete(route('admin.packages.destroy', $package))->assertSessionHas('error');

@@ -105,6 +105,7 @@ class AccountDeletionService
             // Nhật ký hành vi học (giờ online, rời tab...) là dữ liệu cá nhân, không phục vụ sổ sách nào.
             DB::table('student_activity_logs')->where('user_id', $user->id)->delete();
             DB::table('student_daily_activity')->where('user_id', $user->id)->delete();
+            DB::table('study_schedules')->where('student_id', $user->id)->delete();
 
             // Yêu cầu hỗ trợ giữ lại để đối soát nhưng bỏ tên và email.
             DB::table('support_tickets')->where('user_id', $user->id)->update([

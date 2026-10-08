@@ -1325,16 +1325,37 @@ là **toàn bộ** việc còn lại đã biết.
 Chi tiết + tiêu chí nghiệm thu từng việc: [docs/SPEC_XLSX_PLANE.md](docs/SPEC_XLSX_PLANE.md) (dùng để đưa lên Plane).
 Sheet "Task" trong file Excel mô tả một bản khác (MongoDB) — **không** phản ánh repo này.
 
-- [ ] **Cần chốt trước:** có lịch học theo giờ không (D-01, chặn điểm danh/vắng mặt) · lớp 6→12 hay 1→12 (D-02) ·
-      model vision cho giải bài từ ảnh (D-03) · cách tính streak (D-04)
-- [ ] Lộ trình thích ứng: quiz cuối buổi 15' bấm giờ server (TA-01) · luật ≥8 / 5–8 +30% ôn / <5 (TA-02) ·
-      buổi 20/60/20 (TA-03) · tín hiệu đa chiều (TA-04) · hồ sơ năng lực (TA-05) · thời lượng + mục tiêu (TA-06)
-- [ ] Thời gian học thật & điểm danh: activity log (TA-07) · effective study time (TA-08) · Present/Partial/Absent (TA-09) · flow vắng mặt (TA-10)
-- [ ] Phụ huynh & thông báo: risk score (TA-11) · cảnh báo theo luật (TA-12) · báo bắt đầu/xong buổi + cuối ngày (TA-13) ·
-      nhắc học + sắp quên (TA-14) · streak (TA-15) · trang giám sát 6 mục (TA-16)
-- [ ] AI Solver: giải bài từ ảnh (TA-17) · đo "học hay xin đáp án" (TA-18)
-- [ ] Cá nhân hoá: sửa sở thích/màu/thầy-cô trong hồ sơ (TA-19) · theme theo màu yêu thích (TA-20) · microcopy theo sở thích (TA-21)
-- [ ] Thanh toán: cổng VNPAY (TA-22)
+**Đã làm 07–08/10/2026** (mỗi mục có test riêng):
+
+- [x] TA-01 Kiểm tra cuối buổi **15 phút**, server bấm giờ (`study_sessions.quiz_expires_at`), trình duyệt tự nộp lúc 00:00,
+      nộp trễ quá 30 giây ân hạn → không chấm; bài bỏ dở được `exams:finalize-expired` chốt.
+- [x] TA-02 Luật buổi sau theo điểm quiz: ≥ 8 bài mới · 5–<8 bài mới + ~30% ôn · < 5 **chèn hẳn một buổi ôn** (các buổi sau lùi số).
+- [x] TA-03 Buổi 20/60/20: thêm "Ôn lại kẻo quên" (chủ đề vững nhưng ≥ 7 ngày không luyện) + "Củng cố lỗi sai" (sai nhiều nhất 14 ngày) — tối đa 2 mục ôn/buổi.
+- [x] TA-07/08 Thời gian học thật: heartbeat 30 giây (`activity-tracker.js` → `POST /api/v1/activity`), server cộng theo khoảng cách
+      thật (tối đa 35 giây/nhịp) vào `student_daily_activity`; sự kiện giao diện ở `student_activity_logs`. Đăng nhập hộ không cộng giờ.
+      Dashboard HS "học thực / online hôm nay" · báo cáo PH bảng 7 ngày + mức tập trung. Đã thêm vào `anonymise()` + `DataExportService`.
+- [x] TA-14 Lệnh `students:remind-study` 19:00: nhắc HS đang học mà hôm nay chưa học ≥ 5 phút; có chủ đề sắp quên thì nêu tên chủ đề.
+- [x] TA-17 Chụp ảnh đề: `POST /api/v1/ai/read-image` → vẽ lại JPEG ≤ 1600px (bỏ EXIF) → AI **chỉ chép đề** vào ô chat để HS sửa rồi gửi.
+      Ảnh không lưu. Giới hạn riêng `ai.image_daily` (Free 3 · Pro 20 · Premium 50; migration bổ sung cho gói đang có).
+- [x] TA-19/20 HS sửa thầy/cô, màu yêu thích, sở thích trong Cài đặt; portal HS dùng màu nhấn theo màu yêu thích (tự làm đậm tới tương phản 4.5:1).
+- [x] TA-22 VNPAY chạy song song MoMo: `PaymentGatewayManager`, chọn cổng ở trang mua (`PAYMENT_METHODS=momo,vnpay`), IPN GET
+      `/api/v1/payment/vnpay/ipn` trả `RspCode`, đối soát `querydr`, hoàn tiền `refund`, giả lập local. Đơn nào đi đúng cổng đó.
+
+- [x] **D-01 Lịch học tuần** (08/10): bảng `study_schedules` (mỗi ngày ≤ 1 khung: giờ bắt đầu + 30/45/60/90/120 phút).
+      Học sinh tự đặt (`/hoc-sinh/lich-hoc`), phụ huynh đã liên kết sửa được (`/phu-huynh/con/{id}/lich-hoc`) — Gate
+      `manage-study-schedule`; ai sửa thì bên kia nhận thông báo `StudyScheduleChanged`. Dashboard HS hiện lịch hôm nay,
+      báo cáo PH hiện cả tuần. Đã thêm vào `anonymise()` + `DataExportService`. Buổi trong lộ trình vẫn theo nhịp riêng —
+      lịch chỉ nói KHI NÀO học, là nền cho điểm danh (TA-09) và cảnh báo vắng (TA-10, TA-12).
+
+**Còn lại:**
+
+- [ ] **Cần chốt trước:** lớp 6→12 hay 1→12 (D-02) ·
+      cách tính streak (D-04 — chặn TA-15). D-03 đã tạm chốt: dùng chính `OPENAI_MODEL` (gpt-4o-mini đọc được ảnh).
+- [ ] Lộ trình: tín hiệu đa chiều cho đề xuất (TA-04) · hồ sơ năng lực sau đầu vào (TA-05) · thời lượng + mục tiêu khi tạo lộ trình (TA-06)
+- [ ] Điểm danh Present/Partial/Absent (TA-09) · flow vắng mặt (TA-10) · risk score (TA-11) · cảnh báo PH theo luật (TA-12) ·
+      báo PH bắt đầu/xong buổi + cuối ngày (TA-13) · streak (TA-15) · trang giám sát 6 mục (TA-16)
+- [ ] Đo "học hay xin đáp án" (TA-18) · microcopy/ví dụ theo sở thích (TA-21)
+- [ ] Thử VNPAY với sandbox thật (mới test bằng `Http::fake`) — cần `VNPAY_TMN_CODE`/`VNPAY_HASH_SECRET` + khai IPN URL trong trang merchant.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định
 

@@ -3,6 +3,7 @@
 namespace App\Services\AI;
 
 use App\Models\AiConversation;
+use App\Models\AiUsage;
 use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\User;
@@ -13,6 +14,8 @@ use App\Services\FeatureLockedException;
 use App\Services\Learning\GradingService;
 use App\Services\SubscriptionService;
 use App\Support\AiText;
+use App\Support\ImageLoader;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
 /**
@@ -205,6 +208,78 @@ class TutorService
         ];
     }
 
+    /**
+     * Đọc đề từ ảnh chụp (đặc tả module 7). CHỈ chép lại đề — không giải: học sinh xem lại, sửa chỗ AI đọc sai,
+     * rồi mới gửi vào khung chat như mọi câu hỏi khác (vẫn qua luật gợi mở trước của chế độ chat).
+     * Ảnh không lưu lại ở đâu cả; chỉ giữ chữ AI đọc được trong lịch sử hội thoại.
+     *
+     * @return array{problem: string, problem_html: string, confidence: string}
+     */
+    public function readProblemImage(User $user, UploadedFile $file): array
+    {
+        $this->prepare($user);
+        $this->ensureImageQuota($user);
+
+        try {
+            $jpeg = ImageLoader::toJpeg(ImageLoader::fromUpload($file), (int) config('ai.image_max_side', 1600));
+        } catch (\RuntimeException $e) {
+            throw new AiProviderException($e->getMessage(), 'invalid_image');
+        }
+
+        $response = $this->call($user, 'read_image', [
+            ['role' => 'system', 'content' => $this->prompts->system($user, 'read_image')],
+            ['role' => 'user', 'content' => 'Chép lại đề bài trong ảnh.'],
+        ], json: true, images: ['data:image/jpeg;base64,'.base64_encode($jpeg)]);
+
+        $data = $response->json();
+        $problem = trim(strip_tags((string) ($data['problem'] ?? '')));
+
+        if ($problem === '') {
+            throw new AiProviderException('Không thấy đề Toán nào trong ảnh. Em chụp gần hơn, đủ sáng và thẳng trang giấy nhé.', 'unreadable');
+        }
+
+        $confidence = in_array($data['confidence'] ?? null, ['high', 'medium', 'low'], true) ? $data['confidence'] : 'low';
+
+        $conversation = AiConversation::create([
+            'user_id' => $user->id,
+            'mode' => 'read_image',
+            'context_type' => 'free',
+            'title' => mb_substr($problem, 0, 80),
+        ]);
+        $this->store($conversation, '[Ảnh đề bài]', $response);
+
+        return [
+            'problem' => mb_substr($problem, 0, 2000),
+            'problem_html' => AiText::toHtml($problem),
+            'confidence' => $confidence,
+        ];
+    }
+
+    /** Đọc ảnh tốn token gấp nhiều lần chat chữ → giới hạn riêng theo gói (`ai.image_daily`), ngoài quota chung. */
+    private function ensureImageQuota(User $user): void
+    {
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        $limit = $this->subscriptions->limit($user, 'ai.image_daily');
+        $limit = $limit === false ? (int) config('ai.image_daily_default', 3) : $limit;
+
+        if ($limit === null) {
+            return;
+        }
+
+        $used = (int) AiUsage::where('user_id', $user->id)->whereDate('usage_date', today())
+            ->where('feature', 'read_image')->sum('request_count');
+
+        if ($used >= $limit) {
+            throw new FeatureLockedException(
+                "Hôm nay em đã dùng hết {$limit} lượt chụp ảnh đề. Em gõ đề vào khung chat nhé, hoặc nâng cấp gói để chụp được nhiều hơn.",
+                $this->subscriptions->cheapestPackageAllowing('ai.image_daily'),
+            );
+        }
+    }
+
     // ------------------------------------------------------------------------
 
     private function prepare(User $user, ?Question $question = null, ?string $mode = null): void
@@ -229,17 +304,25 @@ class TutorService
         $this->usage->ensureAllowed($user);
     }
 
-    /** @param  array<int, array{role: string, content: string}>  $messages */
-    private function call(User $user, string $mode, array $messages, bool $json = false): AiResponse
+    /**
+     * @param  array<int, array{role: string, content: string}>  $messages
+     * @param  array<int, string>  $images  data URI
+     */
+    private function call(User $user, string $mode, array $messages, bool $json = false, array $images = []): AiResponse
     {
         try {
             $response = $this->provider->complete(new AiRequest(
                 messages: $messages,
                 task: $mode,
                 maxTokens: config("ai.max_output_tokens.{$mode}", 700),
-                // Gợi ý cần ổn định; bài tương tự cần đa dạng.
-                temperature: $mode === 'similar_exercise' ? 0.8 : 0.3,
+                // Gợi ý cần ổn định; bài tương tự cần đa dạng; chép đề cần chính xác tuyệt đối.
+                temperature: match ($mode) {
+                    'similar_exercise' => 0.8,
+                    'read_image' => 0.0,
+                    default => 0.3,
+                },
                 json: $json,
+                images: $images,
             ));
         } catch (AiProviderException $e) {
             $this->usage->recordFailure($user, $mode);

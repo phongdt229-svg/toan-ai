@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\AiChatRequest;
+use App\Http\Requests\Api\AiImageRequest;
 use App\Http\Requests\Api\AiQuestionRequest;
 use App\Models\AiConversation;
 use App\Models\AssignmentStudent;
@@ -42,6 +43,12 @@ class AiController extends Controller
             $data['context_type'] ?? 'free',
             $data['context_id'] ?? null,
         ));
+    }
+
+    /** Chụp ảnh đề → AI chép lại đề để học sinh sửa rồi gửi vào chat. Không giải ở bước này. */
+    public function readImage(AiImageRequest $request): JsonResponse
+    {
+        return $this->respond($request, fn () => $this->tutor->readProblemImage($request->user(), $request->file('image')));
     }
 
     public function hint(AiQuestionRequest $request): JsonResponse
@@ -161,7 +168,10 @@ class AiController extends Controller
         } catch (AiQuotaExceededException $e) {
             return $this->error($e->getMessage(), 'quota_exceeded', 429);
         } catch (AiProviderException $e) {
-            return $this->error($e->getMessage(), $e->reason, 503);
+            // Ảnh hỏng / không có đề là lỗi của đầu vào, không phải AI sập — 422 để widget bảo chụp lại.
+            $status = in_array($e->reason, ['invalid_image', 'unreadable'], true) ? 422 : 503;
+
+            return $this->error($e->getMessage(), $e->reason, $status);
         }
 
         return response()->json([

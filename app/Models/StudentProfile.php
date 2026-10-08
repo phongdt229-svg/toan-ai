@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\ThemeColor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Support\ThemeColor;
 use Illuminate\Support\Str;
 
 class StudentProfile extends Model

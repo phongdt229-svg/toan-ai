@@ -22,6 +22,11 @@ Schedule::command('assignments:remind-due')
     ->dailyAt('18:00')
     ->withoutOverlapping();
 
+// 19:00 — sau bữa tối, học sinh chưa học hôm nay (hoặc có chủ đề sắp quên) được nhắc một lần.
+Schedule::command('students:remind-study')
+    ->dailyAt('19:00')
+    ->withoutOverlapping();
+
 // 08:00 chu khong gop vao subscriptions:expire luc 00:05 - khong ai muon nhan email gia han luc nua dem.
 Schedule::command('subscriptions:remind-expiring')
     ->dailyAt('08:00')

@@ -31,6 +31,7 @@ use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\ParentPortal\ChildController as ParentChildController;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\ParentPortal\SettingsController as ParentSettingsController;
+use App\Http\Controllers\ParentPortal\StudyScheduleController as ParentStudyScheduleController;
 use App\Http\Controllers\ParentPortal\SubscriptionController as ParentSubscriptionController;
 use App\Http\Controllers\Student\AiTutorController;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
@@ -45,6 +46,7 @@ use App\Http\Controllers\Student\PlacementController;
 use App\Http\Controllers\Student\PracticeController;
 use App\Http\Controllers\Student\QaController;
 use App\Http\Controllers\Student\SettingsController as StudentSettingsController;
+use App\Http\Controllers\Student\StudyScheduleController as StudentStudyScheduleController;
 use App\Http\Controllers\Student\SubscriptionController as StudentSubscriptionController;
 use App\Http\Controllers\Teacher\AiContentController;
 use App\Http\Controllers\Teacher\AssignmentController as TeacherAssignmentController;
@@ -238,6 +240,8 @@ Route::middleware('auth')->group(function () {
             Route::put('cai-dat/ho-so', [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
             Route::put('cai-dat/mat-khau', [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
             Route::put('cai-dat/ca-nhan-hoa', [StudentSettingsController::class, 'updatePersonalization'])->name('settings.personalization');
+            Route::get('lich-hoc', [StudentStudyScheduleController::class, 'edit'])->name('schedule.edit');
+            Route::put('lich-hoc', [StudentStudyScheduleController::class, 'update'])->name('schedule.update');
 
             Route::get('hoc', [LearnController::class, 'index'])->name('learn.index');
             Route::get('hoc/chu-de/{topic}', [LearnController::class, 'topic'])->name('learn.topic');
@@ -422,6 +426,8 @@ Route::middleware('auth')->group(function () {
                 ->name('children.accept');
 
             Route::get('con/{student}', [ParentChildController::class, 'show'])->name('children.show');
+            Route::get('con/{student}/lich-hoc', [ParentStudyScheduleController::class, 'edit'])->name('children.schedule.edit');
+            Route::put('con/{student}/lich-hoc', [ParentStudyScheduleController::class, 'update'])->name('children.schedule.update');
             Route::delete('con/{student}', [ParentChildController::class, 'unlink'])->name('children.unlink');
 
             Route::get('goi-hoc', [ParentSubscriptionController::class, 'index'])->name('subscriptions.index');

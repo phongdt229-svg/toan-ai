@@ -33,7 +33,7 @@ class OpenAiProvider implements AiProviderInterface
 
         $payload = [
             'model' => $this->model,
-            'messages' => $request->messages,
+            'messages' => $this->withImages($request),
             'max_tokens' => $request->maxTokens,
             'temperature' => $request->temperature,
         ];
@@ -85,5 +85,39 @@ class OpenAiProvider implements AiProviderInterface
             tokensOut: (int) $response->json('usage.completion_tokens', 0),
             latencyMs: (int) ((hrtime(true) - $started) / 1_000_000),
         );
+    }
+
+    /**
+     * Ảnh đính vào tin nhắn user cuối cùng theo dạng content parts của Chat Completions.
+     * Không có ảnh thì giữ nguyên messages (chuỗi thường) — request cũ không đổi gì.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function withImages(AiRequest $request): array
+    {
+        $messages = $request->messages;
+
+        if ($request->images === []) {
+            return $messages;
+        }
+
+        $last = null;
+        foreach ($messages as $i => $message) {
+            if ($message['role'] === 'user') {
+                $last = $i;
+            }
+        }
+
+        if ($last === null) {
+            $messages[] = ['role' => 'user', 'content' => ''];
+            $last = array_key_last($messages);
+        }
+
+        $messages[$last]['content'] = [
+            ['type' => 'text', 'text' => (string) $messages[$last]['content']],
+            ...array_map(fn (string $uri) => ['type' => 'image_url', 'image_url' => ['url' => $uri, 'detail' => 'high']], $request->images),
+        ];
+
+        return $messages;
     }
 }

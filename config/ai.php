@@ -53,5 +53,12 @@ return [
         'generate_questions' => 3500,
         'generate_lesson' => 3500,
         'rewrite' => 1200,
+        'read_image' => 600,
     ],
+
+    // Gói chưa khai `ai.image_daily` (DB chưa có gói nào) → giới hạn đọc ảnh mỗi ngày theo số này.
+    'image_daily_default' => (int) env('AI_IMAGE_DAILY_DEFAULT', 3),
+
+    // Ảnh đề gửi lên model: cạnh dài tối đa (px). Đủ đọc chữ viết tay, không tốn token vô ích.
+    'image_max_side' => 1600,
 ];
