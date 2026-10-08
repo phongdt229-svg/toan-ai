@@ -8,6 +8,7 @@ use App\Models\SchoolClass;
 use App\Models\StudentTopicMastery;
 use App\Models\User;
 use App\Services\Learning\MasteryService;
+use App\Services\Learning\RiskScoreService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -38,6 +39,8 @@ class StudentInsightService
 
     /** Điểm TB 3 bài gần nhất cao hơn các bài trước ít nhất chừng này (điểm %) → tiến bộ. */
     public const IMPROVING_DELTA = 10;
+
+    public function __construct(private readonly RiskScoreService $risk) {}
 
     /**
      * @return Collection<int, array{
@@ -82,7 +85,10 @@ class StudentInsightService
             ->groupBy(0)
             ->map(fn ($rows) => $rows->pluck(1)->all());
 
-        return $students->map(function (User $student) use ($records, $weakCounts, $classNames) {
+        // Rủi ro bỏ học (TA-11) tính theo lô cho cả danh sách — không truy vấn từng em.
+        $risks = $this->risk->forStudents($studentIds);
+
+        return $students->map(function (User $student) use ($records, $weakCounts, $classNames, $risks) {
             $rows = $records->get($student->id, collect());
 
             $metrics = [
@@ -94,6 +100,7 @@ class StudentInsightService
                 'avg_percent' => $this->averagePercent($rows),
                 'trend' => $this->trend($rows),
                 'weak_topics' => (int) ($weakCounts[$student->id] ?? 0),
+                'risk' => $risks->get($student->id),
             ];
 
             $metrics['flags'] = $this->flags($metrics);
@@ -153,7 +160,8 @@ class StudentInsightService
 
         if ($lowScore
             || $m['overdue'] >= self::OVERDUE_FOR_SUPPORT
-            || $m['weak_topics'] >= self::WEAK_TOPICS_FOR_SUPPORT) {
+            || $m['weak_topics'] >= self::WEAK_TOPICS_FOR_SUPPORT
+            || ($m['risk']['level'] ?? null) === 'red') {
             $flags[] = 'needs_support';
         }
 

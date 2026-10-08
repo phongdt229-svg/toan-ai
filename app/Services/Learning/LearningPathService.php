@@ -13,9 +13,13 @@ use App\Models\Question;
 use App\Models\QuestionAttempt;
 use App\Models\StudentLessonProgress;
 use App\Models\StudentTopicMastery;
+use App\Models\StudySchedule;
 use App\Models\StudySession;
 use App\Models\Topic;
 use App\Models\User;
+use App\Services\FeatureLockedException;
+use App\Services\SubscriptionService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -66,6 +70,9 @@ class LearningPathService
     /** Chủ đề đã vững mà chừng này ngày không luyện → coi là "dễ quên", cần ôn lại (đặc tả Logic §5). */
     public const FORGET_AFTER_DAYS = 7;
 
+    /** "Điểm cần ôn" (TopicSignalService) từ mức này mới đáng chiếm một chỗ trong buổi học. */
+    public const REVIEW_NEED_MIN = 30;
+
     /** Cửa sổ tìm "lỗi sai gần đây" — xấp xỉ 3–5 buổi học gần nhất. */
     public const RECENT_MISTAKE_DAYS = 14;
 
@@ -78,7 +85,79 @@ class LearningPathService
     public function __construct(
         private readonly MasteryService $mastery,
         private readonly GradingService $grading,
+        private readonly SubscriptionService $subscriptions,
+        private readonly TopicSignalService $signals,
     ) {}
+
+    // --- Thời lượng & mục tiêu (TA-06) ------------------------------------------------------
+
+    /**
+     * Cỡ buổi theo thời lượng em ngồi học trong lịch tuần: buổi ngắn thì ít mục hơn — xếp 3 mục vào 30 phút
+     * là buổi nào cũng dở dang, mà buổi dở dang bị tính "học chưa đủ". Chưa có lịch thì dùng mặc định.
+     */
+    public function itemsPerSessionFor(User $student): int
+    {
+        $minutes = StudySchedule::where('student_id', $student->id)->avg('duration_minutes');
+
+        return match (true) {
+            $minutes === null => self::ITEMS_PER_SESSION,
+            $minutes < 45 => 2,
+            $minutes < 90 => 3,
+            default => 4,
+        };
+    }
+
+    /** Ngày dự kiến xong lộ trình theo số buổi/tuần trong lịch; null = chưa có lịch hoặc đã xong. */
+    public function estimatedFinish(LearningPath $path): ?Carbon
+    {
+        $perWeek = StudySchedule::where('student_id', $path->user_id)->count();
+        $remaining = $path->remainingSessions();
+
+        if ($perWeek === 0 || $remaining <= 0) {
+            return null;
+        }
+
+        return today()->addDays((int) ceil($remaining / $perWeek * 7));
+    }
+
+    // --- Giới hạn buổi theo gói (Free học thử) ---------------------------------------------
+
+    /** Số buổi lộ trình gói hiện tại cho học xong; null = không giới hạn (gói trả phí, hoặc DB chưa có gói nào). */
+    public function sessionLimit(User $student): ?int
+    {
+        $limit = $this->subscriptions->limit($student, 'path.sessions');
+
+        return $limit === false ? null : $limit;
+    }
+
+    /** Số buổi đã học xong — đếm trên TÀI KHOẢN, không theo từng lộ trình: làm lại đầu vào không mở thêm buổi thử. */
+    public function sessionsCompleted(User $student): int
+    {
+        return StudySession::where('user_id', $student->id)->where('status', StudySession::STATUS_DONE)->count();
+    }
+
+    /** Buổi chưa xong mà đã học hết số buổi gói cho phép → khoá, mời nâng cấp. */
+    public function isSessionLocked(StudySession $session, User $student): bool
+    {
+        if ($session->isDone() || ($limit = $this->sessionLimit($student)) === null) {
+            return false;
+        }
+
+        return $this->sessionsCompleted($student) >= $limit;
+    }
+
+    /** @throws FeatureLockedException */
+    private function ensureSessionUnlocked(StudySession $session, User $student): void
+    {
+        if ($this->isSessionLocked($session, $student)) {
+            $limit = $this->sessionLimit($student);
+
+            throw new FeatureLockedException(
+                "Em đã học xong {$limit} buổi học thử. Mua gói để học tiếp lộ trình của em nhé — kết quả và lộ trình vẫn được giữ nguyên.",
+                $this->subscriptions->cheapestPackageAllowing('path.sessions'),
+            );
+        }
+    }
 
     public function active(User $student): ?LearningPath
     {
@@ -112,7 +191,7 @@ class LearningPathService
                 'grade_id' => $gradeId,
                 'placement_test_id' => $test?->id,
                 'status' => LearningPath::STATUS_ACTIVE,
-                'items_per_session' => self::ITEMS_PER_SESSION,
+                'items_per_session' => $perSession = $this->itemsPerSessionFor($student),
                 'generated_at' => now(),
             ]);
 
@@ -149,7 +228,7 @@ class LearningPathService
                 }
             }
 
-            foreach ($pending->chunk(self::ITEMS_PER_SESSION)->values() as $i => $chunk) {
+            foreach ($pending->chunk($perSession)->values() as $i => $chunk) {
                 $session = StudySession::create([
                     'user_id' => $student->id,
                     'learning_path_id' => $path->id,
@@ -370,6 +449,8 @@ class LearningPathService
             throw new PlacementException('Buổi học này chưa tới phần kiểm tra cuối buổi.');
         }
 
+        $this->ensureSessionUnlocked($session, $session->loadMissing('path.user')->path->user);
+
         if (! $session->quiz_question_ids) {
             $topicIds = $session->items()->whereNotNull('topic_id')->pluck('topic_id')->unique();
 
@@ -431,6 +512,12 @@ class LearningPathService
             }
 
             $student = $locked->path->user;
+
+            // Đề đã phát trước khi hết lượt thử (vd hai tab) cũng không được nộp để mở buổi tiếp.
+            // Lệnh tự chốt bài quá giờ ($auto) thì vẫn chốt — không để bài treo mãi.
+            if (! $auto) {
+                $this->ensureSessionUnlocked($locked, $student);
+            }
             $questions = Question::whereIn('id', $locked->quiz_question_ids)->with('options', 'topic')->get();
             $graded = $this->grading->gradeMany($questions, $answers);
 
@@ -649,7 +736,13 @@ class LearningPathService
             return;
         }
 
-        $mistake = QuestionAttempt::query()
+        // TA-04: chọn theo "điểm cần ôn" nhiều tín hiệu (sai, sai lặp, xin gợi ý, chậm, chập chờn) thay vì chỉ đếm câu sai.
+        $mistake = $this->signals->forStudent($student)
+            ->filter(fn ($s) => $pathTopics->contains($s['topic_id']) && ! $skip->contains($s['topic_id']) && $s['need'] >= self::REVIEW_NEED_MIN)
+            ->first()['topic_id'] ?? null;
+
+        // Chưa đủ lượt làm để chấm tín hiệu (< 3 lượt/chủ đề) → quay về đếm câu sai gần đây.
+        $mistake ??= QuestionAttempt::query()
             ->where('user_id', $student->id)
             ->where('is_correct', false)
             ->whereIn('topic_id', $pathTopics)

@@ -88,6 +88,10 @@ class PlacementController extends Controller
             'test' => $test,
             'analysisHtml' => $test->analysis ? AiText::toHtml($test->analysis) : null,
             'answers' => $test->answers->keyBy('placement_test_question_id'),
+            // TA-05: năng lực theo từng chủ đề + đối chiếu điểm TB tự khai (chỉ là tín hiệu phụ).
+            'topicScores' => $test->topicScores(),
+            'selfGap' => $test->selfReportGap($request->user()->studentProfile?->math_average_score !== null
+                ? (float) $request->user()->studentProfile->math_average_score : null),
         ]);
     }
 

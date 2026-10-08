@@ -22,6 +22,16 @@ Schedule::command('assignments:remind-due')
     ->dailyAt('18:00')
     ->withoutOverlapping();
 
+// Điểm danh theo lịch học: mỗi phút, vì "quá 15 phút chưa vào" phải báo phụ huynh khi còn kịp nhắc con.
+Schedule::command('attendance:tick')
+    ->everyMinute()
+    ->withoutOverlapping();
+
+// 21:30 — sau buổi học tối; chỉ phụ huynh đã bật trong Cài đặt (mặc định tắt).
+Schedule::command('reports:daily-parents')
+    ->dailyAt('21:30')
+    ->withoutOverlapping();
+
 // 19:00 — sau bữa tối, học sinh chưa học hôm nay (hoặc có chủ đề sắp quên) được nhắc một lần.
 Schedule::command('students:remind-study')
     ->dailyAt('19:00')

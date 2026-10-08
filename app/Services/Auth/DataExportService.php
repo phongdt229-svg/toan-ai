@@ -67,6 +67,7 @@ class DataExportService
                 'daily_activity' => $mine('student_daily_activity'),
                 'activity_logs' => $mine('student_activity_logs'),
                 'study_schedule' => $mine('study_schedules', 'student_id', ['updated_by']),
+                'attendance' => $mine('student_attendances', 'student_id', ['baseline_active_seconds']),
             ],
             'ai' => [
                 'conversations' => $mine('ai_conversations'),

@@ -12,11 +12,11 @@ use App\Models\StudentProfile;
 use App\Models\User;
 use App\Services\Content\BlogService;
 use Database\Seeders\GradeSeeder;
-use Database\Seeders\PackageSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
+use Tests\Support\TestPackageSeeder;
 use Tests\TestCase;
 
 /** Thẻ chia sẻ mạng xã hội + sitemap (§ bổ sung sau roadmap). */
@@ -184,7 +184,7 @@ class SeoTest extends TestCase
 
     public function test_packages_page_has_product_offer_structured_data_with_real_prices(): void
     {
-        $this->seed(PackageSeeder::class);
+        $this->seed(TestPackageSeeder::class);
         $package = Package::where('slug', 'pro-thang')->firstOrFail();
 
         $html = $this->get(route('packages.index'))->assertOk()->getContent();

@@ -31,6 +31,7 @@ class AccountService
             'tutor_persona' => $data['tutor_persona'],
             'favorite_color' => $data['favorite_color'] ?? null,
             'interests' => StudentProfile::parseInterests($data['interests'] ?? null),
+            'target_score' => $data['target_score'] ?? null,
         ]);
 
         return $profile;

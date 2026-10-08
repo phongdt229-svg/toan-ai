@@ -1347,14 +1347,43 @@ Sheet "Task" trong file Excel mô tả một bản khác (MongoDB) — **không*
       báo cáo PH hiện cả tuần. Đã thêm vào `anonymise()` + `DataExportService`. Buổi trong lộ trình vẫn theo nhịp riêng —
       lịch chỉ nói KHI NÀO học, là nền cho điểm danh (TA-09) và cảnh báo vắng (TA-10, TA-12).
 
+- [x] **Bảng giá mới** (08/10): Free **học thử 3 buổi lộ trình** · Pro 12 tháng **699.000₫** · Premium 12 tháng **1.200.000₫**.
+      Khoá mới `path.sessions` (Free = 3, gói trả phí không giới hạn) — `LearningPathService::isSessionLocked()`: học xong 3 buổi
+      (đếm trên tài khoản, làm lại đầu vào không mở thêm) thì buổi kế hiện thẻ "cần gói học", mở đề / nộp đề bị chặn.
+      Migration `2026_10_08_000300` đổi DB đang chạy: giá 2 gói năm, **ngừng bán** gói tháng (không xoá — đã có đơn), thêm `path.sessions`.
+      Test dùng bộ gói cố định `tests/Support/TestPackageSeeder.php` — đổi giá bán không làm vỡ test thanh toán.
+
+- [x] **TA-09/10 Điểm danh + xử lý vắng** (09/10): `attendance:tick` mỗi phút (`AttendanceService`). Tới giờ lịch → mở buổi,
+      chụp giờ + mốc học thực; quá 10' chưa vào → trễ; quá 15' → "chưa vào học" + báo PH; hết khung → chốt
+      Present (học thực ≥ 70% + đã nộp kiểm tra cuối buổi, hoặc chưa có lộ trình) / Partial / Absent (< 2 phút).
+      Vắng → báo PH kèm số buổi vắng liên tiếp + buổi kế tiếp để học bù; vắng ≥ 2 buổi liền thì gửi thêm email.
+- [x] **TA-12 Cảnh báo PH theo luật** (09/10): vào học mà 10' không thao tác → đánh dấu "nguy cơ bỏ buổi" (không báo);
+      đủ giờ nhưng bỏ kiểm tra → báo; điểm kiểm tra giảm 3 buổi liền → báo. Một loại thông báo `ChildAttendanceAlert`, tắt được trong Cài đặt.
+- [x] **TA-11 Learning Risk Score** (09/10): `RiskScoreService` đúng công thức đặc tả (0.30 vắng · 0.20 dở dang · 0.20 tập trung thấp ·
+      0.15 điểm giảm · 0.15 được nhắc mà không học), 7 ngày, xanh ≤ 30 · vàng ≤ 60 · đỏ. Tính theo lô cho cả lớp.
+      PH thấy màu + "Vì sao?"; GV thấy cột Rủi ro, học sinh đỏ tự vào bộ lọc "Cần hỗ trợ".
+- [x] **TA-16 Trang giám sát PH đủ 6 mục** (09/10): lịch hôm nay + con đã vào chưa · trạng thái điểm danh · thời gian học thật ·
+      kết quả buổi · cảnh báo (rủi ro, vắng liên tiếp) · **gợi ý can thiệp** suy từ thành phần rủi ro.
+      Local muốn thấy điểm danh chạy thật phải bật `php artisan schedule:work`.
+
+- [x] **TA-13** (09/10): PH tự bật "báo khi con bắt đầu / học xong buổi" và "báo cáo cuối ngày" (21:30, `reports:daily-parents`,
+      gom mọi con vào một thư) — cả hai **mặc định tắt**. Vắng / chưa vào học vẫn luôn được báo.
+- [x] **TA-04 + TA-18** (09/10): `TopicSignalService` — mỗi chủ đề có "điểm cần ôn" 0–100 từ tỉ lệ sai, sai lặp, xin gợi ý,
+      xem lời giải, làm chậm, chập chờn (trừ điểm khi tự sửa đúng) kèm lý do bằng chữ. Đề xuất (§11) xếp theo đó và thêm
+      "Củng cố" cho chủ đề chưa tụt mastery nhưng tín hiệu xấu; mục "Củng cố lỗi sai" của lộ trình chọn theo đó.
+      `helpSeeking()`: tự học tốt / hay xin lời giải → nhắc nhẹ trên dashboard HS, tóm tắt cho PH.
+- [x] **TA-05** (09/10): năng lực theo từng chủ đề của bài đầu vào (trang kết quả + báo cáo PH), đối chiếu điểm TB tự khai —
+      lệch ≥ 3 điểm thì nói rõ, bài thấp hơn hẳn thì mời làm lại.
+- [x] **TA-06** (09/10): cỡ buổi theo thời lượng trong lịch (< 45' → 2 mục · < 90' → 3 · còn lại 4), ngày dự kiến xong lộ trình
+      theo số buổi/tuần, điểm mục tiêu (`student_profiles.target_score`) đặt trong Cài đặt.
+- [x] **TA-21** (09/10): `App\Support\Microcopy` — lời chào theo giờ + câu động viên theo sở thích (khớp có dấu để "vệ sinh"
+      không bị hiểu là "vẽ"); AI Tutor vốn đã lấy ví dụ theo sở thích.
+
 **Còn lại:**
 
 - [ ] **Cần chốt trước:** lớp 6→12 hay 1→12 (D-02) ·
       cách tính streak (D-04 — chặn TA-15). D-03 đã tạm chốt: dùng chính `OPENAI_MODEL` (gpt-4o-mini đọc được ảnh).
-- [ ] Lộ trình: tín hiệu đa chiều cho đề xuất (TA-04) · hồ sơ năng lực sau đầu vào (TA-05) · thời lượng + mục tiêu khi tạo lộ trình (TA-06)
-- [ ] Điểm danh Present/Partial/Absent (TA-09) · flow vắng mặt (TA-10) · risk score (TA-11) · cảnh báo PH theo luật (TA-12) ·
-      báo PH bắt đầu/xong buổi + cuối ngày (TA-13) · streak (TA-15) · trang giám sát 6 mục (TA-16)
-- [ ] Đo "học hay xin đáp án" (TA-18) · microcopy/ví dụ theo sở thích (TA-21)
+- [ ] Streak (TA-15, chờ D-04)
 - [ ] Thử VNPAY với sandbox thật (mới test bằng `Http::fake`) — cần `VNPAY_TMN_CODE`/`VNPAY_HASH_SECRET` + khai IPN URL trong trang merchant.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định

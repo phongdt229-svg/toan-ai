@@ -21,6 +21,7 @@
                     <th class="text-center">Quá hạn</th>
                     <th class="text-end">Điểm TB</th>
                     <th class="text-end d-none d-md-table-cell">Xu hướng</th>
+                    <th class="text-center" title="Nguy cơ bỏ học / lệch tiến độ 7 ngày qua (vắng, học dở, tập trung, điểm, bỏ qua lời nhắc)">Rủi ro</th>
                     <th>Ghi chú</th>
                     @if ($removeFrom ?? null)<th></th>@endif
                 </tr>
@@ -50,6 +51,13 @@
                                 <span class="text-danger"><i class="bi bi-arrow-down-short"></i>{{ abs($row['trend']) }}</span>
                             @else
                                 <span class="text-secondary">0</span>
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            @if ($row['risk'] ?? null)
+                                <span class="badge text-bg-{{ $row['risk']['color'] }}" title="{{ $row['risk']['label'] }}">{{ $row['risk']['score'] }}</span>
+                            @else
+                                <span class="text-secondary">—</span>
                             @endif
                         </td>
                         <td>

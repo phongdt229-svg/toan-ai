@@ -23,7 +23,7 @@ class StudentProfile extends Model
 
     protected $fillable = [
         'user_id', 'grade_id', 'birth_date', 'address', 'school',
-        'self_assessed_level', 'math_average_score', 'tutor_persona',
+        'self_assessed_level', 'math_average_score', 'target_score', 'tutor_persona',
         'favorite_color', 'interests', 'link_code',
     ];
 
@@ -32,6 +32,7 @@ class StudentProfile extends Model
         return [
             'birth_date' => 'date',
             'math_average_score' => 'decimal:2',
+            'target_score' => 'decimal:2',
             'interests' => 'array',
         ];
     }

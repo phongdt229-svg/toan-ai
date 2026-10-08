@@ -52,6 +52,40 @@
         </div>
     </div>
 
+
+    {{-- TA-05: năng lực theo từng chủ đề — không chỉ một nhãn TB/Khá/Giỏi. --}}
+    @if ($topicScores->isNotEmpty())
+        <div class="card border mb-4" data-testid="topic-scores">
+            <div class="card-body">
+                <h2 class="h6 fw-bold mb-2"><i class="bi bi-bar-chart-steps text-primary me-1"></i>Năng lực theo chủ đề</h2>
+                @foreach ($topicScores as $t)
+                    <div class="small d-flex justify-content-between">
+                        <span>{{ $t['name'] }}</span>
+                        <span class="text-secondary">{{ $t['correct'] }}/{{ $t['total'] }} câu · <strong class="text-body">{{ $t['percent'] }}%</strong></span>
+                    </div>
+                    <div class="progress mb-2" style="height:6px" role="progressbar" aria-valuenow="{{ $t['percent'] }}" aria-valuemin="0" aria-valuemax="100">
+                        <div @class(['progress-bar', 'bg-danger' => $t['percent'] < 50, 'bg-warning' => $t['percent'] >= 50 && $t['percent'] < 80, 'bg-success' => $t['percent'] >= 80])
+                             style="width:{{ max(3, $t['percent']) }}%"></div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    {{-- Điểm TB tự khai chỉ là tín hiệu phụ: lệch nhiều thì nói ra, bài thấp hơn hẳn thì mời làm lại. --}}
+    @if ($selfGap)
+        <div class="alert {{ $selfGap['suggest_retake'] ? 'alert-warning' : 'alert-success' }} small mb-4" data-testid="self-gap">
+            @if ($selfGap['suggest_retake'])
+                Em khai điểm Toán trên lớp là <strong>{{ \App\Support\Score::format($selfGap['self']) }}</strong> nhưng bài này được
+                <strong>{{ \App\Support\Score::format($selfGap['test']) }}</strong>. Có thể hôm nay em chưa ở phong độ tốt —
+                lộ trình vẫn xếp theo bài này cho chắc gốc, và em có thể làm lại bài đầu vào khi sẵn sàng.
+            @else
+                Bài này em được <strong>{{ \App\Support\Score::format($selfGap['test']) }}</strong>, cao hơn hẳn điểm em tự khai
+                ({{ \App\Support\Score::format($selfGap['self']) }}) — em giỏi hơn em nghĩ đấy!
+            @endif
+        </div>
+    @endif
+
     @if ($analysisHtml)
         <div class="card border mb-4">
             <div class="card-body d-flex gap-3">

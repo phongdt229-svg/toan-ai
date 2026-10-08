@@ -9,13 +9,13 @@ use App\Models\StudentProfile;
 use App\Models\User;
 use App\Notifications\VerifyEmailLink;
 use Database\Seeders\GradeSeeder;
-use Database\Seeders\PackageSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
+use Tests\Support\TestPackageSeeder;
 use Tests\TestCase;
 
 class EmailVerificationTest extends TestCase
@@ -143,7 +143,7 @@ class EmailVerificationTest extends TestCase
 
     public function test_buying_a_package_requires_a_verified_email(): void
     {
-        $this->seed(PackageSeeder::class);
+        $this->seed(TestPackageSeeder::class);
         $package = Package::where('slug', 'pro-thang')->firstOrFail();
         $user = $this->unverifiedStudent();
 

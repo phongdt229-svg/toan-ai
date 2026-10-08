@@ -90,8 +90,7 @@ Mỗi mục là một Work item; copy tiêu đề + mô tả + tiêu chí nghi�
 
 | State trên Plane | Work item |
 |---|---|
-| **Done** | TA-01, TA-02, TA-03, TA-07, TA-08, TA-14, TA-17, TA-19, TA-20, TA-22 |
-| **Todo** (làm được ngay) | TA-04, TA-05, TA-06, TA-09, TA-10, TA-11, TA-12, TA-13, TA-16, TA-18, TA-21 |
+| **Done** | TA-01 → TA-14, TA-16 → TA-22 (21/22 việc) |
 | **Blocked** — chờ D-04 (cách tính streak) | TA-15 |
 | **Decision** còn mở | D-02, D-04 · D-03 tạm chốt: dùng `OPENAI_MODEL` hiện tại · **D-01 Done** (08/10): lịch tuần, HS tự đặt + PH đã liên kết sửa được |
 

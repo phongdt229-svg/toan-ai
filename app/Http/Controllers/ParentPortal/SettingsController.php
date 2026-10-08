@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ParentPortal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ParentPortal\UpdateParentSettingsRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Services\AccountService;
@@ -25,10 +26,13 @@ class SettingsController extends Controller
         ]);
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(UpdateParentSettingsRequest $request): RedirectResponse
     {
+        // Công tắc bỏ chọn thì không gửi lên → boolean() trả false, đúng ý "tắt".
         $this->links->ensureProfile($request->user())->update([
             'weekly_report_enabled' => $request->boolean('weekly_report_enabled'),
+            'session_events_enabled' => $request->boolean('session_events_enabled'),
+            'daily_report_enabled' => $request->boolean('daily_report_enabled'),
         ]);
 
         return back()->with('status', 'Đã lưu cài đặt.');

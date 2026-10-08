@@ -27,6 +27,39 @@
         </div>
     </div>
 
+    {{-- Learning Risk Score (TA-11): xanh / vàng / đỏ — phụ huynh nhìn là hiểu, bấm xem vì sao. --}}
+    @if ($risk)
+        <div @class(['alert py-2 small mb-3 d-flex flex-wrap align-items-center gap-2',
+                     'alert-success' => $risk['level'] === 'green',
+                     'alert-warning' => $risk['level'] === 'yellow',
+                     'alert-danger' => $risk['level'] === 'red']) data-testid="risk-score">
+            <strong><i class="bi bi-activity me-1"></i>{{ $risk['label'] }}</strong>
+            <span>· chỉ số rủi ro {{ $risk['score'] }}/100 (7 ngày qua)</span>
+            <a class="ms-auto small" data-bs-toggle="collapse" href="#risk-detail" role="button" aria-expanded="false">Vì sao?</a>
+            <div class="collapse w-100" id="risk-detail">
+                <ul class="mb-0 mt-1 ps-3">
+                    @foreach (\App\Services\Learning\RiskScoreService::COMPONENT_LABELS as $key => $label)
+                        <li>{{ $label }}: <strong>{{ (int) round($risk['components'][$key] * 100) }}%</strong></li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
+    {{-- Gợi ý can thiệp (TA-16 mục 6): việc phụ huynh nên làm, suy từ các thành phần rủi ro. --}}
+    @if ($interventions)
+        <div class="card border-warning mb-3" data-testid="interventions">
+            <div class="card-body py-2">
+                <div class="fw-semibold small mb-1"><i class="bi bi-lightbulb text-warning me-1"></i>Phụ huynh có thể làm gì</div>
+                <ul class="small mb-0 ps-3">
+                    @foreach ($interventions as $tip)
+                        <li>{{ $tip }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
     {{-- §14: Tiến độ · Điểm trung bình · Thời gian học · Bài hoàn thành --}}
     <div class="row g-3 mb-4">
         @foreach ([
@@ -112,7 +145,19 @@
                         @if ($r['path']->placementTest)
                             <div class="small text-secondary mt-2">
                                 Kiểm tra đầu vào: {{ \App\Support\Score::format($r['path']->placementTest->score) }}/10 · {{ $r['path']->placementTest->levelLabel() }}
+                                @if ($r['path']->placementTest->avg_seconds_per_question)
+                                    · {{ $r['path']->placementTest->avg_seconds_per_question }} giây/câu
+                                @endif
                             </div>
+                            @if ($placementTopics->isNotEmpty())
+                                <div class="d-flex flex-wrap gap-1 mt-2" data-testid="placement-topics">
+                                    @foreach ($placementTopics as $t)
+                                        <span @class(['badge', 'text-bg-danger' => $t['percent'] < 50, 'text-bg-warning' => $t['percent'] >= 50 && $t['percent'] < 80, 'text-bg-success' => $t['percent'] >= 80])>
+                                            {{ $t['name'] }} · {{ $t['percent'] }}%
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
                         @endif
                     @else
                         <p class="text-secondary small mb-0">Con chưa làm kiểm tra đầu vào nên chưa có lộ trình riêng.</p>
@@ -129,6 +174,20 @@
                             {{ $schedule->isEmpty() ? 'Đặt lịch' : 'Sửa lịch' }}
                         </a>
                     </div>
+                    {{-- TA-16 mục 1–2: lịch hôm nay + con đã vào học chưa. --}}
+                    @if ($todaySlot)
+                        <p class="small mb-2" data-testid="today-status">
+                            Hôm nay: <strong>{{ $todaySlot->startLabel() }}</strong> · {{ $todaySlot->duration_minutes }} phút —
+                            @if ($todayAttendance)
+                                <span class="badge text-bg-{{ $todayAttendance->color() }}">{{ $todayAttendance->label() }}</span>
+                                @if ($todayAttendance->idle_flagged_at && ! $todayAttendance->isFinal())
+                                    <span class="badge text-bg-warning">Có nguy cơ bỏ buổi</span>
+                                @endif
+                            @else
+                                <span class="text-secondary">chưa tới giờ</span>
+                            @endif
+                        </p>
+                    @endif
                     @if ($schedule->isEmpty())
                         <p class="text-secondary small mb-0">Con chưa có lịch học cố định. Đặt lịch để hệ thống biết con có vào học đúng giờ không.</p>
                     @else
@@ -140,6 +199,35 @@
                             @endforeach
                         </div>
                     @endif
+
+                    {{-- Điểm danh theo lịch (TA-09): chấm từ thời gian học thật, không phải chỉ "có đăng nhập". --}}
+                    @if ($absentStreak >= \App\Notifications\ChildAttendanceAlert::HIGH_ALERT_STREAK)
+                        <div class="alert alert-danger small py-2 mt-3 mb-0" data-testid="absent-streak">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Con đã vắng <strong>{{ $absentStreak }} buổi liên tiếp</strong>.
+                            Phụ huynh nên trò chuyện với con, hoặc đổi khung giờ cho phù hợp hơn.
+                        </div>
+                    @endif
+                    @if ($attendance->isNotEmpty())
+                        <div class="table-responsive mt-3" data-testid="attendance-list">
+                            <table class="table table-sm small align-middle mb-0">
+                                <thead><tr><th>Buổi</th><th>Điểm danh</th><th class="text-end">Học thực</th></tr></thead>
+                                <tbody>
+                                    @foreach ($attendance as $a)
+                                        <tr>
+                                            <td>{{ $a->scheduled_start->format('d/m H:i') }}</td>
+                                            <td>
+                                                <span class="badge text-bg-{{ $a->color() }}">{{ $a->label() }}</span>
+                                                @if ($a->late_minutes)
+                                                    <span class="text-secondary">· vào trễ {{ $a->late_minutes }}'</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-end">{{ $a->activeMinutes() }}/{{ $a->scheduled_minutes }} phút</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -147,6 +235,15 @@
             <div class="card border mb-4" data-testid="activity-week">
                 <div class="card-body">
                     <div class="fw-semibold mb-1"><i class="bi bi-activity text-primary me-1"></i>Thời gian học 7 ngày qua</div>
+                    {{-- TA-18: con đang tự học hay chủ yếu xin lời giải từ AI (14 ngày). --}}
+                    @if ($helpSeeking['hints'] + $helpSeeking['explains'] > 0)
+                        <p class="small mb-2" data-testid="help-seeking">
+                            Thói quen nhờ AI: <strong>{{ $helpSeeking['label'] }}</strong>
+                            <span class="text-secondary">— {{ $helpSeeking['hints'] }} lần xin gợi ý
+                                (tự làm đúng sau gợi ý {{ $helpSeeking['self_solved_after_hint'] }} lần),
+                                {{ $helpSeeking['explains'] }} lần xem lời giải trong 14 ngày.</span>
+                        </p>
+                    @endif
                     <p class="text-secondary small mb-2">"Học thực" chỉ tính lúc con có thao tác trên trang học (đọc, làm bài, hỏi AI) — mở app để đó không được tính.</p>
                     @if ($activityDays->sum('online') === 0)
                         <p class="text-secondary small mb-0">Chưa ghi nhận thời gian học nào trong 7 ngày qua.</p>

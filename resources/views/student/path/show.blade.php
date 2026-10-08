@@ -40,9 +40,31 @@
         <div class="progress-bar" style="width:{{ $path->progress_percent }}%"></div>
     </div>
 
+    {{-- TA-06: mục tiêu + ngày dự kiến xong theo lịch học tuần. --}}
+    @if ($estimatedFinish || $targetScore !== null)
+        <p class="small text-secondary mb-4" data-testid="path-goal">
+            @if ($estimatedFinish)
+                <i class="bi bi-flag me-1"></i>Học đều theo lịch, em xong lộ trình khoảng <strong class="text-body">{{ $estimatedFinish->format('d/m/Y') }}</strong>.
+            @endif
+            @if ($targetScore !== null)
+                <i class="bi bi-bullseye ms-1 me-1"></i>Mục tiêu: <strong class="text-body">{{ \App\Support\Score::format((float) $targetScore) }}</strong>
+                @if ($path->placementTest)
+                    (đầu vào {{ \App\Support\Score::format((float) $path->placementTest->score) }})
+                @endif
+            @endif
+        </p>
+    @elseif ($path->status !== 'completed')
+        <p class="small text-secondary mb-4">
+            <a href="{{ route('student.schedule.edit') }}">Đặt lịch học</a> để biết khi nào xong lộ trình, và
+            <a href="{{ route('student.settings') }}">đặt mục tiêu điểm</a> trong Cài đặt.
+        </p>
+    @endif
+
     {{-- Buổi học hiện tại --}}
     @if ($path->status === 'completed')
         <div class="alert alert-success"><i class="bi bi-trophy me-1"></i>Em đã hoàn thành toàn bộ lộ trình. Tuyệt vời!</div>
+    @elseif ($current && $currentLocked)
+        @include('student.path.partials.locked', ['session' => $current, 'limit' => $sessionLimit])
     @elseif ($current)
         <div class="card border-primary mb-4">
             <div class="card-body">

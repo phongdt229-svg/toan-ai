@@ -5,7 +5,9 @@
 
 @section('content')
     <div class="mb-4">
-        <h2 class="h5 fw-bold mb-1">Chào {{ $user->name }} 👋</h2>
+        <h2 class="h5 fw-bold mb-1">{{ \App\Support\Microcopy::greeting() }}, {{ $user->name }} 👋</h2>
+        {{-- TA-21: câu động viên theo sở thích của em (hoặc theo thầy/cô nếu chưa khai sở thích). --}}
+        <p class="small mb-1" data-testid="encouragement">{{ \App\Support\Microcopy::encouragement($user->studentProfile) }}</p>
         <p class="text-secondary small mb-0">
             @if ($grade)
                 Bạn đang học chương trình {{ $grade->name }}.
@@ -109,6 +111,12 @@
         </div>
     @endif
 
+    @if ($helpNudge)
+        <div class="alert alert-info small py-2 mb-3" data-testid="help-nudge">
+            <i class="bi bi-lightbulb me-1"></i>{{ $helpNudge }}
+        </div>
+    @endif
+
     {{-- Thời gian học thật hôm nay — chỉ tính lúc có tương tác, không phải lúc để tab mở. --}}
     @if ($activityToday && $activityToday->online_seconds >= 60)
         <p class="small text-secondary mb-4" data-testid="activity-today">
@@ -118,7 +126,9 @@
     @endif
 
     {{-- Gợi ý học hôm nay: buổi học hiện tại của lộ trình, hoặc đề xuất §11 khi chưa có lộ trình --}}
-    @if ($currentSession)
+    @if ($currentSession && $currentLocked)
+        @include('student.path.partials.locked', ['session' => $currentSession, 'limit' => $sessionLimit])
+    @elseif ($currentSession)
         <div class="card border-primary mb-4">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-1">

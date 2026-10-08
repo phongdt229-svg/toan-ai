@@ -73,18 +73,24 @@ class SampleReportsSeeder extends Seeder
         }
 
         $service = app(SubscriptionService::class);
-        $packages = Package::whereIn('slug', ['pro-thang', 'premium-thang'])->get()->keyBy('slug');
+        // Gói đang bán thật (theo bảng giá hiện hành), không gọi tên gói cứng — đổi bảng giá không làm vỡ seeder.
+        $packages = Package::active()->where('price', '>', 0)->get()->keyBy('slug');
         $slugs = array_keys($packages->all());
         $orderSeq = 1;
+
+        if ($slugs === []) {
+            return;
+        }
 
         foreach ($students as $index => $student) {
             if ($index % 4 === 3) {
                 continue;
             }
 
-            // Gói tháng gia hạn nhiều lần trong 6 tháng là bình thường — không phải bịa cho đủ số.
-            foreach (range(0, mt_rand(3, 6) - 1) as $cycle) {
-                $package = $packages[$slugs[mt_rand(0, count($slugs) - 1)]];
+            $package = $packages[$slugs[mt_rand(0, count($slugs) - 1)]];
+
+            // Gói tháng gia hạn vài lần trong 6 tháng; gói năm thì mua một lần.
+            foreach (range(0, ($package->duration_days ?? 30) >= 365 ? 0 : mt_rand(3, 6) - 1) as $cycle) {
                 $paidAt = now()->subDays(mt_rand(1, 180))->setTime(mt_rand(8, 21), mt_rand(0, 59));
 
                 $subscription = $service->createPending($student, $package);

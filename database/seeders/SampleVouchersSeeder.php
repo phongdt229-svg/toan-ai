@@ -120,7 +120,7 @@ class SampleVouchersSeeder extends Seeder
             ['code' => 'BANBE20', 'description' => 'Rủ bạn — giảm 10%', 'type' => 'percent', 'value' => 10, 'max_discount' => 30000,
                 'starts_at' => now()->subDays(45), 'ends_at' => null, 'max_uses' => 50],
             ['code' => 'PREMIUM15', 'description' => 'Ưu đãi gói Premium — giảm 15%', 'type' => 'percent', 'value' => 15,
-                'starts_at' => now()->subDays(30), 'ends_at' => now()->addDays(15), 'max_uses' => null, 'only' => ['premium-thang', 'premium-nam']],
+                'starts_at' => now()->subDays(30), 'ends_at' => now()->addDays(15), 'max_uses' => null, 'only' => ['premium-nam']],
             ['code' => 'TET2026', 'description' => 'Tết 2026 — đã hết hạn', 'type' => 'percent', 'value' => 25, 'max_discount' => 100000,
                 'starts_at' => now()->subDays(240), 'ends_at' => now()->subDays(200), 'max_uses' => 30],
             ['code' => 'THUBAY', 'description' => 'Tạm tắt', 'type' => 'fixed', 'value' => 20000,

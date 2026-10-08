@@ -30,6 +30,11 @@ class RecommendationService
 
     private const TTL_DAYS = 7;
 
+    /** Chủ đề chưa "yếu" theo mastery nhưng tín hiệu xấu (sai lặp, chập chờn, xin gợi ý nhiều) từ mức này → vẫn gợi ý củng cố. */
+    private const SIGNAL_NEED_FOR_PRACTICE = 40;
+
+    public function __construct(private readonly TopicSignalService $signals) {}
+
     /** @return Collection<int, Recommendation> */
     public function current(User $student, int $limit = 5): Collection
     {
@@ -61,11 +66,14 @@ class RecommendationService
         $items = collect();
         $priority = 1000;
 
-        // 1. Phát hiện điểm yếu.
+        // TA-04: tín hiệu nhiều chiều trong 14 ngày — xếp thứ tự ưu tiên và nói rõ lý do.
+        $signals = $this->signals->forStudent($student);
+
+        // 1. Phát hiện điểm yếu — mastery thấp, ưu tiên thêm chủ đề có "điểm cần ôn" cao.
         $weak = $mastery
             ->filter(fn ($m) => $m->mastery_score < StudentTopicMastery::WEAK_THRESHOLD
                 && ($m->correct_count + $m->wrong_count) >= MasteryService::MIN_ATTEMPTS_FOR_CONFIDENCE)
-            ->sortBy('mastery_score')
+            ->sortBy(fn ($m) => $m->mastery_score - 0.5 * ($signals->get($m->topic_id)['need'] ?? 0))
             ->take(self::MAX_WEAK_TOPICS);
 
         foreach ($weak as $m) {
@@ -87,8 +95,20 @@ class RecommendationService
             // 4–5. Đề xuất bài tập, bắt đầu từ độ khó vừa sức.
             $difficulty = $m->mastery_score < 40 ? 'easy' : 'medium';
             $items->push($this->make($student, Recommendation::TYPE_PRACTICE_TOPIC, $m->topic, 'topic', $m->topic_id, $difficulty, $priority--,
-                'Luyện thêm «'.$m->topic->name.'» mức '.($difficulty === 'easy' ? 'Dễ' : 'Trung bình').' cho chắc tay.'));
+                'Luyện thêm «'.$m->topic->name.'» mức '.($difficulty === 'easy' ? 'Dễ' : 'Trung bình').' cho chắc tay'
+                .$this->because($signals->get($m->topic_id)).'.'));
         }
+
+        // 1b. Mastery chưa tụt nhưng tín hiệu xấu (sai lặp lại, lúc đúng lúc sai, xin gợi ý nhiều) → củng cố sớm,
+        // trước khi thành lỗ hổng. Đây là phần "không chỉ nhìn điểm" của đặc tả Logic §5.
+        $signals
+            ->filter(fn ($s) => $s['need'] >= self::SIGNAL_NEED_FOR_PRACTICE && ! $weak->has($s['topic_id']) && $mastery->has($s['topic_id']))
+            ->take(2)
+            ->each(function ($s) use ($student, $items, $mastery, &$priority) {
+                $topic = $mastery->get($s['topic_id'])->topic;
+                $items->push($this->make($student, Recommendation::TYPE_PRACTICE_TOPIC, $topic, 'topic', $topic->id, 'easy', $priority--,
+                    "Củng cố «{$topic->name}»{$this->because($s)}."));
+            });
 
         // 5. Tăng dần độ khó: chủ đề đã khá (60–74%) → thử mức Khó.
         $mastery
@@ -123,6 +143,14 @@ class RecommendationService
             $items->unique(fn ($r) => $r['type'].':'.$r['target_type'].':'.$r['target_id'].':'.$r['difficulty'])
                 ->each(fn ($r) => Recommendation::create($r));
         });
+    }
+
+    /** " vì em xin gợi ý 4 lần, 2 câu sai lặp lại" — lý do ngắn gọn từ tín hiệu, rỗng nếu không có. */
+    private function because(?array $signal): string
+    {
+        $reasons = array_slice($signal['reasons'] ?? [], 0, 2);
+
+        return $reasons ? ' — vì em '.implode(', ', $reasons) : '';
     }
 
     /** Đường dẫn để bấm vào một đề xuất. */

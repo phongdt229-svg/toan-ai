@@ -22,6 +22,7 @@ class UpdatePersonalizationRequest extends FormRequest
             // Chỉ nhận #rrggbb: giá trị này được in vào <style> của layout, không cho chuỗi tự do.
             'favorite_color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'interests' => ['nullable', 'string', 'max:255'],
+            'target_score' => ['nullable', 'numeric', 'min:0', 'max:10'],
         ];
     }
 
@@ -32,6 +33,7 @@ class UpdatePersonalizationRequest extends FormRequest
             'tutor_persona' => 'giáo viên AI',
             'favorite_color' => 'màu yêu thích',
             'interests' => 'sở thích',
+            'target_score' => 'điểm mục tiêu',
         ];
     }
 }

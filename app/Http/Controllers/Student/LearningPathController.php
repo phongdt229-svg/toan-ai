@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\SubmitQuizRequest;
 use App\Models\StudySession;
+use App\Services\FeatureLockedException;
 use App\Services\Learning\LearningPathService;
 use App\Services\Learning\PlacementException;
 use Illuminate\Http\RedirectResponse;
@@ -27,9 +28,15 @@ class LearningPathController extends Controller
 
         $path->load('stages.items.topic', 'placementTest', 'sessions');
 
+        $current = $this->paths->currentSession($path);
+
         return view('student.path.show', [
             'path' => $path,
-            'current' => $this->paths->currentSession($path),
+            'current' => $current,
+            'currentLocked' => $current && $this->paths->isSessionLocked($current, $request->user()),
+            'sessionLimit' => $this->paths->sessionLimit($request->user()),
+            'estimatedFinish' => $this->paths->estimatedFinish($path),
+            'targetScore' => $request->user()->studentProfile?->target_score,
             'service' => $this->paths,
         ]);
     }
@@ -49,6 +56,8 @@ class LearningPathController extends Controller
             $questions = $this->paths->quizQuestions($session);
         } catch (PlacementException $e) {
             return redirect()->route('student.path.show')->with('error', $e->getMessage());
+        } catch (FeatureLockedException $e) {
+            return redirect()->route('packages.index')->with('error', $e->getMessage());
         }
 
         if ($questions->isEmpty()) {
@@ -70,6 +79,8 @@ class LearningPathController extends Controller
             $result = $this->paths->submitQuiz($session, $data['answers'] ?? [], $data['time_spent'] ?? []);
         } catch (PlacementException $e) {
             return redirect()->route('student.path.show')->with('error', $e->getMessage());
+        } catch (FeatureLockedException $e) {
+            return redirect()->route('packages.index')->with('error', $e->getMessage());
         }
 
         return redirect()->route('student.path.show')

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class PlacementTest extends Model
 {
@@ -93,5 +94,50 @@ class PlacementTest extends Model
             $this->avg_seconds_per_question < 120 => 'Vừa phải',
             default => 'Chậm',
         };
+    }
+
+    /** Điểm TB tự khai lệch điểm bài đầu vào từ mức này (thang 10) → nói rõ, và gợi ý làm lại nếu bài thấp hơn hẳn. */
+    public const SELF_REPORT_GAP = 3;
+
+    /**
+     * Năng lực theo TỪNG chủ đề của bài (TA-05) — tính từ bản chụp câu hỏi + câu trả lời, nên bài cũ cũng có.
+     * Cần nạp sẵn `questions.topic` và `answers`.
+     *
+     * @return Collection<int, array{topic_id: int, name: string, correct: int, total: int, percent: int}>
+     */
+    public function topicScores(): Collection
+    {
+        $answers = $this->answers->keyBy('placement_test_question_id');
+
+        return $this->questions
+            ->filter(fn ($q) => $q->topic_id)
+            ->groupBy('topic_id')
+            ->map(fn ($qs, $topicId) => [
+                'topic_id' => (int) $topicId,
+                'name' => $qs->first()->topic?->name ?? 'Chủ đề',
+                'correct' => $c = $qs->filter(fn ($q) => $answers->get($q->id)?->is_correct)->count(),
+                'total' => $qs->count(),
+                'percent' => (int) round($c / $qs->count() * 100),
+            ])
+            ->sortBy('percent')
+            ->values();
+    }
+
+    /**
+     * Điểm TB tự khai chỉ là tín hiệu phụ (đặc tả Logic §1). null = không lệch đáng kể / không khai.
+     *
+     * @return array{self: float, test: float, gap: float, suggest_retake: bool}|null
+     */
+    public function selfReportGap(?float $selfReported): ?array
+    {
+        if ($selfReported === null || $this->score === null) {
+            return null;
+        }
+
+        $gap = round($selfReported - (float) $this->score, 1);
+
+        return abs($gap) >= self::SELF_REPORT_GAP
+            ? ['self' => $selfReported, 'test' => (float) $this->score, 'gap' => $gap, 'suggest_retake' => $gap > 0]
+            : null;
     }
 }

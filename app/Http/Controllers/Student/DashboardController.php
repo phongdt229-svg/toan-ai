@@ -14,6 +14,7 @@ use App\Services\Learning\ProgressService;
 use App\Services\Learning\RecommendationService;
 use App\Services\Learning\StudentReportService;
 use App\Services\Learning\StudyScheduleService;
+use App\Services\Learning\TopicSignalService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -29,6 +30,7 @@ class DashboardController extends Controller
         private readonly SubscriptionService $subscriptions,
         private readonly ActivityService $activity,
         private readonly StudyScheduleService $schedules,
+        private readonly TopicSignalService $signals,
     ) {}
 
     public function index(Request $request): View
@@ -48,6 +50,8 @@ class DashboardController extends Controller
         return view('student.dashboard', [
             'user' => $user,
             'activityToday' => $this->activity->today($user),
+            // TA-18: nhắc nhẹ khi em hay xem lời giải thay vì tự làm sau gợi ý.
+            'helpNudge' => $this->signals->helpSeeking($user)['nudge'],
             'todaySlot' => $this->schedules->slotOn($user, today()),
             'hasSchedule' => $this->schedules->forStudent($user)->isNotEmpty(),
 
@@ -63,6 +67,8 @@ class DashboardController extends Controller
             'hasPlacement' => PlacementTest::where('user_id', $user->id)->exists(),
             'path' => $path,
             'currentSession' => $current,
+            'currentLocked' => $current && $this->paths->isSessionLocked($current, $user),
+            'sessionLimit' => $this->paths->sessionLimit($user),
             'pathService' => $this->paths,
             'averageScore' => $this->reports->averageScoreOutOf10($user),
             'weakTopics' => $this->mastery->weakTopics($user, 3),

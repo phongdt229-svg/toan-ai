@@ -42,6 +42,15 @@
                     @error('interests')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
+                <div class="mb-3">
+                    <label for="set-target-score" class="form-label">Mục tiêu điểm Toán</label>
+                    <input type="number" id="set-target-score" name="target_score" min="0" max="10" step="0.5"
+                           value="{{ old('target_score', $profile->target_score !== null ? (float) $profile->target_score : '') }}"
+                           placeholder="vd 8" class="form-control @error('target_score') is-invalid @enderror" style="max-width:8rem">
+                    <div class="form-text">Hiện ở trang Lộ trình để em thấy mình còn cách mục tiêu bao xa.</div>
+                    @error('target_score')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+
                 <button class="btn btn-primary btn-touch">Lưu cá nhân hoá</button>
             </form>
         </div>

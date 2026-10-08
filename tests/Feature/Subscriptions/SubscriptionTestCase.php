@@ -7,8 +7,8 @@ use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\SubscriptionService;
-use Database\Seeders\PackageSeeder;
 use Tests\Feature\Parents\ParentTestCase;
+use Tests\Support\TestPackageSeeder;
 
 abstract class SubscriptionTestCase extends ParentTestCase
 {
@@ -17,7 +17,7 @@ abstract class SubscriptionTestCase extends ParentTestCase
         parent::setUp();
 
         config(['ai.provider' => 'fake']);
-        $this->seed(PackageSeeder::class);
+        $this->seed(TestPackageSeeder::class);
     }
 
     protected function package(string $slug): Package

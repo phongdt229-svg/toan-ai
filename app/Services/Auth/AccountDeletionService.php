@@ -106,6 +106,7 @@ class AccountDeletionService
             DB::table('student_activity_logs')->where('user_id', $user->id)->delete();
             DB::table('student_daily_activity')->where('user_id', $user->id)->delete();
             DB::table('study_schedules')->where('student_id', $user->id)->delete();
+            DB::table('student_attendances')->where('student_id', $user->id)->delete();
 
             // Yêu cầu hỗ trợ giữ lại để đối soát nhưng bỏ tên và email.
             DB::table('support_tickets')->where('user_id', $user->id)->update([
