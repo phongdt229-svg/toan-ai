@@ -38,6 +38,21 @@ return [
     | VNPAY 2.1.0. IPN URL KHÔNG khai ở đây: VNPAY chỉ gọi URL đã đăng ký trong trang quản trị merchant
     | (https://<domain>/api/v1/payment/vnpay/ipn) — gửi kèm request cũng không có tác dụng.
     */
+    /*
+    | Stripe Checkout (thẻ quốc tế, Apple Pay, Google Pay). Thu bằng VND (D-06) — đơn vị không thập phân.
+    | Mở tài khoản live cần pháp nhân ở nước Stripe hỗ trợ (D-05); test mode dùng được ngay để phát triển.
+    | Webhook: https://<domain>/api/v1/payment/stripe/webhook, sự kiện checkout.session.*.
+    */
+    'stripe' => [
+        'secret_key' => env('STRIPE_SECRET_KEY'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'api_base' => rtrim((string) env('STRIPE_API_BASE', 'https://api.stripe.com/v1'), '/'),
+        'currency' => 'vnd',
+        // Chữ ký webhook cũ hơn chừng này giây bị từ chối (chống phát lại) — đúng mặc định thư viện Stripe.
+        'tolerance' => 300,
+        'timeout' => 30,
+    ],
+
     'vnpay' => [
         'tmn_code' => env('VNPAY_TMN_CODE'),
         'hash_secret' => env('VNPAY_HASH_SECRET'),

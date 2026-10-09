@@ -151,7 +151,12 @@
                             </button>
                         @else
                             @foreach ($paymentMethods as $method)
-                                @if ($method === \App\Models\Payment::METHOD_VNPAY)
+                                @if ($method === \App\Models\Payment::METHOD_STRIPE)
+                                    <button name="method" value="stripe" class="btn btn-lg w-100 text-white" style="background:#635bff">
+                                        <i class="bi bi-globe2 me-1"></i>Thẻ quốc tế
+                                        <span class="d-block small fw-normal opacity-75">Visa, Mastercard, Apple Pay, Google Pay</span>
+                                    </button>
+                                @elseif ($method === \App\Models\Payment::METHOD_VNPAY)
                                     <button name="method" value="vnpay" class="btn btn-lg w-100 text-white" style="background:#005baa">
                                         <i class="bi bi-credit-card me-1"></i>Thanh toán qua VNPAY
                                         <span class="d-block small fw-normal opacity-75">Thẻ ATM, Internet Banking, QR ngân hàng</span>

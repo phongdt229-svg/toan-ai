@@ -31,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // MoMo gọi server-to-server, không có CSRF token (PROJECT_PLAN.md §8).
         $middleware->validateCsrfTokens(except: [
             'api/v1/payment/momo/ipn',
+            'api/v1/payment/stripe/webhook',
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));

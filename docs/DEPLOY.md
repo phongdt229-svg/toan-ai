@@ -98,6 +98,30 @@ BACKUP_KEEP_DAYS=14
 
 > Trang mua chỉ hiện nút VNPAY khi `vnpay` có trong `PAYMENT_METHODS`. Gỡ ra thì đơn VNPAY cũ vẫn đối soát / hoàn tiền được.
 
+### 2.2. Bật Stripe (thẻ quốc tế, Apple Pay, Google Pay)
+
+> **Điều kiện pháp lý (D-05):** Stripe không mở tài khoản cho doanh nghiệp / giấy tờ Việt Nam — tài khoản **live** cần pháp nhân
+> ở nước Stripe hỗ trợ (vd công ty Mỹ qua Stripe Atlas). **Test mode** dùng được ngay sau khi tạo tài khoản để phát triển.
+
+1. Stripe Dashboard → Developers → API keys: lấy **Secret key** (`sk_test_...` khi thử, `sk_live_...` khi chạy thật).
+2. Developers → Webhooks → Add endpoint `https://<domain>/api/v1/payment/stripe/webhook`, chọn sự kiện
+   `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`,
+   `checkout.session.expired` → copy **Signing secret** (`whsec_...`).
+3. `.env`:
+   ```
+   PAYMENT_METHODS=momo,vnpay,stripe
+   STRIPE_SECRET_KEY=sk_test_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   ```
+   Local muốn gọi Stripe test thật trong khi các cổng khác giả lập: thêm `stripe` vào `PAYMENT_LIVE_GATEWAYS`;
+   nhận webhook ở local bằng Stripe CLI: `stripe listen --forward-to localhost:8000/api/v1/payment/stripe/webhook`
+   (CLI in ra `whsec_...` riêng cho phiên đó).
+4. `php artisan payments:check-stripe` — in URL webhook, gọi thử API đọc số dư; cảnh báo nếu dùng key live ngoài production.
+5. Thử bằng thẻ test `4242 4242 4242 4242` (hạn bất kỳ trong tương lai, CVC bất kỳ), xem kết quả ở Quản trị → Giao dịch.
+
+> Thu bằng **VND** (D-06) — Stripe coi VND là đơn vị không thập phân, giá gửi đi đúng bằng giá trong bảng `packages`.
+> Bật Stripe thì Chính sách bảo mật tự khai Stripe là bên xử lý thanh toán (điều kiện theo `PAYMENT_METHODS`) — nhớ sửa `SITE_LEGAL_UPDATED_AT`.
+
 ## 3. Các bước deploy (mỗi lần phát hành)
 
 Dùng sẵn script [deploy/deploy.sh](../deploy/deploy.sh) — nó bật trang bảo trì, làm đủ các bước dưới đây,

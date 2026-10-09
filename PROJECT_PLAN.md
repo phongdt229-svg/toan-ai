@@ -1393,7 +1393,15 @@ Sheet "Task" trong file Excel mô tả một bản khác (MongoDB) — **không*
 
 **Còn lại** (việc của người vận hành, không phải code):
 
-- [ ] Đăng ký VNPAY sandbox, điền `VNPAY_TMN_CODE`/`VNPAY_HASH_SECRET`, khai IPN URL, chạy `payments:check-vnpay` rồi thử một đơn bằng thẻ test.
+- [x] VNPAY sandbox (08/10): key đúng (`payments:check-vnpay` → 91), link thanh toán được VNPAY chấp nhận. Local chạy VNPAY thật trong khi
+      MoMo vẫn giả lập nhờ `PAYMENT_LIVE_GATEWAYS=vnpay`. Còn: thử trả bằng thẻ test NCB; production cần IPN URL HTTPS + key production.
+- [x] **Stripe — code xong** (09/10, ST-01 → ST-05): `StripeGateway` qua Stripe Checkout (trang do Stripe host, không chạm số thẻ),
+      thu VND, `Idempotency-Key` khi tạo phiên / hoàn tiền; webhook `POST /api/v1/payment/stripe/webhook` kiểm `Stripe-Signature`
+      trên thân thô + chống phát lại 5 phút (400 khi sai chữ ký, 500 khi lỗi phía mình để Stripe gửi lại); đối soát đọc lại Checkout Session;
+      `FakeStripeGateway` cho local; `payments:check-stripe`; CSP thêm `checkout.stripe.com`; Chính sách bảo mật tự khai Stripe khi bật.
+      Hướng dẫn: [docs/DEPLOY.md §2.2](docs/DEPLOY.md). Tắt mặc định (chưa có `stripe` trong `PAYMENT_METHODS`).
+- [ ] **Stripe live — chặn bởi D-05**: Stripe không mở tài khoản cho doanh nghiệp Việt Nam (cần pháp nhân nước ngoài, vd Stripe Atlas).
+      Chỉ cần thẻ quốc tế thì xem trước phương án qua VNPAY.
 - [ ] Chọn phạm vi lớp kinh doanh thật (`GRADE_MIN`) nếu khác 1→12. D-03: đang dùng chính `OPENAI_MODEL` cho đọc ảnh.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định

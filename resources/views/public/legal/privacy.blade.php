@@ -49,6 +49,10 @@
                 <ul>
                     <li><strong>Nhà cung cấp mô hình AI:</strong> khi bạn dùng AI Tutor, nội dung câu hỏi, ngữ cảnh bài học và ảnh đề bài bạn chụp (đã xoá thông tin vị trí, thu nhỏ) được gửi tới nhà cung cấp AI để sinh câu trả lời. Không gửi kèm email, số điện thoại hay thông tin thanh toán.</li>
                     <li><strong>MoMo, VNPAY:</strong> xử lý thanh toán qua cổng bạn chọn; nhận mã đơn, số tiền và địa chỉ IP lúc tạo giao dịch (VNPAY yêu cầu để chống gian lận).</li>
+                    @if (in_array('stripe', (array) config('payment.methods'), true))
+                        <li><strong>Stripe (Stripe, Inc., Hoa Kỳ):</strong> xử lý thanh toán thẻ quốc tế khi bạn chọn phương thức này; nhận mã đơn, số tiền
+                            và thông tin thẻ bạn nhập trực tiếp trên trang của Stripe — chúng tôi <strong>không</strong> nhận hay lưu số thẻ.</li>
+                    @endif
                     <li><strong>Dịch vụ gửi email và hạ tầng máy chủ:</strong> để gửi thư và lưu trữ hệ thống.</li>
                     <li><strong>Google Analytics / Google Tag Manager:</strong> đo lượt truy cập và cách người dùng di chuyển giữa các trang, để biết chỗ nào khó dùng mà sửa. Google nhận địa chỉ IP (đã rút gọn), loại thiết bị, trình duyệt và trang bạn xem — <strong>không</strong> nhận tên, email, số điện thoại, điểm số hay nội dung bài làm của bạn.</li>
                     <li><strong>Sentry (giám sát lỗi):</strong> khi hệ thống gặp lỗi, chi tiết kỹ thuật của lỗi (đường dẫn trang, dòng code lỗi) được gửi tới Sentry để chúng tôi sửa nhanh. Chúng tôi <strong>không</strong> gửi tên, email, địa chỉ IP, nội dung biểu mẫu hay bài làm kèm theo.</li>

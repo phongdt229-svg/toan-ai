@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\ActivityController;
 use App\Http\Controllers\Api\V1\AiController;
 use App\Http\Controllers\Api\V1\MomoIpnController;
+use App\Http\Controllers\Api\V1\StripeWebhookController;
 use App\Http\Controllers\Api\V1\VnpayIpnController;
 use App\Models\Package;
 use App\Services\SubscriptionService;
@@ -94,6 +95,11 @@ Route::post('payment/momo/ipn', MomoIpnController::class)
 Route::post('activity', ActivityController::class)
     ->middleware(['web', 'auth', 'active', 'throttle:6,1'])
     ->name('api.activity');
+
+// Webhook Stripe (ST-02): chữ ký tính trên thân request thô — loại trừ CSRF trong bootstrap/app.php.
+Route::post('payment/stripe/webhook', StripeWebhookController::class)
+    ->middleware('throttle:120,1')
+    ->name('api.payment.stripe.webhook');
 
 // IPN VNPAY là GET nên không đụng CSRF; URL này phải khai trong trang quản trị merchant của VNPAY.
 Route::get('payment/vnpay/ipn', VnpayIpnController::class)

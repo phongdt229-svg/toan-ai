@@ -5,8 +5,10 @@ namespace App\Services\Payment;
 use App\Models\Payment;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\Payment\Gateways\FakeMomoGateway;
+use App\Services\Payment\Gateways\FakeStripeGateway;
 use App\Services\Payment\Gateways\FakeVnpayGateway;
 use App\Services\Payment\Gateways\MomoGateway;
+use App\Services\Payment\Gateways\StripeGateway;
 use App\Services\Payment\Gateways\VnpayGateway;
 
 /**
@@ -19,12 +21,14 @@ class PaymentGatewayManager
     private const REAL = [
         Payment::METHOD_MOMO => MomoGateway::class,
         Payment::METHOD_VNPAY => VnpayGateway::class,
+        Payment::METHOD_STRIPE => StripeGateway::class,
     ];
 
     /** @var array<string, class-string<PaymentGatewayInterface>> */
     private const FAKE = [
         Payment::METHOD_MOMO => FakeMomoGateway::class,
         Payment::METHOD_VNPAY => FakeVnpayGateway::class,
+        Payment::METHOD_STRIPE => FakeStripeGateway::class,
     ];
 
     /** @var array<string, PaymentGatewayInterface> */

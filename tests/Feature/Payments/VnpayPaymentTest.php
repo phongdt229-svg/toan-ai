@@ -295,6 +295,20 @@ class VnpayPaymentTest extends SubscriptionTestCase
 
     // --- Giả lập local ---------------------------------------------------------------------
 
+    public function test_live_list_runs_vnpay_for_real_while_others_stay_fake(): void
+    {
+        config(['payment.gateway' => 'fake', 'payment.live' => ['vnpay']]);
+        $student = $this->makeStudent();
+
+        $vnpay = $this->checkout($student);
+        $this->assertStringStartsWith('https://sandbox.vnpayment.vn/', $vnpay->pay_url);
+
+        $this->actingAs($student)->post(route('packages.pay', 'premium-nam'), ['method' => 'momo']);
+        $momo = Payment::latest('id')->firstOrFail();
+        $this->assertSame(route('payment.simulator', $momo), $momo->pay_url, 'MoMo chưa có key vẫn giả lập.');
+        Http::assertNothingSent();
+    }
+
     public function test_fake_vnpay_simulator_runs_the_real_ipn_flow(): void
     {
         config(['payment.gateway' => 'fake']);

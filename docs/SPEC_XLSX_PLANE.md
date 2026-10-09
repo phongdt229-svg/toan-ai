@@ -92,7 +92,9 @@ Mỗi mục là một Work item; copy tiêu đề + mô tả + tiêu chí nghi�
 |---|---|
 | **Done** | TA-01 → TA-22 (22/22 việc) |
 | **Decision — Done** | D-01 lịch tuần (HS tự đặt + PH sửa được) · D-02 phạm vi lớp cấu hình `GRADE_MIN`/`GRADE_MAX` (mặc định 1→12) · D-03 dùng `OPENAI_MODEL` hiện tại · D-04 `STREAK_MIN_MINUTES` = 10 |
-| **Việc vận hành** (không phải code) | Đăng ký VNPAY sandbox → điền key → `php artisan payments:check-vnpay` (xem docs/DEPLOY.md §2.1) |
+| **Việc vận hành** (không phải code) | VNPAY sandbox **đã chạy** (key đúng, link thanh toán được chấp nhận 08/10) — production: đổi URL + key, khai IPN HTTPS |
+| **Done (code)** — Stripe | ST-01 → ST-05 (09/10) — chạy test mode; thu VND (D-06 chốt mặc định) |
+| **Blocked** — chờ D-05 (pháp nhân Stripe) | Bật Stripe **live** cho người dùng thật |
 
 Ghi chú khi Done: TA-22 mới test bằng `Http::fake`, chưa thử sandbox VNPAY thật. TA-03 dùng ngưỡng "quên" 7 ngày,
 "lỗi gần đây" 14 ngày (hằng số trong `LearningPathService`).
@@ -210,3 +212,53 @@ Ghi chú khi Done: TA-22 mới test bằng `Http::fake`, chưa thử sandbox VNP
 4. Nền dữ liệu: **TA-07 → TA-08**, rồi TA-03, TA-14.
 5. Sau khi có lịch học: **TA-09 → TA-10 → TA-11 → TA-12 → TA-16**, TA-15.
 6. Phần còn lại: TA-04, TA-05, TA-06, TA-13, TA-18, TA-21.
+
+---
+
+## 5. Module mới: Thanh toán quốc tế — Stripe (lên kế hoạch 08/10/2026)
+
+Mục tiêu: nhận thanh toán bằng **thẻ quốc tế (Visa/Master/Amex), Apple Pay, Google Pay** — cho phụ huynh ở nước ngoài
+hoặc dùng thẻ quốc tế. Chạy song song MoMo/VNPAY qua `PaymentGatewayManager` đã có (thêm `stripe` vào `PAYMENT_METHODS`).
+
+### ⛔ Cần chốt trước (Label: `decision`)
+
+- **D-05 · Pháp nhân để mở tài khoản Stripe** — **chặn toàn bộ module.** Stripe **không** cho mở tài khoản bằng doanh nghiệp /
+  giấy tờ Việt Nam. Các lựa chọn:
+  1. Lập công ty Mỹ qua **Stripe Atlas** (~500 USD + ~100 USD/năm, có nghĩa vụ thuế tại Mỹ), tiền về tài khoản USD.
+  2. Dùng pháp nhân sẵn có ở nước Stripe hỗ trợ (Singapore, ...).
+  3. Không dùng Stripe — thẻ quốc tế đi qua **VNPAY** (đã tích hợp, VNPAY nhận Visa/Master) hoặc cổng hỗ trợ doanh nghiệp VN
+     (vd Airwallex, Merchant of Record như Paddle / Dodo). → **Khuyến nghị kiểm tra lựa chọn 3 trước**: chỉ cần thêm thẻ quốc tế thì
+     VNPAY có thể đã đủ, không phải lập công ty nước ngoài.
+- **D-06 · Thu bằng VND hay USD?** Stripe hỗ trợ VND (đơn vị không thập phân: 699.000₫ gửi `amount=699000`). Thu VND thì bảng giá giữ nguyên;
+  thu USD thì cần cột giá USD riêng cho gói (không quy đổi theo tỉ giá trong code — giá phải lấy từ DB).
+- **D-07 · Hoá đơn / thuế** khi thu qua pháp nhân nước ngoài — việc của kế toán, ảnh hưởng nội dung Điều khoản §6–7.
+
+### Work items (Module: Thanh toán — Stripe) — chỉ làm sau khi chốt D-05
+
+**ST-01 · `StripeGateway` qua Stripe Checkout (trang thanh toán do Stripe host)** — High · 1 buổi · chặn bởi D-05
+- `createPayment`: tạo Checkout Session (`mode=payment`, `line_items` số tiền lấy từ đơn trong DB, `client_reference_id`/`metadata.order_code`),
+  `success_url` → `payment.return.stripe` (chỉ tìm đơn, không tin tham số), `cancel_url` → trang gói. Không giữ số thẻ → PCI nhẹ nhất (SAQ A).
+- Gửi `Idempotency-Key` = mã đơn khi tạo session — bấm "Thanh toán" hai lần không tạo hai phiên.
+- ✅ Test: số tiền gửi đi = giá DB (VND không nhân 100), không nhận giá từ form.
+
+**ST-02 · Webhook có kiểm chữ ký** — High · 1 buổi
+- `POST /api/v1/payment/stripe/webhook`, kiểm header `Stripe-Signature` (HMAC-SHA256 + chống phát lại theo `t=`), loại trừ CSRF như IPN MoMo.
+- Sự kiện: `checkout.session.completed` (đã trả) · `checkout.session.async_payment_succeeded` / `_failed` · `checkout.session.expired`.
+- Đi qua `PaymentService::handleNotification(..., 'stripe')` → so tiền, idempotency, chỉ nhận đơn tạo bằng cổng Stripe — y như MoMo/VNPAY.
+- ✅ Test: sai chữ ký · chữ ký quá hạn · gửi trùng · lệch số tiền · sự kiện cho đơn MoMo bị từ chối.
+
+**ST-03 · Đối soát + hoàn tiền** — Medium · nửa buổi
+- `queryStatus`: lấy lại Checkout Session / PaymentIntent khi webhook chưa tới (máy local, mạng lỗi).
+- `refund`: Refunds API trên PaymentIntent, hoàn toàn phần/một phần, `Idempotency-Key` = mã yêu cầu hoàn (giữ nguyên luật "ghi pending trước khi gọi cổng").
+
+**ST-04 · Giả lập local + lệnh kiểm tra** — Medium · nửa buổi
+- `FakeStripeGateway` (cùng khuôn `SimulatesPayments`), chạy local không cần key.
+- `php artisan payments:check-stripe`: kiểm key (gọi API đọc tài khoản), in URL webhook cần khai, cảnh báo nếu đang dùng key live ở môi trường local.
+- Hướng dẫn thêm vào `docs/DEPLOY.md` (Stripe CLI `stripe listen` để nhận webhook ở local).
+
+**ST-05 · Bảo mật, pháp lý, giao diện** — Medium · nửa buổi
+- CSP `form-action` thêm `https://checkout.stripe.com`; nút "Thẻ quốc tế · Apple Pay · Google Pay" ở trang mua.
+- Chính sách bảo mật §3 + Điều khoản §6–7: thêm Stripe (bên xử lý thanh toán, dữ liệu gửi đi), sửa `legal_updated_at`.
+- Khoá `STRIPE_SECRET`/`STRIPE_WEBHOOK_SECRET` chỉ ở `.env` server, thêm vào `phpunit.xml` để test không lẫn `.env` máy.
+
+**Ước lượng tổng:** ~3–4 buổi code + thời gian lập pháp nhân (D-05, có thể vài tuần).

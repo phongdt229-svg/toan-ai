@@ -225,6 +225,7 @@ Route::middleware('auth')->group(function () {
         // §8: return URL chỉ hiển thị trạng thái đọc từ DB.
         Route::get('payment/momo/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
         Route::get('payment/vnpay/return', [PaymentController::class, 'handleReturn'])->name('payment.return.vnpay');
+        Route::get('payment/stripe/return', [PaymentController::class, 'handleReturn'])->name('payment.return.stripe');
         Route::get('thanh-toan', [PaymentController::class, 'history'])->name('payment.history');
         Route::get('thanh-toan/{payment}', [PaymentController::class, 'show'])->name('payment.show');
         Route::get('thanh-toan/{payment}/trang-thai', [PaymentController::class, 'status'])

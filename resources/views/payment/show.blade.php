@@ -36,7 +36,7 @@
                         @break
                     @case('refunded')
                         <h1 class="h4 fw-bold mt-2">Đơn đã được hoàn tiền</h1>
-                        <p class="text-secondary mb-0">Số tiền đã được hoàn về {{ $payment->method === \App\Models\Payment::METHOD_VNPAY ? 'tài khoản/thẻ đã thanh toán' : 'ví MoMo' }} của bạn và gói tương ứng đã được thu hồi.</p>
+                        <p class="text-secondary mb-0">Số tiền đã được hoàn về {{ $payment->method === \App\Models\Payment::METHOD_MOMO ? 'ví MoMo' : 'tài khoản/thẻ đã thanh toán' }} của bạn và gói tương ứng đã được thu hồi.</p>
                         @break
                     @default
                         <h1 class="h4 fw-bold mt-2">Đơn đã huỷ</h1>

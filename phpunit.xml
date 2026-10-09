@@ -29,6 +29,13 @@
         <env name="DB_DATABASE" value="toan_ai_test"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
+        <!-- Thanh toán trong test không phụ thuộc .env của máy (vd máy dev bật VNPAY sandbox): mỗi test tự cấu hình. -->
+        <env name="PAYMENT_METHODS" value="momo" force="true"/>
+        <env name="PAYMENT_LIVE_GATEWAYS" value="" force="true"/>
+        <env name="VNPAY_TMN_CODE" value="" force="true"/>
+        <env name="VNPAY_HASH_SECRET" value="" force="true"/>
+        <env name="STRIPE_SECRET_KEY" value="" force="true"/>
+        <env name="STRIPE_WEBHOOK_SECRET" value="" force="true"/>
         <!-- .env máy dev có thể để MINIFY_HTML=true khi thử tính năng — ép false ở đây để
              test không phụ thuộc trạng thái .env cục bộ (đã từng làm ClassReportTest fail oan). -->
         <env name="MINIFY_HTML" value="false"/>

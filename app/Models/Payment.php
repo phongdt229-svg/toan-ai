@@ -25,9 +25,12 @@ class Payment extends Model
 
     public const METHOD_VNPAY = 'vnpay';
 
+    public const METHOD_STRIPE = 'stripe';
+
     public const METHOD_LABELS = [
         self::METHOD_MOMO => 'MoMo',
         self::METHOD_VNPAY => 'VNPAY',
+        self::METHOD_STRIPE => 'Thẻ quốc tế (Stripe)',
         self::METHOD_VOUCHER => 'Mã giảm giá',
     ];
 
