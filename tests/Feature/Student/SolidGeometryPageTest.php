@@ -9,7 +9,11 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/** Công cụ vẽ hình 3D tương tác — thuần tự học, không có gì để chấm nên không cần Policy/Form Request. */
+/**
+ * Công cụ hình học không gian — nhúng GeoGebra 3D, thuần tự học, không có gì để chấm nên không cần
+ * Policy/Form Request. PHPUnit chỉ kiểm được khung trang server render; việc GeoGebra dựng hình đúng
+ * số liệu phải kiểm tay (sandbox CI/dev chặn DNS geogebra.org — xem PROJECT_PLAN.md mục công cụ này).
+ */
 class SolidGeometryPageTest extends TestCase
 {
     use RefreshDatabase;
@@ -40,16 +44,7 @@ class SolidGeometryPageTest extends TestCase
         $response->assertSee('data-solid-canvas', false)
             ->assertSee('data-solid-inputs', false)
             ->assertSee('data-solid-results', false)
-            ->assertSee('data-mode="line"', false)
-            ->assertSee('data-mode="midpoint"', false)
-            ->assertSee('data-mode="region"', false)
-            ->assertSee('data-mode-hint', false)
-            ->assertSee('data-region-progress', false)
-            ->assertSee('data-region-finish', false)
-            ->assertSee('data-region-cancel', false)
-            ->assertSee('data-solid-line-list', false)
-            ->assertSee('data-solid-point-list', false)
-            ->assertSee('data-solid-region-list', false);
+            ->assertSee('https://www.geogebra.org/apps/deployggb.js', false);
     }
 
     public function test_only_students_can_open_the_page(): void

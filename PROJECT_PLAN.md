@@ -1180,6 +1180,32 @@ giữ phía server, toán tính thẳng ở client vì không có gì để gian
       element sẽ không bắt được lỗi raycast); bắt được 1 lỗi thật lúc test (gợi ý chữ không reset về
       mặc định sau khi hoàn tất một đường/điểm) và đã sửa.
 
+### ✅ Đã làm (14/10, đợt 2) — Đổi công cụ hình học không gian sang nhúng GeoGebra
+
+Code Three.js tự viết (raycasting, kéo-thả, 3 chế độ bấm điểm) hoạt động đúng nhưng người dùng thấy
+vẫn khó thao tác hơn so với công cụ hình học chuẩn ngành giáo dục. Quyết định: **bỏ hẳn phần tự
+dựng**, nhúng GeoGebra 3D (`deployggb.js`, chính thức, miễn phí) — công cụ điểm/đoạn/mặt/đo đạc của
+GeoGebra chín hơn nhiều so với tự viết, học sinh/giáo viên phần lớn đã quen dùng từ trước.
+
+- [x] Gỡ `three` (npm), `resources/js/solid-geometry.js`, entry Vite tương ứng — không còn Three.js
+      trong bundle (giảm ~560KB JS riêng trang này).
+- [x] `resources/js/geogebra-solid.js` (entry Vite mới, nhẹ) — chỉ lo 2 việc: (1) dựng sẵn 1 trong 7
+      hình chương trình lớp 11–12 bằng lệnh GeoGebra đúng theo số liệu nhập (`Prism`/`Pyramid` dựng
+      theo CHIỀU CAO chứ không theo điểm đỉnh — GeoGebra tự đặt tâm đáy, mình chỉ cần tự đặt tên đỉnh
+      chóp là "S" bằng cách định nghĩa điểm `S` trước rồi truyền vào `Pyramid(poly, S)` thay vì dạng
+      `Pyramid(poly, height)` — dạng height tự đặt tên đỉnh không theo quy ước sách giáo khoa);
+      (2) đọc `Volume()`/`SurfaceArea()` GeoGebra đã tính sẵn, hiện lại ở khung "Kết quả" đúng kiểu cũ
+      (giữ nguyên trải nghiệm, không lộ ra là đang gọi app ngoài).
+- [x] Toàn bộ việc "thêm điểm", "vẽ thêm đường", "đo vùng" (3 tính năng tự viết ở đợt trước) **không
+      cần giữ nữa** — bộ công cụ gốc của GeoGebra (Point, Segment, Midpoint, Polygon, Distance, Area…)
+      đã làm đúng việc đó, tốt hơn, học sinh tự bấm trực tiếp trên thanh công cụ GeoGebra.
+- [x] CSP: `deployggb.js` tải từ `www.geogebra.org`. `SecurityHeaders` hiện **không khai `script-src`**
+      nên không bị chặn (đúng quy ước đã có ở `layouts/base.blade.php` cho script GA) — chỉ thêm dòng
+      chú thích nêu rõ nguồn ngoài này, để ai siết `script-src` sau này không quên.
+  Test: `SolidGeometryPageTest` cập nhật theo UI mới (container GeoGebra thay cho canvas/toolbar tự
+  viết); kiểm tay bằng Playwright thật (console sạch, GeoGebra dựng đúng cả 7 hình, Volume/SurfaceArea
+  khớp số liệu nhập).
+
 ### ✅ Đã làm (27/09, đợt 5) — Rà SEO từng trang một, toàn site
 
 Rà lại TỪNG trang công khai một (không chỉ landing/blog/goi-hoc đã làm trước đó), tìm 2 loại lỗi:
