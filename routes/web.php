@@ -46,6 +46,7 @@ use App\Http\Controllers\Student\PlacementController;
 use App\Http\Controllers\Student\PracticeController;
 use App\Http\Controllers\Student\QaController;
 use App\Http\Controllers\Student\SettingsController as StudentSettingsController;
+use App\Http\Controllers\Student\SolidGeometryController;
 use App\Http\Controllers\Student\StudyScheduleController as StudentStudyScheduleController;
 use App\Http\Controllers\Student\SubscriptionController as StudentSubscriptionController;
 use App\Http\Controllers\Teacher\AiContentController;
@@ -265,6 +266,8 @@ Route::middleware('auth')->group(function () {
             Route::post('lo-trinh/buoi/{session}/kiem-tra', [LearningPathController::class, 'submitQuiz'])->name('path.quiz.submit');
 
             Route::get('ai', [AiTutorController::class, 'index'])->name('ai.index');
+
+            Route::get('hinh-hoc-khong-gian', [SolidGeometryController::class, 'index'])->name('solid-geometry.index');
 
             Route::get('goi-cua-toi', [StudentSubscriptionController::class, 'index'])->name('subscription.index');
 

@@ -1127,6 +1127,43 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       `SampleBlogSeeder` mở rộng lên 17 bài (4 bài mỗi danh mục, 1 nháp) để mọi bài đều đủ 3 thẻ
       liên quan khi xem demo — trước đó 2 danh mục chỉ có 2 bài nên phần này bị cụt.
 
+### ✅ Đã làm (14/10) — Công cụ 3D hình học không gian cho học sinh
+
+Công cụ vẽ hình 3D tương tác (không phải nội dung bài học/câu hỏi) — học sinh chọn hình, nhập số
+liệu, xem hình dựng 3D xoay/zoom được bằng chuột hoặc chạm, kèm thể tích + diện tích tính ra kèm
+công thức. Thuần công cụ tự học, KHÔNG phải dạng câu hỏi được chấm điểm — không có "đáp án đúng" để
+giữ phía server, toán tính thẳng ở client vì không có gì để gian lận (khác nguyên tắc chấm thi/chấm bài).
+
+- [x] Thêm `three` (0.186, qua npm — KHÔNG CDN, giữ nguyên CSP hiện tại không cần sửa) làm entry
+      Vite riêng (`resources/js/solid-geometry.js`), chỉ trang này nạp — đúng kiểu `lesson-editor.js`/
+      `pwa-install.js`, không phình bundle `app.js` chung.
+- [x] 7 hình chương trình lớp 11–12: hình hộp chữ nhật, hình lập phương, chóp tam giác đều, chóp tứ
+      giác đều, hình trụ, hình nón, hình cầu. Mỗi hình: dựng mesh đúng tỉ lệ theo số nhập, nhãn đỉnh
+      kiểu sách giáo khoa (A, B, C, D, S…) qua `CSS2DRenderer` (overlay HTML, không phải texture),
+      `OrbitControls` xoay/zoom (hỗ trợ chạm sẵn, không cần code riêng cho mobile).
+      Công thức thể tích/diện tích xung quanh/toàn phần tính đúng theo từng hình, hiện kèm số liệu.
+- [x] Trang mới `GET /hoc-sinh/hinh-hoc-khong-gian` (`student.solid-geometry.index`) — controller
+      mỏng, không có action ghi dữ liệu (không Form Request/Policy vì không lưu gì); thêm vào
+      `config/navigation.php` (không ở bottom nav — công cụ phụ, 4 chỗ bottom đã đủ theo §3).
+- Test: `SolidGeometryPageTest` — guest bị chặn (redirect đăng nhập), học sinh vào được, trang có đủ
+  7 option hình + canvas + panel kết quả. Độ chính xác dựng hình/công thức kiểm tay (không test được
+  WebGL qua PHPUnit) — xem ghi chú trong `resources/js/solid-geometry.js`.
+- [x] **Vẽ thêm đoạn thẳng nối 2 điểm** — nhu cầu thật khi giải bài (nối đường chéo đáy, "kẻ SH
+      vuông góc với đáy", nối 2 đỉnh không kề...). Hai ô chọn điểm (lấy từ đúng nhãn của hình đang
+      hiện) + nút "Thêm đoạn thẳng" → vẽ đường màu cam (phân biệt với cạnh hình màu đen), tự tính độ
+      dài, liệt kê ở danh sách riêng kèm nút xoá từng đường. Danh sách đường tự vẽ giữ nguyên khi đổi
+      SỐ LIỆU (tính lại toạ độ 2 đầu theo số mới) nhưng xoá sạch khi đổi sang HÌNH khác (tên điểm
+      không còn khớp).
+- [x] **Kéo-thả nối điểm trực tiếp trên hình** — bấm giữ một điểm, kéo sang điểm khác, nhả chuột là
+      nối (dropdown + nút "Thêm" vẫn giữ song song cho ai cần chính xác tuyệt đối/không quen thao
+      tác chuột). Mỗi điểm có một mesh hình cầu vô hình (`opacity: 0`, chỉ lộ ra lúc rê/kéo qua) để
+      `THREE.Raycaster` bắt trúng — nhãn chữ (`CSS2DObject`) không nằm trong scene WebGL nên không bắt
+      tia được. Trong lúc kéo: tắt `OrbitControls` (không thì vừa kéo nối đường vừa xoay camera cùng
+      lúc, rối); đường xem trước bám theo chuột qua mặt phẳng hướng camera đi qua điểm bắt đầu, snap
+      cứng vào điểm khác nếu đang rê trúng. Test bằng Playwright (giả lập chuột thật — không chỉ bấm
+      vào element, vì nhãn `pointer-events: none` nên việc "trúng điểm nào" phải tính đúng theo toạ
+      độ pixel, giả lập qua element sẽ không bắt được lỗi raycast).
+
 ### ✅ Đã làm (27/09, đợt 5) — Rà SEO từng trang một, toàn site
 
 Rà lại TỪNG trang công khai một (không chỉ landing/blog/goi-hoc đã làm trước đó), tìm 2 loại lỗi:
