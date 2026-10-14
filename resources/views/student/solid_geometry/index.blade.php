@@ -39,14 +39,22 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="line">
                                 Nối đường
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="midpoint">
-                                Trung điểm
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="point">
+                                Điểm trên đoạn
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="region">
                                 Đo vùng
                             </button>
                         </div>
                         <p class="text-secondary small mb-2" data-mode-hint></p>
+
+                        <div data-point-ratio-field class="d-none mb-2">
+                            <label class="form-label small mb-1">
+                                Vị trí điểm mới (% tính từ điểm bấm trước)
+                            </label>
+                            <input type="number" min="0" max="100" step="1" value="50"
+                                   data-point-ratio class="form-control form-control-sm" style="max-width:120px">
+                        </div>
 
                         <div data-region-progress class="d-none mb-2">
                             <div class="small text-secondary mb-1">

@@ -1160,10 +1160,14 @@ giữ phía server, toán tính thẳng ở client vì không có gì để gian
       tia được. Trong lúc kéo: tắt `OrbitControls` (không thì vừa kéo nối đường vừa xoay camera cùng
       lúc, rối); đường xem trước bám theo chuột qua mặt phẳng hướng camera đi qua điểm bắt đầu, snap
       cứng vào điểm khác nếu đang rê trúng.
-- [x] **Tạo điểm mới (trung điểm)** — nhu cầu thật khi giải bài ("gọi H là trung điểm BC"). Điểm tự
-      tạo dùng chung cơ chế nhãn + tay cầm với điểm gốc của hình nên nối đường/làm đỉnh vùng được
-      ngay — kể cả lấy trung điểm của một điểm tự tạo khác, miễn điểm đó đã được tạo trước trong danh
-      sách. Tên tự gợi ý (M, N, P… bỏ qua tên đã dùng, tránh trùng đỉnh gốc A/B/S…).
+- [x] **Tạo điểm mới trên đoạn (chế độ "Điểm trên đoạn")** — nhu cầu thật khi giải bài ("gọi H là
+      trung điểm BC", hoặc tổng quát hơn "M trên AB sao cho AM = 1/4 AB"). Không chỉ cố định 50% —
+      có ô nhập tỉ lệ % (0–100, tính từ điểm bấm trước), chỉ hiện khi đang ở chế độ này; để nguyên
+      50% là trung điểm như cũ. Điểm tự tạo dùng chung cơ chế nhãn + tay cầm với điểm gốc của hình
+      nên nối đường/làm đỉnh vùng được ngay — kể cả dựa vào một điểm tự tạo khác, miễn điểm đó đã
+      được tạo trước trong danh sách. Tên tự gợi ý (M, N, P… bỏ qua tên đã dùng, tránh trùng đỉnh gốc
+      A/B/S…); danh sách hiện đúng tỉ lệ đã dùng ("M = trên AB, cách A 25% đoạn"), riêng 50% vẫn ghi
+      "trung điểm" cho quen mắt sách giáo khoa.
 - [x] **Đo vùng/mặt cắt (chu vi + diện tích)** — chọn ≥ 3 điểm theo thứ tự quanh vùng (vd tam giác
       SBC, thiết diện ABCD), tô màu xanh lục (tam giác hoá hình quạt từ điểm đầu — đúng với vùng LỒI,
       đa số thiết diện trong bài thật). Chu vi = tổng cạnh liên tiếp khép kín; diện tích dùng **công
@@ -1179,6 +1183,12 @@ giữ phía server, toán tính thẳng ở client vì không có gì để gian
       `pointer-events: none` nên việc "trúng điểm nào" phải tính đúng theo toạ độ pixel, giả lập qua
       element sẽ không bắt được lỗi raycast); bắt được 1 lỗi thật lúc test (gợi ý chữ không reset về
       mặc định sau khi hoàn tất một đường/điểm) và đã sửa.
+- **Đã thử nhúng GeoGebra 3D (14/10) rồi REVERT** — công cụ gốc GeoGebra (Point/Segment/Area…)
+  tốt hơn hẳn bản tự viết, nhưng **geogebra.org bị chặn DNS** cả ở sandbox dev lẫn mạng thật của
+  người dùng (`geogebra.org` phân giải về `::1`, trong khi cdnjs/unpkg vẫn bình thường) — tự host
+  lại cũng không tải được vì phải vào geogebra.org trước mới lấy được bộ cài. Quay lại bản Three.js
+  tự viết (`git revert`, vẫn đang dùng) vì tự host hoàn toàn, không phụ thuộc mạng ngoài. **Đừng thử
+  nhúng GeoGebra lại** trừ khi xác nhận geogebra.org đã truy cập được từ mạng Việt Nam.
 
 ### ✅ Đã làm (27/09, đợt 5) — Rà SEO từng trang một, toàn site
 

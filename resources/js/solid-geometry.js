@@ -246,8 +246,8 @@ if (root) {
     // "tay cầm" (mesh hình cầu nhỏ, vô hình trong mắt người dùng vì trùng vị trí nhãn) để bắt tia
     // click/chạm — CSS2DObject (nhãn chữ) không nằm trong scene WebGL nên raycaster không "thấy" được.
     let pointHandles = []; // {name, mesh}[] của hình đang hiện, dựng lại mỗi lần renderShape
-    let activeMode = 'line'; // 'line' | 'midpoint' | 'region'
-    let pendingFirstPoint = null; // điểm đã bấm, đang chờ điểm thứ hai (chế độ line/midpoint)
+    let activeMode = 'line'; // 'line' | 'point' | 'region'
+    let pendingFirstPoint = null; // điểm đã bấm, đang chờ điểm thứ hai (chế độ line/point)
     let regionSelection = []; // các điểm đã bấm theo thứ tự, đang gom cho một vùng (chế độ region)
     let dragFromPoint = null;
     let previewLine = null;
@@ -259,9 +259,17 @@ if (root) {
 
     const MODE_HINTS = {
         line: 'Bấm (hoặc bấm giữ rồi kéo) một điểm trên hình, sau đó bấm điểm thứ hai để nối đường.',
-        midpoint: 'Bấm 2 điểm bất kỳ trên hình — hệ thống tự tạo một điểm mới ở chính giữa.',
+        point: 'Bấm 2 điểm bất kỳ — điểm mới tạo ra nằm trên đoạn nối chúng, đúng theo tỉ lệ ở ô bên dưới (để 50% là trung điểm).',
         region: 'Bấm lần lượt các điểm quanh vùng cần đo (ít nhất 3 điểm), rồi bấm "Xong".',
     };
+
+    /** Đọc tỉ lệ từ ô nhập (0–100%), trả về số thập phân 0–1, mặc định 0.5 (trung điểm) nếu để trống/sai. */
+    function readPointRatio() {
+        const input = root.querySelector('[data-point-ratio]');
+        const percent = Number(input.value);
+
+        return Number.isFinite(percent) && percent >= 0 && percent <= 100 ? percent / 100 : 0.5;
+    }
 
     function resize() {
         const width = canvasHost.clientWidth;
@@ -324,7 +332,7 @@ if (root) {
     function updateModeHint() {
         const hint = root.querySelector('[data-mode-hint]');
         if (activeMode !== 'region' && pendingFirstPoint) {
-            const action = activeMode === 'line' ? 'nối đường' : 'tạo trung điểm';
+            const action = activeMode === 'line' ? 'nối đường' : 'tạo điểm';
             hint.textContent = `Đã chọn điểm ${pendingFirstPoint} — bấm điểm thứ hai để ${action}.`;
         } else {
             hint.textContent = MODE_HINTS[activeMode];
@@ -367,7 +375,12 @@ if (root) {
         if (activeMode === 'line') {
             auxiliaryLines.push({ from: first, to: name });
         } else {
-            customPoints.push({ name: suggestPointName(pointHandles.map((h) => h.name)), from: first, to: name });
+            customPoints.push({
+                name: suggestPointName(pointHandles.map((h) => h.name)),
+                from: first,
+                to: name,
+                ratio: readPointRatio(),
+            });
         }
 
         updateModeHint();
@@ -387,6 +400,7 @@ if (root) {
         root.querySelectorAll('[data-mode]').forEach((btn) => {
             btn.classList.toggle('active', btn.dataset.mode === mode);
         });
+        root.querySelector('[data-point-ratio-field]').classList.toggle('d-none', mode !== 'point');
         updateModeHint();
     }
 
@@ -541,16 +555,16 @@ if (root) {
         pointHandles = [];
         labels.forEach(([text, position]) => addPoint(text, position, false));
 
-        // Điểm tự tạo (trung điểm) — xử lý THEO THỨ TỰ đã thêm nên điểm sau được phép lấy trung điểm
-        // của một điểm tự tạo trước đó. Thiếu from/to (đổi hình, hoặc điểm gốc đã bị xoá) thì bỏ qua —
-        // mọi thứ dựa vào điểm bị bỏ qua này (đường, vùng, điểm khác) cũng tự động biến mất theo,
-        // không cần dọn tay từng chỗ.
-        customPoints.forEach(({ name, from, to }) => {
+        // Điểm tự tạo (nằm trên đoạn from-to theo tỉ lệ ratio, 0.5 = trung điểm) — xử lý THEO THỨ TỰ
+        // đã thêm nên điểm sau được phép dựa vào một điểm tự tạo trước đó. Thiếu from/to (đổi hình,
+        // hoặc điểm gốc đã bị xoá) thì bỏ qua — mọi thứ dựa vào điểm bị bỏ qua này (đường, vùng, điểm
+        // khác) cũng tự động biến mất theo, không cần dọn tay từng chỗ.
+        customPoints.forEach(({ name, from, to, ratio }) => {
             const a = pointMap[from];
             const b = pointMap[to];
             if (!a || !b) return;
 
-            addPoint(name, a.map((v, i) => (v + b[i]) / 2), true);
+            addPoint(name, a.map((v, i) => v + ratio * (b[i] - v)), true);
         });
 
         // Đoạn tự vẽ (nối đường chéo, hạ đường cao…) — màu cam để phân biệt cạnh hình (đen).
@@ -697,10 +711,15 @@ if (root) {
         customPoints.forEach((point, index) => {
             if (!pointMap[point.name]) return; // from/to không còn tồn tại — điểm này đang bị bỏ qua
 
+            const percent = Math.round(point.ratio * 100);
+            const description = percent === 50
+                ? `trung điểm ${point.from}${point.to}`
+                : `trên ${point.from}${point.to}, cách ${point.from} ${percent}% đoạn`;
+
             const row = document.createElement('div');
             row.className = 'd-flex align-items-center justify-content-between small py-1';
             row.innerHTML = `
-                <span>${point.name} = trung điểm ${point.from}${point.to}</span>
+                <span>${point.name} = ${description}</span>
                 <button type="button" class="btn btn-sm btn-link text-danger p-0" data-remove-point="${index}">Xoá</button>
             `;
             host.appendChild(row);
