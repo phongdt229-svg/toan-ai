@@ -6,9 +6,7 @@
 @section('content')
     <p class="text-secondary small mb-3">
         Chọn hình, nhập số liệu rồi kéo để xoay, cuộn (hoặc chụm hai ngón trên điện thoại) để zoom.
-        Cần thêm điểm, vẽ đoạn thẳng hay đo một vùng thì dùng thanh công cụ phía trên khung hình
-        (biểu tượng Điểm, Đoạn thẳng, Khoảng cách, Diện tích…). Công cụ tự học — không phải bài
-        kiểm tra chấm điểm.
+        Công cụ tự học — không phải bài kiểm tra chấm điểm.
     </p>
 
     <div data-solid-geometry>
@@ -24,7 +22,7 @@
 
         <div class="row g-3">
             <div class="col-12 col-lg-8">
-                <div id="solid-geometry-canvas" class="solid-geometry__canvas" data-solid-canvas></div>
+                <div class="solid-geometry__canvas" data-solid-canvas></div>
             </div>
             <div class="col-12 col-lg-4">
                 <div class="card border">
@@ -34,6 +32,39 @@
                         <hr>
                         <h2 class="h6 fw-bold mb-2">Kết quả</h2>
                         <div data-solid-results></div>
+
+                        <hr>
+                        <h2 class="h6 fw-bold mb-2">Công cụ — bấm thẳng lên hình</h2>
+                        <div class="btn-group w-100 mb-2" role="group" aria-label="Chọn công cụ">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="line">
+                                Nối đường
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="midpoint">
+                                Trung điểm
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="region">
+                                Đo vùng
+                            </button>
+                        </div>
+                        <p class="text-secondary small mb-2" data-mode-hint></p>
+
+                        <div data-region-progress class="d-none mb-2">
+                            <div class="small text-secondary mb-1">
+                                Đã chọn: <span data-region-progress-list class="fw-bold"></span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" data-region-finish class="btn btn-sm btn-success" disabled>
+                                    Xong
+                                </button>
+                                <button type="button" data-region-cancel class="btn btn-sm btn-outline-secondary">
+                                    Huỷ
+                                </button>
+                            </div>
+                        </div>
+
+                        <div data-solid-line-list></div>
+                        <div data-solid-point-list></div>
+                        <div data-solid-region-list></div>
                     </div>
                 </div>
             </div>
@@ -41,15 +72,6 @@
     </div>
 @endsection
 
-@push('head')
-    {{--
-        GeoGebra 3D (chính thức, miễn phí) — dựng hình/đo đạc thay cho WebGL tự viết trước đó.
-        CSP hiện không khai script-src nên không bị chặn (đúng quy ước đã dùng cho script GA ở
-        layouts/base.blade.php) — xem App\Http\Middleware\SecurityHeaders.
-    --}}
-    <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-@endpush
-
 @push('scripts')
-    @vite('resources/js/geogebra-solid.js')
+    @vite('resources/js/solid-geometry.js')
 @endpush
