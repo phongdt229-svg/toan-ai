@@ -34,26 +34,37 @@
                         <div data-solid-results></div>
 
                         <hr>
-                        <h2 class="h6 fw-bold mb-2">Vẽ thêm đoạn thẳng</h2>
-                        <p class="text-secondary small mb-2">
-                            Nối 2 điểm bất kỳ của hình — ví dụ đường chéo đáy, hay hạ đường cao từ đỉnh.
-                            Bấm giữ một điểm trên hình rồi kéo sang điểm kia (nhả chuột để nối), hoặc
-                            chọn tên điểm ở 2 ô dưới đây cho chính xác hơn.
-                        </p>
-                        <div class="d-flex align-items-end gap-2 mb-2">
-                            <div class="flex-grow-1">
-                                <label class="form-label small mb-1">Từ điểm</label>
-                                <select data-line-from class="form-select form-select-sm"></select>
-                            </div>
-                            <div class="flex-grow-1">
-                                <label class="form-label small mb-1">Đến điểm</label>
-                                <select data-line-to class="form-select form-select-sm"></select>
-                            </div>
-                            <button type="button" data-add-line class="btn btn-sm btn-outline-secondary flex-shrink-0">
-                                Thêm
+                        <h2 class="h6 fw-bold mb-2">Công cụ — bấm thẳng lên hình</h2>
+                        <div class="btn-group w-100 mb-2" role="group" aria-label="Chọn công cụ">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="line">
+                                Nối đường
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="midpoint">
+                                Trung điểm
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="region">
+                                Đo vùng
                             </button>
                         </div>
+                        <p class="text-secondary small mb-2" data-mode-hint></p>
+
+                        <div data-region-progress class="d-none mb-2">
+                            <div class="small text-secondary mb-1">
+                                Đã chọn: <span data-region-progress-list class="fw-bold"></span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" data-region-finish class="btn btn-sm btn-success" disabled>
+                                    Xong
+                                </button>
+                                <button type="button" data-region-cancel class="btn btn-sm btn-outline-secondary">
+                                    Huỷ
+                                </button>
+                            </div>
+                        </div>
+
                         <div data-solid-line-list></div>
+                        <div data-solid-point-list></div>
+                        <div data-solid-region-list></div>
                     </div>
                 </div>
             </div>

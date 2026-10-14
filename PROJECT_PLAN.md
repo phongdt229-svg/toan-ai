@@ -1155,14 +1155,30 @@ giữ phía server, toán tính thẳng ở client vì không có gì để gian
       SỐ LIỆU (tính lại toạ độ 2 đầu theo số mới) nhưng xoá sạch khi đổi sang HÌNH khác (tên điểm
       không còn khớp).
 - [x] **Kéo-thả nối điểm trực tiếp trên hình** — bấm giữ một điểm, kéo sang điểm khác, nhả chuột là
-      nối (dropdown + nút "Thêm" vẫn giữ song song cho ai cần chính xác tuyệt đối/không quen thao
-      tác chuột). Mỗi điểm có một mesh hình cầu vô hình (`opacity: 0`, chỉ lộ ra lúc rê/kéo qua) để
+      nối. Mỗi điểm có một mesh hình cầu vô hình (`opacity: 0`, chỉ lộ ra lúc rê/kéo qua) để
       `THREE.Raycaster` bắt trúng — nhãn chữ (`CSS2DObject`) không nằm trong scene WebGL nên không bắt
       tia được. Trong lúc kéo: tắt `OrbitControls` (không thì vừa kéo nối đường vừa xoay camera cùng
       lúc, rối); đường xem trước bám theo chuột qua mặt phẳng hướng camera đi qua điểm bắt đầu, snap
-      cứng vào điểm khác nếu đang rê trúng. Test bằng Playwright (giả lập chuột thật — không chỉ bấm
-      vào element, vì nhãn `pointer-events: none` nên việc "trúng điểm nào" phải tính đúng theo toạ
-      độ pixel, giả lập qua element sẽ không bắt được lỗi raycast).
+      cứng vào điểm khác nếu đang rê trúng.
+- [x] **Tạo điểm mới (trung điểm)** — nhu cầu thật khi giải bài ("gọi H là trung điểm BC"). Điểm tự
+      tạo dùng chung cơ chế nhãn + tay cầm với điểm gốc của hình nên nối đường/làm đỉnh vùng được
+      ngay — kể cả lấy trung điểm của một điểm tự tạo khác, miễn điểm đó đã được tạo trước trong danh
+      sách. Tên tự gợi ý (M, N, P… bỏ qua tên đã dùng, tránh trùng đỉnh gốc A/B/S…).
+- [x] **Đo vùng/mặt cắt (chu vi + diện tích)** — chọn ≥ 3 điểm theo thứ tự quanh vùng (vd tam giác
+      SBC, thiết diện ABCD), tô màu xanh lục (tam giác hoá hình quạt từ điểm đầu — đúng với vùng LỒI,
+      đa số thiết diện trong bài thật). Chu vi = tổng cạnh liên tiếp khép kín; diện tích dùng **công
+      thức Newell** (đúng với đa giác phẳng nằm nghiêng bất kỳ trong không gian 3D, không chỉ phẳng
+      theo trục toạ độ) — verify tay bằng hình chữ nhật đáy (chu vi 14, diện tích 12 khớp a×b).
+- [x] **Giao diện đổi sang "toàn trực quan"** — bỏ hẳn dropdown/ô nhập tên điểm, thay bằng 3 nút chế
+      độ (Nối đường / Trung điểm / Đo vùng) rồi bấm thẳng lên hình: bấm (hoặc giữ-kéo) điểm thứ nhất,
+      bấm điểm thứ hai là xong (riêng Đo vùng gom nhiều điểm rồi bấm "Xong"/"Huỷ"). Một hàm
+      `handlePointSelected()` dùng chung cho cả bấm tay lẫn thả sau khi kéo, tránh viết 2 lần cùng
+      logic. Gợi ý chữ dưới nút đổi theo đúng bước đang làm ("Đã chọn điểm A — bấm điểm thứ hai…").
+      Đổi chế độ giữa chừng tự huỷ lựa chọn dở dang (không lẫn điểm "đang chờ" của chế độ cũ sang
+      chế độ mới). Test bằng Playwright (giả lập chuột thật — không chỉ bấm vào element, vì nhãn
+      `pointer-events: none` nên việc "trúng điểm nào" phải tính đúng theo toạ độ pixel, giả lập qua
+      element sẽ không bắt được lỗi raycast); bắt được 1 lỗi thật lúc test (gợi ý chữ không reset về
+      mặc định sau khi hoàn tất một đường/điểm) và đã sửa.
 
 ### ✅ Đã làm (27/09, đợt 5) — Rà SEO từng trang một, toàn site
 

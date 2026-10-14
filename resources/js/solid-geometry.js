@@ -236,15 +236,32 @@ if (root) {
     // {from, to}[] — tên điểm (khớp nhãn của hình hiện tại). Giữ khi đổi SỐ LIỆU (tính lại toạ độ
     // theo số mới), xoá sạch khi đổi sang HÌNH khác vì tên điểm không còn khớp.
     let auxiliaryLines = [];
+    // {name, from, to}[] — điểm tự tạo = trung điểm của 2 điểm đã có (có thể là điểm tự tạo khác,
+    // miễn điểm đó được thêm TRƯỚC trong mảng). Cùng quy tắc giữ/xoá như auxiliaryLines ở trên.
+    let customPoints = [];
+    // {points: string[]}[] — tên điểm theo đúng thứ tự quanh vùng (đa giác phẳng, vd thiết diện).
+    let regions = [];
 
-    // Kéo-thả nối điểm trực tiếp trên hình: mỗi điểm có một "tay cầm" (mesh hình cầu nhỏ, vô hình
-    // trong mắt người dùng vì trùng vị trí nhãn) để bắt tia click/chạm — CSS2DObject (nhãn chữ) không
-    // nằm trong scene WebGL nên raycaster không "thấy" được, phải có mesh thật để bắt trúng.
+    // Toàn bộ thao tác (nối đường / trung điểm / đo vùng) đều bấm thẳng lên hình — mỗi điểm có một
+    // "tay cầm" (mesh hình cầu nhỏ, vô hình trong mắt người dùng vì trùng vị trí nhãn) để bắt tia
+    // click/chạm — CSS2DObject (nhãn chữ) không nằm trong scene WebGL nên raycaster không "thấy" được.
     let pointHandles = []; // {name, mesh}[] của hình đang hiện, dựng lại mỗi lần renderShape
+    let activeMode = 'line'; // 'line' | 'midpoint' | 'region'
+    let pendingFirstPoint = null; // điểm đã bấm, đang chờ điểm thứ hai (chế độ line/midpoint)
+    let regionSelection = []; // các điểm đã bấm theo thứ tự, đang gom cho một vùng (chế độ region)
     let dragFromPoint = null;
     let previewLine = null;
     let hoveredPoint = null;
+    let pointerDownAt = null;
+    let pointerDownHandle = null;
+    const CLICK_MOVE_THRESHOLD = 6; // px — dưới mức này tính là "bấm", không phải "kéo"
     const raycaster = new THREE.Raycaster();
+
+    const MODE_HINTS = {
+        line: 'Bấm (hoặc bấm giữ rồi kéo) một điểm trên hình, sau đó bấm điểm thứ hai để nối đường.',
+        midpoint: 'Bấm 2 điểm bất kỳ trên hình — hệ thống tự tạo một điểm mới ở chính giữa.',
+        region: 'Bấm lần lượt các điểm quanh vùng cần đo (ít nhất 3 điểm), rồi bấm "Xong".',
+    };
 
     function resize() {
         const width = canvasHost.clientWidth;
@@ -299,25 +316,95 @@ if (root) {
             previewLine.material.dispose();
             previewLine = null;
         }
-        if (dragFromPoint) setHandleOpacity(dragFromPoint, 0);
         dragFromPoint = null;
         controls.enabled = true;
         renderer.domElement.style.cursor = 'default';
     }
 
+    function updateModeHint() {
+        const hint = root.querySelector('[data-mode-hint]');
+        if (activeMode !== 'region' && pendingFirstPoint) {
+            const action = activeMode === 'line' ? 'nối đường' : 'tạo trung điểm';
+            hint.textContent = `Đã chọn điểm ${pendingFirstPoint} — bấm điểm thứ hai để ${action}.`;
+        } else {
+            hint.textContent = MODE_HINTS[activeMode];
+        }
+    }
+
+    function updateRegionProgress() {
+        const box = root.querySelector('[data-region-progress]');
+        box.classList.toggle('d-none', activeMode !== 'region' || regionSelection.length === 0);
+        root.querySelector('[data-region-progress-list]').textContent = regionSelection.join(', ');
+        root.querySelector('[data-region-finish]').disabled = regionSelection.length < 3;
+    }
+
+    /** Chốt một điểm vừa bấm (tap) hoặc vừa kéo xong — việc tiếp theo tuỳ chế độ đang bật. */
+    function handlePointSelected(name) {
+        if (activeMode === 'region') {
+            if (!regionSelection.includes(name)) {
+                regionSelection.push(name);
+                setHandleOpacity(name, 0.9);
+            }
+            updateRegionProgress();
+
+            return;
+        }
+
+        if (!pendingFirstPoint) {
+            pendingFirstPoint = name;
+            setHandleOpacity(name, 0.9);
+            updateModeHint();
+
+            return;
+        }
+
+        if (pendingFirstPoint === name) return; // bấm lại đúng điểm đang chờ — bỏ qua
+
+        const first = pendingFirstPoint;
+        setHandleOpacity(first, 0);
+        pendingFirstPoint = null;
+
+        if (activeMode === 'line') {
+            auxiliaryLines.push({ from: first, to: name });
+        } else {
+            customPoints.push({ name: suggestPointName(pointHandles.map((h) => h.name)), from: first, to: name });
+        }
+
+        updateModeHint();
+        renderShape(currentShapeKey, readDims(currentShapeKey));
+    }
+
+    function setActiveMode(mode) {
+        // Dọn trạng thái dở dang của chế độ cũ trước khi đổi — không thì lẫn điểm "đang chờ" của
+        // chế độ này sang chế độ khác, rất khó hiểu cho người dùng.
+        if (pendingFirstPoint) setHandleOpacity(pendingFirstPoint, 0);
+        pendingFirstPoint = null;
+        regionSelection.forEach((name) => setHandleOpacity(name, 0));
+        regionSelection = [];
+        updateRegionProgress();
+
+        activeMode = mode;
+        root.querySelectorAll('[data-mode]').forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        updateModeHint();
+    }
+
     // Capture: phải chạy TRƯỚC listener nội bộ của OrbitControls (gắn trên cùng phần tử) để có thể
     // chặn nó bắt đầu xoay camera khi người dùng đang thật sự bấm vào một điểm để kéo nối đường.
+    // Chỉ chế độ "Nối đường" mới cần preview kéo — 2 chế độ kia chỉ cần phát hiện cú bấm ở pointerup.
     renderer.domElement.addEventListener('pointerdown', (event) => {
-        const handle = pickHandle(event);
-        if (!handle) return;
+        pointerDownAt = { x: event.clientX, y: event.clientY };
+        pointerDownHandle = pickHandle(event);
+        if (activeMode !== 'line' || !pointerDownHandle) return;
 
         event.stopImmediatePropagation();
         controls.enabled = false;
-        dragFromPoint = handle.name;
-        setHandleOpacity(handle.name, 0.9);
+        dragFromPoint = pointerDownHandle.name;
+        setHandleOpacity(pointerDownHandle.name, 0.9);
 
         previewLine = new THREE.Line(
-            new THREE.BufferGeometry().setFromPoints([handle.mesh.position, handle.mesh.position]),
+            new THREE.BufferGeometry().setFromPoints([pointerDownHandle.mesh.position, pointerDownHandle.mesh.position]),
             new THREE.LineDashedMaterial({ color: 0xf97316, dashSize: 0.15, gapSize: 0.1 }),
         );
         scene.add(previewLine);
@@ -325,13 +412,16 @@ if (root) {
 
     renderer.domElement.addEventListener('pointermove', (event) => {
         if (!dragFromPoint) {
-            // Chỉ để lộ tay cầm (đang trong suốt) khi rê chuột qua — gợi ý "điểm này kéo được"
-            // mà không làm rối mắt hình lúc không tương tác.
+            // Chỉ để lộ tay cầm (đang trong suốt) khi rê chuột qua — gợi ý "điểm này bấm được"
+            // mà không làm rối mắt hình lúc không tương tác. Điểm đang "chờ"/đã chọn vẫn giữ sáng.
             const hover = pickHandle(event);
-            if (hoveredPoint && hoveredPoint !== hover?.name) setHandleOpacity(hoveredPoint, 0);
+            if (hoveredPoint && hoveredPoint !== hover?.name && hoveredPoint !== pendingFirstPoint
+                && !regionSelection.includes(hoveredPoint)) {
+                setHandleOpacity(hoveredPoint, 0);
+            }
             hoveredPoint = hover?.name ?? null;
-            if (hover) setHandleOpacity(hover.name, 0.5);
-            renderer.domElement.style.cursor = hover ? 'grab' : 'default';
+            if (hover) setHandleOpacity(hover.name, hover.name === pendingFirstPoint ? 0.9 : 0.5);
+            renderer.domElement.style.cursor = hover ? 'pointer' : 'default';
 
             return;
         }
@@ -360,16 +450,30 @@ if (root) {
     });
 
     window.addEventListener('pointerup', (event) => {
-        if (!dragFromPoint) return;
+        const moved = pointerDownAt
+            ? Math.hypot(event.clientX - pointerDownAt.x, event.clientY - pointerDownAt.y)
+            : Infinity;
 
-        const from = dragFromPoint;
-        const target = pickHandle(event);
-        endDrag();
+        if (dragFromPoint) {
+            const from = dragFromPoint;
+            const target = pickHandle(event);
+            endDrag();
 
-        if (target && target.name !== from) {
-            auxiliaryLines.push({ from, to: target.name });
-            renderShape(currentShapeKey, readDims(currentShapeKey));
+            if (moved < CLICK_MOVE_THRESHOLD) {
+                // Bấm-thả tại chỗ (không kéo đi đâu) — coi như một cú "bấm chọn điểm" bình thường.
+                handlePointSelected(from);
+            } else if (target && target.name !== from) {
+                auxiliaryLines.push({ from, to: target.name });
+                renderShape(currentShapeKey, readDims(currentShapeKey));
+            } else {
+                setHandleOpacity(from, 0);
+            }
+        } else if (moved < CLICK_MOVE_THRESHOLD && pointerDownHandle) {
+            handlePointSelected(pointerDownHandle.name);
         }
+
+        pointerDownAt = null;
+        pointerDownHandle = null;
     });
 
     function renderShape(shapeKey, dims) {
@@ -407,20 +511,20 @@ if (root) {
         const handleRadius = Math.max(0.12, geometry.boundingSphere.radius * 0.05);
         const handleGeometry = new THREE.SphereGeometry(handleRadius, 12, 10);
 
-        const pointMap = {};
-        pointHandles = [];
-        labels.forEach(([text, position]) => {
+        // Nhãn chữ + tay cầm bắt tia cho một điểm — dùng chung cho điểm gốc của hình VÀ điểm tự tạo
+        // (trung điểm), để cả hai loại đều kéo-thả/nối đường/làm đỉnh vùng được như nhau.
+        function addPoint(text, position, isCustom) {
             pointMap[text] = position;
 
             const el = document.createElement('div');
-            el.className = 'solid-geometry__point-label';
+            el.className = 'solid-geometry__point-label'
+                + (isCustom ? ' solid-geometry__point-label--custom' : '');
             el.textContent = text;
             const point = new CSS2DObject(el);
             point.position.set(...position);
             group.add(point);
 
-            // Tay cầm bắt tia cho kéo-thả — trong suốt khi đứng yên, chỉ lộ ra (đổi màu) lúc rê chuột
-            // qua hoặc đang kéo, xem setHandleHighlight().
+            // Trong suốt khi đứng yên, chỉ lộ ra (đổi màu) lúc rê chuột qua hoặc đang kéo.
             const handle = new THREE.Mesh(handleGeometry, new THREE.MeshBasicMaterial({
                 color: 0xf97316,
                 transparent: true,
@@ -431,6 +535,22 @@ if (root) {
             handle.userData.pointName = text;
             group.add(handle);
             pointHandles.push({ name: text, mesh: handle });
+        }
+
+        const pointMap = {};
+        pointHandles = [];
+        labels.forEach(([text, position]) => addPoint(text, position, false));
+
+        // Điểm tự tạo (trung điểm) — xử lý THEO THỨ TỰ đã thêm nên điểm sau được phép lấy trung điểm
+        // của một điểm tự tạo trước đó. Thiếu from/to (đổi hình, hoặc điểm gốc đã bị xoá) thì bỏ qua —
+        // mọi thứ dựa vào điểm bị bỏ qua này (đường, vùng, điểm khác) cũng tự động biến mất theo,
+        // không cần dọn tay từng chỗ.
+        customPoints.forEach(({ name, from, to }) => {
+            const a = pointMap[from];
+            const b = pointMap[to];
+            if (!a || !b) return;
+
+            addPoint(name, a.map((v, i) => (v + b[i]) / 2), true);
         });
 
         // Đoạn tự vẽ (nối đường chéo, hạ đường cao…) — màu cam để phân biệt cạnh hình (đen).
@@ -454,6 +574,37 @@ if (root) {
             group.add(label);
         });
 
+        // Vùng/mặt cắt (≥ 3 điểm theo thứ tự quanh vùng) — tô màu xanh lục, tam giác hoá hình quạt từ
+        // điểm đầu (đúng với vùng LỒI — đa số thiết diện trong bài thật là tam giác/tứ giác lồi).
+        regions.forEach((region) => {
+            const positions = region.points.map((name) => pointMap[name]);
+            if (positions.length < 3 || positions.some((p) => !p)) return;
+
+            const vertices = positions.map((p) => new THREE.Vector3(...p));
+            const regionGeometry = new THREE.BufferGeometry().setFromPoints(vertices);
+            const indices = [];
+            for (let i = 1; i < vertices.length - 1; i++) indices.push(0, i, i + 1);
+            regionGeometry.setIndex(indices);
+            regionGeometry.computeVertexNormals();
+
+            group.add(new THREE.Mesh(regionGeometry, new THREE.MeshBasicMaterial({
+                color: 0x16a34a,
+                transparent: true,
+                opacity: 0.35,
+                side: THREE.DoubleSide,
+                depthTest: false,
+            })));
+            group.add(new THREE.LineLoop(
+                new THREE.BufferGeometry().setFromPoints(vertices),
+                new THREE.LineBasicMaterial({ color: 0x16a34a }),
+            ));
+        });
+
+        // Vẽ lại xong, dựng lại toàn bộ tay cầm mới — phục hồi trạng thái "đang chọn" (nếu có) vì
+        // đổi SỐ LIỆU (không phải đổi hình) vẫn giữ nguyên điểm đang chờ/vùng đang gom dở.
+        if (pendingFirstPoint) setHandleOpacity(pendingFirstPoint, 0.9);
+        regionSelection.forEach((name) => setHandleOpacity(name, 0.9));
+
         scene.add(group);
         currentGroup = group;
 
@@ -467,25 +618,50 @@ if (root) {
             resultsHost.appendChild(row);
         });
 
-        renderLinePicker(Object.keys(pointMap));
         renderLineList(pointMap);
+        renderPointList(pointMap);
+        renderRegionList(pointMap);
+    }
+
+    /** Chu vi đa giác phẳng = tổng cạnh liên tiếp, khép kín về điểm đầu. */
+    function polygonPerimeter(vertices) {
+        let perimeter = 0;
+        for (let i = 0; i < vertices.length; i++) {
+            perimeter += vertices[i].distanceTo(vertices[(i + 1) % vertices.length]);
+        }
+
+        return perimeter;
+    }
+
+    /**
+     * Diện tích đa giác phẳng trong không gian 3D — công thức Newell: cho đúng kết quả dù mặt
+     * phẳng nằm nghiêng bất kỳ, miễn các điểm thật sự đồng phẳng và được nhập ĐÚNG THỨ TỰ quanh vùng.
+     */
+    function polygonArea(vertices) {
+        const normal = new THREE.Vector3();
+        for (let i = 0; i < vertices.length; i++) {
+            const current = vertices[i];
+            const next = vertices[(i + 1) % vertices.length];
+            normal.x += (current.y - next.y) * (current.z + next.z);
+            normal.y += (current.z - next.z) * (current.x + next.x);
+            normal.z += (current.x - next.x) * (current.y + next.y);
+        }
+
+        return normal.length() / 2;
     }
 
     function distance(a, b) {
         return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
     }
 
-    function renderLinePicker(pointNames) {
-        const fromSelect = root.querySelector('[data-line-from]');
-        const toSelect = root.querySelector('[data-line-to]');
-        const options = pointNames.map((name) => `<option value="${name}">${name}</option>`).join('');
+    /** Chữ cái gợi ý cho điểm mới — bỏ qua tên đã dùng, tránh trùng với đỉnh gốc (A, B, S…). */
+    function suggestPointName(usedNames) {
+        const letters = 'MNPQRTUVWXYZHKL';
+        for (const letter of letters) {
+            if (!usedNames.includes(letter)) return letter;
+        }
 
-        [fromSelect, toSelect].forEach((select, i) => {
-            const previous = select.value;
-            select.innerHTML = options;
-            // Mặc định 2 ô khác điểm nhau (điểm đầu/cuối danh sách) cho dễ bấm "Thêm" ngay lần đầu.
-            select.value = pointNames.includes(previous) ? previous : pointNames[i === 0 ? 0 : pointNames.length - 1];
-        });
+        return '';
     }
 
     function renderLineList(pointMap) {
@@ -509,6 +685,59 @@ if (root) {
         host.querySelectorAll('[data-remove-line]').forEach((btn) => {
             btn.addEventListener('click', () => {
                 auxiliaryLines.splice(Number(btn.dataset.removeLine), 1);
+                renderShape(currentShapeKey, readDims(currentShapeKey));
+            });
+        });
+    }
+
+    function renderPointList(pointMap) {
+        const host = root.querySelector('[data-solid-point-list]');
+        host.innerHTML = '';
+
+        customPoints.forEach((point, index) => {
+            if (!pointMap[point.name]) return; // from/to không còn tồn tại — điểm này đang bị bỏ qua
+
+            const row = document.createElement('div');
+            row.className = 'd-flex align-items-center justify-content-between small py-1';
+            row.innerHTML = `
+                <span>${point.name} = trung điểm ${point.from}${point.to}</span>
+                <button type="button" class="btn btn-sm btn-link text-danger p-0" data-remove-point="${index}">Xoá</button>
+            `;
+            host.appendChild(row);
+        });
+
+        host.querySelectorAll('[data-remove-point]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                customPoints.splice(Number(btn.dataset.removePoint), 1);
+                renderShape(currentShapeKey, readDims(currentShapeKey));
+            });
+        });
+    }
+
+    function renderRegionList(pointMap) {
+        const host = root.querySelector('[data-solid-region-list]');
+        host.innerHTML = '';
+
+        regions.forEach((region, index) => {
+            const positions = region.points.map((name) => pointMap[name]);
+            if (positions.length < 3 || positions.some((p) => !p)) return;
+
+            const vertices = positions.map((p) => new THREE.Vector3(...p));
+            const row = document.createElement('div');
+            row.className = 'd-flex align-items-center justify-content-between small py-1';
+            row.innerHTML = `
+                <span>
+                    Vùng ${region.points.join('')}: chu vi ${formatNumber(polygonPerimeter(vertices))} đv,
+                    diện tích ${formatNumber(polygonArea(vertices))} đvdt
+                </span>
+                <button type="button" class="btn btn-sm btn-link text-danger p-0" data-remove-region="${index}">Xoá</button>
+            `;
+            host.appendChild(row);
+        });
+
+        host.querySelectorAll('[data-remove-region]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                regions.splice(Number(btn.dataset.removeRegion), 1);
                 renderShape(currentShapeKey, readDims(currentShapeKey));
             });
         });
@@ -548,7 +777,13 @@ if (root) {
         root.querySelectorAll('[data-shape]').forEach((btn) => {
             btn.classList.toggle('active', btn.dataset.shape === shapeKey);
         });
-        auxiliaryLines = []; // tên điểm của hình khác không còn khớp
+        // Tên điểm của hình khác không còn khớp — xoá sạch mọi thứ dựa trên tên điểm.
+        auxiliaryLines = [];
+        customPoints = [];
+        regions = [];
+        regionSelection = [];
+        pendingFirstPoint = null;
+        updateRegionProgress();
         renderInputs(shapeKey);
         renderShape(shapeKey, readDims(shapeKey));
     }
@@ -557,16 +792,28 @@ if (root) {
         btn.addEventListener('click', () => selectShape(btn.dataset.shape));
     });
 
-    root.querySelector('[data-add-line]').addEventListener('click', () => {
-        const from = root.querySelector('[data-line-from]').value;
-        const to = root.querySelector('[data-line-to]').value;
-        if (!from || !to || from === to) return;
+    root.querySelectorAll('[data-mode]').forEach((btn) => {
+        btn.addEventListener('click', () => setActiveMode(btn.dataset.mode));
+    });
 
-        auxiliaryLines.push({ from, to });
+    root.querySelector('[data-region-finish]').addEventListener('click', () => {
+        if (regionSelection.length < 3) return;
+
+        regions.push({ points: [...regionSelection] });
+        regionSelection.forEach((name) => setHandleOpacity(name, 0));
+        regionSelection = [];
+        updateRegionProgress();
         renderShape(currentShapeKey, readDims(currentShapeKey));
     });
 
+    root.querySelector('[data-region-cancel]').addEventListener('click', () => {
+        regionSelection.forEach((name) => setHandleOpacity(name, 0));
+        regionSelection = [];
+        updateRegionProgress();
+    });
+
     resize();
+    setActiveMode('line');
     selectShape(root.querySelector('[data-shape]').dataset.shape);
     render();
 }

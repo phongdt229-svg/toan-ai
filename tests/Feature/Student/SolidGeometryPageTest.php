@@ -40,10 +40,16 @@ class SolidGeometryPageTest extends TestCase
         $response->assertSee('data-solid-canvas', false)
             ->assertSee('data-solid-inputs', false)
             ->assertSee('data-solid-results', false)
-            ->assertSee('data-line-from', false)
-            ->assertSee('data-line-to', false)
-            ->assertSee('data-add-line', false)
-            ->assertSee('data-solid-line-list', false);
+            ->assertSee('data-mode="line"', false)
+            ->assertSee('data-mode="midpoint"', false)
+            ->assertSee('data-mode="region"', false)
+            ->assertSee('data-mode-hint', false)
+            ->assertSee('data-region-progress', false)
+            ->assertSee('data-region-finish', false)
+            ->assertSee('data-region-cancel', false)
+            ->assertSee('data-solid-line-list', false)
+            ->assertSee('data-solid-point-list', false)
+            ->assertSee('data-solid-region-list', false);
     }
 
     public function test_only_students_can_open_the_page(): void
