@@ -1189,6 +1189,15 @@ giữ phía server, toán tính thẳng ở client vì không có gì để gian
   lại cũng không tải được vì phải vào geogebra.org trước mới lấy được bộ cài. Quay lại bản Three.js
   tự viết (`git revert`, vẫn đang dùng) vì tự host hoàn toàn, không phụ thuộc mạng ngoài. **Đừng thử
   nhúng GeoGebra lại** trừ khi xác nhận geogebra.org đã truy cập được từ mạng Việt Nam.
+- [x] **Tối ưu thao tác (15/10)** — chạm trên điện thoại khó trúng điểm hơn chuột (ngón tay không
+      đứng yên tuyệt đối): ngưỡng "bấm vs kéo" tăng gấp 2.5 lần khi `event.pointerType === 'touch'`,
+      tay cầm điểm cũng to hơn (bán kính tối thiểu 0.12 → 0.2 theo tỉ lệ hình). Thêm nút **"Xoá tất cả
+      đường/điểm/vùng"** (chỉ hiện khi có gì để xoá) — trước đó phải xoá từng cái một nếu lỡ vẽ nhầm
+      nhiều; xác nhận qua `window.confirmDialog()` (nút JS thường, không phải form/link nên không tự
+      có `data-confirm`, gọi thẳng theo đúng cách `confirm-dialog.js` hướng dẫn). Thêm `aria-pressed`
+      cho nút chọn hình + nút chọn chế độ (trình đọc màn hình biết đang chọn gì).
+- [x] **Thêm "Hình học không gian" vào mục Tính năng trang chủ** (tính năng đã chạy thật, trước đó
+      trang chủ chưa nhắc tới — đúng quy tắc "trang chủ chỉ quảng cáo thứ có thật").
 
 ### ✅ Đã làm (27/09, đợt 5) — Rà SEO từng trang một, toàn site
 

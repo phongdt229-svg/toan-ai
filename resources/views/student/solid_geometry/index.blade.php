@@ -10,14 +10,14 @@
     </p>
 
     <div data-solid-geometry>
-        <div class="d-flex gap-2 mb-3 overflow-auto pb-1">
-            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="box">Hình hộp chữ nhật</button>
-            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="cube">Hình lập phương</button>
-            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="pyramid3">Chóp tam giác đều</button>
-            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="pyramid4">Chóp tứ giác đều</button>
-            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="cylinder">Hình trụ</button>
-            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="cone">Hình nón</button>
-            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="sphere">Hình cầu</button>
+        <div class="d-flex gap-2 mb-3 overflow-auto pb-1" role="group" aria-label="Chọn hình">
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="box" aria-pressed="false">Hình hộp chữ nhật</button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="cube" aria-pressed="false">Hình lập phương</button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="pyramid3" aria-pressed="false">Chóp tam giác đều</button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="pyramid4" aria-pressed="false">Chóp tứ giác đều</button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="cylinder" aria-pressed="false">Hình trụ</button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="cone" aria-pressed="false">Hình nón</button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" data-shape="sphere" aria-pressed="false">Hình cầu</button>
         </div>
 
         <div class="row g-3">
@@ -36,13 +36,13 @@
                         <hr>
                         <h2 class="h6 fw-bold mb-2">Công cụ — bấm thẳng lên hình</h2>
                         <div class="btn-group w-100 mb-2" role="group" aria-label="Chọn công cụ">
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="line">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="line" aria-pressed="false">
                                 Nối đường
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="point">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="point" aria-pressed="false">
                                 Điểm trên đoạn
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="region">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="region" aria-pressed="false">
                                 Đo vùng
                             </button>
                         </div>
@@ -73,6 +73,11 @@
                         <div data-solid-line-list></div>
                         <div data-solid-point-list></div>
                         <div data-solid-region-list></div>
+
+                        <button type="button" data-clear-all
+                                class="btn btn-sm btn-outline-danger w-100 mt-2 d-none">
+                            Xoá tất cả đường/điểm/vùng đã thêm
+                        </button>
                     </div>
                 </div>
             </div>

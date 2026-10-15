@@ -398,7 +398,9 @@ if (root) {
 
         activeMode = mode;
         root.querySelectorAll('[data-mode]').forEach((btn) => {
-            btn.classList.toggle('active', btn.dataset.mode === mode);
+            const isActive = btn.dataset.mode === mode;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-pressed', String(isActive));
         });
         root.querySelector('[data-point-ratio-field]').classList.toggle('d-none', mode !== 'point');
         updateModeHint();
@@ -467,13 +469,16 @@ if (root) {
         const moved = pointerDownAt
             ? Math.hypot(event.clientX - pointerDownAt.x, event.clientY - pointerDownAt.y)
             : Infinity;
+        // Ngón tay rê nhẹ lúc chạm vẫn phải tính là "bấm" — tay cầm nhỏ, chạm không đứng yên
+        // tuyệt đối như chuột được. Chuột giữ mức chặt (6px) để không lẫn với kéo thật.
+        const threshold = event.pointerType === 'touch' ? CLICK_MOVE_THRESHOLD * 2.5 : CLICK_MOVE_THRESHOLD;
 
         if (dragFromPoint) {
             const from = dragFromPoint;
             const target = pickHandle(event);
             endDrag();
 
-            if (moved < CLICK_MOVE_THRESHOLD) {
+            if (moved < threshold) {
                 // Bấm-thả tại chỗ (không kéo đi đâu) — coi như một cú "bấm chọn điểm" bình thường.
                 handlePointSelected(from);
             } else if (target && target.name !== from) {
@@ -482,7 +487,7 @@ if (root) {
             } else {
                 setHandleOpacity(from, 0);
             }
-        } else if (moved < CLICK_MOVE_THRESHOLD && pointerDownHandle) {
+        } else if (moved < threshold && pointerDownHandle) {
             handlePointSelected(pointerDownHandle.name);
         }
 
@@ -522,7 +527,9 @@ if (root) {
         group.add(edges);
 
         geometry.computeBoundingSphere();
-        const handleRadius = Math.max(0.12, geometry.boundingSphere.radius * 0.05);
+        // Lớn hơn ngưỡng cũ (0.12 → 0.2) — bán kính tính theo % hình để chạm được trên màn hình nhỏ,
+        // tay cầm vẫn vô hình khi đứng yên (opacity: 0 ở addPoint()) nên không làm rối mắt hình.
+        const handleRadius = Math.max(0.2, geometry.boundingSphere.radius * 0.06);
         const handleGeometry = new THREE.SphereGeometry(handleRadius, 12, 10);
 
         // Nhãn chữ + tay cầm bắt tia cho một điểm — dùng chung cho điểm gốc của hình VÀ điểm tự tạo
@@ -635,6 +642,9 @@ if (root) {
         renderLineList(pointMap);
         renderPointList(pointMap);
         renderRegionList(pointMap);
+
+        const hasAnything = auxiliaryLines.length > 0 || customPoints.length > 0 || regions.length > 0;
+        root.querySelector('[data-clear-all]').classList.toggle('d-none', !hasAnything);
     }
 
     /** Chu vi đa giác phẳng = tổng cạnh liên tiếp, khép kín về điểm đầu. */
@@ -794,7 +804,9 @@ if (root) {
 
     function selectShape(shapeKey) {
         root.querySelectorAll('[data-shape]').forEach((btn) => {
-            btn.classList.toggle('active', btn.dataset.shape === shapeKey);
+            const isActive = btn.dataset.shape === shapeKey;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-pressed', String(isActive));
         });
         // Tên điểm của hình khác không còn khớp — xoá sạch mọi thứ dựa trên tên điểm.
         auxiliaryLines = [];
@@ -829,6 +841,21 @@ if (root) {
         regionSelection.forEach((name) => setHandleOpacity(name, 0));
         regionSelection = [];
         updateRegionProgress();
+    });
+
+    // Nút bấm JS thường (không phải <form>/<a>) nên gọi thẳng window.confirmDialog() theo đúng
+    // cách confirm-dialog.js hướng dẫn, thay vì data-confirm (chỉ tự gắn cho form/link).
+    root.querySelector('[data-clear-all]').addEventListener('click', async () => {
+        const confirmed = await window.confirmDialog('Xoá hết đường, điểm và vùng đã thêm trên hình này?', {
+            ok: 'Xoá tất cả',
+            variant: 'danger',
+        });
+        if (!confirmed) return;
+
+        auxiliaryLines = [];
+        customPoints = [];
+        regions = [];
+        renderShape(currentShapeKey, readDims(currentShapeKey));
     });
 
     resize();

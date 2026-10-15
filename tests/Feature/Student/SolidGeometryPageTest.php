@@ -50,7 +50,8 @@ class SolidGeometryPageTest extends TestCase
             ->assertSee('data-region-cancel', false)
             ->assertSee('data-solid-line-list', false)
             ->assertSee('data-solid-point-list', false)
-            ->assertSee('data-solid-region-list', false);
+            ->assertSee('data-solid-region-list', false)
+            ->assertSee('data-clear-all', false);
     }
 
     public function test_only_students_can_open_the_page(): void
