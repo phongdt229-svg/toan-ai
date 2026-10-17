@@ -101,6 +101,11 @@ Route::get('tin-tuc', [BlogController::class, 'index'])->name('blog.index');
 Route::get('tin-tuc/rss.xml', [BlogController::class, 'feed'])->name('blog.feed');
 Route::get('tin-tuc/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 
+// Khung HTML tĩnh của công cụ hình 3D — JS nhúng hình vào bài học/câu hỏi tải về khi cần (không chứa dữ liệu người dùng).
+Route::view('hinh-hoc/khong-gian/mau', 'partials.solid-geometry-widget')->name('geometry.solid-markup');
+
+Route::view('hinh-hoc/phang/mau', 'partials.plane-geometry-widget')->name('geometry.plane-markup');
+
 // Lựa chọn cookie — ai cũng dùng được, kể cả khách chưa đăng nhập.
 Route::post('cookie', [CookieConsentController::class, 'store'])->name('cookie.store');
 Route::delete('cookie', [CookieConsentController::class, 'destroy'])->name('cookie.destroy');

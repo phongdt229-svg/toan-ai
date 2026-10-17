@@ -10,7 +10,12 @@ import StarterKit from '@tiptap/starter-kit';
 import { TableKit } from '@tiptap/extension-table';
 import Placeholder from '@tiptap/extension-placeholder';
 import katex from 'katex';
-import { fromEditorHtml, toEditorHtml } from './editor/math-html';
+import { fromEditorHtml as mathFromEditor, toEditorHtml as mathToEditor } from './editor/math-html';
+import { fromEditorHtml as geoFromEditor, toEditorHtml as geoToEditor } from './editor/geometry-html';
+
+// Công thức và hình cùng là "token văn bản" trong DB, cùng là node trong trình soạn.
+const toEditorHtml = (html) => geoToEditor(mathToEditor(html));
+const fromEditorHtml = (html) => mathFromEditor(geoFromEditor(html));
 
 // MathLive nặng (~800KB) → chỉ tải khi giáo viên mở hộp thoại công thức lần đầu.
 const openMathDialog = async (options) => (await import('./editor/math-dialog')).openMathDialog(options);
@@ -124,6 +129,89 @@ const MathBlock = Node.create({
     },
 });
 
+// --- Node hình vẽ ------------------------------------------------------------------------
+
+const openGeometryDialog = async (options) => (await import('./editor/geometry-dialog')).openGeometryDialog(options);
+const geometryCodec = () => import('./geometry-embed');
+
+const GeometryBlock = Node.create({
+    name: 'geometryBlock',
+    group: 'block',
+    atom: true,
+    selectable: true,
+
+    addAttributes: () => ({
+        config: {
+            default: '',
+            parseHTML: (el) => el.getAttribute('data-config') || '',
+            renderHTML: (attrs) => ({ 'data-config': attrs.config }),
+        },
+    }),
+    parseHTML: () => [{ tag: 'div[data-geometry-block]' }],
+    renderHTML: ({ HTMLAttributes }) => ['div', mergeAttributes({ 'data-geometry-block': '' }, HTMLAttributes)],
+
+    // Không chạy Three.js trong trình soạn (nhiều hình cùng lúc sẽ giật) — chỉ hiện thẻ tóm tắt, bấm để mở công cụ.
+    addNodeView() {
+        return ({ node, getPos, editor }) => {
+            let current = node;
+            const dom = document.createElement('div');
+            dom.className = 'geometry-node';
+            dom.contentEditable = 'false';
+
+            const render = () => {
+                dom.innerHTML = '<i class="bi bi-box fs-4 text-primary"></i><div class="flex-grow-1"></div>'
+                    + '<button type="button" class="btn btn-sm btn-outline-primary" data-geo-edit>Sửa hình</button>'
+                    + '<button type="button" class="btn btn-sm btn-outline-danger" data-geo-remove>Xoá</button>';
+                geometryCodec().then(({ decodeConfig, describeConfig }) => {
+                    dom.querySelector('div').textContent = describeConfig(decodeConfig(current.attrs.config));
+                });
+            };
+            render();
+
+            dom.addEventListener('click', async (event) => {
+                if (!editor.isEditable) return;
+                const pos = getPos();
+                if (typeof pos !== 'number') return;
+                const range = { from: pos, to: pos + current.nodeSize };
+
+                if (event.target.closest('[data-geo-remove]')) {
+                    const ok = await window.confirmDialog('Xoá hình này khỏi bài?', { ok: 'Xoá', variant: 'danger' });
+                    if (ok) editor.chain().focus().deleteRange(range).run();
+
+                    return;
+                }
+                if (!event.target.closest('[data-geo-edit]')) return;
+
+                const { decodeConfig, encodeConfig } = await geometryCodec();
+                const result = await openGeometryDialog({ config: decodeConfig(current.attrs.config), editing: true });
+                if (!result) return;
+                editor.chain().focus().insertContentAt(range, {
+                    type: 'geometryBlock', attrs: { config: encodeConfig(result) },
+                }).run();
+            });
+
+            return {
+                dom,
+                update(updated) {
+                    if (updated.type !== current.type) return false;
+                    current = updated;
+                    render();
+
+                    return true;
+                },
+                ignoreMutation: () => true,
+            };
+        };
+    },
+});
+
+async function insertGeometry(editor) {
+    const result = await openGeometryDialog({});
+    if (!result) return;
+    const { encodeConfig } = await geometryCodec();
+    editor.chain().focus().insertContent({ type: 'geometryBlock', attrs: { config: encodeConfig(result) } }).run();
+}
+
 // --- Thanh công cụ -----------------------------------------------------------------------
 
 const BUTTONS = [
@@ -148,6 +236,7 @@ const BUTTONS = [
     'sep',
     { label: '∑ Công thức', title: 'Chèn công thức trong dòng (hoặc gõ $...$)', primary: true, run: (e) => insertMath(e, false) },
     { label: '∑ Riêng dòng', title: 'Chèn công thức riêng một dòng, căn giữa (hoặc gõ $$...$$)', primary: true, run: (e) => insertMath(e, true) },
+    { label: '△ Vẽ hình', title: 'Chèn hình phẳng 2D hoặc hình không gian 3D vào bài', primary: true, run: (e) => insertGeometry(e) },
     'sep',
     { icon: 'bi-eraser', title: 'Xoá định dạng', run: (e) => e.chain().focus().unsetAllMarks().clearNodes().run() },
     { icon: 'bi-code-slash', title: 'Xem / sửa mã HTML', toggleSource: true },
@@ -247,6 +336,7 @@ function mount(textarea) {
             Placeholder.configure({ placeholder: textarea.getAttribute('placeholder') || 'Soạn nội dung bài học…' }),
             MathInline,
             MathBlock,
+            GeometryBlock,
         ],
         content: toEditorHtml(textarea.value),
         onUpdate: sync,

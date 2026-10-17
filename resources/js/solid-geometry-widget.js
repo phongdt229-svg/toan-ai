@@ -26,6 +26,23 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 
 const SQRT3 = Math.sqrt(3);
 
+// Dịch cả hình về tâm hộp bao quanh gốc toạ độ để camera luôn thấy đủ (như các hình khác).
+function centerPoints(points) {
+    const lo = [0, 1, 2].map((i) => Math.min(...points.map((p) => p[i])));
+    const hi = [0, 1, 2].map((i) => Math.max(...points.map((p) => p[i])));
+
+    return points.map((p) => p.map((v, i) => v - (lo[i] + hi[i]) / 2));
+}
+
+function meshFrom(points, index) {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setFromPoints(points.map((p) => new THREE.Vector3(...p)));
+    geometry.setIndex(index);
+    geometry.computeVertexNormals();
+
+    return geometry;
+}
+
 // Mỗi hình: inputs (nhãn + giá trị mặc định + chặn dưới), build(dims) trả mesh + nhãn đỉnh +
 // số liệu. Toạ độ Three.js: Y là chiều cao — mọi hình dựng CÂN GIỮA gốc để camera luôn thấy đủ.
 const SHAPES = {
@@ -142,6 +159,83 @@ const SHAPES = {
         },
     },
 
+    // Chóp S.ABCD đáy chữ nhật, SA ⊥ đáy — hình quen thuộc nhất của chương quan hệ vuông góc (lớp 11).
+    pyramidRect: {
+        label: 'Chóp S.ABCD (đáy chữ nhật, SA ⊥ đáy)',
+        inputs: [
+            { key: 'a', label: 'AB = a', value: 4 },
+            { key: 'b', label: 'AD = b', value: 3 },
+            { key: 'h', label: 'SA = h', value: 5 },
+        ],
+        build({ a, b, h }) {
+            const pts = centerPoints([[0, 0, 0], [a, 0, 0], [a, 0, -b], [0, 0, -b], [0, h, 0]]);
+            const [A, B, C, D, S] = pts;
+            const geometry = meshFrom(pts, [0, 1, 2, 0, 2, 3, 0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4]);
+
+            return {
+                geometry,
+                labels: [['A', A], ['B', B], ['C', C], ['D', D], ['S', S]],
+                results: [
+                    { text: 'Thể tích V = (1/3)·AB·AD·SA', value: (a * b * h) / 3, unit: 'đvtt' },
+                    { text: 'SC = √(a² + b² + h²)', value: Math.sqrt(a * a + b * b + h * h), unit: '' },
+                ],
+            };
+        },
+    },
+
+    // Lăng trụ đứng ABC.A'B'C', đáy là tam giác vuông tại A.
+    prismRight: {
+        label: "Lăng trụ đứng ABC.A'B'C' (vuông tại A)",
+        inputs: [
+            { key: 'a', label: 'AB = a', value: 3 },
+            { key: 'b', label: 'AC = b', value: 4 },
+            { key: 'h', label: "AA' = h", value: 5 },
+        ],
+        build({ a, b, h }) {
+            const pts = centerPoints([
+                [0, 0, 0], [a, 0, 0], [0, 0, -b],
+                [0, h, 0], [a, h, 0], [0, h, -b],
+            ]);
+            const [A, B, C, A1, B1, C1] = pts;
+            const geometry = meshFrom(pts, [
+                0, 1, 2, 3, 4, 5, // 2 đáy
+                0, 1, 4, 0, 4, 3, 1, 2, 5, 1, 5, 4, 2, 0, 3, 2, 3, 5, // 3 mặt bên
+            ]);
+
+            return {
+                geometry,
+                labels: [['A', A], ['B', B], ['C', C], ["A'", A1], ["B'", B1], ["C'", C1]],
+                results: [
+                    { text: 'Thể tích V = (1/2)·AB·AC·AA\'', value: (a * b * h) / 2, unit: 'đvtt' },
+                    { text: 'BC = √(a² + b²)', value: Math.hypot(a, b), unit: '' },
+                ],
+            };
+        },
+    },
+
+    // Tứ diện vuông OABC: OA, OB, OC đôi một vuông góc.
+    tetraRight: {
+        label: 'Tứ diện vuông OABC',
+        inputs: [
+            { key: 'a', label: 'OA = a', value: 3 },
+            { key: 'b', label: 'OB = b', value: 4 },
+            { key: 'c', label: 'OC = c', value: 5 },
+        ],
+        build({ a, b, c }) {
+            const pts = centerPoints([[0, 0, 0], [a, 0, 0], [0, 0, -b], [0, c, 0]]);
+            const [O, A, B, C] = pts;
+            const geometry = meshFrom(pts, [0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 2, 3]);
+
+            return {
+                geometry,
+                labels: [['O', O], ['A', A], ['B', B], ['C', C]],
+                results: [
+                    { text: 'Thể tích V = (1/6)·OA·OB·OC', value: (a * b * c) / 6, unit: 'đvtt' },
+                ],
+            };
+        },
+    },
+
     cylinder: {
         label: 'Hình trụ',
         inputs: [
@@ -218,7 +312,7 @@ const SHAPES = {
 };
 
 export function mountSolidGeometry(root, options = {}) {
-    const { initialConfig = null, onChange = null } = options;
+    const { initialConfig = null, onChange = null, readOnly = false } = options;
 
     // --- Khởi tạo scene (một lần) ------------------------------------------------
     const canvasHost = root.querySelector('[data-solid-canvas]');
@@ -300,6 +394,13 @@ export function mountSolidGeometry(root, options = {}) {
     new ResizeObserver(resize).observe(canvasHost);
 
     function render() {
+        // Khung bị gỡ khỏi trang (đóng hộp thoại, đổi trang) → dừng vòng lặp và nhả bộ nhớ WebGL.
+        if (!root.isConnected) {
+            renderer.dispose();
+
+            return;
+        }
+
         controls.update();
         renderer.render(scene, camera);
         labelRenderer.render(scene, camera);
@@ -321,6 +422,9 @@ export function mountSolidGeometry(root, options = {}) {
     }
 
     function pickHandle(event) {
+        // Chế độ chỉ xem: không có tay cầm nào bấm được → mọi thao tác nối/đo tự vô hiệu, chỉ còn xoay/zoom.
+        if (readOnly) return null;
+
         raycaster.setFromCamera(pointerNDC(event), camera);
         const hit = raycaster.intersectObjects(pointHandles.map((h) => h.mesh), false)[0];
 
@@ -885,6 +989,13 @@ export function mountSolidGeometry(root, options = {}) {
         regions = [];
         renderShape(currentShapeKey, readDims(currentShapeKey));
     });
+
+    // Chỉ xem (trang học sinh): bỏ mọi khối chỉnh sửa VÀ khối "Kết quả" — trong bài tập, thể tích/diện
+    // tích hiện sẵn có thể chính là đáp án. Canvas chiếm trọn chiều ngang.
+    if (readOnly) {
+        root.querySelectorAll('[data-edit-only]').forEach((el) => { el.style.display = 'none'; });
+        root.querySelectorAll('[data-canvas-col]').forEach((el) => el.classList.replace('col-lg-8', 'col-lg-12'));
+    }
 
     // Hình bắt đầu: initialConfig.shape nếu hợp lệ (mở lại hình đã lưu), không thì hình đầu tiên
     // trong danh sách nút — y hệt hành vi cũ khi không truyền options.

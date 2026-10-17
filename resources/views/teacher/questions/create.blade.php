@@ -26,5 +26,6 @@
 @endsection
 
 @push('scripts')
+    @vite('resources/js/question-geometry.js')
     @include('teacher.questions.partials.script')
 @endpush

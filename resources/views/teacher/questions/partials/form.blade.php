@@ -97,7 +97,7 @@
 
     <div class="col-12">
         <label for="content" class="form-label">Nội dung câu hỏi <span class="text-danger">*</span></label>
-        <textarea id="content" name="content" rows="4" required data-math-editor
+        <textarea id="content" name="content" rows="4" required data-math-editor data-geometry-field
                   class="form-control font-monospace @error('content') is-invalid @enderror"
                   placeholder="Tính $\frac{1}{2} + \frac{1}{3}$">{{ old('content', $question->content) }}</textarea>
         @error('content') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -196,7 +196,7 @@
 
 <div class="mb-3">
     <label for="explanation" class="form-label">Giải thích đáp án</label>
-    <textarea id="explanation" name="explanation" rows="3"
+    <textarea id="explanation" name="explanation" rows="3" data-geometry-field
               class="form-control @error('explanation') is-invalid @enderror"
               placeholder="Hiện cho học sinh sau khi nộp bài">{{ old('explanation', $question->explanation) }}</textarea>
     @error('explanation') <div class="invalid-feedback">{{ $message }}</div> @enderror

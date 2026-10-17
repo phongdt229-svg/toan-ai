@@ -19,14 +19,14 @@ import JXG from 'jsxgraph';
 import '../scss/vendor/jsxgraph.css';
 
 export function mountPlaneGeometry(root, options = {}) {
-    const { initialConfig = null, onChange = null } = options;
+    const { initialConfig = null, onChange = null, readOnly = false } = options;
 
     const canvasHost = root.querySelector('[data-plane-canvas]');
     const board = JXG.JSXGraph.initBoard(canvasHost, {
         boundingbox: [-8, 8, 8, -8],
         axis: true,
         showCopyright: false,
-        showNavigation: true,
+        showNavigation: !readOnly,
         keepAspectRatio: true,
     });
 
@@ -84,13 +84,13 @@ export function mountPlaneGeometry(root, options = {}) {
 
     function addPoint(x, y, name) {
         const pointName = name || suggestPointName();
-        const point = board.create('point', [x, y], { name: pointName, size: 4 });
+        const point = board.create('point', [x, y], { name: pointName, size: 4, fixed: readOnly });
         points[pointName] = point;
 
         // Bấm vào MỘT điểm có sẵn ở chế độ đang dựng (đoạn/tam giác/tròn/góc) — tính là "chọn điểm
         // này", không phải kéo. JSXGraph tự phân biệt kéo/bấm, 'up' chỉ bắn khi thả tại chỗ.
         point.on('up', () => {
-            if (activeMode === 'point') return;
+            if (readOnly || activeMode === 'point') return;
             handlePointPicked(pointName);
         });
 
@@ -198,7 +198,7 @@ export function mountPlaneGeometry(root, options = {}) {
     // Bấm vào khoảng TRỐNG của lưới (không trúng điểm nào) — chỉ chế độ "Thêm điểm" mới tạo điểm
     // mới ở đó; điểm lúc nào cũng bấm/kéo được bất kể chế độ, xem addPoint()'s 'up' listener.
     board.on('up', (event) => {
-        if (activeMode !== 'point') return;
+        if (readOnly || activeMode !== 'point') return;
         if (board.getAllObjectsUnderMouse(event).some((el) => el.elementClass === JXG.OBJECT_CLASS_POINT)) return;
 
         const [x, y] = board.getUsrCoordsOfMouse(event);
@@ -242,4 +242,10 @@ export function mountPlaneGeometry(root, options = {}) {
     }
 
     updateModeHint();
+
+    // Chỉ xem: bỏ khối công cụ + Kết quả (số đo có thể là đáp án của bài), hình chiếm trọn chiều ngang.
+    if (readOnly) {
+        root.querySelectorAll('[data-edit-only]').forEach((el) => { el.style.display = 'none'; });
+        root.querySelectorAll('[data-canvas-col]').forEach((el) => el.classList.replace('col-lg-8', 'col-lg-12'));
+    }
 }

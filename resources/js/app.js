@@ -5,6 +5,7 @@ import renderMathInElement from 'katex/contrib/auto-render';
 import { initAiTutor } from './ai-tutor';
 import { initActivityTracker } from './activity-tracker';
 import './confirm-dialog';
+import { renderGeometry } from './geometry-embed';
 
 window.bootstrap = bootstrap;
 
@@ -28,6 +29,9 @@ function renderMath(root = document.body) {
 
         el.dataset.mathRendered = '1';
     });
+
+    // Sau công thức: thay token [[hinh:...]] bằng hình 3D chỉ-xem (Three.js chỉ tải khi trang có hình).
+    renderGeometry(root);
 }
 
 window.renderMath = renderMath;

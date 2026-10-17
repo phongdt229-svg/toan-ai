@@ -162,3 +162,15 @@ body > .ML__keyboard {
     --keyboard-zindex: 2000;
     z-index: 2000;
 }
+
+// Thẻ tóm tắt hình 3D trong trình soạn (hình thật chỉ mở trong hộp thoại "Vẽ hình").
+.geometry-node {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: .75rem 0;
+    padding: .625rem .75rem;
+    border: 1px dashed var(--bs-primary);
+    border-radius: $border-radius;
+    background: rgba(var(--bs-primary-rgb), .05);
+}
