@@ -197,11 +197,38 @@ Quy ước: **Ưu tiên** Urgent/High/Medium/Low · **Ước lượng** theo bu�
 
 ### Module: 2D (làm sau 3D — cùng V1, không phải V2, xem D-1)
 
-**GH-08 · Thêm JSXGraph, widget `mountPlaneGeometry()` cùng kiểu API với 3D** — High · 2–3 buổi
-- Vẽ được: đoạn thẳng, tam giác, đường tròn, góc; đặt tên điểm A/B/C; đổi màu.
-- `type: "2d"` trong cùng định dạng token `[[hinh:...]]` ở mục 3.1 — `geometry-html.js`/
-  `renderGeometry()` không cần sửa gì, chỉ thêm nhánh `type === '2d'` gọi widget 2D thay vì 3D.
-- ✅ Cùng tiêu chí nghiệm thu như GH-04/GH-06 nhưng cho hình phẳng.
+- [x] **GH-08 · Thêm JSXGraph, widget `mountPlaneGeometry()` cùng kiểu API với 3D** (17/10) — High
+  - `resources/js/plane-geometry-widget.js`: `export function mountPlaneGeometry(root, options)`,
+    cùng hình dạng API với `solid-geometry-widget.js` (`initialConfig`/`onChange`) ngay từ đầu —
+    không phải tự IIFE rồi tách ra sau như 3D.
+  - Vẽ được: điểm (bấm chỗ trống để thêm, kéo được ngay — JSXGraph tự lo, không cần tự viết
+    raycasting như 3D), đoạn thẳng, tam giác (chu vi/diện tích qua `polygon.Perimeter()`/`.Area()`
+    có sẵn của JSXGraph), đường tròn (bán kính qua `circle.Radius()`), góc (qua
+    `JXG.Math.Geometry.trueAngle()`); đổi màu nét vẽ qua ô chọn màu.
+  - **Bẫy build thật gặp phải**: `jsxgraph` chỉ export đúng root trong `package.json → exports`,
+    import sâu `jsxgraph/distrib/jsxgraph.css` bị Vite từ chối thẳng lúc build ("Missing
+    './distrib/jsxgraph.css' specifier"). Phải vendor file CSS vào
+    `resources/scss/vendor/jsxgraph.css` (MIT/LGPL, copy nguyên văn + ghi chú lý do) rồi import từ
+    đó thay vì từ package.
+  - Phát hiện + tự sửa 1 lỗi logic thật trước khi test: nạp `initialConfig.constructions` lúc đầu
+    định tái dùng `handlePointPicked()` (hàm xử lý bấm tay) bằng cách giả `pendingPoints` — bị trùng
+    tên điểm, hàm thoát sớm, không dựng được gì. Tách riêng `buildConstruction()` dùng chung cho cả
+    bấm tay lẫn nạp cấu hình đã lưu, không mô phỏng lại luồng bấm.
+  - **Đồng thời ra luôn trang độc lập** `/hoc-sinh/hinh-hoc-phang` (`student.plane-geometry.index`)
+    dùng widget trên — mirror đúng cách `/hoc-sinh/hinh-hoc-không-gian` đã làm cho 3D, cho học sinh
+    có công cụ dùng ngay trong lúc chờ lắp vào trình soạn bài (GH-03/GH-04 áp dụng tiếp cho 2D).
+    Thêm vào `config/navigation.php` + mục Tính năng trang chủ.
+  - Test: `PlaneGeometryPageTest` (khung trang, quyền truy cập) + kiểm tay bằng Playwright (chuột
+    thật: thêm điểm, dựng cả 4 loại hình, kéo điểm không tạo nhầm điểm mới, xoá tất cả xoá sạch cả
+    điểm khỏi board — không chỉ khỏi danh sách kết quả).
+  - ⚠️ Bundle `plane-geometry-*.js` ~1MB chưa nén (JSXGraph gộp hết tính năng vì chỉ import được
+    qua `src/index.js`, không tree-shake sâu được bằng cấu hình hiện tại) — chấp nhận cho V1 vì tự
+    host hoàn toàn (không phụ thuộc mạng ngoài như GeoGebra đã thất bại) và chỉ tải trên đúng 1
+    trang; tối ưu thêm (import có chọn lọc, hoặc dùng `distrib/jsxgraphcore.mjs` đã build sẵn) để
+    sau nếu cần.
+  - Còn lại của GH-08 (chưa làm): `type: "2d"` trong token `[[hinh:...]]` + nhánh trong
+    `geometry-html.js`/`renderGeometry()` — phụ thuộc GH-03/GH-06 (trình soạn bài/hiển thị bài học)
+    làm xong cho 3D trước, dùng chung đường ống đó.
 
 ## 6. Việc KHÔNG làm ở V1 (và vì sao)
 

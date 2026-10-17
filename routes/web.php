@@ -43,6 +43,7 @@ use App\Http\Controllers\Student\LearningPathController;
 use App\Http\Controllers\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Student\ParentConnectionController;
 use App\Http\Controllers\Student\PlacementController;
+use App\Http\Controllers\Student\PlaneGeometryController;
 use App\Http\Controllers\Student\PracticeController;
 use App\Http\Controllers\Student\QaController;
 use App\Http\Controllers\Student\SettingsController as StudentSettingsController;
@@ -268,6 +269,7 @@ Route::middleware('auth')->group(function () {
             Route::get('ai', [AiTutorController::class, 'index'])->name('ai.index');
 
             Route::get('hinh-hoc-khong-gian', [SolidGeometryController::class, 'index'])->name('solid-geometry.index');
+            Route::get('hinh-hoc-phang', [PlaneGeometryController::class, 'index'])->name('plane-geometry.index');
 
             Route::get('goi-cua-toi', [StudentSubscriptionController::class, 'index'])->name('subscription.index');
 

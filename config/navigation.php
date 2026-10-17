@@ -21,6 +21,7 @@ return [
         ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false],
         ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'bottom' => false],
         ['label' => 'Lộ trình', 'icon' => 'bi-signpost-split', 'route' => 'student.path.show', 'bottom' => false],
+        ['label' => 'Hình học phẳng', 'icon' => 'bi-triangle', 'route' => 'student.plane-geometry.index', 'bottom' => false],
         ['label' => 'Hình học không gian', 'icon' => 'bi-box', 'route' => 'student.solid-geometry.index', 'bottom' => false],
         ['label' => 'Lịch học', 'icon' => 'bi-calendar-week', 'route' => 'student.schedule.edit', 'bottom' => false],
         ['label' => 'Gói của tôi', 'icon' => 'bi-gem', 'route' => 'student.subscription.index', 'bottom' => false],

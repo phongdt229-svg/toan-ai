@@ -12,6 +12,7 @@
         ['bi-chat-dots', '', 'Hỏi đáp', 'Hỏi bài công khai, thầy cô và các bạn cùng trả lời — có lời giải được chọn.'],
         ['bi-signpost-split', 'feature-card--accent', 'Lộ trình riêng', 'Làm bài kiểm tra đầu vào, hệ thống xếp lộ trình theo đúng sức học.'],
         ['bi-box', 'feature-card--success', 'Hình học không gian', 'Dựng hình 3D xoay được, bấm thẳng lên hình để nối đường, tạo điểm, đo độ dài/diện tích/thể tích.'],
+        ['bi-triangle', '', 'Hình học phẳng', 'Vẽ điểm, đoạn thẳng, tam giác, đường tròn, đo góc — kéo điểm để chỉnh hình ngay trên lưới.'],
     ];
 @endphp
 

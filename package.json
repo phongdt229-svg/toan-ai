@@ -24,6 +24,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "jsxgraph": "^1.14.0",
         "three": "^0.186.1"
     }
 }

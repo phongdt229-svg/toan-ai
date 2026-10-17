@@ -1387,6 +1387,16 @@ là **toàn bộ** việc còn lại đã biết.
             Playwright (nạp đúng hình/số liệu/đường đã lưu, `onChange` báo đúng state), rồi khôi phục
             bootstrap về dạng sạch trước khi commit. Hành vi trang `/hoc-sinh/hinh-hoc-khong-gian`
             không đổi gì (test cũ xanh nguyên).
+      - [x] **GH-08** — thêm JSXGraph (`resources/js/plane-geometry-widget.js`,
+            `export function mountPlaneGeometry(root, options)`, cùng kiểu API với 3D ngay từ đầu) +
+            trang độc lập mới `/hoc-sinh/hinh-hoc-phang` (mirror 3D) — điểm/đoạn thẳng/tam giác/đường
+            tròn/góc, kéo điểm JSXGraph tự lo (không cần raycasting tự viết như 3D). Bẫy build: gói
+            `jsxgraph` chỉ export root trong `package.json → exports`, import sâu
+            `.../distrib/jsxgraph.css` bị Vite từ chối — vendor CSS vào `resources/scss/vendor/`.
+            Tự bắt 1 lỗi logic (nạp `initialConfig` giả lập bấm tay bị trùng tên điểm, thoát sớm)
+            trước khi test, sửa bằng cách tách hàm `buildConstruction()` dùng chung. Chi tiết:
+            [docs/SPEC_HINH_HOC_SOAN_BAI.md §Module 2D](docs/SPEC_HINH_HOC_SOAN_BAI.md). Phần còn lại
+            của GH-08 (gắn `type:"2d"` vào token lưu trong bài học) chờ GH-03/GH-06 làm xong cho 3D.
 
 #### E. Vận hành thật — chưa có gì khi sự cố xảy ra
 

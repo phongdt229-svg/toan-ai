@@ -230,6 +230,24 @@ body {
     }
 }
 
+// --- Hình học phẳng (resources/js/plane-geometry.js, JSXGraph) -------------
+.plane-geometry {
+    &__canvas {
+        width: 100%;
+        height: 60vw;
+        max-height: 420px;
+        border-radius: $border-radius-lg;
+        overflow: hidden;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .plane-geometry__canvas {
+        height: 480px;
+        max-height: none;
+    }
+}
+
 // --- Logo ------------------------------------------------------------------
 .brand {
     display: inline-flex;
