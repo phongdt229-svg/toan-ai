@@ -1372,6 +1372,11 @@ là **toàn bộ** việc còn lại đã biết.
 - [x] **Tạo đề kiểm tra bằng AI** (spec §16) — `AiGenerationDraft` mới có `questions` và `lesson`.
       Giáo viên đang phải nhờ AI sinh câu rồi tự bốc vào đề. Xem ghi chú cuối Phase 7A.
 - [x] **Avatar** — cột `users.avatar` vẫn chưa gắn upload/Storage (cắt phạm vi từ đợt 20/09).
+- [ ] **Vẽ hình (2D/3D) trong trình soạn bài học** — giáo viên chèn hình minh hoạ vào nội dung lý
+      thuyết, học sinh xem lại đúng vị trí. Đặc tả + đối chiếu code + backlog chi tiết:
+      [docs/SPEC_HINH_HOC_SOAN_BAI.md](docs/SPEC_HINH_HOC_SOAN_BAI.md). Tái dùng renderer 3D đã có
+      ở `/hoc-sinh/hinh-hoc-khong-gian` (cần widget hoá trước), lưu bằng token text giống cách công
+      thức Toán ($...$) đã qua được `HtmlSanitizer`. Cần chốt D-1/D-2/D-3 trong file đó trước khi code.
 
 #### E. Vận hành thật — chưa có gì khi sự cố xảy ra
 
