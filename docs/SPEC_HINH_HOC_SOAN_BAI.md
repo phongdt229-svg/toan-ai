@@ -134,10 +134,11 @@ lưu ảnh đó riêng (storage, không nhúng base64 vào content vì `HtmlSani
 
 ## 4. Quyết định cần chốt trước khi code
 
-- **D-1 · Làm 2D (JSXGraph) ở V1 luôn, hay chỉ 3D trước?** 3D tái dùng code đã có (rủi ro thấp, không
-  thêm dependency); 2D là thư viện + renderer hoàn toàn mới (công sức tương đương một module riêng).
-  Đề xuất: **V1 chỉ 3D**, 2D sang V2 sau khi V1 chạy ổn — tránh làm 2 renderer cùng lúc kéo dài thời
-  gian trước khi giáo viên có thứ dùng được.
+- **D-1 · Làm 2D (JSXGraph) ở V1 luôn, hay chỉ 3D trước?** ~~Đề xuất ban đầu: chỉ 3D trước~~ —
+  **đã chốt 17/10: làm cả hai**, không tách V1/V2 nữa. Vẫn giữ nguyên thứ tự thực hiện bên dưới
+  (3D xong trước — GH-01 đến GH-07 — rồi mới 2D — GH-08) vì 2D phụ thuộc đúng cùng một "token
+  format"/pipeline soạn-lưu-hiển thị mà 3D dựng trước sẽ kiểm chứng; làm xong đường ống đó một lần
+  cho 3D rồi lắp 2D vào cùng đường ống, không phải xây lại từ đầu.
 - **D-2 · Quyền dùng "Vẽ hình"** — mọi giáo viên đã được tạo bài (permission `lesson.create`) đều
   dùng được, hay giới hạn theo gói? Hiện chưa có khoá `PackageFeature` nào cho lesson authoring;
   nếu cần giới hạn phải thêm khoá mới vào `PackageFeature::KEYS` + `KEY_TYPES` (theo đúng quy tắc ở
@@ -194,7 +195,7 @@ Quy ước: **Ưu tiên** Urgent/High/Medium/Low · **Ước lượng** theo bu�
 - ✅ Test Playwright phủ đúng luồng trên (có tiền lệ nhiều lần trong session này: giả lập chuột thật,
   không chỉ click element, vì renderer dùng raycasting theo toạ độ pixel).
 
-### Module: 2D (V2 — sau khi V1 ổn, chờ D-1)
+### Module: 2D (làm sau 3D — cùng V1, không phải V2, xem D-1)
 
 **GH-08 · Thêm JSXGraph, widget `mountPlaneGeometry()` cùng kiểu API với 3D** — High · 2–3 buổi
 - Vẽ được: đoạn thẳng, tam giác, đường tròn, góc; đặt tên điểm A/B/C; đổi màu.
@@ -206,7 +207,6 @@ Quy ước: **Ưu tiên** Urgent/High/Medium/Low · **Ước lượng** theo bu�
 
 - **Xuất PDF** — chưa tồn tại hạ tầng, không có gì "tận dụng"; làm khi có yêu cầu PDF thật, lúc đó
   mới biết cần ảnh tĩnh chụp sẵn hay render HTML→PDF trực tiếp.
-- **Hình học phẳng 2D** — tách sang V2 (D-1), tránh làm 2 renderer cùng lúc.
 - **AI giải hình / gợi ý hình tự động** — đúng như đề xuất gốc đã loại trừ.
 - **Giới hạn vẽ hình theo gói học** — chưa có nhu cầu kinh doanh rõ ràng (D-2), thêm khoá
   `PackageFeature` sau nếu cần.
