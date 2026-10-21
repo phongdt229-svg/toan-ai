@@ -32,7 +32,7 @@
         <div @class(['alert py-2 small mb-3 d-flex flex-wrap align-items-center gap-2',
                      'alert-success' => $risk['level'] === 'green',
                      'alert-warning' => $risk['level'] === 'yellow',
-                     'alert-danger' => $risk['level'] === 'red']) data-testid="risk-score">
+                     'alert-danger' => $risk['level'] === 'red']) data-testid="risk-score" data-tour="risk-score">
             <strong><i class="bi bi-activity me-1"></i>{{ $risk['label'] }}</strong>
             <span>· chỉ số rủi ro {{ $risk['score'] }}/100 (7 ngày qua)</span>
             <a class="ms-auto small" data-bs-toggle="collapse" href="#risk-detail" role="button" aria-expanded="false">Vì sao?</a>
@@ -48,7 +48,7 @@
 
     {{-- Gợi ý can thiệp (TA-16 mục 6): việc phụ huynh nên làm, suy từ các thành phần rủi ro. --}}
     @if ($interventions)
-        <div class="card border-warning mb-3" data-testid="interventions">
+        <div class="card border-warning mb-3" data-testid="interventions" data-tour="interventions">
             <div class="card-body py-2">
                 <div class="fw-semibold small mb-1"><i class="bi bi-lightbulb text-warning me-1"></i>Phụ huynh có thể làm gì</div>
                 <ul class="small mb-0 ps-3">
@@ -166,7 +166,7 @@
             </div>
 
             {{-- Lịch học tuần (D-01) — phụ huynh đặt / sửa được cho con. --}}
-            <div class="card border mb-4" data-testid="schedule-card">
+            <div class="card border mb-4" data-testid="schedule-card" data-tour="schedule-card">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <div class="fw-semibold"><i class="bi bi-calendar-week text-primary me-1"></i>Lịch học</div>
@@ -232,7 +232,7 @@
             </div>
 
             {{-- Thời gian học thật (đặc tả "Logic"): online ≠ đang học. Không khoá theo gói — đây là giám sát cơ bản. --}}
-            <div class="card border mb-4" data-testid="activity-week">
+            <div class="card border mb-4" data-testid="activity-week" data-tour="activity-week">
                 <div class="card-body">
                     <div class="fw-semibold mb-1"><i class="bi bi-activity text-primary me-1"></i>Thời gian học 7 ngày qua</div>
                     @if ($streak['current'] > 0 || $streak['best'] > 0)

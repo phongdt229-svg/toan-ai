@@ -9,6 +9,8 @@
         <p class="text-secondary small mb-0">{{ $user->teacherProfile?->school }}</p>
     </div>
 
+    @include('partials.onboarding-checklist')
+
     <div class="row g-3 mb-4">
         @foreach ([
             ['Số lớp', $stats['classes'], 'bi-people', route('teacher.classes.index')],

@@ -6,13 +6,14 @@
 |--------------------------------------------------------------------------
 | `bottom` = true → hiện ở bottom nav trên mobile (§3, tối đa 4 mục).
 | `route` = null  → chưa làm ở phase hiện tại, render dạng disabled.
+| `tour` = giá trị data-tour cho tour hướng dẫn người mới (config/onboarding.php).
 */
 
 return [
 
     'student' => [
         ['label' => 'Trang chủ', 'icon' => 'bi-house', 'route' => 'student.dashboard', 'bottom' => true],
-        ['label' => 'Học', 'icon' => 'bi-journal-text', 'route' => 'student.learn.index', 'bottom' => true],
+        ['label' => 'Học', 'icon' => 'bi-journal-text', 'route' => 'student.learn.index', 'bottom' => true, 'tour' => 'nav-learn'],
         ['label' => 'Bài tập', 'icon' => 'bi-pencil-square', 'route' => 'student.practice.index', 'bottom' => true],
         ['label' => 'AI', 'icon' => 'bi-robot', 'route' => 'student.ai.index', 'bottom' => true],
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'student.exams.index', 'bottom' => false],
@@ -20,23 +21,23 @@ return [
         ['label' => 'Lớp của tôi', 'icon' => 'bi-people', 'route' => 'student.classes.index', 'bottom' => false],
         ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false],
         ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'bottom' => false],
-        ['label' => 'Lộ trình', 'icon' => 'bi-signpost-split', 'route' => 'student.path.show', 'bottom' => false],
+        ['label' => 'Lộ trình', 'icon' => 'bi-signpost-split', 'route' => 'student.path.show', 'bottom' => false, 'tour' => 'nav-path'],
         ['label' => 'Hình học phẳng', 'icon' => 'bi-triangle', 'route' => 'student.plane-geometry.index', 'bottom' => false],
         ['label' => 'Hình học không gian', 'icon' => 'bi-box', 'route' => 'student.solid-geometry.index', 'bottom' => false],
-        ['label' => 'Lịch học', 'icon' => 'bi-calendar-week', 'route' => 'student.schedule.edit', 'bottom' => false],
+        ['label' => 'Lịch học', 'icon' => 'bi-calendar-week', 'route' => 'student.schedule.edit', 'bottom' => false, 'tour' => 'nav-schedule'],
         ['label' => 'Gói của tôi', 'icon' => 'bi-gem', 'route' => 'student.subscription.index', 'bottom' => false],
         ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'student.settings', 'bottom' => false],
     ],
 
     'teacher' => [
         ['label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'route' => 'teacher.dashboard', 'bottom' => true],
-        ['label' => 'Lớp học', 'icon' => 'bi-people', 'route' => 'teacher.classes.index', 'bottom' => true],
+        ['label' => 'Lớp học', 'icon' => 'bi-people', 'route' => 'teacher.classes.index', 'bottom' => true, 'tour' => 'nav-classes'],
         ['label' => 'Bài học', 'icon' => 'bi-journal-text', 'route' => 'teacher.lessons.index', 'bottom' => true],
-        ['label' => 'Câu hỏi', 'icon' => 'bi-question-circle', 'route' => 'teacher.questions.index', 'bottom' => true],
+        ['label' => 'Câu hỏi', 'icon' => 'bi-question-circle', 'route' => 'teacher.questions.index', 'bottom' => true, 'tour' => 'nav-questions'],
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'teacher.exams.index', 'bottom' => false],
-        ['label' => 'Giao bài', 'icon' => 'bi-send-check', 'route' => 'teacher.assignments.index', 'bottom' => false],
-        ['label' => 'Học sinh', 'icon' => 'bi-mortarboard', 'route' => 'teacher.students.index', 'bottom' => false],
-        ['label' => 'AI soạn bài', 'icon' => 'bi-robot', 'route' => 'teacher.ai.index', 'bottom' => false],
+        ['label' => 'Giao bài', 'icon' => 'bi-send-check', 'route' => 'teacher.assignments.index', 'bottom' => false, 'tour' => 'nav-assign'],
+        ['label' => 'Học sinh', 'icon' => 'bi-mortarboard', 'route' => 'teacher.students.index', 'bottom' => false, 'tour' => 'nav-students'],
+        ['label' => 'AI soạn bài', 'icon' => 'bi-robot', 'route' => 'teacher.ai.index', 'bottom' => false, 'tour' => 'nav-teacher-ai'],
         // Hỏi đáp dùng chung một URL cho mọi portal (route auth, không riêng học sinh) — giáo viên
         // trả lời và kiểm duyệt được nhưng không có lối vào từ menu của họ thì không ai biết mà bấm.
         ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'bottom' => false],
@@ -47,9 +48,9 @@ return [
 
     'parent' => [
         ['label' => 'Con của tôi', 'icon' => 'bi-house-heart', 'route' => 'parent.dashboard', 'bottom' => true],
-        ['label' => 'Liên kết con', 'icon' => 'bi-person-plus', 'route' => 'parent.children.link', 'bottom' => true],
+        ['label' => 'Liên kết con', 'icon' => 'bi-person-plus', 'route' => 'parent.children.link', 'bottom' => true, 'tour' => 'nav-link-child'],
         ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => 'parent.subscriptions.index', 'bottom' => true],
-        ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'parent.settings', 'bottom' => true],
+        ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'parent.settings', 'bottom' => true, 'tour' => 'nav-parent-settings'],
     ],
 
     'admin' => [

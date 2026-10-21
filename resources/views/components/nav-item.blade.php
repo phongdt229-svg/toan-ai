@@ -11,6 +11,7 @@
 
 <a href="{{ $url }}"
    class="{{ $classes }} {{ $active ? 'is-active' : '' }} {{ $hasRoute ? '' : 'opacity-50' }}"
+   @isset($item['tour']) data-tour="{{ $item['tour'] }}" @endisset
    @unless ($hasRoute) aria-disabled="true" title="Sắp ra mắt" @endunless>
     <i class="bi {{ $item['icon'] }}"></i>
     <span>{{ $item['label'] }}</span>

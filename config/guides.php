@@ -160,6 +160,48 @@ return [
 
         // --- Giáo viên -----------------------------------------------------------------
 
+        'lich-hoc-va-chuoi-ngay-hoc' => [
+            'audience' => 'student',
+            'icon' => 'bi-calendar-week',
+            'title' => 'Lịch học, điểm danh và chuỗi ngày học',
+            'summary' => 'Đặt giờ học cố định trong tuần, hiểu "có mặt / học chưa đủ / vắng" được tính thế nào và giữ chuỗi ngày học 🔥.',
+            'steps' => [
+                ['Đặt lịch học', 'Menu → Lịch học: bật những ngày em học, chọn giờ bắt đầu và thời lượng (30–120 phút). Phụ huynh đã liên kết cũng sửa được lịch này.'],
+                ['Đến giờ thì vào học', 'Hệ thống đối chiếu lịch với thời gian em thực sự học. Quá 15 phút chưa vào học thì phụ huynh được báo.'],
+                ['Có mặt là thế nào', 'Học thực từ 70% thời lượng của buổi và làm bài kiểm tra cuối buổi. Học ít hơn là "học chưa đủ"; gần như không thao tác là "vắng".'],
+                ['Học thực khác online', 'Chỉ tính lúc em có thao tác (đọc, làm bài, hỏi AI). Mở ứng dụng để đó không được tính.'],
+                ['Giữ chuỗi ngày học', 'Ngày nào học thực từ 10 phút là thêm một ngày vào chuỗi 🔥. Trang chủ cho biết hôm nay còn thiếu mấy phút.'],
+            ],
+            'tips' => [
+                'Buổi ngắn (dưới 45 phút) mỗi buổi lộ trình chỉ có 2 mục — đặt lịch vừa sức sẽ dễ hoàn thành hơn.',
+                'Đổi lịch bất cứ lúc nào; buổi đang diễn ra vẫn chấm theo giờ cũ.',
+            ],
+            'links' => [
+                ['Đặt lịch học', 'student.schedule.edit'],
+                ['Lộ trình học của em', 'guides.show:kiem-tra-dau-vao-va-lo-trinh'],
+            ],
+        ],
+
+        'chup-anh-de-hoi-ai' => [
+            'audience' => 'student',
+            'icon' => 'bi-camera',
+            'title' => 'Chụp ảnh đề bài để hỏi AI',
+            'summary' => 'Chụp đề trong vở, AI chép lại thành chữ để em kiểm tra rồi mới hỏi — không phải gõ công thức.',
+            'steps' => [
+                ['Mở AI Tutor', 'Bấm nút robot ở góc màn hình.'],
+                ['Bấm 📷', 'Chụp thẳng trang giấy, đủ sáng, chỉ một đề trong khung hình.'],
+                ['Kiểm tra đề AI đọc được', 'AI chỉ CHÉP đề vào ô nhập, chưa giải. Em đọc lại, sửa chỗ đọc sai.'],
+                ['Gửi câu hỏi', 'Bấm gửi như bình thường — AI gợi ý từng bước, không đưa đáp án ngay.'],
+            ],
+            'tips' => [
+                'Ảnh không được lưu lại; chỉ phần chữ AI chép được giữ trong lịch sử hỏi đáp.',
+                'Mỗi gói có số lần chụp ảnh đề mỗi ngày riêng (Free 3 lần).',
+            ],
+            'links' => [
+                ['Dùng AI Tutor cho đúng', 'guides.show:dung-ai-tutor'],
+            ],
+        ],
+
         'giao-vien-bat-dau' => [
             'audience' => 'teacher',
             'icon' => 'bi-person-badge',
@@ -357,24 +399,47 @@ return [
 
         // --- Chung: tài khoản, gói học, thanh toán --------------------------------------
 
+        'phu-huynh-lich-hoc-va-canh-bao' => [
+            'audience' => 'parent',
+            'icon' => 'bi-bell',
+            'title' => 'Lịch học, điểm danh và cảnh báo khi con vắng',
+            'summary' => 'Đặt lịch học cho con, đọc bảng điểm danh và chỉ số rủi ro, chọn nhận báo cáo cuối ngày.',
+            'steps' => [
+                ['Đặt lịch học cho con', 'Trang của con → thẻ Lịch học → Đặt lịch. Con cũng thấy và sửa được; ai sửa thì bên kia được báo.'],
+                ['Được báo khi con chưa vào học', 'Quá 15 phút từ giờ học mà con chưa vào, bạn nhận thông báo ngay để kịp nhắc con.'],
+                ['Đọc bảng điểm danh', 'Có mặt (xanh) · Học chưa đủ (vàng) · Vắng (đỏ), kèm số phút học thực và vào trễ bao lâu. Vắng 2 buổi liên tiếp thì có thêm email.'],
+                ['Chỉ số rủi ro', 'Xanh / vàng / đỏ tính từ 7 ngày gần nhất (vắng, học dở dang, tập trung, điểm, bỏ qua lời nhắc). Bấm "Vì sao?" để xem lý do; mục "Phụ huynh có thể làm gì" gợi ý việc cụ thể.'],
+                ['Chọn thông báo', 'Cài đặt → bật "Báo khi con bắt đầu và học xong buổi" và/hoặc "Báo cáo cuối ngày" (21:30). Cả hai mặc định tắt.'],
+            ],
+            'tips' => [
+                '"Học thực" chỉ tính lúc con có thao tác — mở ứng dụng để đó không được tính.',
+                'Một thư báo cáo cuối ngày gom tất cả các con, không phải mỗi con một thư.',
+            ],
+            'links' => [
+                ['Cài đặt thông báo', 'parent.settings'],
+                ['Đọc báo cáo học tập của con', 'guides.show:doc-bao-cao-cua-con'],
+            ],
+        ],
+
         'goi-hoc-va-thanh-toan' => [
             'audience' => 'all',
             'icon' => 'bi-gem',
-            'title' => 'Gói học và thanh toán MoMo',
-            'summary' => 'So sánh các gói, mua cho mình hoặc cho con, và xử lý khi đã trừ tiền mà chưa lên gói.',
+            'title' => 'Gói học và thanh toán (VNPAY, MoMo)',
+            'summary' => 'Free học thử 3 buổi, so sánh gói Pro / Premium, mua cho mình hoặc cho con, xử lý khi đã trừ tiền mà chưa lên gói.',
             'steps' => [
-                ['Xem bảng giá', 'Trang Gói học liệt kê Free, Pro, Premium kèm quyền lợi và các kỳ hạn.'],
-                ['Chọn gói', 'Bấm kỳ hạn muốn mua để tới trang xác nhận. Phụ huynh chọn thêm con được nhận gói.'],
+                ['Học thử miễn phí', 'Gói Free được làm kiểm tra đầu vào và học thử 3 buổi theo lộ trình riêng. Sang buổi thứ 4 hệ thống mời mua gói — kết quả và lộ trình vẫn giữ nguyên.'],
+                ['Xem bảng giá', 'Trang Gói học liệt kê Free, Pro, Premium kèm quyền lợi và thời hạn của từng gói.'],
+                ['Chọn gói', 'Bấm gói muốn mua để tới trang xác nhận. Phụ huynh chọn thêm con được nhận gói.'],
                 ['Kiểm tra trước khi trả tiền', 'Trang xác nhận ghi rõ: ai được dùng gói, giá, và ngày bắt đầu — hiệu lực ngay hay nối tiếp gói cũ.'],
-                ['Thanh toán qua MoMo', 'Bấm "Thanh toán bằng MoMo" và làm theo hướng dẫn trên ứng dụng MoMo.'],
-                ['Gói được kích hoạt', 'Ngay khi MoMo xác nhận, gói có hiệu lực. Bạn nhận email xác nhận kèm mã đơn.'],
+                ['Chọn cách thanh toán', '"Thanh toán qua VNPAY" (thẻ ATM, Internet Banking, QR ngân hàng) hoặc "Thanh toán bằng MoMo" (ví MoMo) — tuỳ cổng đang mở.'],
+                ['Gói được kích hoạt', 'Ngay khi cổng thanh toán xác nhận, gói có hiệu lực. Bạn nhận email xác nhận kèm mã đơn.'],
             ],
             'tips' => [
                 'Mua thêm gói cùng hạng khi gói cũ còn hạn thì thời hạn được cộng nối tiếp, không mất phần còn lại.',
                 'Gói không tự động gia hạn. Hết hạn, tài khoản trở về Free và dữ liệu học vẫn được giữ.',
                 'Xem lại mọi giao dịch ở mục "Lịch sử thanh toán".',
             ],
-            'warning' => 'Đã trừ tiền mà chưa lên gói? Mở lại trang kết quả giao dịch — hệ thống tự hỏi lại MoMo. '
+            'warning' => 'Đã trừ tiền mà chưa lên gói? Mở lại trang kết quả giao dịch — hệ thống tự hỏi lại cổng thanh toán. '
                 .'Sau 10 phút vẫn chưa được, hãy gửi yêu cầu hỗ trợ kèm mã đơn.',
             'links' => [
                 ['Xem bảng giá', 'packages.index'],

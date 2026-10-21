@@ -1499,6 +1499,12 @@ Sheet "Task" trong file Excel mô tả một bản khác (MongoDB) — **không*
       Hướng dẫn: [docs/DEPLOY.md §2.2](docs/DEPLOY.md). Tắt mặc định (chưa có `stripe` trong `PAYMENT_METHODS`).
 - [ ] **Stripe live — chặn bởi D-05**: Stripe không mở tài khoản cho doanh nghiệp Việt Nam (cần pháp nhân nước ngoài, vd Stripe Atlas).
       Chỉ cần thẻ quốc tế thì xem trước phương án qua VNPAY.
+- [x] **Onboarding — hướng dẫn từng bước cho người mới** (21/10, OB-01 → OB-06, [docs/SPEC_XLSX_PLANE.md §6](docs/SPEC_XLSX_PLANE.md)):
+      danh sách "Bắt đầu" trên dashboard HS/PH/GV tự tích theo dữ liệu thật (`OnboardingService`); tour chỉ tay driver.js (npm, không CDN)
+      theo route — chỉ MỜI lần đầu, mời sau khi dải cookie đã đóng, xem lại ở menu người dùng → "Hướng dẫn trang này";
+      tiến độ ở bảng `user_onboarding` (đăng nhập hộ không ghi; đã thêm vào `anonymise()` + xuất dữ liệu); nội dung ở `config/onboarding.php`;
+      4 bài mới/sửa ở Trung tâm hướng dẫn; thẻ "Hướng dẫn người mới" ở dashboard quản trị. Đã chạy thử trên trình duyệt (desktop + điện thoại).
+- [x] Dữ liệu mẫu cho giám sát (21/10): `SampleMonitoringSeeder` — lịch học, 21 ngày thời gian học thật, điểm danh, liên kết phụ huynh demo.
 - [ ] Chọn phạm vi lớp kinh doanh thật (`GRADE_MIN`) nếu khác 1→12. D-03: đang dùng chính `OPENAI_MODEL` cho đọc ảnh.
 
 #### Cố tình không làm — vẫn giữ nguyên quyết định

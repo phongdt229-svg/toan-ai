@@ -46,6 +46,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Nội dung Trung tâm hướng dẫn nằm ở [config/guides.php](config/guides.php) (không có bảng DB). Thêm bài = thêm một phần tử;
   `links` chỉ ghi **tên route** (`'packages.index'`, hoặc `'guides.show:slug'` để trỏ bài khác) vì config nạp trước route.
   `GuideTest` mở tất cả các bài nên gõ sai tên route sẽ bị test bắt ngay.
+- Hướng dẫn người mới: nội dung ở [config/onboarding.php](config/onboarding.php) (danh sách "Bắt đầu" theo vai trò + tour theo
+  tên route). Mục danh sách tự tích từ dữ liệu thật — thêm mục = thêm điều kiện ở `OnboardingService::conditions()`.
+  Tour bám thuộc tính **`data-tour="..."`** (menu: khoá `'tour'` trong `config/navigation.php`), không bám class CSS:
+  đổi giao diện mà xoá mất `data-tour` thì `OnboardingTest` đỏ. Tour chỉ MỜI lần đầu, không tự làm mờ màn hình.
 - Quên mật khẩu: mọi logic ở `PasswordResetService`; giữ nguyên tắc "thông báo giống nhau dù email có tồn tại hay không".
   Local `MAIL_MAILER=log` → link đặt lại nằm trong `storage/logs/laravel.log`.
 - Câu hỏi trong kiểm tra đầu vào là **bản chụp**; chấm qua `PlacementTestQuestion::toQuestion()` để dùng lại `GradingService`.

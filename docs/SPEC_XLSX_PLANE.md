@@ -95,6 +95,7 @@ Mỗi mục là một Work item; copy tiêu đề + mô tả + tiêu chí nghi�
 | **Việc vận hành** (không phải code) | VNPAY sandbox **đã chạy** (key đúng, link thanh toán được chấp nhận 08/10) — production: đổi URL + key, khai IPN HTTPS |
 | **Done (code)** — Stripe | ST-01 → ST-05 (09/10) — chạy test mode; thu VND (D-06 chốt mặc định) |
 | **Blocked** — chờ D-05 (pháp nhân Stripe) | Bật Stripe **live** cho người dùng thật |
+| **Done** — Onboarding (mục 6, 21/10) | OB-01 → OB-06 · OB-D1 nội dung như bảng · OB-D2 chỉ mời · OB-D3 driver.js qua npm |
 
 Ghi chú khi Done: TA-22 mới test bằng `Http::fake`, chưa thử sandbox VNPAY thật. TA-03 dùng ngưỡng "quên" 7 ngày,
 "lỗi gần đây" 14 ngày (hằng số trong `LearningPathService`).
@@ -262,3 +263,66 @@ hoặc dùng thẻ quốc tế. Chạy song song MoMo/VNPAY qua `PaymentGatewayM
 - Khoá `STRIPE_SECRET`/`STRIPE_WEBHOOK_SECRET` chỉ ở `.env` server, thêm vào `phpunit.xml` để test không lẫn `.env` máy.
 
 **Ước lượng tổng:** ~3–4 buổi code + thời gian lập pháp nhân (D-05, có thể vài tuần).
+
+---
+
+## 6. Module mới: Hướng dẫn sử dụng từng bước cho người mới (lên kế hoạch 21/10/2026)
+
+**Vấn đề:** người mới vào phải tự đoán bắt đầu từ đâu. Đã có [Trung tâm hướng dẫn](../config/guides.php) (19 bài đọc), nhưng đó là
+bài viết tĩnh, phải tự tìm — không dẫn người dùng đi từng bước ngay trên màn hình.
+
+**Mục tiêu:** mỗi vai trò có (1) **danh sách "Bắt đầu"** 4–6 việc, tự đánh dấu xong theo dữ liệu thật, và (2) **tour chỉ tay**
+(làm mờ màn hình, khoanh đúng nút, bong bóng giải thích, Tiếp / Quay lại / Bỏ qua) chạy lần đầu vào portal.
+Đo được: % người mới hoàn thành danh sách trong 7 ngày.
+
+### Nội dung theo vai trò (đề xuất — chốt ở OB-D1)
+
+| Vai trò | Danh sách "Bắt đầu" (tự xong khi…) | Tour lần đầu khoanh vào |
+|---|---|---|
+| **Học sinh** | Làm kiểm tra đầu vào (có `placement_tests` graded) · Đặt lịch học (có `study_schedules`) · Học xong buổi 1 (có `study_sessions` done) · Hỏi AI Tutor lần đầu (có `ai_conversations`) · Liên kết phụ huynh (có `parent_children` linked) | Menu Học / Lộ trình / AI · nút AI nổi · thẻ "Gợi ý học hôm nay" · chuỗi ngày học · Lịch học |
+| **Phụ huynh** | Liên kết con · Đặt lịch học cho con · Bật báo cáo cuối ngày / tuần · Xem báo cáo của con lần đầu | Thẻ con · Lịch học · Điểm danh · Chỉ số rủi ro & "Phụ huynh có thể làm gì" · Cài đặt thông báo |
+| **Giáo viên** | Hoàn thiện hồ sơ · Tạo lớp · Mời học sinh (có `class_students`) · Soạn hoặc nhập câu hỏi · Giao bài đầu tiên | Lớp học · Ngân hàng câu hỏi · Giao bài · AI soạn bài · cột Rủi ro trong danh sách học sinh |
+| **Quản trị** | (không cần tour — chỉ danh sách kiểm cấu hình: gói học, cổng thanh toán, SEO, 2FA) | — |
+
+### ⛔ Cần chốt trước (Label: `decision`)
+
+- **OB-D1 · Duyệt nội dung** từng bước ở bảng trên (câu chữ do đội sản phẩm duyệt — code chỉ lấy từ config).
+- **OB-D2 · Tự mở tour hay chỉ mời?** Đề xuất: lần đầu vào portal **hiện lời mời** ("Xem hướng dẫn 1 phút?" — Bắt đầu / Để sau),
+  không tự bật làm mờ màn hình: trẻ nhỏ dễ bấm nhầm, giáo viên đang vội.
+- **OB-D3 · Thư viện tour:** tự viết (~5 KB, không thêm phụ thuộc) hay đóng gói `driver.js` qua Vite (MIT, ~5 KB gzip).
+  **Không** nạp từ CDN — CSP không cho thêm nguồn script ngoài (CLAUDE.md). Đề xuất: driver.js qua npm.
+
+### Work items (Module: Onboarding)
+
+**OB-01 · Danh sách "Bắt đầu" theo vai trò** — High · 1 buổi
+- `OnboardingService::checklist(User)`: mỗi mục là một điều kiện trên **dữ liệu thật** (không có nút "đánh dấu xong" tay) →
+  người dùng làm việc đó ở bất kỳ đâu cũng tự tích.
+- Thẻ trên dashboard mỗi portal: thanh tiến độ "3/5", mỗi mục có link tới đúng trang; xong hết thì thẻ tự ẩn, có nút "Ẩn".
+- Nội dung ở `config/onboarding.php` (như `config/guides.php` — **không có bảng nội dung**): khoá mục, nhãn, mô tả, tên route.
+- ✅ Test: làm từng việc → mục tương ứng tự xong; tên route trong config đều tồn tại (như `GuideTest`).
+
+**OB-02 · Tour chỉ tay lần đầu vào portal** — High · 2 buổi · chặn bởi OB-D3
+- Bước tour khai ở `config/onboarding.php` theo route: `selector` = **`[data-tour="..."]`** gắn vào view (không dùng class CSS — đổi giao diện không làm gãy tour).
+- Mobile-first: bong bóng đặt dưới phần tử, tự cuộn tới; menu dưới (bottom nav) và sidebar desktop có `data-tour` riêng.
+- Phần tử không có trên màn hình hiện tại (vd gói Free không có nút X) → bỏ qua bước đó, không vỡ tour.
+- Bàn phím: Esc = bỏ qua, ←/→ = lùi/tiến; có `aria-live` cho trình đọc màn hình.
+- ✅ Test: mọi `data-tour` khai trong config có mặt trong view tương ứng (quét view như `ConfirmDialogTest`).
+
+**OB-03 · Lưu tiến độ phía server** — Medium · nửa buổi
+- Bảng `user_onboarding` (user_id, tour_key, status `seen`/`completed`/`dismissed`, step, updated_at) — đổi thiết bị không bị hiện lại.
+  `POST /api/v1/onboarding/{tour}` (session + CSRF như activity), Form Request.
+- Đăng nhập hộ (`ImpersonationService`) **không** ghi tiến độ — người hỗ trợ xem tour không làm mất tour của học sinh.
+- Dữ liệu cá nhân → thêm vào `anonymise()` **và** `DataExportService`.
+
+**OB-04 · Xem lại hướng dẫn bất cứ lúc nào** — Medium · nửa buổi
+- Menu người dùng (góc phải) thêm "Hướng dẫn sử dụng" → chạy lại tour trang hiện tại; liên kết sang bài đọc liên quan ở Trung tâm hướng dẫn.
+
+**OB-05 · Cập nhật Trung tâm hướng dẫn cho tính năng mới** — Medium · nửa buổi
+- Bài mới / sửa bài: Lịch học & điểm danh · Chuỗi ngày học · Báo cáo cuối ngày & cảnh báo vắng · Chụp ảnh đề cho AI ·
+  Thanh toán VNPAY (sửa bài "Gói học và thanh toán MoMo") · Học thử 3 buổi của gói Free.
+
+**OB-06 · Đo hiệu quả** — Low · nửa buổi
+- Quản trị → Dashboard: % người mới (đăng ký 7–30 ngày) hoàn thành danh sách, bước tour hay bị bỏ nhất.
+  Chỉ đếm trong DB của mình (không gửi sự kiện tour ra GA nếu người dùng chưa đồng ý cookie).
+
+**Ước lượng tổng:** ~5 buổi. Thứ tự: OB-D1 → OB-01 → OB-03 → OB-02 (sau OB-D3) → OB-04 → OB-05 → OB-06.

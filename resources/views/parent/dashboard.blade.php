@@ -9,6 +9,8 @@
 @endphp
 
 @section('content')
+    @include('partials.onboarding-checklist')
+
     <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
         <h2 class="h5 fw-bold mb-0">Con của tôi</h2>
         @if ($children->isNotEmpty())
@@ -35,7 +37,7 @@
                 @php $child = $row['student']; @endphp
                 <div class="col-12 col-lg-6">
                     {{-- Thẻ không bọc trong <a> nữa: phần dưới có nút mua gói, không lồng link trong link được. --}}
-                    <div class="card border h-100">
+                    <div class="card border h-100" @if ($loop->first) data-tour="child-card" @endif>
                         <a href="{{ route('parent.children.show', $child) }}" class="card-body d-block text-decoration-none text-body">
                             <div class="d-flex align-items-center gap-2 mb-3">
                                 <i class="bi bi-person-circle fs-3 text-primary"></i>

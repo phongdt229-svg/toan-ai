@@ -14,9 +14,21 @@
     $recentNotifications = auth()->user()->notifications()->latest()->take(8)->get();
     $unreadNotificationCount = auth()->user()->unreadNotifications()->count();
 
+    // Tour hướng dẫn của trang hiện tại (OB-02) — chỉ MỜI lần đầu, chạy lại được từ menu người dùng.
+    $tour = app(\App\Services\OnboardingService::class)->tourFor(auth()->user(), \Illuminate\Support\Facades\Route::currentRouteName());
+    // Dựng sẵn ở đây: @json với mảng nhiều phần tử viết thẳng trong directive bị Blade tách sai đối số.
+    $tourPayload = $tour ? $tour + ['endpoint' => route('api.onboarding')] : null;
+
     // Màu nhấn theo màu yêu thích chỉ áp cho portal học sinh — trang công khai và portal khác giữ nhận diện chung.
     $accent = $portal === 'student' ? auth()->user()->studentProfile?->accentColor() : null;
 @endphp
+
+@if ($tour)
+    @push('head')
+        {{-- @json mã hoá cả "<" nên nội dung tour không thể đóng thẻ script sớm. --}}
+        <script type="application/json" id="onboarding-tour">@json($tourPayload)</script>
+    @endpush
+@endif
 
 @if ($portal === 'student')
     @push('head')
@@ -148,6 +160,13 @@
                                 <i class="bi bi-book me-2"></i>Hướng dẫn sử dụng
                             </a>
                         </li>
+                        @if ($tour)
+                            <li>
+                                <button type="button" class="dropdown-item" data-tour-start>
+                                    <i class="bi bi-signpost me-2"></i>Hướng dẫn trang này
+                                </button>
+                            </li>
+                        @endif
                         <li>
                             <a class="dropdown-item" href="{{ route('support.create') }}">
                                 <i class="bi bi-life-preserver me-2"></i>Gửi yêu cầu hỗ trợ

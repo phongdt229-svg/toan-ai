@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\ActivityController;
 use App\Http\Controllers\Api\V1\AiController;
 use App\Http\Controllers\Api\V1\MomoIpnController;
+use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\StripeWebhookController;
 use App\Http\Controllers\Api\V1\VnpayIpnController;
 use App\Models\Package;
@@ -95,6 +96,11 @@ Route::post('payment/momo/ipn', MomoIpnController::class)
 Route::post('activity', ActivityController::class)
     ->middleware(['web', 'auth', 'active', 'throttle:6,1'])
     ->name('api.activity');
+
+// Tiến độ hướng dẫn người mới (OB-03) — session + CSRF như heartbeat học tập.
+Route::post('onboarding', OnboardingController::class)
+    ->middleware(['web', 'auth', 'active', 'throttle:30,1'])
+    ->name('api.onboarding');
 
 // Webhook Stripe (ST-02): chữ ký tính trên thân request thô — loại trừ CSRF trong bootstrap/app.php.
 Route::post('payment/stripe/webhook', StripeWebhookController::class)
