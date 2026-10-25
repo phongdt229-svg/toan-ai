@@ -141,5 +141,39 @@
         </div>
     </div>
 
+    {{-- OB-06: hiệu quả hướng dẫn người mới — chỉ đếm trong DB, không gửi sự kiện tour ra công cụ đo lường ngoài. --}}
+    @php($ob = $a['onboarding'] ?? null)
+    @if ($ob)
+        <div class="card border mt-3" data-testid="onboarding-stats">
+            <div class="card-body">
+                <div class="fw-semibold mb-1"><i class="bi bi-signpost-2 text-primary me-1"></i>Hướng dẫn người mới</div>
+                <p class="small text-secondary mb-2">
+                    Người đăng ký 30 ngày qua: <strong class="text-body">{{ $ob['new_users'] }}</strong> ·
+                    hoàn thành danh sách "Bắt đầu": <strong class="text-body">{{ $ob['checklist_done'] }}</strong>
+                    ({{ $ob['checklist_percent'] !== null ? $ob['checklist_percent'].'%' : '—' }})
+                </p>
+                @if ($ob['tours'])
+                    <div class="table-responsive">
+                        <table class="table table-sm small mb-0">
+                            <thead><tr><th>Tour</th><th class="text-end">Xem hết</th><th class="text-end">Bỏ ngang</th><th class="text-end">Hay bỏ ở bước</th></tr></thead>
+                            <tbody>
+                                @foreach ($ob['tours'] as $key => $t)
+                                    <tr>
+                                        <td><code>{{ \Illuminate\Support\Str::after($key, 'tour:') }}</code></td>
+                                        <td class="text-end">{{ $t['completed'] }}</td>
+                                        <td class="text-end">{{ $t['dismissed'] }}</td>
+                                        <td class="text-end">{{ $t['top_drop_step'] !== null ? $t['top_drop_step'] + 1 : '—' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="small text-secondary mb-0">Chưa có ai xem tour.</p>
+                @endif
+            </div>
+        </div>
+    @endif
+
     <div class="small text-secondary mt-2">Số liệu lúc {{ \Illuminate\Support\Carbon::parse($a['generated_at'])->format('H:i d/m/Y') }}.</div>
 @endsection

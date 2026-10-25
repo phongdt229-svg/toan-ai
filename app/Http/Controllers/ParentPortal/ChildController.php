@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ParentPortal\LinkChildRequest;
 use App\Models\User;
 use App\Services\AccessControlService;
+use App\Services\Admin\ImpersonationService;
 use App\Services\Learning\ActivityService;
 use App\Services\Learning\AttendanceService;
 use App\Services\Learning\RiskScoreService;
@@ -13,6 +14,7 @@ use App\Services\Learning\StreakService;
 use App\Services\Learning\StudentReportService;
 use App\Services\Learning\StudyScheduleService;
 use App\Services\Learning\TopicSignalService;
+use App\Services\OnboardingService;
 use App\Services\Parenting\ChildLinkService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -74,6 +76,11 @@ class ChildController extends Controller
     public function show(Request $request, User $student): View
     {
         abort_unless($request->user()->isParentOf($student), 403);
+
+        // Mục "Xem báo cáo của con lần đầu" trong danh sách Bắt đầu — người hỗ trợ đăng nhập hộ thì không tính.
+        if (! $request->session()->has(ImpersonationService::SESSION_KEY)) {
+            app(OnboardingService::class)->markVisited($request->user(), 'parent.children.show');
+        }
 
         $report = $this->reports->summary($student);
         // TA-05: năng lực theo chủ đề của bài đầu vào cho phụ huynh — nạp trước (strict mode chặn lazy load).

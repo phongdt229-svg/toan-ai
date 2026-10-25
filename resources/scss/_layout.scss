@@ -330,3 +330,31 @@ a.brand--light:hover .brand__text { color: #fff; }
     // Nút đăng xuất dùng chung lớp trên nhưng là <button>.
     &__item.text-danger i { color: inherit; }
 }
+
+// Lời mời xem tour hướng dẫn (OB-02). Mobile: trải ngang, nằm trên bottom nav và chừa chỗ nút AI nổi;
+// desktop: thẻ nhỏ góc dưới bên trái để không đè nút AI.
+.tour-invite {
+    position: fixed;
+    left: .75rem;
+    right: calc(56px + 1.75rem);
+    bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0px) + .75rem);
+    z-index: $zindex-fixed + 2;
+}
+
+@include media-breakpoint-up(lg) {
+    .tour-invite {
+        left: calc(#{$sidebar-width} + 1.5rem);
+        right: auto;
+        bottom: 1.5rem;
+        max-width: 28rem;
+    }
+}
+
+// Bong bóng tour theo màu chủ đạo của site (driver.js mặc định trắng/đen).
+.driver-popover {
+    font-family: inherit;
+    border-radius: $border-radius-lg;
+
+    .driver-popover-title { font-size: 1rem; font-weight: 700; }
+    .driver-popover-next-btn { background: var(--bs-primary); color: #fff; text-shadow: none; border-color: var(--bs-primary); }
+}

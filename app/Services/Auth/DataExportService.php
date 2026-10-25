@@ -81,6 +81,7 @@ class DataExportService
                     'gateway_response', 'pay_url', 'client_ip', 'gateway_request_id', 'flag_reason',
                 ]),
             ],
+            'onboarding' => $mine('user_onboarding'),
             'support_tickets' => $mine('support_tickets', 'user_id', ['ip_address', 'user_agent', 'admin_note', 'handled_by']),
             'classes' => $mine('class_students', 'student_id'),
             'notifications' => DB::table('notifications')

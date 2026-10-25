@@ -17,6 +17,8 @@
         </p>
     </div>
 
+    @include('partials.onboarding-checklist')
+
     {{-- Gói Free: mời nâng cấp ngay trên trang chủ, vì đây là nơi học sinh vào mỗi ngày. --}}
     @if (! $subscription && $upgradePackage)
         <div class="card border-warning mb-4">
@@ -118,7 +120,7 @@
     @endif
 
     {{-- TA-15: chuỗi ngày học (một ngày = học thực ≥ 10 phút). Chưa có chuỗi thì mời bắt đầu, không hiện số 0. --}}
-    <div class="d-flex flex-wrap align-items-center gap-2 small mb-3" data-testid="streak">
+    <div class="d-flex flex-wrap align-items-center gap-2 small mb-3" data-testid="streak" data-tour="streak">
         @if ($streak['current'] > 0)
             <span class="badge text-bg-warning fs-6">🔥 {{ $streak['current'] }} ngày liên tiếp</span>
             @if ($streak['best'] > $streak['current'])
@@ -147,7 +149,7 @@
     @if ($currentSession && $currentLocked)
         @include('student.path.partials.locked', ['session' => $currentSession, 'limit' => $sessionLimit])
     @elseif ($currentSession)
-        <div class="card border-primary mb-4">
+        <div class="card border-primary mb-4" data-tour="today-suggestion">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <h3 class="h6 fw-bold mb-0"><i class="bi bi-stars text-primary me-1"></i>Gợi ý học hôm nay · Buổi {{ $currentSession->session_no }}</h3>
@@ -165,7 +167,7 @@
         </div>
     @elseif ($recommendations->isNotEmpty())
         <h3 class="h6 fw-bold mb-2"><i class="bi bi-stars text-primary me-1"></i>Gợi ý học hôm nay</h3>
-        <div class="mb-4">
+        <div class="mb-4" data-tour="today-suggestion">
             @include('components.recommendation-list', ['recommendations' => $recommendations, 'actionable' => true])
         </div>
     @endif

@@ -8,7 +8,7 @@
 @endphp
 
 <div id="ai-tutor" data-api-base="{{ url('api/v1/ai') }}" @stack('ai-context')>
-    <button type="button" class="ai-fab btn btn-primary rounded-circle shadow"
+    <button type="button" data-tour="ai-fab" class="ai-fab btn btn-primary rounded-circle shadow"
             data-bs-toggle="offcanvas" data-bs-target="#ai-tutor-panel" aria-controls="ai-tutor-panel"
             aria-label="Mở AI Tutor">
         <i class="bi bi-robot fs-4"></i>

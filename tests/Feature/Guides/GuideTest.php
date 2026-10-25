@@ -56,7 +56,8 @@ class GuideTest extends TestCase
             ->assertOk()
             ->assertSee('Phụ huynh: liên kết và theo dõi con')
             // Nhóm chung (tài khoản, gói học, thanh toán) luôn đi kèm mọi vai trò.
-            ->assertSee('Gói học và thanh toán MoMo')
+            ->assertSee('Gói học và thanh toán (VNPAY, MoMo)')
+            ->assertSee('Lịch học, điểm danh và cảnh báo khi con vắng')
             ->assertDontSee('Soạn bài học và chèn công thức toán');
     }
 

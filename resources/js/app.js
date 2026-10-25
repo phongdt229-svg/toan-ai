@@ -4,6 +4,7 @@ import * as bootstrap from 'bootstrap';
 import renderMathInElement from 'katex/contrib/auto-render';
 import { initAiTutor } from './ai-tutor';
 import { initActivityTracker } from './activity-tracker';
+import { initOnboarding } from './onboarding-tour';
 import './confirm-dialog';
 import { renderGeometry } from './geometry-embed';
 
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMath();
     initAiTutor();
     initActivityTracker();
+    initOnboarding();
 
     registerServiceWorker();
 

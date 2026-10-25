@@ -13,6 +13,7 @@ use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\SupportTicket;
 use App\Models\User;
+use App\Services\OnboardingService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +48,8 @@ class AnalyticsService
         $since = today()->subDays(29);
 
         return [
+            // OB-06: người mới có đi hết danh sách "Bắt đầu" không, tour nào hay bị bỏ ở bước mấy.
+            'onboarding' => app(OnboardingService::class)->stats(),
             'users' => [
                 'total' => User::count(),
                 'students' => $this->countByRole(Role::STUDENT),
