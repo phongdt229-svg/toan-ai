@@ -2,8 +2,11 @@
 @import "variables";
 
 @import "../../node_modules/bootstrap/scss/bootstrap";
-@import "../../node_modules/bootstrap-icons/font/bootstrap-icons.css";
-@import "../../node_modules/katex/dist/katex.min.css";
+// Bootstrap Icons: file sinh bởi scripts/bootstrap-icons.mjs (npm run dev/build tự chạy) — bản build chỉ
+// giữ icon thật sự dùng trong code (font 127 KB → vài KB).
+@import "vendor/generated/bootstrap-icons";
+@import "fonts";
+// katex.min.css KHÔNG nạp ở đây: app.js import động cùng KaTeX khi trang có [data-math].
 
 @import "layout";
 @import "tables";

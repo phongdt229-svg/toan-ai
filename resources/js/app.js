@@ -1,7 +1,6 @@
 import './bootstrap';
 
 import * as bootstrap from 'bootstrap';
-import renderMathInElement from 'katex/contrib/auto-render';
 import { initAiTutor } from './ai-tutor';
 import { initActivityTracker } from './activity-tracker';
 import { initOnboarding } from './onboarding-tour';
@@ -11,25 +10,47 @@ import { renderGeometry } from './geometry-embed';
 window.bootstrap = bootstrap;
 
 /**
- * Render công thức Toán trong mọi phần tử [data-math].
- * Dùng cho nội dung lesson/câu hỏi (Phase 2 trở đi).
+ * KaTeX (~260 KB JS + CSS + font) chỉ tải khi trang thật sự có công thức — trước đây nằm trong
+ * bundle chung nên trang chủ, đăng nhập… cũng phải tải, kéo điểm PageSpeed mobile xuống.
  */
-function renderMath(root = document.body) {
-    root.querySelectorAll('[data-math]').forEach((el) => {
-        if (el.dataset.mathRendered === '1') return;
+let katexLoader;
+function loadKatex() {
+    katexLoader ??= Promise.all([
+        import('katex/contrib/auto-render'),
+        import('katex/dist/katex.min.css'),
+    ]).then(([mod]) => mod.default);
 
-        renderMathInElement(el, {
-            delimiters: [
-                { left: '$$', right: '$$', display: true },
-                { left: '\\[', right: '\\]', display: true },
-                { left: '$', right: '$', display: false },
-                { left: '\\(', right: '\\)', display: false },
-            ],
-            throwOnError: false,
+    return katexLoader;
+}
+
+/**
+ * Render công thức Toán trong mọi phần tử [data-math].
+ * Dùng cho nội dung lesson/câu hỏi (Phase 2 trở đi). Trả về Promise — ai cần đo kích thước
+ * sau khi render thì await.
+ */
+async function renderMath(root = document.body) {
+    const targets = [...root.querySelectorAll('[data-math]')];
+
+    if (targets.some((el) => el.dataset.mathRendered !== '1')) {
+        const renderMathInElement = await loadKatex();
+
+        targets.forEach((el) => {
+            // Kiểm lại sau await: lượt gọi khác có thể đã render trong lúc chờ tải KaTeX.
+            if (el.dataset.mathRendered === '1') return;
+
+            renderMathInElement(el, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                ],
+                throwOnError: false,
+            });
+
+            el.dataset.mathRendered = '1';
         });
-
-        el.dataset.mathRendered = '1';
-    });
+    }
 
     // Sau công thức: thay token [[hinh:...]] bằng hình 3D chỉ-xem (Three.js chỉ tải khi trang có hình).
     renderGeometry(root);

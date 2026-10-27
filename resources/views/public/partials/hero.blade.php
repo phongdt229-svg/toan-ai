@@ -66,7 +66,9 @@
                         <i class="bi bi-signpost-split-fill text-primary"></i>Lộ trình riêng
                     </div>
 
-                    <div class="device__screen" data-math>
+                    {{-- Công thức minh hoạ viết sẵn bằng MathML (trình duyệt tự vẽ), không dùng data-math:
+                         trang chủ khỏi tải KaTeX ~260 KB chỉ để vẽ một phân số — điểm PageSpeed mobile. --}}
+                    <div class="device__screen">
                         <div class="device__notch" aria-hidden="true"></div>
 
                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -76,7 +78,15 @@
 
                         <div class="fw-bold mb-2">Cộng hai phân số khác mẫu</div>
                         <p class="small text-secondary mb-2">Quy đồng rồi cộng tử số:</p>
-                        <p class="mb-3">$$\frac{1}{2} + \frac{1}{3} = \frac{3}{6} + \frac{2}{6} = \frac{5}{6}$$</p>
+                        <p class="mb-3 math-static">
+                            <math display="block">
+                                <mfrac><mn>1</mn><mn>2</mn></mfrac><mo>+</mo><mfrac><mn>1</mn><mn>3</mn></mfrac>
+                                <mo>=</mo>
+                                <mfrac><mn>3</mn><mn>6</mn></mfrac><mo>+</mo><mfrac><mn>2</mn><mn>6</mn></mfrac>
+                                <mo>=</mo>
+                                <mfrac><mn>5</mn><mn>6</mn></mfrac>
+                            </math>
+                        </p>
 
                         <div class="progress mb-3" style="height:6px" role="progressbar"
                              aria-label="Tiến độ bài học" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100">

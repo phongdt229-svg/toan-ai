@@ -6,8 +6,8 @@
  * - Bước nào không tìm thấy phần tử đang hiển thị (gói Free không có nút đó, menu mobile đang đóng…) thì bỏ qua.
  * - Kết thúc: xem hết → completed; đóng giữa chừng → dismissed + bước đang đứng (để biết bước nào khó hiểu).
  */
-import { driver } from 'driver.js';
-import 'driver.js/dist/driver.css';
+// driver.js chỉ tải khi người dùng bấm xem tour — đa số lượt xem trang không cần, khỏi nằm trong bundle chung.
+const loadDriver = () => Promise.all([import('driver.js'), import('driver.js/dist/driver.css')]).then(([mod]) => mod.driver);
 
 const token = () => document.querySelector('meta[name="csrf-token"]')?.content;
 
@@ -42,10 +42,11 @@ function buildSteps(config) {
         }));
 }
 
-function runTour(config) {
+async function runTour(config) {
     const steps = buildSteps(config);
     if (!steps.length) return;
 
+    const driver = await loadDriver();
     const tour = driver({
         steps,
         showProgress: true,

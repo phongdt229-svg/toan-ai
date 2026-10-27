@@ -129,6 +129,11 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   local để nguyên cho dễ đọc "View source". Test hành vi nén phải chạy trên **trang thật** (`$this->get('/')`),
   không chỉ HTML tự soạn — mẫu tự soạn dễ toàn đúng kiểu `>   <` nên không bắt được khoảng trắng lọt lưới
   cạnh nội dung được bảo vệ (`<script>`/`<pre>`/...), xem `MinifyHtmlTest`.
+- Hiệu năng trang công khai (PageSpeed mobile ≥ 90): **Bootstrap Icons bản build chỉ giữ icon có trong code**
+  (`scripts/bootstrap-icons.mjs`, `npm run build` tự chạy; `npm run dev` dùng bản đủ). Luôn viết ĐỦ tên class
+  (`'bi-house'`), không ghép chuỗi (`'bi-' . $name`) — ghép thì icon mất ở production.
+  KaTeX/driver.js nạp động (chỉ trang có `[data-math]` / khi mở tour) — đừng import tĩnh lại vào `app.js`.
+  Công thức trang chủ viết sẵn bằng MathML. Font Be Vietnam Pro tự host ở `_fonts.scss` (không dùng Google Fonts).
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
   Job `pint --test` đã bật (repo đã dọn 24/09) — trước khi commit chạy `vendor/bin/pint`.
 

@@ -180,6 +180,12 @@ body {
     margin: .5rem 0;
 }
 
+// MathML viết tay ở trang chủ (không qua KaTeX): cỡ chữ gần bằng KaTeX để giao diện không đổi.
+math.math-static,
+.math-static math {
+    font-size: 1.15em;
+}
+
 // Công thức Toán dài không làm vỡ layout mobile.
 .katex-display {
     overflow-x: auto;

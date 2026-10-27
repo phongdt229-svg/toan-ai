@@ -47,10 +47,12 @@
                         </div>
                     </div>
 
-                    <div class="d-flex flex-column gap-2" data-math>
+                    {{-- MathML viết sẵn thay data-math — cùng lý do với hero: trang chủ không tải KaTeX. --}}
+                    <div class="d-flex flex-column gap-2">
                         <div class="chat-demo__bubble chat-demo__bubble--me">Em ra 2/5 ạ, sai chỗ nào vậy?</div>
                         <div class="chat-demo__bubble chat-demo__bubble--ai">
-                            Em đang cộng tử với tử, mẫu với mẫu. Nhưng $\frac{1}{2}$ và $\frac{1}{3}$
+                            Em đang cộng tử với tử, mẫu với mẫu. Nhưng <math class="math-static"><mfrac><mn>1</mn><mn>2</mn></mfrac></math>
+                            và <math class="math-static"><mfrac><mn>1</mn><mn>3</mn></mfrac></math>
                             là hai phần bánh to nhỏ khác nhau — phải chia lại cho bằng nhau đã.
                             Thử tìm mẫu số chung của 2 và 3 xem?
                         </div>

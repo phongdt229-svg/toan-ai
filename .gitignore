@@ -30,3 +30,6 @@ Thumbs.db
 
 # Dữ liệu, không phải code — xuất tay bằng `database/exports/`, không commit.
 /database/exports
+
+# Sinh bởi scripts/bootstrap-icons.mjs (npm run dev/build)
+/resources/scss/vendor/generated

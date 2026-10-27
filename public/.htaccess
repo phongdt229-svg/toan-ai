@@ -23,3 +23,18 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Cache trình duyệt (hosting Apache/LiteSpeed; Nginx xem deploy/nginx/toan-ai.conf).
+# /build/assets có hash trong tên file → đổi nội dung là đổi tên, cache 1 năm an toàn.
+# sw.js + manifest luôn lấy bản mới, nếu không người dùng kẹt ở bản PWA cũ.
+<IfModule mod_headers.c>
+    <If "%{REQUEST_URI} =~ m#^/build/assets/#">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </If>
+    <ElseIf "%{REQUEST_URI} =~ m#^/storage/.+\.(jpe?g|png|webp|gif)$#">
+        Header set Cache-Control "public, max-age=2592000"
+    </ElseIf>
+    <ElseIf "%{REQUEST_URI} =~ m#^/(sw\.js|manifest\.webmanifest)$#">
+        Header set Cache-Control "no-cache"
+    </ElseIf>
+</IfModule>

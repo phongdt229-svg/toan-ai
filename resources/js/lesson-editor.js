@@ -10,6 +10,8 @@ import StarterKit from '@tiptap/starter-kit';
 import { TableKit } from '@tiptap/extension-table';
 import Placeholder from '@tiptap/extension-placeholder';
 import katex from 'katex';
+// app.scss không còn gói CSS KaTeX (chỉ tải động khi trang có [data-math]) — trình soạn tự kéo về.
+import 'katex/dist/katex.min.css';
 import { fromEditorHtml as mathFromEditor, toEditorHtml as mathToEditor } from './editor/math-html';
 import { fromEditorHtml as geoFromEditor, toEditorHtml as geoToEditor } from './editor/geometry-html';
 
