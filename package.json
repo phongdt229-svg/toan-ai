@@ -7,6 +7,7 @@
         "dev": "vite"
     },
     "devDependencies": {
+        "@fullhuman/postcss-purgecss": "^8.0.0",
         "@tiptap/core": "^3.31.3",
         "@tiptap/extension-placeholder": "^3.31.3",
         "@tiptap/extension-table": "^3.31.3",

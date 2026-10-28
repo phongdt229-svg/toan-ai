@@ -158,6 +158,30 @@ php artisan up
 Lần đầu cài thêm: `php artisan key:generate`, `php artisan db:seed --class=GradeSeeder --force`, tạo tài khoản admin,
 `php artisan storage:link`.
 
+> ⚠️ `public/storage` phải là **symlink** tới `storage/app/public`, không được là thư mục thật. Laravel luôn lưu ảnh
+> upload (ảnh bìa tin tức, ảnh đại diện) vào `storage/app/public/...`; nếu `public/storage` là thư mục thật (vd copy
+> tay lúc cài trên aaPanel) thì ảnh mới lưu xong nhưng link `/storage/...` báo 404. Kiểm tra: `ls -ld public/storage`
+> phải bắt đầu bằng `l`. Sửa: gộp file cũ (`cp -an public/storage/. storage/app/public/`), `mv public/storage public/storage.bak`,
+> `php artisan storage:link`. Symlink tạo trong Docker trỏ `/var/www/html/...` nên không dùng được ngoài container.
+
+### 3.0. Tốc độ (PageSpeed)
+
+Hai việc ở **web server** (không nằm trong code) ảnh hưởng điểm di động nhiều nhất — nginx/aaPanel không đọc `.htaccess`:
+
+- Bật nén **gzip/brotli** cho `text/css`, `application/javascript`, `application/json`, `image/svg+xml`.
+  CSS chính 361 KB còn ~55 KB khi nén; bỏ nén là mất điểm LCP ngay.
+- Cache dài cho file có hash trong `/build/` (đổi nội dung là đổi tên nên an toàn):
+
+```nginx
+location /build/ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+}
+```
+
+Code đã làm: font Google tải không chặn hiển thị; KaTeX (~75 KB nén) chỉ tải khi trang có công thức; Three.js/JSXGraph/MathLive
+chỉ tải khi mở hình/công thức.
+
 ### 3.1. Trang bảo trì
 
 Có hai cách bật: **trang quản trị** (không cần SSH) và **dòng lệnh** (dùng trong script deploy).

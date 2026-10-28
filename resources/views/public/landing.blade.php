@@ -4,6 +4,11 @@
 @section('meta_description', 'Học Toán lớp '.\App\Models\Grade::rangeLabel('–').' theo đúng chương trình: bài giảng, luyện tập chấm ngay, đề kiểm tra và AI giảng lại từng bước khi làm sai.')
 @section('html_class', 'landing-snap')
 
+{{-- Công thức ở hero là phần tử LCP; KaTeX khai font-display:block nên chữ ẩn tới khi font về — tải trước để hiện sớm. --}}
+@push('head')
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('node_modules/katex/dist/fonts/KaTeX_Main-Regular.woff2') }}">
+@endpush
+
 @push('scripts')
     @vite('resources/js/install-app.js')
 @endpush

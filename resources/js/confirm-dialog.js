@@ -13,7 +13,7 @@
  *   if (await window.confirmDialog('Nộp bài?')) { ... }
  *   await window.alertDialog('Hết giờ rồi.');
  */
-import * as bootstrap from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 
 const MARKUP = `
 <div class="modal fade" id="app-confirm" tabindex="-1" aria-hidden="true" aria-labelledby="app-confirm-title">
@@ -48,7 +48,7 @@ function ensureModal() {
         cancel: document.querySelector('#app-confirm-cancel'),
     };
 
-    modal = new bootstrap.Modal(els.root);
+    modal = new Modal(els.root);
 
     return modal;
 }
