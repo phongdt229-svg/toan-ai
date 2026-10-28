@@ -176,6 +176,13 @@
         scroll-snap-align: start;
     }
 
+    // Hero nằm ngay dưới nav (~55px): không có lề này thì điểm snap của nó là y=55, vừa tải
+    // trang trình duyệt đã tự cuộn xuống đó — nav bị trượt mất và Chrome coi như người dùng
+    // đã cuộn nên không ghi LCP (PageSpeed báo NO_LCP, trang chủ không có điểm).
+    .hero {
+        scroll-margin-top: 76px;
+    }
+
     @media (prefers-reduced-motion: no-preference) {
         scroll-snap-type: y proximity;
     }

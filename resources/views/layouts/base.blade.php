@@ -87,12 +87,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="TOÁN AI">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {{-- Tải font không chặn hiển thị: chữ hiện ngay bằng font hệ thống (display=swap), font đẹp thay vào sau. --}}
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
-
     @if (config('site.google_site_verification'))
         <meta name="google-site-verification" content="{{ config('site.google_site_verification') }}">
     @endif
@@ -133,6 +127,43 @@
     @endunless
 
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+
+    {{--
+        Font Be Vietnam Pro nạp SAU khi trang đã hiện chữ: 9 file ~150 KB mà tải cùng lúc với CSS chính thì
+        trên 4G chữ hiện chậm ~0,9s (PageSpeed mobile 92 → 98 khi tách ra). Phải chờ first-contentful-paint chứ
+        không chờ load — mạng nhanh thì load bắn TRƯỚC lần vẽ đầu, font lại chen vào đúng đoạn cần tránh.
+        Lượt xem sau font đã trong cache 1 năm → gắn ngay để khỏi thấy chữ đổi font ở mỗi trang.
+        Không có JS thì <noscript> lo.
+    --}}
+    @php $webfonts = Vite::asset('resources/scss/webfonts.scss'); @endphp
+    <script>
+        (function (href) {
+            var key = 'webfonts-cached';
+            function add() {
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = href;
+                document.head.appendChild(link);
+            }
+            try { if (localStorage.getItem(key)) { add(); return; } } catch (e) {}
+
+            var done = false;
+            function later() {
+                if (done) return;
+                done = true;
+                add();
+                try { localStorage.setItem(key, '1'); } catch (e) {}
+            }
+            try {
+                new PerformanceObserver(function (list) {
+                    if (list.getEntriesByName('first-contentful-paint').length) setTimeout(later, 0);
+                }).observe({ type: 'paint', buffered: true });
+            } catch (e) {}
+            // Trình duyệt không có Paint Timing (hoặc trang không vẽ chữ nào) thì vẫn có font.
+            addEventListener('load', function () { setTimeout(later, 1500); });
+        })(@json($webfonts));
+    </script>
+    <noscript><link rel="stylesheet" href="{{ $webfonts }}"></noscript>
     @stack('head')
 
     {{--

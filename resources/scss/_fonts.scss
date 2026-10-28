@@ -1,0 +1,15 @@
+// Font dự phòng chỉnh cho bằng khổ Be Vietnam Pro: lúc font thật chưa về chữ hiện bằng Arial, khi đổi sang
+// font thật tiêu đề hero không xuống dòng khác đi → khối .device bên dưới không nhảy (PageSpeed đo CLS 0,17).
+// Số tính từ @capsizecss/metrics: size-adjust = (492/1000) / (913/2048); ascent/descent = metric / size-adjust.
+//
+// Bản thân Be Vietnam Pro KHÔNG khai ở đây mà ở webfonts.scss (file CSS riêng, nạp sau — xem layouts/base):
+// 9 file font ~150 KB tranh băng thông với CSS chính trên 4G nên PageSpeed mobile trừ ~6 điểm.
+// Nhờ font dự phòng cùng khổ ở trên, lúc đổi font không xô layout.
+@font-face {
+    font-family: "Be Vietnam Pro Fallback";
+    src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Roboto");
+    size-adjust: 110.36%;
+    ascent-override: 90.61%;
+    descent-override: 24.01%;
+    line-gap-override: 0%;
+}
