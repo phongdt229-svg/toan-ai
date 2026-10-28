@@ -1,16 +1,10 @@
-// Be Vietnam Pro tự host (thay Google Fonts): bỏ một file CSS chặn hiển thị ở domain ngoài — PageSpeed
-// mobile trừ ~1s — và bớt một bên thứ ba nhận IP người dùng.
-//
-// Chỉ khai 2 bộ Latin + Vietnamese, KHÔNG dùng file 400.css… của @fontsource: các file đó có thêm bộ
-// Latin-ext mà unicode-range trùng chữ Việt (ă, đ, ơ, ư…) nên trình duyệt tải luôn cả nó (~13 KB × 5 độ đậm).
-$_bvp-ranges: (
-    latin: "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
-    vietnamese: "U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB",
-);
-
 // Font dự phòng chỉnh cho bằng khổ Be Vietnam Pro: lúc font thật chưa về chữ hiện bằng Arial, khi đổi sang
 // font thật tiêu đề hero không xuống dòng khác đi → khối .device bên dưới không nhảy (PageSpeed đo CLS 0,17).
 // Số tính từ @capsizecss/metrics: size-adjust = (492/1000) / (913/2048); ascent/descent = metric / size-adjust.
+//
+// Bản thân Be Vietnam Pro KHÔNG khai ở đây mà ở webfonts.scss (file CSS riêng, nạp sau — xem layouts/base):
+// 9 file font ~150 KB tranh băng thông với CSS chính trên 4G nên PageSpeed mobile trừ ~6 điểm.
+// Nhờ font dự phòng cùng khổ ở trên, lúc đổi font không xô layout.
 @font-face {
     font-family: "Be Vietnam Pro Fallback";
     src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Roboto");
@@ -18,17 +12,4 @@ $_bvp-ranges: (
     ascent-override: 90.61%;
     descent-override: 24.01%;
     line-gap-override: 0%;
-}
-
-@each $weight in (400, 500, 600, 700, 800) {
-    @each $subset, $range in $_bvp-ranges {
-        @font-face {
-            font-family: "Be Vietnam Pro";
-            font-style: normal;
-            font-display: swap;
-            font-weight: $weight;
-            src: url("../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-#{$subset}-#{$weight}-normal.woff2") format("woff2");
-            unicode-range: #{$range};
-        }
-    }
 }

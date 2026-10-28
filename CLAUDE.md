@@ -133,7 +133,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   (`scripts/bootstrap-icons.mjs`, `npm run build` tự chạy; `npm run dev` dùng bản đủ). Luôn viết ĐỦ tên class
   (`'bi-house'`), không ghép chuỗi (`'bi-' . $name`) — ghép thì icon mất ở production.
   KaTeX/driver.js nạp động (chỉ trang có `[data-math]` / khi mở tour) — đừng import tĩnh lại vào `app.js`.
-  Công thức trang chủ viết sẵn bằng MathML. Font Be Vietnam Pro tự host ở `_fonts.scss` (không dùng Google Fonts).
+  Công thức trang chủ viết sẵn bằng MathML. Font Be Vietnam Pro tự host (không dùng Google Fonts) ở entry riêng
+  `resources/scss/webfonts.scss`, `layouts/base` chỉ gắn nó **sau first-contentful-paint** ở lượt xem đầu —
+  đừng `@import` lại vào `app.scss` (font tranh băng thông với CSS chính, mobile 98 → 92). Font dự phòng cùng
+  khổ (chống CLS khi đổi font) vẫn ở `_fonts.scss`.
   Trang chủ có `scroll-snap` (`.landing-snap`): khối snap đầu trang phải có `scroll-margin-top` ≥ chiều cao nav,
   nếu không vừa tải trang đã tự cuộn → Chrome không ghi LCP, PageSpeed báo `NO_LCP` và trang chủ mất điểm.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
