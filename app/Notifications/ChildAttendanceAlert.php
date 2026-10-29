@@ -88,7 +88,7 @@ class ChildAttendanceAlert extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("[TOÁN AI] {$this->student->name} vắng {$this->absentStreak} buổi học liên tiếp")
+            ->subject("[Math AI] {$this->student->name} vắng {$this->absentStreak} buổi học liên tiếp")
             ->greeting("Chào {$notifiable->name},")
             ->line($this->line())
             ->line('Phụ huynh có thể trò chuyện với con về giờ học, hoặc đổi khung giờ cho phù hợp hơn trong trang Lịch học.')

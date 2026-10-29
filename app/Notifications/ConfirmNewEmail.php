@@ -37,14 +37,14 @@ class ConfirmNewEmail extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Xác nhận email mới cho tài khoản TOÁN AI')
+            ->subject('Xác nhận email mới cho tài khoản Math AI')
             ->greeting("Chào {$this->user->name},")
-            ->line("Có yêu cầu đổi email tài khoản TOÁN AI sang **{$this->newEmail}**.")
+            ->line("Có yêu cầu đổi email tài khoản Math AI sang **{$this->newEmail}**.")
             ->action('Xác nhận email mới', $this->confirmUrl())
             ->line('Link dùng được một lần trong '.self::EXPIRES_MINUTES.' phút.')
             ->line('Xác nhận xong bạn đăng nhập bằng địa chỉ mới này.')
             ->line('Nếu bạn không yêu cầu đổi, hãy bỏ qua email này — tài khoản vẫn giữ nguyên địa chỉ cũ.')
-            ->salutation('Thân mến, đội ngũ TOÁN AI');
+            ->salutation('Thân mến, đội ngũ Math AI');
     }
 
     private function confirmUrl(): string

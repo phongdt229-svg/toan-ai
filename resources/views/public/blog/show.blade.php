@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', $post->title . ' — TOÁN AI')
+@section('title', $post->title . ' — Math AI')
 @section('meta_description', $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content), 160))
 @section('og_title', $post->title)
 @section('og_description', $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content), 160))
@@ -10,11 +10,17 @@
 
 @push('head')
     {{--
-        JSON-LD Article + BreadcrumbList. Tác giả khai là tổ chức (Organization) chứ không phải
-        Person — $post->author là tài khoản admin nội bộ, không phải bút danh công khai, khai
-        Person ở đây là nói sai ai thực sự viết bài. @@context escape "@" để Blade không hiểu
-        nhầm thành directive @context của Laravel (xem layouts/base.blade.php).
+        JSON-LD Article + BreadcrumbList. Tác giả: Person khi admin khai người biên soạn công khai
+        (byline_name — tín hiệu "ai viết" mà Google/AI dùng để tin bài), không thì Organization.
+        KHÔNG lấy $post->author: đó là tài khoản admin nội bộ, khai Person theo nó là nói sai ai viết bài.
+        @@context escape "@" để Blade không hiểu nhầm thành directive @context của Laravel (xem layouts/base.blade.php).
     --}}
+    @php
+        $articleAuthor = $post->byline_name
+            ? array_filter(['@type' => 'Person', 'name' => $post->byline_name, 'jobTitle' => $post->byline_title,
+                'worksFor' => ['@id' => url('/').'#organization']])
+            : ['@type' => 'Organization', 'name' => config('site.brand')];
+    @endphp
     <script type="application/ld+json">
         {!! json_encode([
             '@@context' => 'https://schema.org',
@@ -27,7 +33,7 @@
                     'datePublished' => $post->published_at->toIso8601String(),
                     'dateModified' => $post->updated_at->toIso8601String(),
                     'mainEntityOfPage' => route('blog.show', $post->slug),
-                    'author' => ['@type' => 'Organization', 'name' => config('site.brand')],
+                    'author' => $articleAuthor,
                     'publisher' => [
                         '@type' => 'Organization',
                         'name' => config('site.brand'),
@@ -63,7 +69,11 @@
                 <h1 class="section__title mb-2">{{ $post->title }}</h1>
                 <div class="text-secondary small">
                     {{ $post->published_at->format('d/m/Y') }}
-                    @if ($post->author) · {{ $post->author->name }} @endif
+                    @if ($post->byline_name)
+                        · Biên soạn: <span class="fw-semibold text-body">{{ $post->byline_name }}</span>@if ($post->byline_title), {{ $post->byline_title }}@endif
+                    @elseif ($post->author)
+                        · {{ $post->author->name }}
+                    @endif
                 </div>
             </div>
 

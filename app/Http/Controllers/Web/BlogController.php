@@ -72,9 +72,9 @@ class BlogController extends Controller
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
             .'<rss version="2.0">'."\n"
             .'<channel>'."\n"
-            .'  <title>Tin tức — TOÁN AI</title>'."\n"
+            .'  <title>Tin tức — Math AI</title>'."\n"
             .'  <link>'.e(route('blog.index')).'</link>'."\n"
-            .'  <description>Bài giới thiệu, khuyến mãi và sự kiện mới nhất từ TOÁN AI.</description>'."\n"
+            .'  <description>Bài giới thiệu, khuyến mãi và sự kiện mới nhất từ Math AI.</description>'."\n"
             .'  <language>vi</language>'."\n"
             .'  <lastBuildDate>'.now()->toRfc2822String().'</lastBuildDate>'."\n"
             .$items

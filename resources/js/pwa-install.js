@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isFirefox = /firefox/i.test(ua);
         const message = isFirefox
             ? 'Firefox trên máy tính chưa hỗ trợ cài ứng dụng kiểu này. Hãy mở trang bằng Chrome hoặc Edge, hoặc mở trên điện thoại.'
-            : 'Mở menu trình duyệt (dấu ⋮ ở góc trên bên phải), hoặc bấm biểu tượng cài đặt trên thanh địa chỉ, rồi chọn "Cài đặt TOÁN AI".';
+            : 'Mở menu trình duyệt (dấu ⋮ ở góc trên bên phải), hoặc bấm biểu tượng cài đặt trên thanh địa chỉ, rồi chọn "Cài đặt Math AI".';
 
         if (window.alertDialog) {
             await window.alertDialog(message, { title: 'Cài đặt ứng dụng' });

@@ -6,7 +6,7 @@
 
 @php use App\Models\Voucher; @endphp
 
-@section('title', 'Mã giảm giá — Quản trị TOÁN AI')
+@section('title', 'Mã giảm giá — Quản trị Math AI')
 @section('page_title', 'Mã giảm giá')
 
 @section('content')

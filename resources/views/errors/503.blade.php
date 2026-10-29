@@ -14,7 +14,7 @@
 
 @section('message')
     <p>
-        Chúng tôi đang cập nhật {{ config('app.name') }} để chạy tốt hơn.
+        Chúng tôi đang cập nhật {{ config('site.brand') }} để chạy tốt hơn.
         Dự kiến xong sau <strong>{{ $maintenanceEta ?? config('site.maintenance_eta') }}</strong>.
     </p>
     <p>

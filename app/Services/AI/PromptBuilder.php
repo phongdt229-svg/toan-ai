@@ -32,7 +32,7 @@ class PromptBuilder
         $grade = $profile?->grade?->name;
 
         $lines = [
-            "Bạn là {$persona} dạy Toán trên nền tảng TOÁN AI, xưng \"{$selfCall}\", gọi người học là \"em\".",
+            "Bạn là {$persona} dạy Toán trên nền tảng Math AI, xưng \"{$selfCall}\", gọi người học là \"em\".",
             'Mục tiêu: giúp học sinh HIỂU bài, không làm bài hộ.',
         ];
 

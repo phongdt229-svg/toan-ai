@@ -1142,6 +1142,20 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
 - [x] `robots.txt` ghi rõ bot AI được phép (cố ý). `docs/DEPLOY.md` §6.2: việc trên Cloudflare + Bing Webmaster.
 - Test: `GeoTest`.
 
+### ✅ Đã làm (29/10) — GEO đợt 2: một thương hiệu, chương trình công khai, tác giả thật
+
+- [x] **Thương hiệu chính "Math AI"** ở mọi tiêu đề trang, email, PWA, trang offline. "TOÁN AI" chỉ còn là tên phụ
+      (`SITE_ALTERNATE_NAMES`) để AI nối về cùng một thực thể; `GeoTest` chặn tên cũ quay lại `resources/views`.
+- [x] **Chương trình công khai** `/chuong-trinh` → `/chuong-trinh/{lop}` → `/chuong-trinh/{lop}/{bai}`
+      (`PublicCurriculumService`): chỉ CẤU TRÚC + tóm tắt + tên các phần, KHÔNG nội dung bài (spec §6 — trang bài
+      hiện "Vui lòng đăng nhập để bắt đầu học."). JSON-LD `ItemList` / `Course` / `LearningResource`.
+      Lớp chưa có bài → `noindex` + không vào sitemap. Đã nối vào sitemap, llms.txt, menu, ô lớp ở trang chủ.
+- [x] **Người biên soạn công khai** của bài viết (`blog_posts.byline_name/byline_title`): có thì Article khai
+      `Person`, không thì `Organization` như cũ — không bao giờ lấy tài khoản admin `created_by`.
+- [ ] Chưa làm (cần quyết định sản phẩm): công khai phần Lý thuyết của bài Free (phải sửa spec §6);
+      mở Hỏi đáp cho khách xem (dữ liệu trẻ em — cần ẩn danh + kiểm duyệt trước).
+- Test: `PublicCurriculumTest`, `GeoTest`.
+
 ### ✅ Đã làm (14/10) — Công cụ 3D hình học không gian cho học sinh
 
 Công cụ vẽ hình 3D tương tác (không phải nội dung bài học/câu hỏi) — học sinh chọn hình, nhập số

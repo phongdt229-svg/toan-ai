@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Xác thực email — TOÁN AI')
+@section('title', 'Xác thực email — Math AI')
 {{-- Route yêu cầu auth — không phải trang cho khách vãng lai. --}}
 @section('robots', 'noindex,nofollow')
 

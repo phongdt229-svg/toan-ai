@@ -69,7 +69,7 @@ class EmailVerificationTest extends TestCase
         Notification::assertSentTo($user, VerifyEmailLink::class, function (VerifyEmailLink $mail) use ($user) {
             $content = $mail->toMail($user);
 
-            return $content->subject === 'Xác thực email TOÁN AI'
+            return $content->subject === 'Xác thực email Math AI'
                 && str_contains($content->actionUrl, '/xac-thuc-email/'.$user->id.'/');
         });
     }

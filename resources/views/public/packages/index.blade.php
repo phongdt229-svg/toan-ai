@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
-@section('title', 'Gói học — TOÁN AI')
-@section('meta_description', 'Bảng giá các gói học Toán Free, Pro, Premium của TOÁN AI.')
+@section('title', 'Gói học — Math AI')
+@section('meta_description', 'Bảng giá các gói học Toán Free, Pro, Premium của Math AI.')
 
 @push('head')
     {{--

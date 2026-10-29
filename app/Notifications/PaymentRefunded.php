@@ -52,7 +52,7 @@ class PaymentRefunded extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject("Đã hoàn tiền đơn {$p->order_code}")
             ->greeting("Chào {$notifiable->name},")
-            ->line("TOÁN AI đã hoàn **{$this->amountLabel()}** cho đơn **{$p->order_code}** (gói {$p->package->name}) về ví MoMo của bạn.")
+            ->line("Math AI đã hoàn **{$this->amountLabel()}** cho đơn **{$p->order_code}** (gói {$p->package->name}) về ví MoMo của bạn.")
             ->line($this->isFull()
                 ? 'Gói học tương ứng đã được thu hồi. Thời gian tiền về ví tuỳ thuộc MoMo, thường trong vài phút đến vài giờ.'
                 : 'Đây là hoàn một phần — gói học của bạn vẫn được giữ nguyên. Thời gian tiền về ví tuỳ thuộc MoMo, thường trong vài phút đến vài giờ.')

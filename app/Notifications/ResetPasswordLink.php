@@ -29,12 +29,12 @@ class ResetPasswordLink extends Notification
         ]);
 
         return (new MailMessage)
-            ->subject('Đặt lại mật khẩu TOÁN AI')
+            ->subject('Đặt lại mật khẩu Math AI')
             ->greeting("Chào {$notifiable->name},")
             ->line('Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản này.')
             ->action('Đặt mật khẩu mới', $url)
             ->line("Link chỉ dùng được trong {$minutes} phút và chỉ dùng được một lần.")
             ->line('Nếu bạn không yêu cầu đổi mật khẩu, hãy bỏ qua email này — mật khẩu hiện tại vẫn giữ nguyên.')
-            ->salutation('Thân mến, đội ngũ TOÁN AI');
+            ->salutation('Thân mến, đội ngũ Math AI');
     }
 }

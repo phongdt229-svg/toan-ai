@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Xác thực 2 bước — TOÁN AI')
+@section('title', 'Xác thực 2 bước — Math AI')
 {{-- Chỉ có ý nghĩa giữa luồng đăng nhập (cần phiên chờ xác thực) — không phải trang cho khách vãng lai. --}}
 @section('robots', 'noindex,nofollow')
 

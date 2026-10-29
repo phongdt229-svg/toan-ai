@@ -20,7 +20,10 @@ class LlmsTxtService
     /** Bài tin tức mới nhất đưa vào — đủ để AI biết site còn hoạt động, không biến file thành bản sao blog. */
     public const RECENT_POSTS = 20;
 
-    public function __construct(private SeoPageService $seo) {}
+    /** Bài học liệt kê tối đa — đủ để AI thấy phạm vi chương trình, phần còn lại có ở sitemap và trang từng lớp. */
+    public const MAX_LESSONS = 200;
+
+    public function __construct(private SeoPageService $seo, private PublicCurriculumService $curriculum) {}
 
     public function render(): string
     {
@@ -45,11 +48,13 @@ class LlmsTxtService
             '## Trang chính',
             '',
             $this->link('Trang chủ', route('home'), 'giới thiệu sản phẩm, chương trình lớp 1–12, câu hỏi thường gặp'),
+            $this->link('Chương trình học', route('curriculum.index'), 'danh sách bài theo lớp, chương, chủ đề'),
             $this->link('Gói học và bảng giá', route('packages.index')),
             $this->link('Trung tâm hướng dẫn', route('guides.index'), 'cách dùng cho học sinh, giáo viên, phụ huynh'),
             $this->link('Đăng ký miễn phí', route('register')),
             $this->link('Hỗ trợ', route('support.create'), 'gửi câu hỏi hoặc báo lỗi'),
             '',
+            ...$this->curriculumLines(),
             ...$this->packages(),
             ...$this->guides(),
             ...$this->faq(),
@@ -64,6 +69,37 @@ class LlmsTxtService
         ];
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * Bài học theo lớp — chỉ tên + tóm tắt + link trang tổng quan (nội dung bài phải đăng nhập, spec §6).
+     *
+     * @return list<string>
+     */
+    private function curriculumLines(): array
+    {
+        $lessons = $this->curriculum->sitemapLessons()->take(self::MAX_LESSONS);
+
+        if ($lessons->isEmpty()) {
+            return [];
+        }
+
+        $lines = ['## Chương trình học', '', 'Nội dung bài học cần đăng nhập; trang dưới đây mô tả bài gồm những phần nào.', ''];
+
+        foreach ($lessons->groupBy('grade_slug') as $gradeSlug => $gradeLessons) {
+            $course = 'Toán '.mb_strtolower($gradeLessons->first()->grade_name);
+            $lines[] = '### '.$course;
+            $lines[] = '';
+            $lines[] = $this->link('Chương trình '.$course, route('curriculum.grade', $gradeSlug));
+
+            foreach ($gradeLessons as $lesson) {
+                $lines[] = $this->link($lesson->title, route('curriculum.lesson', [$gradeSlug, $lesson->slug]), $lesson->summary ?: null);
+            }
+
+            $lines[] = '';
+        }
+
+        return $lines;
     }
 
     /** @return list<string> */

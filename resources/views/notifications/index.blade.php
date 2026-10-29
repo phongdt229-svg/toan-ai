@@ -10,7 +10,7 @@
 
 @extends('layouts.app', ['portal' => $portal])
 
-@section('title', 'Thông báo — TOÁN AI')
+@section('title', 'Thông báo — Math AI')
 @section('page_title', 'Thông báo')
 
 @section('content')

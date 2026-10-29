@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => auth()->user()->isParent() ? 'parent' : 'student'])
 
-@section('title', 'Lịch sử thanh toán — TOÁN AI')
+@section('title', 'Lịch sử thanh toán — Math AI')
 @section('page_title', 'Lịch sử thanh toán')
 
 @section('content')

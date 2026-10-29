@@ -6,8 +6,8 @@
 --}}
 @extends('layouts.public')
 
-@section('title', 'Chính sách bảo mật — TOÁN AI')
-@section('meta_description', 'TOÁN AI thu thập, sử dụng và bảo vệ dữ liệu của học sinh, phụ huynh, giáo viên như thế nào.')
+@section('title', 'Chính sách bảo mật — Math AI')
+@section('meta_description', 'Math AI thu thập, sử dụng và bảo vệ dữ liệu của học sinh, phụ huynh, giáo viên như thế nào.')
 
 @section('body')
     @include('public.partials.header')
@@ -18,7 +18,7 @@
                 <span class="badge text-bg-light border mb-2">Cập nhật {{ config('site.legal_updated_at') }}</span>
                 <h1 class="h2 fw-bold mb-3">Chính sách bảo mật</h1>
                 <p class="text-secondary">
-                    TOÁN AI là nền tảng học Toán cho học sinh lớp 1–12. Phần lớn người dùng của chúng tôi là trẻ em,
+                    Math AI là nền tảng học Toán cho học sinh lớp 1–12. Phần lớn người dùng của chúng tôi là trẻ em,
                     nên việc thu thập và sử dụng dữ liệu được giữ ở mức tối thiểu cần cho việc học.
                     Trang này nói rõ chúng tôi giữ dữ liệu gì, dùng để làm gì và bạn kiểm soát được những gì.
                 </p>

@@ -47,7 +47,7 @@ class PaymentSucceeded extends Notification implements ShouldQueue
         $mail = (new MailMessage)
             ->subject("Thanh toán thành công — {$p->package->name}")
             ->greeting("Chào {$notifiable->name},")
-            ->line("TOÁN AI đã nhận {$p->amountLabel()} cho đơn **{$p->order_code}**.");
+            ->line("Math AI đã nhận {$p->amountLabel()} cho đơn **{$p->order_code}**.");
 
         // Có mã giảm thì tách rõ giá gốc − giảm = thực trả, để biên nhận đối chiếu được.
         if ($p->hasDiscount()) {
@@ -60,6 +60,6 @@ class PaymentSucceeded extends Notification implements ShouldQueue
         return $mail
             ->line("Gói **{$p->package->name}** cho **{$sub->user->name}** có hiệu lực từ {$sub->starts_at->format('d/m/Y')} đến {$sub->ends_at->format('d/m/Y')}.")
             ->action('Xem giao dịch', route('payment.show', $p))
-            ->line('Cảm ơn bạn đã đồng hành cùng TOÁN AI!');
+            ->line('Cảm ơn bạn đã đồng hành cùng Math AI!');
     }
 }

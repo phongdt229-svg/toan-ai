@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', $article['title'] . ' — Hướng dẫn TOÁN AI')
+@section('title', $article['title'] . ' — Hướng dẫn Math AI')
 @section('meta_description', $article['summary'])
 {{-- Preview khi dán link bài hướng dẫn lên Zalo/Facebook: lấy đúng tên bài, bỏ hậu tố thương hiệu. --}}
 @section('og_title', $article['title'])

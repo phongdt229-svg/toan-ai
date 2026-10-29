@@ -42,5 +42,5 @@ Xem báo cáo đầy đủ
 
 Không muốn nhận thư này nữa? Tắt trong [Cài đặt]({{ route('parent.settings') }}).
 
-{{ config('app.name') }}
+{{ config('site.brand') }}
 </x-mail::message>

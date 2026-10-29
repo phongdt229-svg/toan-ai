@@ -33,7 +33,7 @@ return [
         'bat-dau-voi-toan-ai' => [
             'audience' => 'student',
             'icon' => 'bi-rocket-takeoff',
-            'title' => 'Bắt đầu với TOÁN AI',
+            'title' => 'Bắt đầu với Math AI',
             'summary' => 'Tạo tài khoản học sinh, chọn lớp và biết mỗi mục trong menu dùng để làm gì.',
             'steps' => [
                 ['Tạo tài khoản học sinh', 'Vào trang Đăng ký → chọn "Học sinh", điền họ tên, email, mật khẩu (ít nhất 8 ký tự, có cả chữ và số) và chọn lớp đang học.'],
@@ -43,7 +43,7 @@ return [
             ],
             'tips' => [
                 'Trên điện thoại, các mục chính nằm ở thanh dưới màn hình.',
-                'Cài TOÁN AI như một ứng dụng: mở trình duyệt → menu → "Thêm vào màn hình chính".',
+                'Cài Math AI như một ứng dụng: mở trình duyệt → menu → "Thêm vào màn hình chính".',
             ],
             'links' => [
                 ['Đăng ký tài khoản học sinh', 'register.student'],
@@ -474,7 +474,7 @@ return [
             'audience' => 'all',
             'icon' => 'bi-person-x',
             'title' => 'Xoá tài khoản',
-            'summary' => 'Tự xoá tài khoản khỏi TOÁN AI, dữ liệu nào bị xoá và đổi ý được trong bao lâu.',
+            'summary' => 'Tự xoá tài khoản khỏi Math AI, dữ liệu nào bị xoá và đổi ý được trong bao lâu.',
             'steps' => [
                 ['Mở phần Xoá tài khoản', 'Vào Cài đặt, kéo xuống cuối trang tới khung viền đỏ "Xoá tài khoản".'],
                 ['Xác nhận bằng mật khẩu', 'Bấm "Tôi muốn xoá tài khoản", nhập mật khẩu đang dùng. Phần lý do không bắt buộc nhưng giúp chúng tôi cải thiện.'],
@@ -498,7 +498,7 @@ return [
             'audience' => 'all',
             'icon' => 'bi-phone',
             'title' => 'Cài như ứng dụng và dùng khi mất mạng',
-            'summary' => 'Đưa TOÁN AI ra màn hình chính điện thoại và đọc lại bài đã mở khi không có mạng.',
+            'summary' => 'Đưa Math AI ra màn hình chính điện thoại và đọc lại bài đã mở khi không có mạng.',
             'steps' => [
                 ['Android / Chrome', 'Mở trang web → menu ba chấm → "Thêm vào màn hình chính".'],
                 ['iPhone / Safari', 'Bấm nút Chia sẻ → "Thêm vào MH chính".'],

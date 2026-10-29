@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => 'teacher'])
 
-@section('title', 'Tạo đề kiểm tra — TOÁN AI')
+@section('title', 'Tạo đề kiểm tra — Math AI')
 @section('page_title', 'Tạo đề kiểm tra')
 
 @section('content')

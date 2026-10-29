@@ -163,9 +163,9 @@ class SampleBlogSeeder extends Seeder
         return [
             [
                 'category' => 'Giới thiệu', 'status' => BlogPost::STATUS_PUBLISHED,
-                'title' => 'Chào mừng đến với TOÁN AI',
+                'title' => 'Chào mừng đến với Math AI',
                 'excerpt' => 'Nền tảng học Toán lớp 1–12 cùng AI Tutor — lý thuyết, luyện tập, đề kiểm tra và chấm điểm ngay.',
-                'content' => $p('TOÁN AI giúp học sinh học Toán theo đúng chương trình, từ lớp 1 tới lớp 12.')
+                'content' => $p('Math AI giúp học sinh học Toán theo đúng chương trình, từ lớp 1 tới lớp 12.')
                     .$p('Mỗi bài học có lý thuyết ngắn gọn, ví dụ minh hoạ, và bài luyện tập chấm điểm ngay.')
                     .$p('AI Tutor không đưa sẵn đáp án — mà giúp học sinh hiểu vì sao mình sai.'),
             ],
@@ -199,7 +199,7 @@ class SampleBlogSeeder extends Seeder
                 'title' => 'Vì sao đáp án đúng chỉ đọc từ máy chủ?',
                 'excerpt' => 'Bộ câu hỏi và đáp án đúng luôn giữ phía máy chủ — trình duyệt không bao giờ biết trước đáp án.',
                 'content' => $p('Nhiều app học tập lưu đáp án ngay trong mã nguồn trang, học sinh mở công cụ trình duyệt là thấy hết.')
-                    .$p('TOÁN AI giữ đáp án đúng và thời gian làm bài ở máy chủ, chấm xong mới trả kết quả về — không có đường lách.'),
+                    .$p('Math AI giữ đáp án đúng và thời gian làm bài ở máy chủ, chấm xong mới trả kết quả về — không có đường lách.'),
             ],
             [
                 'category' => 'Mẹo học tập', 'status' => BlogPost::STATUS_PUBLISHED,
@@ -226,7 +226,7 @@ class SampleBlogSeeder extends Seeder
                 'category' => 'Khuyến mãi', 'status' => BlogPost::STATUS_PUBLISHED,
                 'title' => 'Ưu đãi khai giảng — giảm 20% gói Pro',
                 'excerpt' => 'Áp dụng mã CHAOHE cho gói Pro tháng và Pro năm, giảm tối đa 50.000₫.',
-                'content' => $p('Nhân dịp khai giảng năm học mới, TOÁN AI tặng mã giảm giá CHAOHE cho gói Pro.')
+                'content' => $p('Nhân dịp khai giảng năm học mới, Math AI tặng mã giảm giá CHAOHE cho gói Pro.')
                     .$p('Nhập mã ngay ở trang thanh toán, giảm 20% tối đa 50.000₫ cho gói tháng và gói năm.'),
             ],
             [
@@ -252,16 +252,16 @@ class SampleBlogSeeder extends Seeder
             ],
             [
                 'category' => 'Sự kiện', 'status' => BlogPost::STATUS_PUBLISHED,
-                'title' => 'Livestream ôn thi học kỳ 1 cùng giáo viên TOÁN AI',
+                'title' => 'Livestream ôn thi học kỳ 1 cùng giáo viên Math AI',
                 'excerpt' => 'Buổi ôn tập trực tuyến miễn phí cho học sinh lớp 6–9, giải đáp thắc mắc trực tiếp.',
-                'content' => $p('TOÁN AI tổ chức buổi livestream ôn tập học kỳ 1, miễn phí cho mọi học sinh lớp 6 đến lớp 9.')
+                'content' => $p('Math AI tổ chức buổi livestream ôn tập học kỳ 1, miễn phí cho mọi học sinh lớp 6 đến lớp 9.')
                     .$p('Giáo viên sẽ giải đề mẫu và trả lời câu hỏi trực tiếp trong buổi live.'),
             ],
             [
                 'category' => 'Sự kiện', 'status' => BlogPost::STATUS_PUBLISHED,
                 'title' => 'Cuộc thi giải Toán nhanh tháng 10',
                 'excerpt' => 'Học sinh làm đề thử thách trong 15 phút, top điểm cao được vinh danh trên hệ thống.',
-                'content' => $p('Cuộc thi giải Toán nhanh diễn ra trong tháng 10, mở cho tất cả học sinh đang học tại TOÁN AI.')
+                'content' => $p('Cuộc thi giải Toán nhanh diễn ra trong tháng 10, mở cho tất cả học sinh đang học tại Math AI.')
                     .$p('Đề thi gồm 15 câu trong 15 phút, top điểm cao nhất mỗi lớp được vinh danh.'),
             ],
             [
@@ -275,7 +275,7 @@ class SampleBlogSeeder extends Seeder
                 'category' => 'Sự kiện', 'status' => BlogPost::STATUS_PUBLISHED,
                 'title' => 'Vinh danh học sinh chăm chỉ nhất tháng 9',
                 'excerpt' => 'Danh sách học sinh luyện tập đều đặn nhất tháng 9, mỗi lớp một gương mặt tiêu biểu.',
-                'content' => $p('Mỗi tháng, TOÁN AI vinh danh học sinh luyện tập đều đặn nhất ở từng lớp.')
+                'content' => $p('Mỗi tháng, Math AI vinh danh học sinh luyện tập đều đặn nhất ở từng lớp.')
                     .$p('Tháng 9 vừa qua có nhiều gương mặt học đều mỗi ngày, dù chỉ 10–15 phút.'),
             ],
             [

@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => 'teacher'])
 
-@section('title', 'Bài làm: ' . $exam->title . ' — TOÁN AI')
+@section('title', 'Bài làm: ' . $exam->title . ' — Math AI')
 @section('page_title', 'Bài làm')
 
 @php use App\Support\Score; @endphp

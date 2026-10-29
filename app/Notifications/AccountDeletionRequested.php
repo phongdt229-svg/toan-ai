@@ -20,12 +20,12 @@ class AccountDeletionRequested extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Đã nhận yêu cầu xoá tài khoản TOÁN AI')
+            ->subject('Đã nhận yêu cầu xoá tài khoản Math AI')
             ->greeting("Chào {$notifiable->name},")
             ->line('Chúng tôi đã nhận yêu cầu xoá tài khoản của bạn. Tài khoản đã ngừng truy cập ngay từ bây giờ.')
             ->line('Dữ liệu cá nhân sẽ bị xoá vĩnh viễn vào ngày **'.$this->purgeAt->format('d/m/Y').'**.')
             ->line('Đổi ý trước ngày đó thì liên hệ '.config('site.email').' để chúng tôi khôi phục.')
             ->line('Hoá đơn và dữ liệu giao dịch được giữ theo thời hạn kế toán mà pháp luật yêu cầu.')
-            ->salutation('Thân mến, đội ngũ TOÁN AI');
+            ->salutation('Thân mến, đội ngũ Math AI');
     }
 }

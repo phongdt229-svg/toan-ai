@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'TOÁN AI — Học Toán thông minh cùng AI')
+@section('title', 'Math AI — Học Toán thông minh cùng AI')
 @section('meta_description', 'Học Toán lớp '.\App\Models\Grade::rangeLabel('–').' theo đúng chương trình: bài giảng, luyện tập chấm ngay, đề kiểm tra và AI giảng lại từng bước khi làm sai.')
 @section('html_class', 'landing-snap')
 

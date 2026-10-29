@@ -28,13 +28,13 @@ class EmailChangeRequested extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Có yêu cầu đổi email tài khoản TOÁN AI')
+            ->subject('Có yêu cầu đổi email tài khoản Math AI')
             ->greeting("Chào {$notifiable->name},")
             ->line("Vừa có yêu cầu đổi email tài khoản từ **{$notifiable->email}** sang **{$this->newEmail}**.")
             ->line('Nếu đúng là bạn: mở hộp thư của địa chỉ mới và bấm link xác nhận trong đó. Chưa xác nhận thì tài khoản vẫn dùng địa chỉ này.')
             ->action('Không phải tôi — huỷ yêu cầu', $this->cancelUrl($notifiable))
             ->line('Nên đổi mật khẩu ngay nếu bạn không phải người yêu cầu.')
-            ->salutation('Thân mến, đội ngũ TOÁN AI');
+            ->salutation('Thân mến, đội ngũ Math AI');
     }
 
     private function cancelUrl(object $notifiable): string

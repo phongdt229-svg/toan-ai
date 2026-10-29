@@ -9,7 +9,7 @@
             <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-4">
                 <div>
                     <span class="section__eyebrow"><i class="bi bi-newspaper"></i>Tin tức</span>
-                    <h2 class="section__title mb-0">Mới nhất từ <span class="hl">TOÁN AI</span></h2>
+                    <h2 class="section__title mb-0">Mới nhất từ <span class="hl">Math AI</span></h2>
                 </div>
                 <a href="{{ route('blog.index') }}" class="btn btn-outline-primary btn-sm">
                     Xem tất cả <i class="bi bi-arrow-right ms-1"></i>

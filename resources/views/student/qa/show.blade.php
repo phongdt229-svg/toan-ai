@@ -7,7 +7,7 @@
     $canModerate = $me->can('moderate', QaQuestion::class);
 @endphp
 
-@section('title', $question->title . ' — Hỏi đáp TOÁN AI')
+@section('title', $question->title . ' — Hỏi đáp Math AI')
 @section('page_title', 'Hỏi đáp')
 
 @section('content')

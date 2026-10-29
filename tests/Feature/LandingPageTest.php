@@ -24,7 +24,8 @@ class LandingPageTest extends TestCase
             ->assertSee('Học Toán thông minh cùng AI')
             ->assertSee('Bắt đầu học miễn phí')
             ->assertSee('Lớp 12')
-            ->assertSee('Vui lòng đăng nhập để bắt đầu học.');
+            // Câu "Vui lòng đăng nhập để bắt đầu học." (spec §6) nằm ở trang tổng quan bài — PublicCurriculumTest.
+            ->assertSee(route('curriculum.index'), false);
     }
 
     public function test_the_feature_list_keeps_up_with_what_was_actually_shipped(): void
@@ -38,7 +39,7 @@ class LandingPageTest extends TestCase
             // "Cài như ứng dụng" đổi từ thẻ nhỏ trong lưới tính năng sang section riêng nổi bật
             // (public.partials.pwa) — canh đúng nội dung của section đó, không phải thẻ cũ.
             ->assertSee('Cài đặt ứng dụng')
-            ->assertSee('Cài TOÁN AI');
+            ->assertSee('Cài Math AI');
     }
 
     public function test_pwa_install_button_markup_is_present_and_only_the_homepage_loads_its_script(): void

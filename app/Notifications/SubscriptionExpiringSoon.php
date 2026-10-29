@@ -59,7 +59,7 @@ class SubscriptionExpiringSoon extends Notification implements ShouldQueue
             ->line('Gia hạn trước ngày đó thì thời gian mới được **cộng nối tiếp**, không mất ngày nào.')
             ->action('Gia hạn ngay', route('packages.index'))
             ->line('Hết hạn mà chưa gia hạn thì tài khoản trở về gói Free — dữ liệu học tập vẫn giữ nguyên.')
-            ->salutation('Thân mến, đội ngũ TOÁN AI');
+            ->salutation('Thân mến, đội ngũ Math AI');
     }
 
     /** @return array<string, mixed> */

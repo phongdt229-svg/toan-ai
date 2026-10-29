@@ -39,7 +39,7 @@ class RegisterController extends Controller
         $request->session()->regenerate();
 
         return redirect()->route('student.dashboard')
-            ->with('status', 'Chào mừng bạn đến với TOÁN AI!');
+            ->with('status', 'Chào mừng bạn đến với Math AI!');
     }
 
     public function createTeacher(): View

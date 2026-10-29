@@ -11,7 +11,7 @@
     @vite('resources/js/charts.js')
 @endpush
 
-@section('title', 'Người dùng — Quản trị TOÁN AI')
+@section('title', 'Người dùng — Quản trị Math AI')
 @section('page_title', 'Người dùng')
 
 @section('content')

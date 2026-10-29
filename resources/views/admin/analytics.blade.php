@@ -4,7 +4,7 @@
     @vite('resources/js/charts.js')
 @endpush
 
-@section('title', 'Google Analytics — Quản trị TOÁN AI')
+@section('title', 'Google Analytics — Quản trị Math AI')
 @section('page_title', 'Google Analytics')
 
 @section('content')

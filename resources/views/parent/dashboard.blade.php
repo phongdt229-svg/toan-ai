@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => 'parent'])
 
-@section('title', 'Con của tôi — TOÁN AI')
+@section('title', 'Con của tôi — Math AI')
 @section('page_title', 'Con của tôi')
 
 @php

@@ -79,7 +79,7 @@ class OnboardingTest extends ClassroomTestCase
 
         $this->actingAs($student)->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('Bắt đầu với TOÁN AI')
+            ->assertSee('Bắt đầu với Math AI')
             ->assertSee('1/5 việc');
     }
 
@@ -117,7 +117,7 @@ class OnboardingTest extends ClassroomTestCase
 
         $this->actingAs($student)->postJson(route('api.onboarding'), ['key' => 'checklist:hidden', 'status' => 'hidden'])->assertNoContent();
 
-        $this->actingAs($student)->get(route('student.dashboard'))->assertOk()->assertDontSee('Bắt đầu với TOÁN AI');
+        $this->actingAs($student)->get(route('student.dashboard'))->assertOk()->assertDontSee('Bắt đầu với Math AI');
     }
 
     // --- Tour: chỉ mời lần đầu, lưu ở server --------------------------------------------------------

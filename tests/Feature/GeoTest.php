@@ -16,6 +16,7 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Tests\Support\TestPackageSeeder;
@@ -236,6 +237,47 @@ class GeoTest extends TestCase
     // --- Helpers --------------------------------------------------------------------------
 
     /** @return list<array<string, mixed>> mọi node trong các khối JSON-LD có @graph */
+    public function test_blog_author_is_the_public_byline_person_not_the_admin_account(): void
+    {
+        [$admin, $category] = $this->blogAuthor();
+        $post = BlogPost::create(['blog_category_id' => $category->id, 'title' => 'Cách quy đồng', 'slug' => 'quy-dong', 'content' => '<p>x</p>',
+            'status' => 'published', 'published_at' => now(), 'created_by' => $admin->id,
+            'byline_name' => 'Cô Nguyễn Thị A', 'byline_title' => 'Giáo viên Toán THCS']);
+
+        $html = $this->get(route('blog.show', $post->slug))->assertOk()->assertSee('Cô Nguyễn Thị A')->getContent();
+        $author = collect($this->graph($html))->firstWhere('@type', 'Article')['author'];
+
+        $this->assertSame(['@type' => 'Person', 'name' => 'Cô Nguyễn Thị A', 'jobTitle' => 'Giáo viên Toán THCS'],
+            array_intersect_key($author, array_flip(['@type', 'name', 'jobTitle'])));
+        $this->assertStringNotContainsString($admin->name, json_encode($author, JSON_UNESCAPED_UNICODE));
+
+        // Không khai người biên soạn → vẫn đứng tên tổ chức như trước.
+        $post->update(['byline_name' => null, 'byline_title' => null]);
+        $html = $this->get(route('blog.show', $post->slug))->getContent();
+        $this->assertSame('Organization', collect($this->graph($html))->firstWhere('@type', 'Article')['author']['@type']);
+    }
+
+    public function test_byline_title_needs_a_name(): void
+    {
+        [$admin, $category] = $this->blogAuthor();
+
+        $this->actingAs($admin)->post(route('admin.blog.store'), [
+            'blog_category_id' => $category->id, 'title' => 'T', 'content' => '<p>x</p>', 'status' => 'draft',
+            'byline_title' => 'Giáo viên',
+        ])->assertSessionHasErrors('byline_name');
+    }
+
+    /** Thương hiệu chính "Math AI" (29/10) — tên cũ chỉ còn là tên phụ trong config/site.php, không lọt lại vào giao diện. */
+    public function test_old_brand_name_does_not_come_back_into_the_ui(): void
+    {
+        $offenders = collect(File::allFiles(resource_path('views')))
+            ->filter(fn ($file) => str_contains($file->getContents(), 'TOÁN AI'))
+            ->map(fn ($file) => $file->getRelativePathname())
+            ->values()->all();
+
+        $this->assertSame([], $offenders, 'Dùng "Math AI" (hoặc config(\'site.brand\')) thay cho tên cũ.');
+    }
+
     private function graph(string $html): array
     {
         preg_match_all('/<script type="application\/ld\+json">(.*?)<\/script>/s', $html, $m);

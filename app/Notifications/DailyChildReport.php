@@ -46,7 +46,7 @@ class DailyChildReport extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $mail = (new MailMessage)
-            ->subject('[TOÁN AI] Báo cáo học tập ngày '.$this->day->format('d/m/Y'))
+            ->subject('[Math AI] Báo cáo học tập ngày '.$this->day->format('d/m/Y'))
             ->greeting("Chào {$notifiable->name},");
 
         foreach ($this->lines as $line) {

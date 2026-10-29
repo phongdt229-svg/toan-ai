@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#2563eb">
-    <title>Mất kết nối — TOÁN AI</title>
+    <title>Mất kết nối — Math AI</title>
     <style>
         body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #0f172a; }
         main { max-width: 480px; margin: 0 auto; padding: 48px 20px; text-align: center; }
@@ -45,7 +45,8 @@
                 const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || req.url;
                 const a = document.createElement('a');
                 a.href = req.url;
-                a.textContent = title.replace(/\s+—\s+TOÁN AI$/, '');
+                // Bài lưu offline trước khi đổi tên thương hiệu (29/10) vẫn mang đuôi "— TOÁN AI".
+                a.textContent = title.replace(/\s+—\s+(Math AI|TOÁN AI)$/, '');
                 const li = document.createElement('li');
                 li.appendChild(a);
                 list.appendChild(li);

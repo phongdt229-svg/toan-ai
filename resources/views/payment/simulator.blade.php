@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('title', 'Giả lập '.$payment->methodLabel().' — TOÁN AI')
+@section('title', 'Giả lập '.$payment->methodLabel().' — Math AI')
 {{-- Trang giả lập chỉ dùng khi dev, dùng layouts.base trực tiếp nên không tự noindex như layouts.app. --}}
 @section('robots', 'noindex,nofollow')
 

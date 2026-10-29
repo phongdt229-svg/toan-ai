@@ -5,8 +5,8 @@
 --}}
 @extends('layouts.public')
 
-@section('title', 'Điều khoản sử dụng — TOÁN AI')
-@section('meta_description', 'Điều khoản sử dụng dịch vụ học Toán trực tuyến TOÁN AI: tài khoản, gói học, thanh toán, quyền và nghĩa vụ.')
+@section('title', 'Điều khoản sử dụng — Math AI')
+@section('meta_description', 'Điều khoản sử dụng dịch vụ học Toán trực tuyến Math AI: tài khoản, gói học, thanh toán, quyền và nghĩa vụ.')
 
 @section('body')
     @include('public.partials.header')
@@ -17,13 +17,13 @@
                 <span class="badge text-bg-light border mb-2">Cập nhật {{ config('site.legal_updated_at') }}</span>
                 <h1 class="h2 fw-bold mb-3">Điều khoản sử dụng</h1>
                 <p class="text-secondary">
-                    Khi tạo tài khoản hoặc sử dụng TOÁN AI, bạn đồng ý với các điều khoản dưới đây.
+                    Khi tạo tài khoản hoặc sử dụng Math AI, bạn đồng ý với các điều khoản dưới đây.
                     Nếu người dùng là học sinh chưa đủ 15 tuổi, cha mẹ hoặc người giám hộ là người đồng ý thay.
                 </p>
 
                 <h2>1. Dịch vụ</h2>
                 <p>
-                    TOÁN AI cung cấp bài học, bài luyện tập, đề kiểm tra, lộ trình học cá nhân hoá và trợ lý AI cho môn Toán
+                    Math AI cung cấp bài học, bài luyện tập, đề kiểm tra, lộ trình học cá nhân hoá và trợ lý AI cho môn Toán
                     lớp 1–12; kèm công cụ cho giáo viên (soạn bài, giao bài, theo dõi lớp) và cho phụ huynh (theo dõi việc học của con).
                     Chúng tôi có thể thêm, sửa hoặc ngừng một tính năng; thay đổi ảnh hưởng tới gói đang trả phí sẽ được báo trước.
                 </p>

@@ -21,7 +21,7 @@ class BlogPost extends Model
     ];
 
     protected $fillable = [
-        'blog_category_id', 'title', 'slug', 'excerpt', 'content',
+        'blog_category_id', 'title', 'slug', 'excerpt', 'byline_name', 'byline_title', 'content',
         'cover_path', 'status', 'published_at', 'created_by',
     ];
 

@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => 'student'])
 
-@section('title', 'Kết quả: ' . $exam->title . ' — TOÁN AI')
+@section('title', 'Kết quả: ' . $exam->title . ' — Math AI')
 @section('page_title', 'Kết quả')
 
 @push('head')

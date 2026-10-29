@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => 'admin'])
 
-@section('title', 'Đơn ' . $payment->order_code . ' — Quản trị TOÁN AI')
+@section('title', 'Đơn ' . $payment->order_code . ' — Quản trị Math AI')
 @section('page_title', 'Chi tiết giao dịch')
 
 @section('content')

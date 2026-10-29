@@ -27,9 +27,9 @@
         <div class="row align-items-center g-4 g-lg-5">
             <div class="col-12 col-lg-7">
                 <span class="pwa-band__eyebrow"><i class="bi bi-phone"></i>Không cần App Store / Google Play</span>
-                <h2 class="section__title mb-2">Cài TOÁN AI <span class="hl">như một ứng dụng</span> thật</h2>
+                <h2 class="section__title mb-2">Cài Math AI <span class="hl">như một ứng dụng</span> thật</h2>
                 <p class="pwa-band__lead mb-4">
-                    Thêm TOÁN AI vào màn hình chính điện thoại hoặc máy tính — mở nhanh như app thật,
+                    Thêm Math AI vào màn hình chính điện thoại hoặc máy tính — mở nhanh như app thật,
                     không cần nhớ địa chỉ web hay mở trình duyệt trước.
                 </p>
 
@@ -60,9 +60,9 @@
             <div class="col-12 col-lg-5">
                 <div class="pwa-band__phone">
                     <div class="pwa-band__tile">
-                        <img src="/icons/icon-192.png" alt="Biểu tượng TOÁN AI" width="84" height="84" loading="lazy">
+                        <img src="/icons/icon-192.png" alt="Biểu tượng Math AI" width="84" height="84" loading="lazy">
                     </div>
-                    <div class="fw-semibold text-white">TOÁN AI</div>
+                    <div class="fw-semibold text-white">Math AI</div>
                     <div class="pwa-band__hint">trên màn hình chính</div>
                 </div>
             </div>

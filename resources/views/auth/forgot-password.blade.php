@@ -1,7 +1,7 @@
 @extends('layouts.guest')
 
-@section('title', 'Quên mật khẩu — TOÁN AI')
-@section('meta_description', 'Lấy lại mật khẩu tài khoản TOÁN AI qua email đã đăng ký.')
+@section('title', 'Quên mật khẩu — Math AI')
+@section('meta_description', 'Lấy lại mật khẩu tài khoản Math AI qua email đã đăng ký.')
 
 @section('content')
     <div class="card border-0 shadow-sm">

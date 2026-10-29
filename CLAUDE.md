@@ -105,6 +105,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   FAQ trang chủ ở `App\Support\LandingFaq` (dùng chung cho khối FAQ, JSON-LD FAQPage và llms.txt).
   Bài hướng dẫn khai `HowTo` (bước ↔ anchor `#buoc-N`). IndexNow chỉ qua `IndexNowService::queue()`
   (BlogService đã gọi khi đăng/sửa/xoá bài), tắt hẳn khi `INDEXNOW_KEY` trống. Bot AI được phép trong robots.txt — cố ý.
+- Thương hiệu chính là **"Math AI"** — viết đúng tên này (hoặc `config('site.brand')`). "TOÁN AI" chỉ là tên phụ
+  trong `SITE_ALTERNATE_NAMES`; `GeoTest` báo đỏ nếu tên cũ lọt lại vào `resources/views`.
+- Chương trình công khai `/chuong-trinh/*` (`PublicCurriculumService`) chỉ lộ cấu trúc + tên phần, **không bao giờ
+  chọn `lesson_sections.content`** — nội dung bài phải đăng nhập (spec §6). `PublicCurriculumTest` canh chuyện này.
 - Thêm trang công khai mới → thêm vào `SitemapController`; trang sau đăng nhập thì thôi (đã `noindex` ở `layouts/app`).
   Thẻ OG/Twitter đặt sẵn ở `layouts/base`, trang nào cần preview riêng thì khai `@section('og_title'/'og_description'/'og_image')`.
 - Xác thực 2 bước: chỉ qua `TwoFactorService` (TOTP tự cài). Mật khẩu đúng + có 2FA → đăng xuất ngay, chỉ nhớ id trong

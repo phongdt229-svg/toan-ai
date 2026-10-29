@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Mua ' . $package->name . ' — TOÁN AI')
+@section('title', 'Mua ' . $package->name . ' — Math AI')
 {{-- Route yêu cầu auth+verified, nội dung theo từng người ("Mua gói cho [tên con]") — không có giá trị SEO. --}}
 @section('robots', 'noindex,nofollow')
 

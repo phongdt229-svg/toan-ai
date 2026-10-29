@@ -20,6 +20,9 @@ class BlogPostRequest extends FormRequest
             'blog_category_id' => ['required', 'integer', 'exists:blog_categories,id'],
             'title' => ['required', 'string', 'max:191'],
             'excerpt' => ['nullable', 'string', 'max:300'],
+            // Chức danh không có tên thì vô nghĩa (không biết chức danh của ai).
+            'byline_name' => ['nullable', 'string', 'max:120', 'required_with:byline_title'],
+            'byline_title' => ['nullable', 'string', 'max:160'],
             // HtmlSanitizer lọc lúc lưu (model mutator); ở đây chỉ chặn nội dung quá dài.
             'content' => ['required', 'string', 'max:65000'],
             'status' => ['required', Rule::in(array_keys(BlogPost::STATUS_LABELS))],
@@ -34,6 +37,8 @@ class BlogPostRequest extends FormRequest
             'blog_category_id' => 'danh mục',
             'title' => 'tiêu đề',
             'excerpt' => 'tóm tắt',
+            'byline_name' => 'người biên soạn',
+            'byline_title' => 'chức danh người biên soạn',
             'content' => 'nội dung',
             'status' => 'trạng thái',
             'cover' => 'ảnh bìa',

@@ -70,7 +70,7 @@ class PasswordResetTest extends TestCase
             $mail = $notification->toMail($user);
             $url = route('password.reset', ['token' => $notification->token, 'email' => $user->email]);
 
-            return $mail->subject === 'Đặt lại mật khẩu TOÁN AI'
+            return $mail->subject === 'Đặt lại mật khẩu Math AI'
                 && $mail->actionUrl === $url
                 && str_contains(implode(' ', $mail->introLines), 'đặt lại mật khẩu');
         });

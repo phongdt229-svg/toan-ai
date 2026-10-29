@@ -92,8 +92,8 @@ class SeoPageManagementTest extends TestCase
         auth()->logout();
         $response = $this->get(route('login'));
         $response
-            ->assertSee('<title>Đăng nhập — TOÁN AI</title>', false)
-            ->assertSee('<meta name="description" content="Đăng nhập TOÁN AI để tiếp tục học Toán lớp 1–12 cùng AI Tutor.">', false)
+            ->assertSee('<title>Đăng nhập — Math AI</title>', false)
+            ->assertSee('<meta name="description" content="Đăng nhập Math AI để tiếp tục học Toán lớp 1–12 cùng AI Tutor.">', false)
             ->assertDontSee('name="keywords"', false);
     }
 

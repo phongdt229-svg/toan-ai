@@ -1,5 +1,5 @@
 /*
- * Service worker TOÁN AI (PWA, Phase 10).
+ * Service worker Math AI (PWA, Phase 10).
  *
  * - Asset build (/build/assets/*, tên có hash) → cache-first: không bao giờ đổi nội dung.
  * - Trang bài học học sinh đã mở (/hoc-sinh/bai-hoc/…) → network-first, lưu bản sao để đọc lại lý thuyết khi mất mạng.
@@ -8,7 +8,7 @@
  *
  * Đổi VERSION khi sửa file này để xoá cache cũ.
  */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const STATIC_CACHE = `toanai-static-${VERSION}`;
 const LESSON_CACHE = 'toanai-lessons';
 const OFFLINE_URL = '/offline.html';
@@ -108,7 +108,7 @@ self.addEventListener('push', (event) => {
         data = {};
     }
 
-    event.waitUntil(self.registration.showNotification(data.title || 'TOÁN AI', {
+    event.waitUntil(self.registration.showNotification(data.title || 'Math AI', {
         body: data.body || '',
         icon: '/icons/icon-192.png',
         badge: '/icons/icon-192.png',

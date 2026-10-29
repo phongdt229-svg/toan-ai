@@ -4,7 +4,7 @@
     @vite('resources/js/charts.js')
 @endpush
 
-@section('title', 'Giao dịch — Quản trị TOÁN AI')
+@section('title', 'Giao dịch — Quản trị Math AI')
 @section('page_title', 'Giao dịch')
 
 @section('content')

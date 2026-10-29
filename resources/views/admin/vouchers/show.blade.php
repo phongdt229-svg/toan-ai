@@ -2,7 +2,7 @@
 
 @php use App\Models\Payment; @endphp
 
-@section('title', 'Mã ' . $voucher->code . ' — Quản trị TOÁN AI')
+@section('title', 'Mã ' . $voucher->code . ' — Quản trị Math AI')
 @section('page_title', 'Mã ' . $voucher->code)
 
 @section('content')

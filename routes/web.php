@@ -74,6 +74,7 @@ use App\Http\Controllers\Web\LlmsTxtController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
+use App\Http\Controllers\Web\PublicCurriculumController;
 use App\Http\Controllers\Web\PushSubscriptionController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SupportController;
@@ -97,6 +98,11 @@ Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy')
 // Trung tâm hướng dẫn — nội dung tĩnh trong config/guides.php, ai cũng xem được.
 Route::get('huong-dan', [GuideController::class, 'index'])->name('guides.index');
 Route::get('huong-dan/{slug}', [GuideController::class, 'show'])->name('guides.show');
+
+// Chương trình học công khai (GEO): chỉ cấu trúc lớp → chương → chủ đề → bài, nội dung bài vẫn phải đăng nhập (spec §6).
+Route::get('chuong-trinh', [PublicCurriculumController::class, 'index'])->name('curriculum.index');
+Route::get('chuong-trinh/{grade}', [PublicCurriculumController::class, 'grade'])->name('curriculum.grade');
+Route::get('chuong-trinh/{grade}/{lesson}', [PublicCurriculumController::class, 'lesson'])->name('curriculum.lesson');
 
 // Tin tức: bài giới thiệu + khuyến mãi do admin viết (kế hoạch 26/09), ai cũng xem được.
 Route::get('tin-tuc', [BlogController::class, 'index'])->name('blog.index');

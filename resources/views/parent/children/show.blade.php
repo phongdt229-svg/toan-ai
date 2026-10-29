@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => 'parent'])
 
-@section('title', $student->name . ' — TOÁN AI')
+@section('title', $student->name . ' — Math AI')
 @section('page_title', $student->name)
 
 @push('head')

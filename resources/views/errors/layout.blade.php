@@ -9,7 +9,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="noindex">
-    <title>@yield('title') — {{ config('app.name') }}</title>
+    <title>@yield('title') — {{ config('site.brand') }}</title>
     <link rel="icon" href="/icons/icon-192.png">
     <meta name="theme-color" content="#2563eb">
     <style>

@@ -2,7 +2,7 @@
 
 @php use App\Models\SupportTicket; @endphp
 
-@section('title', $ticket->code . ' — Quản trị TOÁN AI')
+@section('title', $ticket->code . ' — Quản trị Math AI')
 @section('page_title', 'Chi tiết yêu cầu')
 
 @section('content')

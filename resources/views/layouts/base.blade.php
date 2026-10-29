@@ -17,8 +17,8 @@
             ?: $defaultMetaDescription;
 
         $pageTitle = $seoPages->titleFor($seoRouteName)
-            ?: trim($__env->yieldContent('title', config('app.name')))
-            ?: config('app.name');
+            ?: trim($__env->yieldContent('title', config('site.brand')))
+            ?: config('site.brand');
 
         $metaKeywords = $seoPages->keywordsFor($seoRouteName);
     @endphp
@@ -72,7 +72,7 @@
     <meta name="robots" content="@yield('robots', 'index,follow')">
     <link rel="canonical" href="{{ $canonical }}">
 
-    <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:site_name" content="{{ config('site.brand') }}">
     <meta property="og:locale" content="vi_VN">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ $canonical }}">
@@ -95,7 +95,7 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="TOÁN AI">
+    <meta name="apple-mobile-web-app-title" content="Math AI">
 
     @if (config('site.google_site_verification'))
         <meta name="google-site-verification" content="{{ config('site.google_site_verification') }}">
@@ -104,8 +104,8 @@
     {{--
         JSON-LD sitewide (schema.org) — chỉ đặt trên trang được lập chỉ mục (@yield('robots') không
         chứa "noindex"); đặt cả ở trang sau đăng nhập là vô nghĩa, Google không đọc trang đó.
-        `name` lấy config('site.brand') (tên hiển thị công khai, vd "MATH AI"), `legalName` lấy
-        config('site.company') (tên pháp nhân, vd "TOÁN AI") — hai trường khác nhau thật trong
+        `name` lấy config('site.brand') (tên hiển thị công khai, vd "Math AI"), `legalName` lấy
+        config('site.company') (tên pháp nhân, vd "Math AI") — hai trường khác nhau thật trong
         config/site.php, không gộp làm một cho "gọn".
     --}}
     @php $robotsMeta = trim($__env->yieldContent('robots', 'index,follow')); @endphp

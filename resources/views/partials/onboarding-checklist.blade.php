@@ -10,7 +10,7 @@
     <div class="card border-primary mb-4" data-testid="onboarding-checklist" id="onboarding-checklist">
         <div class="card-body">
             <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-                <h3 class="h6 fw-bold mb-0"><i class="bi bi-flag text-primary me-1"></i>Bắt đầu với TOÁN AI</h3>
+                <h3 class="h6 fw-bold mb-0"><i class="bi bi-flag text-primary me-1"></i>Bắt đầu với Math AI</h3>
                 <span class="small text-secondary">{{ $checklist['done'] }}/{{ $checklist['total'] }} việc</span>
             </div>
             <div class="progress mb-3" style="height:6px" role="progressbar" aria-label="Tiến độ bắt đầu"

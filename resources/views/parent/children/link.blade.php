@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => 'parent'])
 
-@section('title', 'Liên kết con — TOÁN AI')
+@section('title', 'Liên kết con — Math AI')
 @section('page_title', 'Liên kết con')
 
 @section('content')

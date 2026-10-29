@@ -7,7 +7,7 @@
     $displayLines = $features->filter(fn ($f, $key) => str_starts_with($key, PackageFeature::DISPLAY_PREFIX))->pluck('label')->implode("\n");
 @endphp
 
-@section('title', ($isNew ? 'Thêm gói' : 'Sửa ' . $package->name) . ' — Quản trị TOÁN AI')
+@section('title', ($isNew ? 'Thêm gói' : 'Sửa ' . $package->name) . ' — Quản trị Math AI')
 @section('page_title', $isNew ? 'Thêm gói' : 'Sửa gói')
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => 'admin'])
 
-@section('title', 'Quản trị — TOÁN AI')
+@section('title', 'Quản trị — Math AI')
 @section('page_title', 'Dashboard')
 
 @push('head')

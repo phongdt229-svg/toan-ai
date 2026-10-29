@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Services\Content\PublicCurriculumService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 
@@ -25,7 +26,7 @@ use Illuminate\Support\Carbon;
  */
 class SitemapController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(PublicCurriculumService $curriculum): Response
     {
         $urls = [
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'weekly', 'lastmod' => $this->viewMtime('public.landing')],
@@ -42,6 +43,18 @@ class SitemapController extends Controller
 
         foreach (array_keys(config('guides.articles', [])) as $slug) {
             $urls[] = ['loc' => route('guides.show', $slug), 'priority' => '0.6', 'changefreq' => 'monthly', 'lastmod' => $guidesLastmod];
+        }
+
+        // Chương trình công khai: lớp chưa có bài là trang noindex (chỉ tên chương) — không đưa vào đây.
+        $lessons = $curriculum->sitemapLessons();
+        $urls[] = ['loc' => route('curriculum.index'), 'priority' => '0.8', 'changefreq' => 'weekly', 'lastmod' => $lessons->max('updated_at') ? Carbon::parse($lessons->max('updated_at'))->toAtomString() : $this->viewMtime('public.curriculum.index')];
+
+        foreach ($lessons->groupBy('grade_slug') as $gradeSlug => $gradeLessons) {
+            $urls[] = ['loc' => route('curriculum.grade', $gradeSlug), 'priority' => '0.7', 'changefreq' => 'weekly', 'lastmod' => Carbon::parse($gradeLessons->max('updated_at'))->toAtomString()];
+        }
+
+        foreach ($lessons as $lesson) {
+            $urls[] = ['loc' => route('curriculum.lesson', [$lesson->grade_slug, $lesson->slug]), 'priority' => '0.6', 'changefreq' => 'monthly', 'lastmod' => Carbon::parse($lesson->updated_at)->toAtomString()];
         }
 
         $posts = BlogPost::published()->latest('published_at')->latest('id')->get(['slug', 'title', 'cover_path', 'updated_at']);

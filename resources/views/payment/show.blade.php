@@ -1,6 +1,6 @@
 @extends('layouts.app', ['portal' => auth()->user()->isParent() ? 'parent' : 'student'])
 
-@section('title', 'Giao dịch ' . $payment->order_code . ' — TOÁN AI')
+@section('title', 'Giao dịch ' . $payment->order_code . ' — Math AI')
 @section('page_title', 'Kết quả thanh toán')
 
 @php

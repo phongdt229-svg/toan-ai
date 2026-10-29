@@ -2,7 +2,7 @@
 
 @php use App\Models\BlogPost; @endphp
 
-@section('title', ($post->exists ? 'Sửa bài' : 'Viết bài mới') . ' — Quản trị TOÁN AI')
+@section('title', ($post->exists ? 'Sửa bài' : 'Viết bài mới') . ' — Quản trị Math AI')
 @section('page_title', $post->exists ? 'Sửa bài viết' : 'Viết bài mới')
 
 @push('head')
@@ -57,6 +57,23 @@
                                   class="form-control @error('excerpt') is-invalid @enderror"
                                   placeholder="Hiện ở thẻ danh sách và mô tả khi chia sẻ link">{{ old('excerpt', $post->excerpt) }}</textarea>
                         @error('excerpt')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
+                    {{-- Người viết thật, hiện công khai dưới tiêu đề và khai cho Google/AI (Person). Không phải tài khoản admin. --}}
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="byline_name">Người biên soạn <span class="text-secondary small">(tuỳ chọn)</span></label>
+                        <input id="byline_name" name="byline_name" maxlength="120"
+                               class="form-control @error('byline_name') is-invalid @enderror"
+                               value="{{ old('byline_name', $post->byline_name) }}" placeholder="Vd: Cô Nguyễn Thị A">
+                        @error('byline_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="byline_title">Chức danh</label>
+                        <input id="byline_title" name="byline_title" maxlength="160"
+                               class="form-control @error('byline_title') is-invalid @enderror"
+                               value="{{ old('byline_title', $post->byline_title) }}" placeholder="Vd: Giáo viên Toán THCS, 12 năm kinh nghiệm">
+                        @error('byline_title')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <div class="form-text">Để trống cả hai thì bài đứng tên {{ config('site.brand') }}.</div>
                     </div>
 
                     <div class="col-12">

@@ -2,7 +2,7 @@
 
 @php use App\Models\QaQuestion; @endphp
 
-@section('title', 'Hỏi đáp — TOÁN AI')
+@section('title', 'Hỏi đáp — Math AI')
 @section('page_title', 'Hỏi đáp')
 
 @section('content')

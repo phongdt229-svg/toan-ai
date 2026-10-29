@@ -2,7 +2,7 @@
 
 @php use App\Http\Controllers\Admin\UserController; @endphp
 
-@section('title', $user->name . ' — Quản trị TOÁN AI')
+@section('title', $user->name . ' — Quản trị Math AI')
 @section('page_title', 'Chi tiết người dùng')
 
 @section('content')

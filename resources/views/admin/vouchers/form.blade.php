@@ -2,7 +2,7 @@
 
 @php use App\Models\Voucher; @endphp
 
-@section('title', ($voucher->exists ? 'Sửa mã' : 'Tạo mã') . ' — Quản trị TOÁN AI')
+@section('title', ($voucher->exists ? 'Sửa mã' : 'Tạo mã') . ' — Quản trị Math AI')
 @section('page_title', $voucher->exists ? 'Sửa mã ' . $voucher->code : 'Tạo mã giảm giá')
 
 @section('content')

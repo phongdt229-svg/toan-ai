@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
-@section('title', 'Hướng dẫn sử dụng — TOÁN AI')
-@section('meta_description', 'Hướng dẫn sử dụng TOÁN AI cho học sinh, giáo viên và phụ huynh: học bài, giao bài, theo dõi con, gói học và thanh toán.')
+@section('title', 'Hướng dẫn sử dụng — Math AI')
+@section('meta_description', 'Hướng dẫn sử dụng Math AI cho học sinh, giáo viên và phụ huynh: học bài, giao bài, theo dõi con, gói học và thanh toán.')
 
 @section('body')
     @include('public.partials.header')

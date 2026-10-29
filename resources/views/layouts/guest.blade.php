@@ -31,7 +31,7 @@
 
     <footer class="border-top py-4 mt-auto">
         <div class="container text-center text-secondary small">
-            © {{ date('Y') }} TOÁN AI — Học Toán thông minh cùng AI
+            © {{ date('Y') }} Math AI — Học Toán thông minh cùng AI
         </div>
     </footer>
 @endsection

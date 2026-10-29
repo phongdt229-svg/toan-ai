@@ -1,6 +1,6 @@
 {
-    "name": "TOÁN AI — Học Toán thông minh",
-    "short_name": "TOÁN AI",
+    "name": "Math AI — Học Toán thông minh",
+    "short_name": "Math AI",
     "description": "Học Toán lớp 1–12 cùng AI Tutor.",
     "lang": "vi",
     "start_url": "/?source=pwa",

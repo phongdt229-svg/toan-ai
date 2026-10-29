@@ -7,7 +7,6 @@
     ];
     // D-02: cấp học nằm ngoài phạm vi nhận học sinh (vd GRADE_MIN=6 → bỏ Tiểu học) thì không hiện.
     $levels = array_values(array_filter($levels, fn ($l) => $l[3]->isNotEmpty()));
-    $target = auth()->check() ? auth()->user()->homeRoute() : route('login');
 @endphp
 
 <section class="section section--muted" id="chuong-trinh">
@@ -33,8 +32,9 @@
                         <div class="row row-cols-3 row-cols-sm-5 row-cols-lg-3 g-2">
                             @foreach ($items as $grade)
                                 <div class="col">
-                                    {{-- Chưa đăng nhập mà bấm vào bài học → yêu cầu đăng nhập (§6). --}}
-                                    <a href="{{ $target }}" class="grade-pill">{{ $grade->name }}</a>
+                                    {{-- Trỏ tới chương trình công khai của lớp (GEO). Yêu cầu đăng nhập của §6
+                                         nằm ở bước bấm vào BÀI HỌC — trang tổng quan bài hiện đúng câu đó. --}}
+                                    <a href="{{ route('curriculum.grade', $grade) }}" class="grade-pill">{{ $grade->name }}</a>
                                 </div>
                             @endforeach
                         </div>
@@ -43,10 +43,10 @@
             @endforeach
         </div>
 
-        @guest
-            <p class="text-secondary small mt-3 mb-0 text-center">
-                <i class="bi bi-lock me-1"></i>Vui lòng đăng nhập để bắt đầu học.
-            </p>
-        @endguest
+        <p class="text-center mt-3 mb-0">
+            <a href="{{ route('curriculum.index') }}" class="small">
+                Xem chi tiết chương trình từng lớp <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </p>
     </div>
 </section>
