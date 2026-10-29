@@ -15,7 +15,7 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-/var/www/toan-ai}"
 BRANCH="${BRANCH:-main}"
-# Link xem trước khi đang bảo trì: https://toanai.vn/<SECRET>
+# Link xem trước khi đang bảo trì: https://hoctoanonline.com/<SECRET>
 SECRET="${DEPLOY_SECRET:-$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')}"
 
 cd "$APP_DIR"
@@ -31,7 +31,7 @@ php artisan config:clear
 php artisan down --render="errors::503" --secret="$SECRET" --retry=60
 # Lấy APP_URL thẳng từ .env: `artisan tinker` là gói dev, production cài --no-dev nên không có.
 APP_URL="$(grep -m1 '^APP_URL=' .env | cut -d= -f2- | tr -d '"' || true)"
-echo "    Xem trước bản thật tại: ${APP_URL:-https://toanai.vn}/$SECRET"
+echo "    Xem trước bản thật tại: ${APP_URL:-https://hoctoanonline.com}/$SECRET"
 
 echo "==> Lấy code mới"
 git pull --ff-only origin "$BRANCH"

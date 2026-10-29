@@ -382,7 +382,36 @@ class SeoTest extends TestCase
     {
         $robots = file_get_contents(public_path('robots.txt'));
 
-        $this->assertStringContainsString('Sitemap: https://toanai.vn/sitemap-news.xml', $robots);
+        $this->assertStringContainsString('Sitemap: https://hoctoanonline.com/sitemap-news.xml', $robots);
+    }
+
+    public function test_robots_sitemaps_are_on_the_live_domain(): void
+    {
+        // Trước đây robots.txt còn trỏ toanai.vn (miền cũ) — Google không bao giờ tìm thấy sitemap thật.
+        preg_match_all('#^Sitemap: https://([^/]+)/#m', file_get_contents(public_path('robots.txt')), $m);
+
+        $this->assertNotEmpty($m[1]);
+        $this->assertSame(['hoctoanonline.com'], array_values(array_unique($m[1])));
+    }
+
+    public function test_canonical_drops_www_so_the_site_is_not_indexed_twice(): void
+    {
+        $this->get('http://www.localhost/huong-dan')
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="http://localhost/huong-dan">', false)
+            ->assertSee('<meta property="og:url" content="http://localhost/huong-dan">', false);
+    }
+
+    public function test_canonical_ignores_tracking_query_but_keeps_the_page_number(): void
+    {
+        $this->get('/huong-dan?utm_source=zalo')
+            ->assertSee('<link rel="canonical" href="'.url('/huong-dan').'">', false);
+
+        $this->get('/tin-tuc?page=2')
+            ->assertSee('<link rel="canonical" href="'.url('/tin-tuc').'?page=2">', false);
+
+        $this->get('/tin-tuc?page=1')
+            ->assertSee('<link rel="canonical" href="'.url('/tin-tuc').'">', false);
     }
 
     // --- Google Analytics + Search Console -------------------------------------------------

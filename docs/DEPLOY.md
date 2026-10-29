@@ -18,7 +18,7 @@ Tài liệu cho người vận hành máy chủ. Môi trường tham chiếu: Ub
 ```dotenv
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://toanai.vn
+APP_URL=https://hoctoanonline.com
 APP_TIMEZONE=Asia/Ho_Chi_Minh
 
 LOG_CHANNEL=stack
@@ -48,8 +48,8 @@ MOMO_PARTNER_CODE=...
 MOMO_ACCESS_KEY=...
 MOMO_SECRET_KEY=...
 MOMO_ENDPOINT=https://payment.momo.vn
-MOMO_IPN_URL=https://toanai.vn/api/v1/payment/momo/ipn
-MOMO_RETURN_URL=https://toanai.vn/payment/momo/return
+MOMO_IPN_URL=https://hoctoanonline.com/api/v1/payment/momo/ipn
+MOMO_RETURN_URL=https://hoctoanonline.com/payment/momo/return
 
 # Thông báo đẩy — sinh một lần bằng `php artisan push:keys`, KHÔNG commit khoá riêng.
 # Đổi khoá là mọi thiết bị đã đăng ký phải đăng ký lại.
@@ -209,7 +209,7 @@ trang 503 trắng mặc định. Bỏ `--render` là mất luôn ý nghĩa của
 | Việc | Lệnh |
 |---|---|
 | Bật bảo trì kèm link xem trước | `php artisan down --render="errors::503" --secret=abc123 --retry=60` |
-| Người deploy xem bản thật | mở `https://toanai.vn/abc123` (đặt cookie bỏ qua bảo trì) |
+| Người deploy xem bản thật | mở `https://hoctoanonline.com/abc123` (đặt cookie bỏ qua bảo trì) |
 | Bảo trì nhưng cho phép vài IP | `--secret` là cách đơn giản nhất; không cần sửa Nginx |
 | Gỡ bảo trì | `php artisan up` |
 
@@ -272,7 +272,7 @@ Mẫu: [deploy/nginx/toan-ai.conf](../deploy/nginx/toan-ai.conf). Điểm quan t
 
 ## 6.1. SEO & chia sẻ mạng xã hội
 
-- `https://toanai.vn/sitemap.xml` sinh động từ [SitemapController](../app/Http/Controllers/Web/SitemapController.php)
+- `https://hoctoanonline.com/sitemap.xml` sinh động từ [SitemapController](../app/Http/Controllers/Web/SitemapController.php)
   — chỉ gồm trang công khai (trang chủ, gói học, hướng dẫn và từng bài hướng dẫn, hỗ trợ, đăng ký, 2 trang pháp lý).
   Thêm trang công khai mới thì thêm vào đây, nếu không Google không biết tới nó.
 - [public/robots.txt](../public/robots.txt) chặn các tiền tố sau đăng nhập và trỏ tới sitemap bằng **URL tuyệt đối**

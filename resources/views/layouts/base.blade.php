@@ -57,15 +57,25 @@
         $ogTitle = trim($__env->yieldContent('og_title')) ?: $pageTitle;
         $ogDescription = trim($__env->yieldContent('og_description')) ?: $metaDescription;
         $ogImage = trim($__env->yieldContent('og_image')) ?: asset('og-cover.png');
+
+        // Canonical chuẩn hoá thay vì url()->current(): www.<miền> và /index.php đều trả 200 cùng nội dung,
+        // mà canonical lại tự trỏ về chính nó → Google thấy cả site bị nhân đôi. Lấy miền theo request
+        // (không theo APP_URL — sai APP_URL thì cả site canonical sang miền khác, còn tệ hơn).
+        // Trang phân trang giữ ?page=N: trỏ hết về trang 1 thì bài cũ ở trang sau dễ rơi khỏi chỉ mục.
+        $canonical = preg_replace('#^(https?://)www\.#', '$1', rtrim(str_replace('/index.php', '', url('/')), '/'));
+        $canonical .= request()->path() === '/' ? '' : '/'.request()->path();
+        if (($page = (int) request()->query('page')) > 1) {
+            $canonical .= '?page='.$page;
+        }
     @endphp
 
     <meta name="robots" content="@yield('robots', 'index,follow')">
-    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="canonical" href="{{ $canonical }}">
 
     <meta property="og:site_name" content="{{ config('app.name') }}">
     <meta property="og:locale" content="vi_VN">
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $canonical }}">
     <meta property="og:title" content="{{ $ogTitle }}">
     <meta property="og:description" content="{{ $ogDescription }}">
     <meta property="og:image" content="{{ $ogImage }}">
