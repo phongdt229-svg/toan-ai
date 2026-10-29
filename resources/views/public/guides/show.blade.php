@@ -6,6 +6,46 @@
 @section('og_title', $article['title'])
 @section('og_type', 'article')
 
+@push('head')
+    {{--
+        JSON-LD HowTo + BreadcrumbList. Bài hướng dẫn vốn là danh sách bước — khai đúng cấu trúc đó để
+        công cụ AI (Perplexity, AI Overviews…) trích nguyên các bước kèm link về đây, thay vì tự tóm tắt
+        sai. Google đã ngừng rich result HowTo nhưng dữ liệu vẫn được đọc. @@context: xem layouts/base.
+    --}}
+    @php $url = route('guides.show', $article['slug']); @endphp
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@@context' => 'https://schema.org',
+            '@@graph' => [
+                [
+                    '@type' => 'HowTo',
+                    'name' => $article['title'],
+                    'description' => $article['summary'],
+                    'inLanguage' => 'vi',
+                    'url' => $url,
+                    'publisher' => ['@id' => url('/').'#organization'],
+                    'step' => array_map(fn ($step, $i) => [
+                        '@type' => 'HowToStep',
+                        'position' => $i + 1,
+                        'name' => $step[0],
+                        'text' => $step[1],
+                        'url' => $url.'#buoc-'.($i + 1),
+                    ], $article['steps'] ?? [], array_keys($article['steps'] ?? [])),
+                ],
+                [
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Trang chủ', 'item' => route('home')],
+                        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Hướng dẫn', 'item' => route('guides.index')],
+                        ['@type' => 'ListItem', 'position' => 3, 'name' => $audiences[$article['audience']]['label'], 'item' => route('guides.index', ['doi-tuong' => $article['audience']])],
+                        ['@type' => 'ListItem', 'position' => 4, 'name' => $article['title'], 'item' => $url],
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
+@endpush
+
 @section('body')
     @include('public.partials.header')
 
@@ -39,8 +79,9 @@
             @endif
 
             <ol class="guide-steps">
-                @foreach ($article['steps'] as [$title, $body])
-                    <li class="guide-steps__item">
+                @foreach ($article['steps'] as $i => [$title, $body])
+                    {{-- id khớp HowToStep.url trong JSON-LD ở trên: AI trích một bước thì link nhảy đúng bước đó. --}}
+                    <li class="guide-steps__item" id="buoc-{{ $i + 1 }}">
                         <div class="guide-steps__title">{{ $title }}</div>
                         <p class="text-secondary mb-0">{{ $body }}</p>
                     </li>

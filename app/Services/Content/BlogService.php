@@ -22,7 +22,10 @@ class BlogService
 {
     private const DISK = 'public';
 
-    public function __construct(private readonly AuditLogger $audit) {}
+    public function __construct(
+        private readonly AuditLogger $audit,
+        private readonly IndexNowService $indexNow,
+    ) {}
 
     /** @param  array<string, mixed>  $data */
     public function create(array $data, User $author, ?UploadedFile $cover = null): BlogPost
@@ -41,6 +44,10 @@ class BlogService
 
         $this->audit->log('blog.created', $post, null, ['title' => $post->title]);
 
+        if ($post->isPublished()) {
+            $this->notifySearchEngines($post->slug);
+        }
+
         return $post;
     }
 
@@ -49,6 +56,7 @@ class BlogService
     {
         $before = $post->only(['title', 'blog_category_id', 'status']);
         $oldCover = $post->cover_path;
+        $wasPublished = $post->isPublished();
 
         DB::transaction(function () use ($post, $data, $cover) {
             // Vừa xuất bản lần đầu → đóng dấu thời gian; đã xuất bản từ trước thì giữ nguyên
@@ -73,6 +81,11 @@ class BlogService
 
         $this->audit->log('blog.updated', $post, $before, $post->refresh()->only(['title', 'blog_category_id', 'status']));
 
+        // Cả lúc rút về nháp: bên nhận tải lại URL, thấy 404 thì gỡ khỏi chỉ mục sớm.
+        if ($wasPublished || $post->isPublished()) {
+            $this->notifySearchEngines($post->slug);
+        }
+
         return $post;
     }
 
@@ -80,6 +93,7 @@ class BlogService
     {
         $snapshot = $post->only(['title', 'slug']);
         $cover = $post->cover_path;
+        $wasPublished = $post->isPublished();
 
         $post->delete();
 
@@ -88,6 +102,16 @@ class BlogService
         }
 
         $this->audit->log('blog.deleted', null, $snapshot, null);
+
+        if ($wasPublished) {
+            $this->notifySearchEngines($snapshot['slug']);
+        }
+    }
+
+    /** Bài + trang danh sách tin (thứ tự bài trên đó vừa đổi theo). */
+    private function notifySearchEngines(string $slug): void
+    {
+        $this->indexNow->queue([route('blog.show', $slug), route('blog.index')]);
     }
 
     public function createCategory(string $name): BlogCategory

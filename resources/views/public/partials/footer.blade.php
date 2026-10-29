@@ -79,7 +79,7 @@
             <div>© {{ date('Y') }} {{ config('site.company') }}. Mọi quyền được bảo lưu.</div>
             <div class="d-flex flex-wrap gap-3">
                 <span><i class="bi bi-shield-lock me-1"></i>Dữ liệu học tập được bảo mật</span>
-                <span><i class="bi bi-wallet2 me-1"></i>Thanh toán qua MoMo</span>
+                <span><i class="bi bi-wallet2 me-1"></i>Thanh toán qua {{ app(\App\Services\Payment\PaymentGatewayManager::class)->enabledLabel() }}</span>
             </div>
         </div>
     </div>

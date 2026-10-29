@@ -68,7 +68,9 @@ use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\CookieConsentController;
 use App\Http\Controllers\Web\GuideController;
+use App\Http\Controllers\Web\IndexNowKeyController;
 use App\Http\Controllers\Web\LandingController;
+use App\Http\Controllers\Web\LlmsTxtController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
@@ -113,6 +115,9 @@ Route::delete('cookie', [CookieConsentController::class, 'destroy'])->name('cook
 // Sơ đồ trang cho công cụ tìm kiếm (robots.txt trỏ tới đây).
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('sitemap-news.xml', [SitemapController::class, 'news'])->name('sitemap.news');
+// Bản tóm tắt cho công cụ AI (llmstxt.org) — GEO.
+Route::get('llms.txt', LlmsTxtController::class)->name('llms');
+Route::get('indexnow-key.txt', IndexNowKeyController::class)->name('indexnow.key');
 
 Route::get('ho-tro', [SupportController::class, 'create'])->name('support.create');
 Route::post('ho-tro', [SupportController::class, 'store'])->middleware('throttle:20,60')->name('support.store');

@@ -56,6 +56,9 @@
                     <li><strong>Dịch vụ gửi email và hạ tầng máy chủ:</strong> để gửi thư và lưu trữ hệ thống.</li>
                     <li><strong>Google Analytics / Google Tag Manager:</strong> đo lượt truy cập và cách người dùng di chuyển giữa các trang, để biết chỗ nào khó dùng mà sửa. Google nhận địa chỉ IP (đã rút gọn), loại thiết bị, trình duyệt và trang bạn xem — <strong>không</strong> nhận tên, email, số điện thoại, điểm số hay nội dung bài làm của bạn.</li>
                     <li><strong>Sentry (giám sát lỗi):</strong> khi hệ thống gặp lỗi, chi tiết kỹ thuật của lỗi (đường dẫn trang, dòng code lỗi) được gửi tới Sentry để chúng tôi sửa nhanh. Chúng tôi <strong>không</strong> gửi tên, email, địa chỉ IP, nội dung biểu mẫu hay bài làm kèm theo.</li>
+                    @if (app(\App\Services\Content\IndexNowService::class)->enabled())
+                        <li><strong>IndexNow (Microsoft Bing và các công cụ tìm kiếm tham gia):</strong> khi chúng tôi đăng, sửa hoặc gỡ một bài tin tức, địa chỉ trang bài đó được báo cho công cụ tìm kiếm để cập nhật kết quả. Chỉ gửi đường dẫn trang công khai — <strong>không</strong> có bất kỳ dữ liệu nào của bạn.</li>
+                    @endif
                     <li><strong>Cơ quan nhà nước có thẩm quyền</strong> khi có yêu cầu hợp pháp bằng văn bản.</li>
                 </ul>
 

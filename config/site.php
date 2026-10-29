@@ -12,6 +12,11 @@ return [
     'brand' => env('SITE_BRAND', 'Math AI'),
 
     'company' => env('SITE_COMPANY', 'TOÁN AI'),
+
+    // Các tên khác người dùng / công cụ AI có thể gọi sản phẩm (khai `alternateName` trong JSON-LD và ở
+    // /llms.txt) — để ChatGPT, Perplexity… nối "TOÁN AI", "Học Toán Online" và tên miền về CÙNG một
+    // thực thể. Phân tách bằng dấu phẩy; tên trùng `brand` tự bỏ.
+    'alternate_names' => array_values(array_filter(array_map('trim', explode(',', env('SITE_ALTERNATE_NAMES', 'TOÁN AI,Học Toán Online'))))),
     'email' => env('SITE_EMAIL', 'lienhe@toan-ai.vn'),
     'hotline' => env('SITE_HOTLINE', ''),
     'address' => env('SITE_ADDRESS', ''),
@@ -40,6 +45,12 @@ return [
         'x' => env('SITE_SOCIAL_X', ''),                 // https://x.com/<tài khoản>
         'google' => env('SITE_SOCIAL_GOOGLE', ''),       // link hồ sơ Google Doanh nghiệp
     ],
+
+    // IndexNow (Bing, Yandex, Seznam… — ChatGPT Search lấy kết quả từ chỉ mục Bing): đăng/sửa/xoá bài tin
+    // tức là báo ngay thay vì chờ bot quét lại. Khoá là chuỗi tự đặt 8–128 ký tự [a-zA-Z0-9-], công khai ở
+    // /indexnow-key.txt (bên nhận đọc để xác minh mình sở hữu miền). Để trống = tắt hẳn (local/test).
+    // Chỉ gửi URL trang công khai, không có dữ liệu người dùng.
+    'indexnow_key' => env('INDEXNOW_KEY', ''),
 
     // Số dòng mỗi trang ở khu quản trị (danh sách người dùng, giao dịch, hỗ trợ…).
     'per_page' => (int) env('SITE_PER_PAGE', 10),
@@ -79,7 +90,7 @@ return [
     'looker_studio_embed_url' => env('LOOKER_STUDIO_EMBED_URL', ''),
 
     // Ngày cập nhật hai trang pháp lý — sửa nội dung thì sửa luôn ngày này.
-    'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '08/10/2026'),
+    'legal_updated_at' => env('SITE_LEGAL_UPDATED_AT', '29/10/2026'),
 
     // Nén HTML trả về (App\Http\Middleware\MinifyHtml) — bỏ khoảng trắng thừa, bỏ comment.
     // Mặc định TẮT: bật ở local/test làm "View source" khó đọc lúc debug UI. Bật ở production

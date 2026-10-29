@@ -287,6 +287,20 @@ Mẫu: [deploy/nginx/toan-ai.conf](../deploy/nginx/toan-ai.conf). Điểm quan t
 
 Sau khi lên production, kiểm tra nhanh: dán link trang chủ vào một cuộc trò chuyện Zalo và xem preview có đúng ảnh + tiêu đề không.
 
+## 6.2. GEO — để công cụ AI tìm thấy và trích dẫn
+
+- `/llms.txt` ([LlmsTxtService](../app/Services/Content/LlmsTxtService.php)): tóm tắt Markdown cho ChatGPT, Claude,
+  Perplexity… sinh từ dữ liệu thật (hướng dẫn, giá trong DB, FAQ trang chủ, bài đã đăng). Không cần cấu hình.
+- `.env`: `SITE_BRAND="TOÁN AI"` (tên chính — hiện mặc định "Math AI"), `SITE_ALTERNATE_NAMES` (tên phụ, phân tách
+  dấu phẩy, mặc định `TOÁN AI,Học Toán Online`), `SITE_SOCIAL_*` link trang thật (thành `sameAs` trong JSON-LD),
+  `SITE_EMAIL` email thật của miền đang chạy.
+- **IndexNow** (báo Bing ngay khi đăng/sửa/xoá bài — ChatGPT Search dựa trên chỉ mục Bing): đặt
+  `INDEXNOW_KEY=<chuỗi 8–128 ký tự a-z A-Z 0-9 ->`, ví dụ sinh bằng `php -r "echo bin2hex(random_bytes(16));"`.
+  Kiểm tra `https://hoctoanonline.com/indexnow-key.txt` trả đúng chuỗi đó. Cần queue worker đang chạy (mục 4).
+- **Cloudflare** → Security → Bots: để **tắt** "Block AI bots", "AI Labyrinth" và "Managed robots.txt" — bật là bot AI
+  thật bị chặn dù trang vẫn mở bình thường bằng trình duyệt.
+- Đăng ký [Bing Webmaster Tools](https://www.bing.com/webmasters) (nhập từ Search Console được) và gửi sitemap.
+
 ## 7. Sao lưu & khôi phục
 
 ```bash

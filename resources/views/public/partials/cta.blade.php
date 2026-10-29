@@ -11,7 +11,7 @@
         </div>
 
         <div class="d-flex flex-wrap justify-content-center gap-3 mt-4 small opacity-75">
-            <span><i class="bi bi-shield-check me-1"></i>Thanh toán qua MoMo</span>
+            <span><i class="bi bi-shield-check me-1"></i>Thanh toán qua {{ app(\App\Services\Payment\PaymentGatewayManager::class)->enabledLabel() }}</span>
             <span><i class="bi bi-arrow-repeat me-1"></i>Không tự động gia hạn</span>
             <span><i class="bi bi-wifi-off me-1"></i>Đọc lại bài đã mở khi mất mạng</span>
         </div>

@@ -118,19 +118,28 @@
                         '@type' => 'EducationalOrganization',
                         '@id' => url('/').'#organization',
                         'name' => config('site.brand'),
+                        // GEO: tên phụ + sameAs để công cụ AI nối mọi cách gọi và các trang mạng xã hội
+                        // về CÙNG một thực thể. sameAs chỉ nhận link thật (SocialLink lọc link mẫu).
+                        'alternateName' => \App\Services\Content\LlmsTxtService::alternateNames() ?: null,
                         'legalName' => config('site.company'),
+                        'description' => 'Nền tảng học Toán trực tuyến lớp '.config('learning.grade_min').'–'.config('learning.grade_max')
+                            .' bám sát chương trình phổ thông Việt Nam, có AI Tutor gợi ý từng bước thay vì đưa sẵn đáp án.',
                         'url' => url('/'),
                         'logo' => asset('icons/icon-512.png'),
                         'email' => config('site.email') ?: null,
                         'telephone' => config('site.hotline') ?: null,
+                        'areaServed' => ['@type' => 'Country', 'name' => 'Việt Nam'],
+                        'sameAs' => collect(config('site.social', []))
+                            ->filter(fn ($link) => \App\Support\SocialLink::isUsable($link))->values()->all() ?: null,
                     ]),
-                    [
+                    array_filter([
                         '@type' => 'WebSite',
                         '@id' => url('/').'#website',
                         'name' => config('site.brand'),
+                        'alternateName' => \App\Services\Content\LlmsTxtService::alternateNames() ?: null,
                         'url' => url('/'),
                         'inLanguage' => 'vi',
-                    ],
+                    ]),
                 ],
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
         </script>

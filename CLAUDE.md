@@ -101,6 +101,10 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Đo lường chỉ nạp khi người dùng đã bấm Đồng ý cookie — chặn ở **server** (`$analyticsAllowed` trong `layouts/base`),
   không nạp rồi mới tắt. Lựa chọn lưu qua POST `cookie.store` nên chạy cả khi tắt JS.
   Thêm công cụ theo dõi mới thì phải đặt sau cùng cổng này.
+- GEO (công cụ AI): `/llms.txt` sinh từ dữ liệu thật ở `LlmsTxtService` — đừng viết tay giá/tính năng vào đó.
+  FAQ trang chủ ở `App\Support\LandingFaq` (dùng chung cho khối FAQ, JSON-LD FAQPage và llms.txt).
+  Bài hướng dẫn khai `HowTo` (bước ↔ anchor `#buoc-N`). IndexNow chỉ qua `IndexNowService::queue()`
+  (BlogService đã gọi khi đăng/sửa/xoá bài), tắt hẳn khi `INDEXNOW_KEY` trống. Bot AI được phép trong robots.txt — cố ý.
 - Thêm trang công khai mới → thêm vào `SitemapController`; trang sau đăng nhập thì thôi (đã `noindex` ở `layouts/app`).
   Thẻ OG/Twitter đặt sẵn ở `layouts/base`, trang nào cần preview riêng thì khai `@section('og_title'/'og_description'/'og_image')`.
 - Xác thực 2 bước: chỉ qua `TwoFactorService` (TOTP tự cài). Mật khẩu đúng + có 2FA → đăng xuất ngay, chỉ nhớ id trong

@@ -1127,6 +1127,21 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       `SampleBlogSeeder` mở rộng lên 17 bài (4 bài mỗi danh mục, 1 nháp) để mọi bài đều đủ 3 thẻ
       liên quan khi xem demo — trước đó 2 danh mục chỉ có 2 bài nên phần này bị cụt.
 
+### ✅ Đã làm (29/10) — GEO: để công cụ AI tìm thấy và trích dẫn đúng hoctoanonline.com
+
+- [x] **`/llms.txt`** (`LlmsTxtService`): bản tóm tắt Markdown theo llmstxt.org, sinh hoàn toàn từ dữ liệu
+      thật — giá/tính năng từ `packages`, bài hướng dẫn từ `config/guides.php`, FAQ, 20 bài tin tức mới nhất.
+- [x] **FAQ một nguồn** (`App\Support\LandingFaq`) cho khối FAQ trang chủ, JSON-LD FAQPage và llms.txt.
+- [x] **Structured data**: bài hướng dẫn khai `HowTo` (bước ↔ anchor `#buoc-N`) + `BreadcrumbList`;
+      Organization/WebSite thêm `alternateName` (`SITE_ALTERNATE_NAMES`), `areaServed`, `sameAs` (chỉ link thật).
+- [x] **IndexNow** (`IndexNowService::queue()` → job `SubmitToIndexNow`): báo Bing khi đăng/sửa/rút/xoá bài.
+      Tắt hẳn khi `INDEXNOW_KEY` trống; file khoá ở `/indexnow-key.txt`. Chính sách bảo mật §3 khai IndexNow
+      (chỉ hiện khi bật), `legal_updated_at` → 29/10/2026.
+- [x] **Câu chữ thanh toán** ở FAQ, trang Gói học, dải CTA, chân trang đọc từ
+      `PaymentGatewayManager::enabledLabel()` — trước đó ghi cứng "MoMo" dù VNPAY đã bật.
+- [x] `robots.txt` ghi rõ bot AI được phép (cố ý). `docs/DEPLOY.md` §6.2: việc trên Cloudflare + Bing Webmaster.
+- Test: `GeoTest`.
+
 ### ✅ Đã làm (14/10) — Công cụ 3D hình học không gian cho học sinh
 
 Công cụ vẽ hình 3D tương tác (không phải nội dung bài học/câu hỏi) — học sinh chọn hình, nhập số

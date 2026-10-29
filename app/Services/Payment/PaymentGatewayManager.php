@@ -54,6 +54,18 @@ class PaymentGatewayManager
         return $methods ?: [Payment::METHOD_MOMO];
     }
 
+    /**
+     * "MoMo", "VNPAY hoặc MoMo"… — câu chữ ở trang chủ/FAQ/llms.txt đọc từ đây để không quảng cáo
+     * một cổng đã tắt, hay quên nhắc cổng mới bật (AI trích nguyên câu FAQ).
+     */
+    public function enabledLabel(): string
+    {
+        $labels = array_map(fn ($m) => Payment::METHOD_LABELS[$m] ?? $m, $this->enabled());
+        $last = array_pop($labels);
+
+        return $labels ? implode(', ', $labels).' hoặc '.$last : $last;
+    }
+
     public function isEnabled(string $name): bool
     {
         return in_array($name, $this->enabled(), true);
