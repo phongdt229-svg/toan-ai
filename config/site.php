@@ -17,7 +17,7 @@ return [
     // /llms.txt) — để ChatGPT, Perplexity… nối "TOÁN AI", "Học Toán Online" và tên miền về CÙNG một
     // thực thể. Phân tách bằng dấu phẩy; tên trùng `brand` tự bỏ.
     'alternate_names' => array_values(array_filter(array_map('trim', explode(',', env('SITE_ALTERNATE_NAMES', 'TOÁN AI,Học Toán Online'))))),
-    'email' => env('SITE_EMAIL', 'lienhe@toan-ai.vn'),
+    'email' => env('SITE_EMAIL', 'lienhe@hoctoanonline.com'),
     'hotline' => env('SITE_HOTLINE', ''),
     'address' => env('SITE_ADDRESS', ''),
 

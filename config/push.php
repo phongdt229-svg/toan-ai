@@ -14,6 +14,6 @@ return [
     'private_key' => env('VAPID_PRIVATE_KEY', ''),
 
     // Theo chuẩn VAPID phải là mailto: hoặc URL để dịch vụ đẩy liên hệ được khi có sự cố.
-    'subject' => env('VAPID_SUBJECT', 'mailto:'.env('SITE_EMAIL', 'lienhe@toan-ai.vn')),
+    'subject' => env('VAPID_SUBJECT', 'mailto:'.env('SITE_EMAIL', 'lienhe@hoctoanonline.com')),
 
 ];
