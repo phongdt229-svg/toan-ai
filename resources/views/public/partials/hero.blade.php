@@ -10,8 +10,8 @@
                 </span>
 
                 <h1 class="hero__title mb-3">
-                    Học Toán thông minh<br class="d-none d-sm-block">
-                    cùng <span class="hero__gradient-text">AI</span>
+                    Học Toán online<br class="d-none d-sm-block">
+                    thông minh cùng <span class="hero__gradient-text">AI</span>
                 </h1>
 
                 <p class="hero__lead mb-4">

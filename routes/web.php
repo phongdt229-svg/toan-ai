@@ -99,6 +99,9 @@ Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy')
 Route::get('huong-dan', [GuideController::class, 'index'])->name('guides.index');
 Route::get('huong-dan/{slug}', [GuideController::class, 'show'])->name('guides.show');
 
+// Trang đích cụm từ khoá "học toán với AI" (docs/SEO_KEYWORDS.md) — tĩnh, ai cũng xem được.
+Route::view('hoc-toan-voi-ai', 'public.ai-learning')->name('ai-learning');
+
 // Chương trình học công khai (GEO): chỉ cấu trúc lớp → chương → chủ đề → bài, nội dung bài vẫn phải đăng nhập (spec §6).
 Route::get('chuong-trinh', [PublicCurriculumController::class, 'index'])->name('curriculum.index');
 Route::get('chuong-trinh/{grade}', [PublicCurriculumController::class, 'grade'])->name('curriculum.grade');

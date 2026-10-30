@@ -23,6 +23,8 @@
         $metaKeywords = $seoPages->keywordsFor($seoRouteName);
     @endphp
     <meta name="description" content="{{ $metaDescription }}">
+    {{-- E-E-A-T: trang nào có tác giả riêng (bài tin tức) thì khai @section('author'). --}}
+    <meta name="author" content="@yield('author', \App\Support\PageAuthor::name())">
     @if ($metaKeywords)
         <meta name="keywords" content="{{ $metaKeywords }}">
     @endif

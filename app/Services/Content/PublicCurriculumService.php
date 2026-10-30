@@ -45,7 +45,7 @@ class PublicCurriculumService
             'subjects.chapters' => fn ($q) => $q->active()->ordered()->select('id', 'subject_id', 'name', 'slug', 'sort_order'),
             'subjects.chapters.topics' => fn ($q) => $q->active()->ordered()->select('id', 'chapter_id', 'name', 'slug', 'sort_order'),
             'subjects.chapters.topics.lessons' => fn ($q) => $q->published()->ordered()
-                ->select('id', 'topic_id', 'title', 'slug', 'summary', 'sort_order', 'difficulty', 'estimated_minutes', 'access_level'),
+                ->select('id', 'topic_id', 'title', 'slug', 'summary', 'sort_order', 'difficulty', 'estimated_minutes', 'access_level', 'updated_at'),
         ]);
     }
 

@@ -109,6 +109,11 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   trong `SITE_ALTERNATE_NAMES`; `GeoTest` báo đỏ nếu tên cũ lọt lại vào `resources/views`.
 - Chương trình công khai `/chuong-trinh/*` (`PublicCurriculumService`) chỉ lộ cấu trúc + tên phần, **không bao giờ
   chọn `lesson_sections.content`** — nội dung bài phải đăng nhập (spec §6). `PublicCurriculumTest` canh chuyện này.
+- SEO từ khoá ([docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md)): trang chủ nhắm "học toán online", `/hoc-toan-voi-ai`
+  nhắm "học toán với AI" — `SeoKeywordsTest` canh title/H1. FAQ trang AI ở `App\Support\AiTutorFaq`, phải khớp hành vi
+  thật của AI Tutor (`PromptBuilder`, `TutorAccessGuard`), không ghi số lượt/giá. Trang giới thiệu có dòng
+  "Biên soạn · Cập nhật" (`page-byline`, `PageAuthor`): **sửa nội dung thì sửa ngày** ghi trong view, không dùng mtime.
+  Nguồn trích dẫn chỉ đặt link đã mở được thật.
 - Thêm trang công khai mới → thêm vào `SitemapController`; trang sau đăng nhập thì thôi (đã `noindex` ở `layouts/app`).
   Thẻ OG/Twitter đặt sẵn ở `layouts/base`, trang nào cần preview riêng thì khai `@section('og_title'/'og_description'/'og_image')`.
 - Xác thực 2 bước: chỉ qua `TwoFactorService` (TOTP tự cài). Mật khẩu đúng + có 2FA → đăng xuất ngay, chỉ nhớ id trong

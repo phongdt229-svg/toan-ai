@@ -30,6 +30,7 @@ class SitemapController extends Controller
     {
         $urls = [
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'weekly', 'lastmod' => $this->viewMtime('public.landing')],
+            ['loc' => route('ai-learning'), 'priority' => '0.9', 'changefreq' => 'monthly', 'lastmod' => $this->viewMtime('public.ai-learning')],
             ['loc' => route('packages.index'), 'priority' => '0.9', 'changefreq' => 'weekly', 'lastmod' => $this->viewMtime('public.packages.index')],
             ['loc' => route('guides.index'), 'priority' => '0.8', 'changefreq' => 'monthly', 'lastmod' => $this->viewMtime('public.guides.index')],
             ['loc' => route('support.create'), 'priority' => '0.5', 'changefreq' => 'yearly', 'lastmod' => $this->viewMtime('public.support.create')],

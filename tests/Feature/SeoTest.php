@@ -39,7 +39,7 @@ class SeoTest extends TestCase
             ->assertSee('property="og:image"', false)
             ->assertSee('name="twitter:card" content="summary_large_image"', false)
             ->assertSee('og-cover.png', false)
-            ->assertSee('Học Toán lớp 1–12 theo đúng chương trình', false);
+            ->assertSee('Học Toán online lớp 1–12 theo chương trình GDPT 2018', false);
     }
 
     public function test_guide_article_shares_its_own_title_and_summary(): void

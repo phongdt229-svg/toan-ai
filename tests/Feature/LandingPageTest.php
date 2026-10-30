@@ -21,7 +21,8 @@ class LandingPageTest extends TestCase
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('Học Toán thông minh cùng AI')
+            ->assertSee('Học Toán Online Lớp 1–12 Cùng AI Tutor')
+            ->assertSee('Học Toán online')
             ->assertSee('Bắt đầu học miễn phí')
             ->assertSee('Lớp 12')
             // Câu "Vui lòng đăng nhập để bắt đầu học." (spec §6) nằm ở trang tổng quan bài — PublicCurriculumTest.

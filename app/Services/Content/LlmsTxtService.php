@@ -49,6 +49,7 @@ class LlmsTxtService
             '## Trang chính',
             '',
             $this->link('Trang chủ', route('home'), 'giới thiệu sản phẩm, chương trình lớp 1–12, câu hỏi thường gặp'),
+            $this->link('Học Toán với AI', route('ai-learning'), 'AI Tutor gợi ý từng bước, không giải hộ, khoá khi làm bài kiểm tra'),
             $this->link('Chương trình học', route('curriculum.index'), 'danh sách bài theo lớp, chương, chủ đề'),
             $this->link('Gói học và bảng giá', route('packages.index')),
             $this->link('Trung tâm hướng dẫn', route('guides.index'), 'cách dùng cho học sinh, giáo viên, phụ huynh'),

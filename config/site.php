@@ -36,6 +36,14 @@ return [
     | ảnh gốc là http, trang https sẽ chặn). Chưa có file thì footer hiện link chữ thay cho ảnh.
     */
     'moit_url' => env('SITE_MOIT_URL', ''),
+
+    /*
+    | Người biên soạn/duyệt nội dung các trang giới thiệu (E-E-A-T: Google và công cụ AI tin trang có tác giả rõ).
+    | Chỉ điền NGƯỜI THẬT đã đồng ý đứng tên, vd "Nguyễn Văn A" + "Giáo viên Toán THCS, 10 năm kinh nghiệm".
+    | Trống thì ghi "Đội ngũ biên soạn <brand>" và JSON-LD khai Organization — không bịa tên người.
+    */
+    'editor_name' => env('SITE_EDITOR_NAME', ''),
+    'editor_title' => env('SITE_EDITOR_TITLE', ''),
     'moit_logo' => env('SITE_MOIT_LOGO', 'images/da-thong-bao-bo-cong-thuong.png'),
 
     // Nút chat nổi ở các trang công khai (landing, gói học, hỗ trợ...). Để trống thì ẩn nút

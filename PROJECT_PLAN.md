@@ -1169,6 +1169,19 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       tự lưu ở `public/`, chưa có file thì hiện link chữ). Trống = ẩn.
 - Test: `GeoTest` (mục Local SEO), `FooterSocialLinksTest`.
 
+### ✅ Đã làm (30/10) — SEO từ khoá "học toán online" + "học toán với AI", E-E-A-T
+
+Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
+
+- [x] Trang chủ: title/H1/description nhắm "học toán online".
+- [x] Trang đích `/hoc-toan-voi-ai` (`public.ai-learning`, FAQ ở `App\Support\AiTutorFaq`): so sánh AI giải hộ ↔ AI dạy
+      từng bước, nghiên cứu PNAS 2025 + trích dẫn chuyên gia, nguồn tham khảo. Nối vào menu, footer, sitemap, llms.txt.
+- [x] Trang lớp: title/H1 "Học Toán lớp N online", đoạn giới thiệu cấp học + ba bộ sách + Thông tư 32/2018.
+- [x] E-E-A-T: `meta author` mọi trang, dòng "Biên soạn · Cập nhật" + WebPage `author`/`dateModified`
+      (`App\Support\PageAuthor`, `SITE_EDITOR_NAME/TITLE`), khối "Cơ sở nội dung" có nguồn ngoài ở trang chủ.
+- [ ] Lịch nội dung 12 tuần + việc ngoài code (dọn bài mẫu trên production, server chậm…) — xem docs/SEO_KEYWORDS.md.
+- Test: `SeoKeywordsTest`.
+
 ### ✅ Đã làm (14/10) — Công cụ 3D hình học không gian cho học sinh
 
 Công cụ vẽ hình 3D tương tác (không phải nội dung bài học/câu hỏi) — học sinh chọn hình, nhập số

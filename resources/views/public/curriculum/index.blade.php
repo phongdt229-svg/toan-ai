@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Chương trình Toán lớp '.\App\Models\Grade::rangeLabel('–').' — Math AI')
+@section('title', 'Chương trình Toán lớp '.\App\Models\Grade::rangeLabel('–').' (GDPT 2018) — Học Toán online | Math AI')
 @section('meta_description', 'Chương trình Toán lớp '.\App\Models\Grade::rangeLabel('–').' trên Math AI, bám sát chương trình phổ thông Việt Nam: từng lớp chia theo chương, chủ đề và bài học.')
 
 @php

@@ -53,7 +53,7 @@
                 <div class="site-footer__heading">Sản phẩm</div>
                 <ul class="list-unstyled small d-grid gap-2 mb-0">
                     <li><a href="{{ route('home') }}#tinh-nang">Tính năng</a></li>
-                    <li><a href="{{ route('home') }}#ai-tutor">AI Tutor</a></li>
+                    <li><a href="{{ route('ai-learning') }}">Học Toán với AI</a></li>
                     <li><a href="{{ route('curriculum.index') }}">Chương trình</a></li>
                     <li><a href="{{ route('packages.index') }}">Gói học</a></li>
                 </ul>

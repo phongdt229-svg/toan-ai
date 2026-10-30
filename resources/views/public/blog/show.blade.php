@@ -3,6 +3,9 @@
 @section('title', $post->title . ' — Math AI')
 @section('meta_description', $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content), 160))
 @section('og_title', $post->title)
+@if ($post->byline_name)
+    @section('author', $post->byline_name)
+@endif
 @section('og_description', $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content), 160))
 @if ($post->coverUrl())
     @section('og_image', $post->coverUrl())

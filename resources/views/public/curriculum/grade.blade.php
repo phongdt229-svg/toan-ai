@@ -2,11 +2,17 @@
     $courseName = 'Toán '.mb_strtolower($grade->name);
     $lessons = $grade->subjects->flatMap->chapters->flatMap->topics->flatMap->lessons;
     $url = route('curriculum.grade', $grade);
+    // Cấp học theo chương trình GDPT 2018 — người tìm hay gõ kèm ("toán lớp 6 THCS"), viết ra cho đúng ngữ cảnh.
+    $stage = match (true) {
+        $grade->level <= 5 => 'tiểu học',
+        $grade->level <= 9 => 'THCS',
+        default => 'THPT',
+    };
 @endphp
 
 @extends('layouts.public')
 
-@section('title', 'Chương trình '.$courseName.' — Math AI')
+@section('title', 'Học '.$courseName.' online — chương trình GDPT 2018 | Math AI')
 @section('meta_description', 'Chương trình '.$courseName.' trên Math AI: '
     .$grade->subjects->flatMap->chapters->pluck('name')->take(6)->implode(', ')
     .($lessons->isNotEmpty() ? ' — '.$lessons->count().' bài học có ví dụ, luyện tập chấm ngay và AI Tutor.' : '.'))
@@ -64,7 +70,23 @@
                 </ol>
             </nav>
 
-            <h1 class="h3 fw-bold mb-2">Chương trình {{ $courseName }}</h1>
+            <h1 class="h3 fw-bold mb-2">Học {{ $courseName }} online</h1>
+            @if ($lessons->isNotEmpty())
+                {{-- Ngày cập nhật = bài học sửa gần nhất của lớp (dữ liệu thật, không phải lúc deploy). --}}
+                @include('public.partials.page-byline', ['updated' => $lessons->max('updated_at')])
+            @endif
+
+            {{--
+                Đoạn giới thiệu nhắm cụm "học toán lớp N online" (docs/SEO_KEYWORDS.md). Chỉ nói điều đúng:
+                nội dung bám mạch kiến thức GDPT 2018 chứ KHÔNG chia theo một bộ sách — xem database/data/curriculum.php.
+            --}}
+            <p class="mb-2">
+                Chương trình {{ $courseName }} ({{ $stage }}) trên Math AI bám theo chương trình giáo dục phổ thông 2018,
+                (<a href="https://caselaw.vn/van-ban-phap-luat/341253-thong-tu-so-32-2018-tt-bgddt-ngay-26-12-2018-cua-bo-truong-bo-giao-duc-va-dao-tao-ve-chuong-trinh-giao-duc-pho-thong" target="_blank" rel="noopener">Thông tư 32/2018/TT-BGDĐT</a>),
+                dùng được cùng sách Kết nối tri thức, Chân trời sáng tạo hay Cánh diều — tên chương có thể khác sách
+                của con nhưng kiến thức là một. Mỗi bài có lý thuyết ngắn gọn, ví dụ giải từng bước, luyện tập chấm ngay
+                và <a href="{{ route('ai-learning') }}">AI Tutor gợi ý khi con làm sai</a>.
+            </p>
             <p class="text-secondary mb-4">
                 @if ($lessons->isNotEmpty())
                     {{ $lessons->count() }} bài học, mỗi bài có lý thuyết, ví dụ, lỗi thường gặp và bài luyện tập chấm ngay.
