@@ -12,6 +12,11 @@
 
     <main class="section">
         <div class="container">
+            {{-- Đang lọc danh mục thì thêm một cấp — trùng cấp 3 trong BreadcrumbList của bài viết (blog.show). --}}
+            @include('public.partials.breadcrumb', ['items' => array_values(array_filter([
+                ['Tin tức', route('blog.index')],
+                $activeCategory ? [$activeCategory->name, route('blog.index', ['danh-muc' => $activeCategory->slug])] : null,
+            ]))])
             <div class="text-center mb-4">
                 <span class="section__eyebrow"><i class="bi bi-newspaper"></i>Tin tức</span>
                 <h1 class="section__title mb-2">

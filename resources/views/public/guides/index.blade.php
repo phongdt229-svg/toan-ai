@@ -8,6 +8,7 @@
 
     <main class="section">
         <div class="container">
+            @include('public.partials.breadcrumb', ['items' => [['Hướng dẫn', route('guides.index')]]])
             <div class="text-center mb-4">
                 <span class="section__eyebrow"><i class="bi bi-book"></i>Hướng dẫn</span>
                 <h1 class="section__title mb-2">Hướng dẫn <span class="hl">sử dụng</span></h1>

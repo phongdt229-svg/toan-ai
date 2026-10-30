@@ -38,6 +38,7 @@
 
     <main class="section">
         <div class="container">
+            @include('public.partials.breadcrumb', ['items' => [['Gói học', route('packages.index')]]])
             @include('components.flash')
 
             <h1 class="section__title mb-2">Gói <span class="hl">học</span></h1>

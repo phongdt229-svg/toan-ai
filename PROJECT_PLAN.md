@@ -1180,7 +1180,10 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
 - [x] E-E-A-T: `meta author` mọi trang, dòng "Biên soạn · Cập nhật" + WebPage `author`/`dateModified`
       (`App\Support\PageAuthor`, `SITE_EDITOR_NAME/TITLE`), khối "Cơ sở nội dung" có nguồn ngoài ở trang chủ.
 - [ ] Lịch nội dung 12 tuần + việc ngoài code (dọn bài mẫu trên production, server chậm…) — xem docs/SEO_KEYWORDS.md.
-- Test: `SeoKeywordsTest`.
+- [x] **BreadcrumbList** mọi trang công khai (trừ trang chủ): partial `public.partials.breadcrumb` hiện thanh breadcrumb
+      VÀ khai JSON-LD từ cùng một mảng. Thêm cho Gói học, Hướng dẫn, Tin tức (+ cấp danh mục khi lọc), Hỗ trợ, Điều khoản,
+      Bảo mật; bài tin tức + Chương trình đã khai trong @graph nên chỉ thêm thanh hiển thị (`schema => false`).
+- Test: `SeoKeywordsTest`, `BreadcrumbTest`.
 
 ### ✅ Đã làm (14/10) — Công cụ 3D hình học không gian cho học sinh
 

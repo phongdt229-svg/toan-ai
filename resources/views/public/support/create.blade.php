@@ -8,6 +8,7 @@
 
     <main class="section">
         <div class="container" style="max-width:720px">
+            @include('public.partials.breadcrumb', ['items' => [['Hỗ trợ', route('support.create')]]])
             @include('components.flash')
 
             <span class="section__eyebrow"><i class="bi bi-life-preserver"></i>Hỗ trợ</span>

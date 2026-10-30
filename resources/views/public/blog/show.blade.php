@@ -62,9 +62,11 @@
 
     <main class="section">
         <div class="container" style="max-width:760px">
-            <a href="{{ route('blog.index') }}" class="small text-decoration-none">
-                <i class="bi bi-chevron-left"></i> Tin tức
-            </a>
+            @include('public.partials.breadcrumb', ['schema' => false, 'items' => [
+                ['Tin tức', route('blog.index')],
+                [$post->category->name, route('blog.index', ['danh-muc' => $post->category->slug])],
+                [$post->title, route('blog.show', $post->slug)],
+            ]])
 
             <div class="mt-3 mb-4">
                 <a href="{{ route('blog.index', ['danh-muc' => $post->category->slug]) }}"

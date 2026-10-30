@@ -14,6 +14,7 @@
     <main class="legal">
         <div class="container">
             <div class="legal__paper">
+                @include('public.partials.breadcrumb', ['items' => [['Điều khoản sử dụng', route('legal.terms')]]])
                 <span class="badge text-bg-light border mb-2">Cập nhật {{ config('site.legal_updated_at') }}</span>
                 <h1 class="h2 fw-bold mb-3">Điều khoản sử dụng</h1>
                 <p class="text-secondary">

@@ -115,6 +115,9 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   "Biên soạn · Cập nhật" (`page-byline`, `PageAuthor`): **sửa nội dung thì sửa ngày** ghi trong view, không dùng mtime.
   Nguồn trích dẫn chỉ đặt link đã mở được thật.
 - Thêm trang công khai mới → thêm vào `SitemapController`; trang sau đăng nhập thì thôi (đã `noindex` ở `layouts/app`).
+  Kèm `@include('public.partials.breadcrumb', ['items' => [['Tên', route(...)]]])` (tự thêm "Trang chủ", hiện + khai
+  BreadcrumbList cùng lúc); trang đã khai BreadcrumbList trong `@graph` riêng thì truyền `'schema' => false`.
+  Thêm trang vào `BreadcrumbTest::pages()` — test bắt khai hai lần hoặc tên lệch với thanh hiển thị.
   Thẻ OG/Twitter đặt sẵn ở `layouts/base`, trang nào cần preview riêng thì khai `@section('og_title'/'og_description'/'og_image')`.
 - Xác thực 2 bước: chỉ qua `TwoFactorService` (TOTP tự cài). Mật khẩu đúng + có 2FA → đăng xuất ngay, chỉ nhớ id trong
   session tới khi nhập mã (`TwoFactorChallengeController`). Đừng `Auth::login()` tay ở chỗ khác. `ADMIN_REQUIRE_2FA=true` bắt buộc admin.

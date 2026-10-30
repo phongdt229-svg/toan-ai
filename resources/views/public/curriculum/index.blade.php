@@ -45,6 +45,7 @@
 
     <main class="section">
         <div class="container">
+            @include('public.partials.breadcrumb', ['schema' => false, 'items' => [['Chương trình', route('curriculum.index')]]])
             <div class="text-center mb-4">
                 <span class="section__eyebrow"><i class="bi bi-diagram-3"></i>Chương trình</span>
                 <h1 class="section__title mb-2">Chương trình Toán <span class="hl">lớp {{ \App\Models\Grade::rangeLabel() }}</span></h1>
