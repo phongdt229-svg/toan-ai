@@ -1156,6 +1156,17 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
       mở Hỏi đáp cho khách xem (dữ liệu trẻ em — cần ẩn danh + kiểm duyệt trước).
 - Test: `PublicCurriculumTest`, `GeoTest`.
 
+### ✅ Đã làm (30/10) — Local SEO: NAP thống nhất, phục vụ Việt Nam
+
+- [x] **`App\Support\SiteContact`** — một nguồn NAP cho JSON-LD, footer và `/llms.txt`: số điện thoại đổi sang `+84…`
+      (giữ nguyên đầu số 1900/1800), `PostalAddress` (thêm `SITE_ADDRESS_LOCALITY/REGION`, `SITE_POSTAL_CODE`),
+      `ContactPoint` tiếng Việt phục vụ VN, `hasMap` = hồ sơ Google Doanh nghiệp (chỉ link thật). Thiếu ô nào bỏ trường đó.
+- [x] Organization mô tả "chương trình giáo dục phổ thông 2018" (đúng khung `curriculum.php`), `areaServed` có mã `VN`.
+- [x] Footer: hotline là link `tel:+84…`, địa chỉ trỏ hồ sơ Google khi có. llms.txt thêm mục "Liên hệ".
+- [x] Gói học: Offer khai `eligibleRegion` VN + `seller` nối về `#organization`.
+- [x] `docs/DEPLOY.md` §6.3: hồ sơ Google dạng khu vực phục vụ, NAP y hệt mọi nơi.
+- Test: `GeoTest` (mục Local SEO).
+
 ### ✅ Đã làm (14/10) — Công cụ 3D hình học không gian cho học sinh
 
 Công cụ vẽ hình 3D tương tác (không phải nội dung bài học/câu hỏi) — học sinh chọn hình, nhập số

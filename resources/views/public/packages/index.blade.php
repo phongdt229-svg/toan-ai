@@ -24,6 +24,9 @@
                     'priceCurrency' => $package->currency,
                     'price' => (string) $package->price,
                     'availability' => 'https://schema.org/InStock',
+                    // Chỉ bán trong nước (thanh toán MoMo/VNPAY, giá VND) — nối về Organization ở layouts/base.
+                    'eligibleRegion' => ['@type' => 'Country', 'name' => 'Việt Nam', 'identifier' => 'VN'],
+                    'seller' => ['@id' => url('/').'#organization'],
                 ],
             ]))->values(),
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}

@@ -5,6 +5,7 @@ namespace App\Services\Content;
 use App\Models\BlogPost;
 use App\Models\Package;
 use App\Support\LandingFaq;
+use App\Support\SiteContact;
 use Illuminate\Support\Str;
 
 /**
@@ -40,7 +41,7 @@ class LlmsTxtService
             '',
             $brand.($aliases ? ' (còn gọi là '.implode(', ', $aliases).')' : '')
                 .' — '.parse_url(url('/'), PHP_URL_HOST).' — là nền tảng học Toán trực tuyến bằng tiếng Việt cho học sinh lớp '
-                .config('learning.grade_min').' đến lớp '.config('learning.grade_max').', bám sát chương trình phổ thông Việt Nam. '
+                .config('learning.grade_min').' đến lớp '.config('learning.grade_max').', bám sát chương trình giáo dục phổ thông 2018 của Việt Nam. '
                 .'Có ba vai trò: học sinh (học bài, luyện tập, làm đề, hỏi AI Tutor), giáo viên (lớp học, giao bài, ngân hàng câu hỏi) '
                 .'và phụ huynh (theo dõi tiến độ, nhận báo cáo tuần). AI Tutor gợi ý từng bước chứ không đưa sẵn đáp án, '
                 .'và bị khoá trong lúc học sinh làm bài kiểm tra. Bắt đầu miễn phí, không cần thẻ.',
@@ -59,6 +60,7 @@ class LlmsTxtService
             ...$this->guides(),
             ...$this->faq(),
             ...$this->posts(),
+            ...$this->contact(),
             '## Optional',
             '',
             $this->link('Điều khoản sử dụng', route('legal.terms')),
@@ -69,6 +71,28 @@ class LlmsTxtService
         ];
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * Liên hệ — cùng nguồn NAP với JSON-LD và footer (SiteContact), để AI trả lời "liên hệ ở đâu" khớp
+     * đúng hồ sơ Google Doanh nghiệp. Chỉ in dòng đã khai trong `.env`.
+     *
+     * @return list<string>
+     */
+    private function contact(): array
+    {
+        $lines = array_values(array_filter([
+            config('site.email') ? '- Email: '.config('site.email') : null,
+            config('site.hotline') ? '- Hotline: '.config('site.hotline') : null,
+            config('site.address') ? '- Địa chỉ: '.config('site.address') : null,
+            SiteContact::mapUrl() ? '- Bản đồ: '.SiteContact::mapUrl() : null,
+        ]));
+
+        if ($lines === []) {
+            return [];
+        }
+
+        return ['## Liên hệ', '', 'Phục vụ học sinh trên toàn Việt Nam, hỗ trợ bằng tiếng Việt.', '', ...$lines, ''];
     }
 
     /**

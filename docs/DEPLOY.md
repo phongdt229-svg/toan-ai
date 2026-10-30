@@ -301,6 +301,22 @@ Sau khi lên production, kiểm tra nhanh: dán link trang chủ vào một cu�
   thật bị chặn dù trang vẫn mở bình thường bằng trình duyệt.
 - Đăng ký [Bing Webmaster Tools](https://www.bing.com/webmasters) (nhập từ Search Console được) và gửi sitemap.
 
+## 6.3. Local SEO — tìm kiếm tại Việt Nam
+
+Sản phẩm học trực tuyến, không có cửa hàng → hồ sơ Google là **doanh nghiệp khu vực phục vụ**.
+
+- **Google Doanh nghiệp** (business.google.com): danh mục "Dịch vụ giáo dục" / "Trung tâm dạy kèm", khu vực phục vụ
+  "Việt Nam", **ẩn địa chỉ** nếu không đón khách tại chỗ. Website trỏ về trang chủ. Dán link hồ sơ vào
+  `SITE_SOCIAL_GOOGLE` → thành `sameAs` + `hasMap` trong JSON-LD và link ở footer.
+- **NAP thống nhất**: `SITE_COMPANY`, `SITE_HOTLINE`, `SITE_ADDRESS` (+ `SITE_ADDRESS_LOCALITY`, `SITE_ADDRESS_REGION`,
+  `SITE_POSTAL_CODE`) phải viết **y hệt** hồ sơ Google, Zalo OA, Facebook. Footer, JSON-LD (`PostalAddress`,
+  `ContactPoint`) và `/llms.txt` đều đọc từ [SiteContact](../app/Support/SiteContact.php) nên chỉ sửa một chỗ.
+  Hồ sơ ẩn địa chỉ thì để trống cả 4 ô địa chỉ — địa chỉ trên web mà Google không có là lệch NAP.
+- Search Console → Cài đặt: kiểm tra quốc gia mục tiêu không bị đặt sai (site dùng `lang="vi"`, `og:locale=vi_VN`,
+  `areaServed=VN` sẵn — không cần `hreflang` vì chỉ có một ngôn ngữ).
+- Kiểm tra: dán trang chủ vào [Rich Results Test](https://search.google.com/test/rich-results) — Organization phải có
+  `address`/`contactPoint` đúng như đã khai.
+
 ## 7. Sao lưu & khôi phục
 
 ```bash

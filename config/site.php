@@ -21,6 +21,13 @@ return [
     'hotline' => env('SITE_HOTLINE', ''),
     'address' => env('SITE_ADDRESS', ''),
 
+    // Local SEO: tách tỉnh/thành, quận/huyện, mã bưu chính ra để JSON-LD khai PostalAddress đủ trường
+    // (App\Support\SiteContact). Viết Y HỆT hồ sơ Google Doanh nghiệp — lệch chữ là Google tách hai thực thể.
+    // Hồ sơ Google để chế độ "khu vực phục vụ" (ẩn địa chỉ) thì cũng để trống cả 4 ô ở đây.
+    'address_locality' => env('SITE_ADDRESS_LOCALITY', ''),   // quận/huyện hoặc thành phố, vd "Cầu Giấy"
+    'address_region' => env('SITE_ADDRESS_REGION', ''),       // tỉnh/thành, vd "Hà Nội"
+    'postal_code' => env('SITE_POSTAL_CODE', ''),
+
     // Nút chat nổi ở các trang công khai (landing, gói học, hỗ trợ...). Để trống thì ẩn nút
     // tương ứng — KHÔNG bịa link, dán đúng URL Zalo/Facebook thật trước khi chạy production.
     // Zalo: https://zalo.me/<số điện thoại hoặc id OA> — lấy ở phần "Liên kết Zalo" của OA.

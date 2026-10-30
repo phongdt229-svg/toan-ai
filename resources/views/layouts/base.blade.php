@@ -123,12 +123,17 @@
                         'alternateName' => \App\Services\Content\LlmsTxtService::alternateNames() ?: null,
                         'legalName' => config('site.company'),
                         'description' => 'Nền tảng học Toán trực tuyến lớp '.config('learning.grade_min').'–'.config('learning.grade_max')
-                            .' bám sát chương trình phổ thông Việt Nam, có AI Tutor gợi ý từng bước thay vì đưa sẵn đáp án.',
+                            .' bám sát chương trình giáo dục phổ thông 2018 của Việt Nam, có AI Tutor gợi ý từng bước thay vì đưa sẵn đáp án.',
                         'url' => url('/'),
                         'logo' => asset('icons/icon-512.png'),
                         'email' => config('site.email') ?: null,
-                        'telephone' => config('site.hotline') ?: null,
-                        'areaServed' => ['@type' => 'Country', 'name' => 'Việt Nam'],
+                        // Local SEO: NAP lấy chung một nguồn với footer (SiteContact) — xem lý do ở class đó.
+                        'telephone' => \App\Support\SiteContact::telephone(),
+                        'address' => \App\Support\SiteContact::postalAddress(),
+                        'contactPoint' => \App\Support\SiteContact::contactPoint(),
+                        'hasMap' => \App\Support\SiteContact::mapUrl(),
+                        'areaServed' => ['@type' => 'Country', 'name' => 'Việt Nam', 'identifier' => 'VN'],
+                        'knowsLanguage' => 'vi',
                         'sameAs' => collect(config('site.social', []))
                             ->filter(fn ($link) => \App\Support\SocialLink::isUsable($link))->values()->all() ?: null,
                     ]),

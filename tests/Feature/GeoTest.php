@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\Content\BlogService;
 use App\Services\Content\IndexNowService;
 use App\Support\LandingFaq;
+use App\Support\SiteContact;
 use Database\Seeders\GradeSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -142,6 +143,77 @@ class GeoTest extends TestCase
         $org = collect($this->graph($this->get('/')->getContent()))->firstWhere('@type', 'EducationalOrganization');
 
         $this->assertArrayNotHasKey('sameAs', $org);
+    }
+
+    // --- Local SEO (NAP) -------------------------------------------------------------------
+
+    public function test_organization_declares_address_contact_point_and_map_from_one_source(): void
+    {
+        config([
+            'site.hotline' => '0912 345 678',
+            'site.email' => 'hotro@hoctoanonline.com',
+            'site.address' => 'Số 1 Trần Thái Tông',
+            'site.address_locality' => 'Cầu Giấy',
+            'site.address_region' => 'Hà Nội',
+            'site.postal_code' => '',
+            'site.social.google' => 'https://maps.app.goo.gl/AbCdEf123',
+        ]);
+
+        $html = $this->get('/')->getContent();
+        $org = collect($this->graph($html))->firstWhere('@type', 'EducationalOrganization');
+
+        $this->assertSame('+84912345678', $org['telephone']);
+        $this->assertSame([
+            '@type' => 'PostalAddress',
+            'streetAddress' => 'Số 1 Trần Thái Tông',
+            'addressLocality' => 'Cầu Giấy',
+            'addressRegion' => 'Hà Nội',
+            'addressCountry' => 'VN',
+        ], $org['address']);
+        $this->assertSame('+84912345678', $org['contactPoint']['telephone']);
+        $this->assertSame('hotro@hoctoanonline.com', $org['contactPoint']['email']);
+        $this->assertSame('https://maps.app.goo.gl/AbCdEf123', $org['hasMap']);
+
+        // Footer cùng số, bấm gọi được bằng dạng +84 nhưng chữ hiện giữ cách viết dễ đọc.
+        $this->assertStringContainsString('href="tel:+84912345678">0912 345 678</a>', $html);
+
+        $llms = $this->get('/llms.txt')->getContent();
+        $this->assertStringContainsString("## Liên hệ\n", $llms);
+        $this->assertStringContainsString('- Hotline: 0912 345 678', $llms);
+        $this->assertStringContainsString('- Địa chỉ: Số 1 Trần Thái Tông', $llms);
+    }
+
+    public function test_service_area_business_without_address_or_phone_declares_nothing_made_up(): void
+    {
+        config(['site.hotline' => '', 'site.address' => '', 'site.social.google' => 'https://google.com/test']);
+
+        $org = collect($this->graph($this->get('/')->getContent()))->firstWhere('@type', 'EducationalOrganization');
+
+        $this->assertArrayNotHasKey('telephone', $org);
+        $this->assertArrayNotHasKey('address', $org);
+        $this->assertArrayNotHasKey('hasMap', $org);
+        $this->assertArrayNotHasKey('telephone', $org['contactPoint']);
+        $this->assertSame('VN', $org['areaServed']['identifier']);
+        $this->assertStringNotContainsString('- Hotline:', $this->get('/llms.txt')->getContent());
+    }
+
+    public function test_phone_numbers_are_normalised_to_international_format(): void
+    {
+        foreach (['0912.345.678' => '+84912345678', '+84 912 345 678' => '+84912345678', '1900 1234' => '19001234'] as $input => $expected) {
+            config(['site.hotline' => $input]);
+            $this->assertSame($expected, SiteContact::telephone(), $input);
+        }
+    }
+
+    public function test_package_offers_are_sold_in_vietnam_by_the_organization(): void
+    {
+        $this->seed(TestPackageSeeder::class);
+
+        $offer = collect($this->graph($this->get(route('packages.index'))->getContent()))
+            ->firstWhere('@type', 'Product')['offers'];
+
+        $this->assertSame('VN', $offer['eligibleRegion']['identifier']);
+        $this->assertSame(url('/').'#organization', $offer['seller']['@id']);
     }
 
     // --- IndexNow -------------------------------------------------------------------------

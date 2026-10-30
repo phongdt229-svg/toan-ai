@@ -14,10 +14,21 @@
                         <a href="mailto:{{ config('site.email') }}">{{ config('site.email') }}</a>
                     </li>
                     @if (config('site.hotline'))
-                        <li><i class="bi bi-telephone me-1"></i>{{ config('site.hotline') }}</li>
+                        {{-- tel: dạng +84 để bấm gọi được trên điện thoại; chữ hiện giữ cách viết dễ đọc. --}}
+                        <li>
+                            <i class="bi bi-telephone me-1"></i>
+                            <a href="tel:{{ \App\Support\SiteContact::telephone() }}">{{ config('site.hotline') }}</a>
+                        </li>
                     @endif
                     @if (config('site.address'))
-                        <li><i class="bi bi-geo-alt me-1"></i>{{ config('site.address') }}</li>
+                        <li>
+                            <i class="bi bi-geo-alt me-1"></i>
+                            @if ($mapUrl = \App\Support\SiteContact::mapUrl())
+                                <a href="{{ $mapUrl }}" target="_blank" rel="noopener">{{ config('site.address') }}</a>
+                            @else
+                                {{ config('site.address') }}
+                            @endif
+                        </li>
                     @endif
                 </ul>
 
