@@ -1165,7 +1165,9 @@ hơn enum cứng và đúng đề bài "có danh mục bài viết".
 - [x] Footer: hotline là link `tel:+84…`, địa chỉ trỏ hồ sơ Google khi có. llms.txt thêm mục "Liên hệ".
 - [x] Gói học: Offer khai `eligibleRegion` VN + `seller` nối về `#organization`.
 - [x] `docs/DEPLOY.md` §6.3: hồ sơ Google dạng khu vực phục vụ, NAP y hệt mọi nơi.
-- Test: `GeoTest` (mục Local SEO).
+- [x] Huy hiệu "Đã thông báo Bộ Công Thương" ở footer (`SITE_MOIT_URL`, chỉ nhận link online.gov.vn; logo chính thức
+      tự lưu ở `public/`, chưa có file thì hiện link chữ). Trống = ẩn.
+- Test: `GeoTest` (mục Local SEO), `FooterSocialLinksTest`.
 
 ### ✅ Đã làm (14/10) — Công cụ 3D hình học không gian cho học sinh
 

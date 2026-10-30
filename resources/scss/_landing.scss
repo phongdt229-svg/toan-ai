@@ -694,6 +694,15 @@
     &__brand { color: #fff; font-weight: 700; }
     &__heading { color: #fff; font-weight: 600; margin-bottom: .75rem; }
     &__bottom { border-top: 1px solid rgba(#fff, .12); }
+
+    // Huy hiệu Bộ Công Thương: khối riêng một dòng, ảnh giữ tỉ lệ gốc (width/height trên thẻ chống CLS).
+    &__moit {
+        display: inline-flex;
+        align-items: center;
+        font-size: .875rem;
+
+        img { display: block; width: 150px; height: auto; }
+    }
 }
 
 // Dải hỏi đồng ý cookie. Ngồi dưới cùng, trên cả bottom nav của portal (z-index cao hơn).

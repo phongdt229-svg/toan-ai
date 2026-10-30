@@ -69,6 +69,23 @@ class SiteContact
         ]);
     }
 
+    /**
+     * Trang hồ sơ "Đã thông báo Bộ Công Thương" — chỉ nhận link về online.gov.vn: huy hiệu này là cam kết
+     * pháp lý, link chép nhầm sang miền khác (hay link mẫu) còn tệ hơn không gắn.
+     */
+    public static function moitUrl(): ?string
+    {
+        $url = (string) config('site.moit_url');
+        $parts = parse_url($url);
+
+        $ok = $parts
+            && in_array($parts['scheme'] ?? '', ['http', 'https'], true)
+            && in_array(strtolower($parts['host'] ?? ''), ['online.gov.vn', 'www.online.gov.vn'], true)
+            && trim($parts['path'] ?? '', '/') !== '';
+
+        return $ok ? $url : null;
+    }
+
     /** Hồ sơ Google Doanh nghiệp / Google Maps — chỉ link thật (cùng lưới lọc với footer). */
     public static function mapUrl(): ?string
     {

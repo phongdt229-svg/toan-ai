@@ -47,6 +47,30 @@ class FooterSocialLinksTest extends TestCase
             ->assertSee('aria-label="Facebook"', false);
     }
 
+    public function test_moit_badge_is_hidden_until_the_notification_is_approved(): void
+    {
+        config(['site.moit_url' => '']);
+        $this->get('/')->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
+
+        // Link không về online.gov.vn (chép nhầm, link mẫu) cũng không được gắn huy hiệu.
+        config(['site.moit_url' => 'https://example.com/WebDetails/123']);
+        $this->get('/')->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
+    }
+
+    public function test_moit_badge_links_to_the_registration_page(): void
+    {
+        config([
+            'site.moit_url' => 'http://online.gov.vn/Home/WebDetails/123456',
+            'site.moit_logo' => 'khong-co-file-nay.png',
+        ]);
+
+        // Chưa có file logo chính thức → link chữ, không vỡ ảnh.
+        $this->get('/')->assertOk()
+            ->assertSee('href="http://online.gov.vn/Home/WebDetails/123456"', false)
+            ->assertSee('Đã thông báo Bộ Công Thương')
+            ->assertDontSee('khong-co-file-nay.png', false);
+    }
+
     public function test_the_hero_does_not_advertise_features_that_do_not_exist(): void
     {
         // Trước 23/09 hero có chip "+10 điểm" và "7 ngày liên tiếp" trong khi hệ thống chưa có cả hai.

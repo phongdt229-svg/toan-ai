@@ -28,6 +28,16 @@ return [
     'address_region' => env('SITE_ADDRESS_REGION', ''),       // tỉnh/thành, vd "Hà Nội"
     'postal_code' => env('SITE_POSTAL_CODE', ''),
 
+    /*
+    | Biểu tượng "Đã thông báo Bộ Công Thương" ở footer (website bán hàng/dịch vụ phải thông báo theo
+    | NĐ 52/2013, sửa bởi NĐ 85/2021). Link là trang chi tiết hồ sơ trên online.gov.vn, lấy ở đoạn mã nhúng
+    | được cấp khi hồ sơ đã DUYỆT — để trống thì ẩn hẳn: gắn huy hiệu khi chưa được duyệt là khai gian.
+    | Logo chính thức cũng lấy từ đoạn mã đó, lưu vào `public/` theo đường dẫn bên dưới (không hotlink:
+    | ảnh gốc là http, trang https sẽ chặn). Chưa có file thì footer hiện link chữ thay cho ảnh.
+    */
+    'moit_url' => env('SITE_MOIT_URL', ''),
+    'moit_logo' => env('SITE_MOIT_LOGO', 'images/da-thong-bao-bo-cong-thuong.png'),
+
     // Nút chat nổi ở các trang công khai (landing, gói học, hỗ trợ...). Để trống thì ẩn nút
     // tương ứng — KHÔNG bịa link, dán đúng URL Zalo/Facebook thật trước khi chạy production.
     // Zalo: https://zalo.me/<số điện thoại hoặc id OA> — lấy ở phần "Liên kết Zalo" của OA.

@@ -33,6 +33,20 @@
                 </ul>
 
                 @include('public.partials.social-links')
+
+                {{-- Chỉ hiện khi đã có hồ sơ được duyệt trên online.gov.vn — xem config/site.php `moit_url`. --}}
+                @if ($moitUrl = \App\Support\SiteContact::moitUrl())
+                    @php $moitLogo = config('site.moit_logo'); @endphp
+                    <a href="{{ $moitUrl }}" target="_blank" rel="noopener nofollow" class="site-footer__moit mt-3"
+                       title="Đã thông báo Bộ Công Thương">
+                        @if ($moitLogo && is_file(public_path($moitLogo)))
+                            <img src="{{ asset($moitLogo) }}" alt="Đã thông báo Bộ Công Thương"
+                                 width="150" height="57" loading="lazy" decoding="async">
+                        @else
+                            <i class="bi bi-patch-check me-1" aria-hidden="true"></i>Đã thông báo Bộ Công Thương
+                        @endif
+                    </a>
+                @endif
             </div>
 
             <div class="col-6 col-lg-2">

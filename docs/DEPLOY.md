@@ -314,6 +314,9 @@ Sản phẩm học trực tuyến, không có cửa hàng → hồ sơ Google l�
   Hồ sơ ẩn địa chỉ thì để trống cả 4 ô địa chỉ — địa chỉ trên web mà Google không có là lệch NAP.
 - Search Console → Cài đặt: kiểm tra quốc gia mục tiêu không bị đặt sai (site dùng `lang="vi"`, `og:locale=vi_VN`,
   `areaServed=VN` sẵn — không cần `hreflang` vì chỉ có một ngôn ngữ).
+- **Thông báo Bộ Công Thương** (online.gov.vn → đăng ký tài khoản → "Thông báo website TMĐT bán hàng"): khi hồ sơ được
+  duyệt, lấy link trang chi tiết trong đoạn mã nhúng đặt vào `SITE_MOIT_URL`, lưu ảnh logo của đoạn mã đó thành
+  `public/images/da-thong-bao-bo-cong-thuong.png`. Footer tự hiện huy hiệu; chưa duyệt thì để trống (gắn là khai gian).
 - Kiểm tra: dán trang chủ vào [Rich Results Test](https://search.google.com/test/rich-results) — Organization phải có
   `address`/`contactPoint` đúng như đã khai.
 
