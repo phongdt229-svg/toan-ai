@@ -24,13 +24,15 @@ class SeoKeywordsTest extends TestCase
         $this->seed([RolePermissionSeeder::class, GradeSeeder::class]);
     }
 
-    public function test_home_title_and_h1_target_hoc_toan_online(): void
+    public function test_home_title_targets_hoc_toan_online(): void
     {
+        // Trang chủ giống 100% mẫu V6 nên H1 là câu của mẫu ("Biết con đang vững phần nào…") — từ khoá nằm ở <title>
+        // và tên thương hiệu "Học Toán Online A.I" trong header/footer, không còn ở H1.
         $html = $this->get('/')->assertOk()->getContent();
 
         $this->assertMatchesRegularExpression('#<title>[^<]*Học Toán Online[^<]*</title>#u', $html);
         preg_match('#<h1[^>]*>(.*?)</h1>#su', $html, $h1);
-        $this->assertStringContainsString('Học Toán online', strip_tags($h1[1] ?? ''));
+        $this->assertStringContainsString('Biết con đang vững phần nào', strip_tags($h1[1] ?? ''));
     }
 
     public function test_ai_learning_page_targets_hoc_toan_voi_ai(): void
@@ -63,7 +65,8 @@ class SeoKeywordsTest extends TestCase
     {
         $url = route('ai-learning');
 
-        $this->get('/')->assertSee('href="'.$url.'"', false);
+        // Menu chung của các trang công khai (trang chủ V6 có menu riêng, không có mục này).
+        $this->get(route('legal.terms'))->assertSee('href="'.$url.'"', false);
         $this->get(route('sitemap'))->assertSee('<loc>'.$url.'</loc>', false);
         $this->assertStringContainsString('('.$url.')', $this->get('/llms.txt')->getContent());
     }
@@ -78,7 +81,10 @@ class SeoKeywordsTest extends TestCase
             $html = $this->get($page)->getContent();
 
             $this->assertStringContainsString('<meta name="author" content="Đội ngũ biên soạn '.config('site.brand').'">', $html, $page);
-            $this->assertMatchesRegularExpression('#Cập nhật: <time datetime="\d{4}-\d{2}-\d{2}">#u', $html, $page);
+            // Dòng "Cập nhật: <time>" hiển thị chỉ có ở trang AI; trang chủ V6 khai ngày trong JSON-LD (bên dưới).
+            if ($page !== '/') {
+                $this->assertMatchesRegularExpression('#Cập nhật: <time datetime="\d{4}-\d{2}-\d{2}">#u', $html, $page);
+            }
 
             $webPage = collect($this->graph($html))->firstWhere('@type', 'WebPage');
             $this->assertSame(url('/').'#organization', $webPage['author']['@id'], $page);
@@ -108,13 +114,6 @@ class SeoKeywordsTest extends TestCase
         $this->assertStringContainsString('Hamsa Bastani', $html);
         // Link nguồn không gắn nofollow — đó là trích dẫn mình đứng ra bảo đảm, khác link mạng xã hội.
         $this->assertDoesNotMatchRegularExpression('#href="https://doi\.org[^"]*"[^>]*nofollow#', $html);
-    }
-
-    public function test_home_links_to_its_sources(): void
-    {
-        $this->get('/')
-            ->assertSee('href="https://doi.org/10.1073/pnas.2422633122"', false)
-            ->assertSee('Thông tư 32/2018/TT-BGDĐT');
     }
 
     public function test_ai_learning_page_never_hard_codes_quota_or_price(): void

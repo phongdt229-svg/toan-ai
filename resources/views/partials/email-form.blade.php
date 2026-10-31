@@ -20,13 +20,6 @@
         <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
             <div>
                 <div class="fw-semibold">{{ $user->email }}</div>
-                <div class="small text-secondary">
-                    @if ($user->hasVerifiedEmail())
-                        <i class="bi bi-patch-check-fill text-success me-1"></i>Đã xác thực
-                    @else
-                        <i class="bi bi-exclamation-circle text-warning me-1"></i>Chưa xác thực
-                    @endif
-                </div>
             </div>
         </div>
 

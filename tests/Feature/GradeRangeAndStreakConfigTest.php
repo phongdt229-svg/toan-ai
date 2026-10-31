@@ -37,7 +37,7 @@ class GradeRangeAndStreakConfigTest extends TestCase
     public function test_default_range_is_grades_one_to_twelve(): void
     {
         $this->assertSame(12, Grade::active()->count());
-        $this->get('/')->assertOk()->assertSee('lớp 1 → 12')->assertSee('Tiểu học');
+        $this->get('/')->assertOk()->assertSee('GRADE_MIN=1,GRADE_MAX=12', false)->assertSee('lớp 1–12');
     }
 
     public function test_narrowing_to_six_to_twelve_hides_primary_everywhere(): void
@@ -48,10 +48,9 @@ class GradeRangeAndStreakConfigTest extends TestCase
         $this->assertSame('6 → 12', Grade::rangeLabel());
 
         $this->get('/')->assertOk()
-            ->assertSee('lớp 6 → 12')
-            ->assertSee('Từ lớp 6 đến lớp 12')
-            ->assertDontSee('Tiểu học')
-            ->assertDontSee('lớp 1 → 12');
+            ->assertSee('GRADE_MIN=6,GRADE_MAX=12', false)
+            ->assertSee('lớp 6–12')
+            ->assertDontSee('lớp 1–12');
 
         $this->get(route('register.student'))->assertOk()->assertDontSee('>Lớp 1<', false);
 

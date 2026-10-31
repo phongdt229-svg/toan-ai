@@ -6,6 +6,7 @@
 |--------------------------------------------------------------------------
 | `bottom` = true → hiện ở bottom nav trên mobile (§3, tối đa 4 mục).
 | `route` = null  → chưa làm ở phase hiện tại, render dạng disabled.
+| `active` = danh sách mẫu tên route (vd 'student.qa.*') cùng làm sáng mục này, mặc định chỉ `route`.
 | `tour` = giá trị data-tour cho tour hướng dẫn người mới (config/onboarding.php).
 */
 
@@ -15,12 +16,11 @@ return [
         ['label' => 'Trang chủ', 'icon' => 'bi-house', 'route' => 'student.dashboard', 'bottom' => true],
         ['label' => 'Học', 'icon' => 'bi-journal-text', 'route' => 'student.learn.index', 'bottom' => true, 'tour' => 'nav-learn'],
         ['label' => 'Bài tập', 'icon' => 'bi-pencil-square', 'route' => 'student.practice.index', 'bottom' => true],
-        ['label' => 'AI', 'icon' => 'bi-robot', 'route' => 'student.ai.index', 'bottom' => true],
+        // Hỏi đáp theo chủ đề + hỏi AI gom một mục (yêu cầu 31/10); hai trang có thanh tab chuyển qua lại.
+        ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'active' => ['student.qa.*', 'student.ai.*'], 'bottom' => true],
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'student.exams.index', 'bottom' => false],
         ['label' => 'Bài được giao', 'icon' => 'bi-list-check', 'route' => 'student.assignments.index', 'bottom' => false],
-        ['label' => 'Lớp của tôi', 'icon' => 'bi-people', 'route' => 'student.classes.index', 'bottom' => false],
         ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false],
-        ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'bottom' => false],
         ['label' => 'Lộ trình', 'icon' => 'bi-signpost-split', 'route' => 'student.path.show', 'bottom' => false, 'tour' => 'nav-path'],
         ['label' => 'Hình học phẳng', 'icon' => 'bi-triangle', 'route' => 'student.plane-geometry.index', 'bottom' => false],
         ['label' => 'Hình học không gian', 'icon' => 'bi-box', 'route' => 'student.solid-geometry.index', 'bottom' => false],

@@ -151,9 +151,4 @@ class PublicCurriculumTest extends TestCase
             ->assertSee('## Chương trình học')
             ->assertSee('[Cộng hai phân số khác mẫu]('.$lessonUrl.'): Quy đồng rồi cộng tử số.');
     }
-
-    public function test_landing_grade_pills_link_to_public_curriculum(): void
-    {
-        $this->get('/')->assertOk()->assertSee(route('curriculum.grade', $this->grade), false);
-    }
 }

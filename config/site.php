@@ -11,6 +11,10 @@ return [
     // Tên hiển thị trên logo. Đổi ở đây là đổi cả header, sidebar, footer.
     'brand' => env('SITE_BRAND', 'Math AI'),
 
+    // Tên hiển thị trong NỘI DUNG trang chủ (mẫu V6). Logo/tiêu đề/JSON-LD vẫn theo `brand` — đổi thương hiệu toàn site
+    // là việc riêng (hàng trăm chuỗi "Math AI" cứng trong view/test).
+    'landing_name' => env('SITE_LANDING_NAME', 'Học Toán Online A.I'),
+
     'company' => env('SITE_COMPANY', 'TOÁN AI'),
 
     // Các tên khác người dùng / công cụ AI có thể gọi sản phẩm (khai `alternateName` trong JSON-LD và ở

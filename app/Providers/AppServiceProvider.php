@@ -12,8 +12,6 @@ use App\Services\AI\Providers\OpenAiProvider;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\Payment\PaymentGatewayManager;
 use App\Support\HtmlSanitizer;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Database\Eloquent\Model;
@@ -21,7 +19,6 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -95,9 +92,6 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->isProduction() && str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
-
-        // Đăng ký xong là gửi luôn mail xác thực (Laravel 12 không tự gắn listener này).
-        Event::listen(Registered::class, SendEmailVerificationNotification::class);
 
         // Cookie bỏ qua trang bảo trì phải để nguyên văn: middleware kiểm nó nằm ở tầng global,
         // chạy trước cả EncryptCookies nên không giải mã được. Bản thân Laravel cũng cấp cookie này

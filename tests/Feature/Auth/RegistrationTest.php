@@ -30,7 +30,7 @@ class RegistrationTest extends TestCase
             'name' => 'Nguyễn Văn A',
             'email' => 'hs@example.com',
             'grade_id' => $grade->id,
-            'birth_date' => '2013-04-15',
+            'birth_date' => $birth = now()->subYears(12)->toDateString(), // tính theo hôm nay để test không hỏng khi qua năm
             'address' => 'Quận 3, TP. Hồ Chí Minh',
             'school' => 'THCS Test',
             'math_average_score' => 7.5,
@@ -50,7 +50,7 @@ class RegistrationTest extends TestCase
         $profile = $user->studentProfile;
         $this->assertNotNull($profile);
         $this->assertSame(8, strlen($profile->link_code));
-        $this->assertSame('2013-04-15', $profile->birth_date->toDateString());
+        $this->assertSame($birth, $profile->birth_date->toDateString());
         $this->assertSame('thay', $profile->tutor_persona);
         $this->assertSame(['bóng đá', 'vẽ'], $profile->interests);
         // Không tự đánh giá học lực → suy ra từ điểm TB 7.5 → "Khá" (§34).
@@ -116,6 +116,39 @@ class RegistrationTest extends TestCase
 
         $parent = User::where('email', 'ph@example.com')->firstOrFail();
         $this->assertTrue($parent->children()->where('users.id', $child->id)->exists());
+    }
+
+    public function test_birth_date_must_fit_the_chosen_grade(): void
+    {
+        $grade5 = Grade::where('level', 5)->firstOrFail();
+        $base = [
+            'name' => 'Nguyễn Văn B', 'email' => 'hsb@example.com', 'grade_id' => $grade5->id,
+            'password' => 'matkhau123', 'password_confirmation' => 'matkhau123',
+        ];
+
+        // Sinh năm 2000 mà học lớp 5 — lỗi báo từ báo cáo kiểm thử.
+        $this->post(route('register.student'), $base + ['birth_date' => '2000-06-27'])
+            ->assertSessionHasErrors('birth_date');
+        $this->assertDatabaseMissing('users', ['email' => 'hsb@example.com']);
+
+        // Lớp 5 → chuẩn 10 tuổi; học sớm 2 năm / muộn 3 năm vẫn cho qua.
+        $this->post(route('register.student'), $base + ['birth_date' => now()->subYears(10)->toDateString()])
+            ->assertSessionHasNoErrors();
+    }
+
+    public function test_validation_messages_are_vietnamese(): void
+    {
+        $grade = Grade::where('level', 6)->firstOrFail();
+
+        $response = $this->post(route('register.student'), [
+            'name' => 'Nguyễn Văn C', 'email' => 'hsc@example.com', 'grade_id' => $grade->id,
+            'password' => '12345678', 'password_confirmation' => '12345678', // thiếu chữ cái
+        ]);
+
+        $response->assertSessionHasErrors('password');
+        $message = session('errors')->first('password');
+        $this->assertStringContainsString('ít nhất một chữ cái', $message);
+        $this->assertStringNotContainsString('field', $message);
     }
 
     public function test_registration_rejects_duplicate_email(): void

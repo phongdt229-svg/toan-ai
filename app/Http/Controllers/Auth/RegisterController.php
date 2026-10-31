@@ -8,7 +8,6 @@ use App\Http\Requests\Auth\StudentRegisterRequest;
 use App\Http\Requests\Auth\TeacherRegisterRequest;
 use App\Models\Grade;
 use App\Services\Auth\RegistrationService;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -34,7 +33,8 @@ class RegisterController extends Controller
     {
         $user = $this->registration->registerStudent($request->validated());
 
-        event(new Registered($user));
+        // Cố ý KHÔNG bắn Registered: framework tự gắn listener gửi mail xác thực cho User (MustVerifyEmail),
+        // mà đăng ký không còn bước xác nhận email.
         Auth::login($user);
         $request->session()->regenerate();
 
@@ -51,7 +51,6 @@ class RegisterController extends Controller
     {
         $user = $this->registration->registerTeacher($request->validated());
 
-        event(new Registered($user));
         Auth::login($user);
         $request->session()->regenerate();
 
@@ -68,7 +67,6 @@ class RegisterController extends Controller
     {
         $user = $this->registration->registerParent($request->validated());
 
-        event(new Registered($user));
         Auth::login($user);
         $request->session()->regenerate();
 

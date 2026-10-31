@@ -11,6 +11,8 @@
 @endphp
 
 @section('content')
+    @include('partials.ask-tabs')
+
     <div class="card border-primary mb-4">
         <div class="card-body d-flex flex-wrap align-items-center gap-3">
             <i class="bi bi-robot text-primary" style="font-size:2.5rem"></i>

@@ -74,7 +74,8 @@ class CookieConsentTest extends TestCase
 
     public function test_the_footer_link_clears_the_choice_so_the_banner_returns(): void
     {
-        $this->withCookie(Consent::COOKIE, Consent::ACCEPTED)->get('/')
+        // Trang chủ theo mẫu V6 có footer riêng; liên kết này nằm ở footer chung của các trang công khai khác.
+        $this->withCookie(Consent::COOKIE, Consent::ACCEPTED)->get(route('legal.terms'))
             ->assertOk()
             ->assertSee('Cài đặt cookie');
 

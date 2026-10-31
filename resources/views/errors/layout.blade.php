@@ -27,7 +27,7 @@
             font-weight: 800; font-size: 1.35rem; letter-spacing: -.02em; color: #0f172a;
         }
         .brand svg { width: 40px; height: 40px; display: block; }
-        .brand em { font-style: normal; color: #2563eb; }
+        .brand em { font-style: normal; color: #5743e5; }
         .code {
             display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .08em;
             color: #2563eb; background: #e0ecff; border-radius: 999px; padding: 4px 14px; margin-bottom: 18px;
@@ -48,7 +48,7 @@
         @media (prefers-color-scheme: dark) {
             body { background: #0b1220; color: #e2e8f0; }
             .brand { color: #f1f5f9; }
-            .brand em { color: #60a5fa; }
+            .brand em { color: #b8aeff; }
             .code { background: #1e293b; color: #93c5fd; }
             p { color: #94a3b8; }
             a.ghost { background: transparent; border-color: #334155; color: #cbd5e1; }
@@ -66,16 +66,15 @@
             <svg viewBox="0 0 40 40" role="img" aria-label="{{ config('site.brand') }}" focusable="false">
                 <defs>
                     <linearGradient id="brand-error" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stop-color="#2563eb"/>
-                        <stop offset="1" stop-color="#22d3ee"/>
+                        <stop offset="0" stop-color="#5743e5"/>
+                        <stop offset="1" stop-color="#2781e6"/>
                     </linearGradient>
                 </defs>
-                <rect width="40" height="40" rx="12" fill="url(#brand-error)"/>
-                <path d="M9 21.5 L14 28.5 L21.5 11.5 H29" fill="none" stroke="#fff" stroke-width="3"
+                <rect width="40" height="40" rx="13" fill="url(#brand-error)"/>
+                <path d="M26.5 11 H14 L21.5 20 L14 29 H26.5" fill="none" stroke="#fff" stroke-width="3.2"
                       stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="30.5" cy="11.5" r="3" fill="#fb923c"/>
             </svg>
-            <span>Math<em>AI</em></span>
+            <span>Học Toán Online <em>A.I</em></span>
         </span>
 
         <div class="code">@yield('code')</div>

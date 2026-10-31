@@ -174,8 +174,8 @@ class GeoTest extends TestCase
         $this->assertSame('hotro@hoctoanonline.com', $org['contactPoint']['email']);
         $this->assertSame('https://maps.app.goo.gl/AbCdEf123', $org['hasMap']);
 
-        // Footer cùng số, bấm gọi được bằng dạng +84 nhưng chữ hiện giữ cách viết dễ đọc.
-        $this->assertStringContainsString('href="tel:+84912345678">0912 345 678</a>', $html);
+        // Footer cùng số, bấm gọi được bằng dạng +84 nhưng chữ hiện giữ cách viết dễ đọc (footer chung, không phải trang chủ V6).
+        $this->assertStringContainsString('href="tel:+84912345678">0912 345 678</a>', $this->get(route('legal.terms'))->getContent());
 
         $llms = $this->get('/llms.txt')->getContent();
         $this->assertStringContainsString("## Liên hệ\n", $llms);
@@ -297,13 +297,12 @@ class GeoTest extends TestCase
 
     public function test_payment_wording_follows_the_enabled_gateways(): void
     {
+        // Footer chung (trang chủ V6 không nhắc cổng thanh toán vì chưa công bố gói trả phí).
         config(['payment.methods' => ['vnpay', 'momo']]);
-        $faq = collect(LandingFaq::items())->firstWhere(0, 'Thanh toán và gia hạn ra sao?')[1];
-        $this->assertStringStartsWith('Thanh toán qua VNPAY hoặc MoMo.', $faq);
-        $this->get('/')->assertSee('Thanh toán qua VNPAY hoặc MoMo');
+        $this->get(route('legal.terms'))->assertSee('Thanh toán qua VNPAY hoặc MoMo');
 
         config(['payment.methods' => ['momo']]);
-        $this->get('/llms.txt')->assertSee('Thanh toán qua MoMo.')->assertDontSee('VNPAY hoặc');
+        $this->get(route('legal.terms'))->assertSee('Thanh toán qua MoMo')->assertDontSee('VNPAY hoặc');
     }
 
     // --- Helpers --------------------------------------------------------------------------

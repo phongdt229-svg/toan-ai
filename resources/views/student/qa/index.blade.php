@@ -6,6 +6,8 @@
 @section('page_title', 'Hỏi đáp')
 
 @section('content')
+    @include('partials.ask-tabs')
+
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <p class="text-secondary small mb-0" style="max-width:34rem">
             Chỗ hỏi bài công khai. Thầy cô và các bạn cùng trả lời — khác với AI Tutor ở chỗ

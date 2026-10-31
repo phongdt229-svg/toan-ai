@@ -68,7 +68,7 @@ class GuideTest extends TestCase
 
     public function test_guide_is_linked_from_footer_and_support_form(): void
     {
-        $this->get(route('home'))->assertOk()->assertSee(route('guides.index'));
+        $this->get(route('legal.terms'))->assertOk()->assertSee(route('guides.index'));
         $this->get(route('support.create'))->assertOk()->assertSee(route('guides.index'));
     }
 }

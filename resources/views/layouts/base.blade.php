@@ -152,8 +152,14 @@
         </script>
     @endunless
 
-    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+    {{-- Trang chủ (mẫu V6) tự mang CSS riêng, không nạp Bootstrap/app.js: khai @section('assets') để thay phần này. --}}
+    @hasSection('assets')
+        @yield('assets')
+    @else
+        @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+    @endif
 
+    @unless ($__env->hasSection('assets'))
     {{--
         Font Be Vietnam Pro nạp SAU khi trang đã hiện chữ: 9 file ~150 KB mà tải cùng lúc với CSS chính thì
         trên 4G chữ hiện chậm ~0,9s (PageSpeed mobile 92 → 98 khi tách ra). Phải chờ first-contentful-paint chứ
@@ -190,6 +196,7 @@
         })(@json($webfonts));
     </script>
     <noscript><link rel="stylesheet" href="{{ $webfonts }}"></noscript>
+    @endunless
     @stack('head')
 
     {{--

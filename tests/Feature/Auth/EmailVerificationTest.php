@@ -53,7 +53,7 @@ class EmailVerificationTest extends TestCase
 
     // --- Gửi mail ----------------------------------------------------------------------
 
-    public function test_registering_sends_a_vietnamese_verification_mail(): void
+    public function test_registering_does_not_send_a_verification_mail(): void
     {
         $this->post(route('register.student'), [
             'name' => 'Nguyễn Tân Binh',
@@ -63,15 +63,8 @@ class EmailVerificationTest extends TestCase
             'grade_id' => Grade::where('level', 6)->value('id'),
         ])->assertSessionHasNoErrors();
 
-        $user = User::where('email', 'tanbinh@example.com')->firstOrFail();
-        $this->assertNull($user->email_verified_at);
-
-        Notification::assertSentTo($user, VerifyEmailLink::class, function (VerifyEmailLink $mail) use ($user) {
-            $content = $mail->toMail($user);
-
-            return $content->subject === 'Xác thực email Math AI'
-                && str_contains($content->actionUrl, '/xac-thuc-email/'.$user->id.'/');
-        });
+        // Yêu cầu 31/10: bỏ bước xác nhận email khi đăng ký.
+        Notification::assertNothingSent();
     }
 
     public function test_user_can_resend_the_mail_and_it_stops_once_verified(): void
@@ -132,29 +125,18 @@ class EmailVerificationTest extends TestCase
 
     // --- Ảnh hưởng tới việc dùng hệ thống ------------------------------------------------
 
-    public function test_unverified_user_can_still_learn_but_sees_a_reminder(): void
-    {
-        $user = $this->unverifiedStudent();
-
-        $this->actingAs($user)->get(route('student.dashboard'))
-            ->assertOk()
-            ->assertSee('chưa được xác thực', false);
-    }
-
-    public function test_buying_a_package_requires_a_verified_email(): void
+    public function test_unverified_user_sees_no_reminder_and_can_open_checkout(): void
     {
         $this->seed(TestPackageSeeder::class);
         $package = Package::where('slug', 'pro-thang')->firstOrFail();
         $user = $this->unverifiedStudent();
 
-        $this->actingAs($user)->get(route('packages.checkout', $package))
-            ->assertRedirect(route('verification.notice'));
+        $this->actingAs($user)->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertDontSee('chưa được xác thực', false)
+            ->assertDontSee('Gửi lại email xác thực', false);
 
-        $this->actingAs($user)->post(route('packages.pay', $package))
-            ->assertRedirect(route('verification.notice'));
-
-        $user->markEmailAsVerified();
-        $this->actingAs($user->fresh())->get(route('packages.checkout', $package))->assertOk();
+        $this->actingAs($user)->get(route('packages.checkout', $package))->assertOk();
     }
 
     public function test_notice_page_redirects_verified_users_away(): void

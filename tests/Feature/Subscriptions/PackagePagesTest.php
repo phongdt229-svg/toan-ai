@@ -12,7 +12,7 @@ class PackagePagesTest extends SubscriptionTestCase
 {
     // --- Bảng giá & mua ------------------------------------------------------------------
 
-    public function test_pricing_page_and_landing_show_prices_from_database(): void
+    public function test_pricing_page_shows_prices_from_database_and_landing_keeps_paid_plans_unannounced(): void
     {
         $this->package('pro-thang')->update(['price' => 123000]);
 
@@ -22,7 +22,8 @@ class PackagePagesTest extends SubscriptionTestCase
             ->assertSee('Premium')
             ->assertSee('10 lượt hỏi AI mỗi ngày');
 
-        $this->get(route('home'))->assertOk()->assertSee('123.000₫');
+        // Trang chủ theo mẫu V6 chủ động chưa công bố giá Pro/Premium (yêu cầu 31/10) — giá chỉ ở trang Gói học.
+        $this->get(route('home'))->assertOk()->assertDontSee('123.000₫')->assertSee('THÔNG TIN SẮP CÔNG BỐ');
     }
 
     public function test_inactive_packages_are_hidden_and_cannot_be_checked_out(): void

@@ -229,18 +229,16 @@ Route::middleware('auth')->group(function () {
 
         // Học sinh mua cho mình, phụ huynh mua cho con — controller tự kiểm tra role.
         Route::get('goi-hoc/{package}/mua', [PackageController::class, 'checkout'])
-            ->middleware('verified')
             ->name('packages.checkout');
         Route::post('goi-hoc/{package}/mua', [PaymentController::class, 'store'])
-            ->middleware(['verified', 'throttle:10,1']) // mỗi lần bấm là một lượt gọi MoMo
+            ->middleware('throttle:10,1') // mỗi lần bấm là một lượt gọi MoMo
             ->name('packages.pay');
 
         // Mã giảm giá (§8b). Throttle chặt hơn bình thường vì đây là chỗ duy nhất dò được mã.
         Route::post('goi-hoc/{package}/ma-giam-gia', [VoucherController::class, 'apply'])
-            ->middleware(['verified', 'throttle:10,1'])
+            ->middleware('throttle:10,1')
             ->name('packages.voucher.apply');
         Route::delete('goi-hoc/{package}/ma-giam-gia', [VoucherController::class, 'remove'])
-            ->middleware('verified')
             ->name('packages.voucher.remove');
 
         // §8: return URL chỉ hiển thị trạng thái đọc từ DB.

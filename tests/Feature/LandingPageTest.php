@@ -2,12 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\BlogCategory;
-use App\Models\Role;
-use App\Models\User;
-use App\Services\Content\BlogService;
 use Database\Seeders\GradeSeeder;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,119 +10,75 @@ class LandingPageTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_landing_page_renders_all_sections(): void
+    public function test_landing_page_renders_all_v6_sections(): void
     {
         $this->seed(GradeSeeder::class);
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('Học Toán Online Lớp 1–12 Cùng AI Tutor')
-            ->assertSee('Học Toán online')
-            ->assertSee('Bắt đầu học miễn phí')
-            ->assertSee('Lớp 12')
-            // Câu "Vui lòng đăng nhập để bắt đầu học." (spec §6) nằm ở trang tổng quan bài — PublicCurriculumTest.
-            ->assertSee(route('curriculum.index'), false);
+            ->assertSee('<title>Học Toán Online A.I – Hiểu năng lực, học đúng cách</title>', false)
+            ->assertSee('Biết con đang vững phần nào,')
+            ->assertSee('Đăng ký kiểm tra năng lực cho con')
+            ->assertSee('Mỗi học sinh có nhu cầu học Toán khác nhau')
+            ->assertSee('Lộ trình học Toán phù hợp với năng lực của con')
+            ->assertSee('Con chưa hiểu bài? A.I gợi ý từng bước')
+            ->assertSee('Bố mẹ biết con tiến bộ ở đâu, còn vướng phần nào')
+            ->assertSee('Học phí và cách bắt đầu')
+            ->assertSee('Bố mẹ thường muốn biết')
+            ->assertSee('Bắt đầu đánh giá năng lực Toán cho con');
     }
 
-    public function test_the_feature_list_keeps_up_with_what_was_actually_shipped(): void
+    public function test_landing_page_links_go_to_real_routes(): void
     {
-        // Trang chủ lặng lẽ tụt lại sau sản phẩm là chuyện rất dễ xảy ra: tính năng làm xong
-        // nhưng người vào xem không biết là có. Test này giữ ba mục mới nhất có mặt ở đó.
-        // Mặt còn lại của luật "chỉ quảng cáo thứ có thật" — xem FooterSocialLinksTest.
-        $this->get('/')->assertOk()
-            ->assertSee('Hỏi đáp')
-            ->assertSee('Lộ trình riêng')
-            // "Cài như ứng dụng" đổi từ thẻ nhỏ trong lưới tính năng sang section riêng nổi bật
-            // (public.partials.pwa) — canh đúng nội dung của section đó, không phải thẻ cũ.
-            ->assertSee('Cài đặt ứng dụng')
-            ->assertSee('Cài Math AI');
+        $html = $this->get(route('home'))->assertOk()->getContent();
+
+        // Form hero và nút "Đăng ký" trỏ tới trang đăng ký phụ huynh thật, không phải đường dẫn mẫu.
+        $this->assertStringContainsString('action="'.route('register.parent').'"', $html);
+        $this->assertStringContainsString('href="'.route('login').'"', $html);
+        $this->assertStringContainsString('href="'.route('legal.privacy').'"', $html);
+        $this->assertStringContainsString('href="'.route('legal.terms').'"', $html);
+        $this->assertStringNotContainsString('assets/gia-dinh-hoc-toan.svg', $html);
     }
 
-    public function test_pwa_install_button_markup_is_present_and_only_the_homepage_loads_its_script(): void
+    public function test_landing_page_is_the_standalone_v6_layout(): void
     {
-        // Nút hiện ngay bằng JS (pwa-install.js) trên hầu hết trình duyệt — HTML chỉ cần đủ id/nội
-        // dung để JS tìm thấy; d-none trong markup là để không loé ra một nhịp trước khi JS chạy.
-        $this->get('/')->assertOk()
-            ->assertSee('id="pwa-install-btn"', false)
-            ->assertSee('Cài đặt ứng dụng')
-            ->assertSee('pwa-install', false);
+        // Giống 100% mẫu: CSS riêng của mẫu, không nạp Bootstrap/app.js và không có nút nổi Zalo/Facebook.
+        $html = $this->get(route('home'))->assertOk()->getContent();
 
-        // Trang khác không nạp entry riêng này — Vite tách file để không cõng thêm JS vào mọi trang.
-        $this->seed(GradeSeeder::class);
-        $this->get(route('login'))->assertOk()->assertDontSee('pwa-install', false);
+        $this->assertStringContainsString('--primary:#5743e5', $html);
+        $this->assertStringNotContainsString('floating-contact', $html);
+        $this->assertStringNotContainsString('/build/assets/app-', $html);
     }
 
-    public function test_news_section_shows_published_posts_but_not_drafts_and_hides_when_empty(): void
+    public function test_paid_plans_are_not_priced_on_the_landing_page(): void
     {
-        $this->seed([GradeSeeder::class, RolePermissionSeeder::class]);
-
-        // Chưa có bài nào — section ẩn hẳn, không quảng cáo mục trống.
-        $this->get('/')->assertOk()->assertDontSee('id="tin-tuc"', false);
-
-        $category = BlogCategory::create(['name' => 'Giới thiệu', 'slug' => 'gioi-thieu']);
-        $admin = User::factory()->create();
-        $admin->assignRole(Role::ADMIN);
-        $blog = app(BlogService::class);
-
-        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài đã xuất bản trên trang chủ', 'content' => 'Nội dung.', 'status' => 'published'], $admin);
-        $blog->create(['blog_category_id' => $category->id, 'title' => 'Bài nháp không nên lộ', 'content' => 'Nội dung.', 'status' => 'draft'], $admin);
-
-        $this->get('/')->assertOk()
-            ->assertSee('id="tin-tuc"', false)
-            ->assertSee('Bài đã xuất bản trên trang chủ')
-            ->assertDontSee('Bài nháp không nên lộ');
+        // Mẫu V6 chủ động chưa công bố giá Pro/Premium — giá chỉ ở trang Gói học (bảng `packages`).
+        $this->get(route('home'))->assertOk()
+            ->assertSee('THÔNG TIN SẮP CÔNG BỐ')
+            ->assertDontSee('₫');
     }
 
-    public function test_news_section_shows_at_most_six_latest_posts(): void
-    {
-        $this->seed([GradeSeeder::class, RolePermissionSeeder::class]);
-
-        $category = BlogCategory::create(['name' => 'Giới thiệu', 'slug' => 'gioi-thieu']);
-        $admin = User::factory()->create();
-        $admin->assignRole(Role::ADMIN);
-        $blog = app(BlogService::class);
-
-        foreach (range(1, 7) as $i) {
-            $blog->create(['blog_category_id' => $category->id, 'title' => "Bài số {$i}", 'content' => 'Nội dung.', 'status' => 'published'], $admin);
-        }
-
-        $response = $this->get('/')->assertOk();
-        $response->assertDontSee('Bài số 1</h3>', false); // cũ nhất, rớt khỏi top 6 mới nhất
-        $response->assertSee('Bài số 7</h3>', false);
-    }
-
-    public function test_the_install_button_is_hidden_until_the_browser_says_it_is_installable(): void
-    {
-        // Nút gửi xuống ở trạng thái `hidden`; install-app.js mới bỏ `hidden` khi trình duyệt
-        // bắn beforeinstallprompt. Safari iPhone không bắn nên nút không bao giờ hiện ở đó —
-        // hiện nút chết thì bấm vào không có gì xảy ra.
-        $this->get('/')->assertOk()
-            ->assertSee('data-install-app hidden', false)
-            ->assertSee('Cài ứng dụng');
-    }
-
-    public function test_the_faq_answers_the_questions_a_paying_parent_asks(): void
-    {
-        $this->get('/')->assertOk()
-            ->assertSee('Hỏi thường gặp')
-            ->assertSee('Không trả tiền thì dùng được gì?')
-            ->assertSee('AI có làm bài hộ con không?');
-    }
-
-    public function test_the_faq_structured_data_matches_what_is_on_screen(): void
+    public function test_the_faq_is_shown_and_its_structured_data_matches(): void
     {
         $html = $this->get('/')->assertOk()->getContent();
 
-        // Trang có nhiều khối JSON-LD (khối @graph chung của site ở layouts/base đứng trước) — tìm đúng khối FAQ.
         preg_match_all('~<script type="application/ld\+json">(.*?)</script>~s', $html, $m);
         $data = collect($m[1])->map(fn ($json) => json_decode($json, true))->firstWhere('@type', 'FAQPage');
         $this->assertNotNull($data, 'Thiếu dữ liệu có cấu trúc FAQ cho Google.');
+        $this->assertCount(4, $data['mainEntity']);
 
         // Google phạt trang khai một đằng hiện một nẻo — mọi câu khai báo phải có trên màn hình.
         foreach ($data['mainEntity'] as $entry) {
-            $this->assertStringContainsString($entry['name'], $html);
-            $this->assertNotEmpty($entry['acceptedAnswer']['text']);
+            $this->assertStringContainsString(e($entry['name']), $html);
+            $this->assertStringContainsString(e($entry['acceptedAnswer']['text']), $html);
         }
+    }
+
+    public function test_landing_has_the_webpage_schema_with_author_and_date(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString('"@type":"WebPage"', preg_replace('/\s+/', '', $html));
     }
 
     public function test_login_and_register_pages_render(): void

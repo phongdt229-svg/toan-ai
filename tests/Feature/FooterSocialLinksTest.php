@@ -6,6 +6,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /** Link mạng xã hội ở footer — chưa khai thì phải ẩn, không dẫn người dùng tới trang không tồn tại. */
+/**
+ * Footer chung (public.partials.footer) kiểm trên trang Điều khoản — trang chủ theo mẫu V6 dùng footer riêng
+ * (không icon font), xem resources/views/public/partials/landing-v6-body.blade.php.
+ */
 class FooterSocialLinksTest extends TestCase
 {
     use RefreshDatabase;
@@ -14,7 +18,7 @@ class FooterSocialLinksTest extends TestCase
     {
         config(['site.social' => ['facebook' => '', 'youtube' => '', 'tiktok' => '', 'x' => '', 'google' => '']]);
 
-        $this->get('/')->assertOk()->assertDontSee('social-links', false);
+        $this->get(route('legal.terms'))->assertOk()->assertDontSee('social-links', false);
     }
 
     public function test_only_the_configured_networks_appear(): void
@@ -27,7 +31,7 @@ class FooterSocialLinksTest extends TestCase
             'google' => '',
         ]]);
 
-        $response = $this->get('/')->assertOk();
+        $response = $this->get(route('legal.terms'))->assertOk();
 
         $response->assertSee('https://facebook.com/toanai', false)
             ->assertSee('https://tiktok.com/@toanai', false)
@@ -42,7 +46,7 @@ class FooterSocialLinksTest extends TestCase
     {
         config(['site.social' => ['facebook' => 'https://facebook.com/toanai', 'youtube' => '', 'tiktok' => '', 'x' => '', 'google' => '']]);
 
-        $this->get('/')->assertOk()
+        $this->get(route('legal.terms'))->assertOk()
             ->assertSee('target="_blank" rel="noopener nofollow"', false)
             ->assertSee('aria-label="Facebook"', false);
     }
@@ -50,11 +54,11 @@ class FooterSocialLinksTest extends TestCase
     public function test_moit_badge_is_hidden_until_the_notification_is_approved(): void
     {
         config(['site.moit_url' => '']);
-        $this->get('/')->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
+        $this->get(route('legal.terms'))->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
 
         // Link không về online.gov.vn (chép nhầm, link mẫu) cũng không được gắn huy hiệu.
         config(['site.moit_url' => 'https://example.com/WebDetails/123']);
-        $this->get('/')->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
+        $this->get(route('legal.terms'))->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
     }
 
     public function test_moit_badge_links_to_the_registration_page(): void
@@ -65,7 +69,7 @@ class FooterSocialLinksTest extends TestCase
         ]);
 
         // Chưa có file logo chính thức → link chữ, không vỡ ảnh.
-        $this->get('/')->assertOk()
+        $this->get(route('legal.terms'))->assertOk()
             ->assertSee('href="http://online.gov.vn/Home/WebDetails/123456"', false)
             ->assertSee('Đã thông báo Bộ Công Thương')
             ->assertDontSee('khong-co-file-nay.png', false);
@@ -76,9 +80,8 @@ class FooterSocialLinksTest extends TestCase
         // Trước 23/09 hero có chip "+10 điểm" và "7 ngày liên tiếp" trong khi hệ thống chưa có cả hai.
         // Chuỗi ngày học đã có từ 09/10 (TA-15, StreakService) nên được phép nhắc; điểm thưởng thì VẪN CHƯA có.
         $html = $this->get('/')->assertOk()->getContent();
-        $hero = substr($html, 0, strpos($html, 'device__screen') ?: strlen($html));
 
-        $this->assertStringNotContainsString('+10 điểm', $hero);
+        $this->assertStringNotContainsString('+10 điểm', $html);
     }
 
     public function test_all_five_networks_render_when_configured(): void
@@ -91,7 +94,7 @@ class FooterSocialLinksTest extends TestCase
             'google' => 'https://g.page/a',
         ]]);
 
-        $response = $this->get('/')->assertOk();
+        $response = $this->get(route('legal.terms'))->assertOk();
 
         foreach (['bi-facebook', 'bi-youtube', 'bi-tiktok', 'bi-twitter-x', 'bi-google'] as $icon) {
             $response->assertSee($icon, false);

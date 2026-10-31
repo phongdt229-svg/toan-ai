@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use App\Services\Payment\PaymentGatewayManager;
-
 /**
  * Câu hỏi thường gặp của trang chủ — MỘT nguồn cho cả khối FAQ hiển thị, JSON-LD FAQPage và /llms.txt.
  * Trước đây mảng nằm thẳng trong partial Blade; công cụ AI đọc llms.txt mà nhận câu trả lời khác trang
@@ -19,36 +17,28 @@ class LandingFaq
      */
     public static function items(): array
     {
+        // Nội dung theo mẫu V6 (docs/hoctoan-layout-v6) — cố ý thận trọng: chưa hứa số lượt/giá, vì quyền lợi
+        // gói trả phí chưa công bố trên trang chủ.
         return [
             [
-                'Không trả tiền thì dùng được gì?',
-                'Gói Free cho phép học bài, luyện tập mỗi ngày và hỏi AI Tutor với số lượt giới hạn. '
-                .'Không cần thẻ tín dụng, không tự động trừ tiền. Nâng cấp lúc nào thấy cần thì nâng.',
+                'Con học yếu hoặc học khá giỏi có dùng được không?',
+                'Website hướng đến học sinh lớp '.config('learning.grade_min').'–'.config('learning.grade_max').' với mục tiêu khác nhau. '
+                .'Việc lựa chọn nội dung cần dựa trên kết quả đánh giá và khả năng thực tế của con.',
             ],
             [
-                'Con tôi học lớp mấy thì dùng được?',
-                'Từ lớp '.config('learning.grade_min').' đến lớp '.config('learning.grade_max').'. Chương trình chia theo chương và chủ đề bám sát chương trình phổ thông, '
-                .'nên con học tới đâu là mở đúng phần đó.',
+                'Lộ trình minh họa có phải kết quả đánh giá của con không?',
+                'Không. Nội dung theo lớp chỉ giúp bố mẹ hình dung cách tổ chức bài học. '
+                .'Lộ trình cá nhân cần dựa trên bài đánh giá năng lực thực tế.',
             ],
             [
-                'AI có làm bài hộ con không?',
-                'Không. AI Tutor gợi ý từng bước và giải thích chỗ sai để con tự làm được, không đưa sẵn đáp án. '
-                .'Trong lúc con đang làm bài kiểm tra thì AI bị khoá hoàn toàn.',
+                'A.I có thay thế giáo viên không?',
+                'Không. A.I là công cụ hỗ trợ học và luyện tập. Phụ huynh nên phối hợp với giáo viên '
+                .'khi con gặp khó khăn kéo dài hoặc nội dung phức tạp.',
             ],
             [
-                'Tôi theo dõi việc học của con thế nào?',
-                'Phụ huynh liên kết với tài khoản của con bằng mã con chia sẻ, rồi xem tiến độ, điểm và phần con '
-                .'còn yếu. Mỗi tuần hệ thống gửi email báo cáo học tập cho phụ huynh đã liên kết.',
-            ],
-            [
-                'Thanh toán và gia hạn ra sao?',
-                'Thanh toán qua '.app(PaymentGatewayManager::class)->enabledLabel().'. Gói được kích hoạt ngay khi cổng thanh toán xác nhận. Mua thêm cùng hạng khi gói cũ '
-                .'còn hạn thì thời gian được cộng nối tiếp, không mất ngày nào.',
-            ],
-            [
-                'Dữ liệu học tập của con có an toàn không?',
-                'Chúng tôi không bán dữ liệu cá nhân và không dùng dữ liệu học tập của học sinh để chạy quảng cáo. '
-                .'Bạn xem chi tiết ở Chính sách bảo mật, và yêu cầu xoá tài khoản bất cứ lúc nào.',
+                'Tôi có cần trả tiền trước khi đăng ký không?',
+                'Biểu mẫu chọn lớp trên trang này không thu tiền. Quyền lợi và điều kiện thanh toán cần được công bố rõ '
+                .'trước khi mua gói trả phí.',
             ],
         ];
     }

@@ -1,13 +1,17 @@
-@extends('layouts.public')
+{{--
+    Trang chủ giống 100% mẫu docs/hoctoan-layout-v6: layout base (không nút nổi Zalo/Facebook), CSS riêng của mẫu,
+    KHÔNG nạp Bootstrap/app.js (xem @section('assets') ở layouts/base). Nội dung nằm ở public/partials/landing-v6-*.
+    Sửa mẫu thì sao chép lại nguyên văn vào các partial đó, đừng viết tay thêm.
+--}}
+@extends('layouts.base')
 
-{{-- Title/H1 nhắm cụm "học toán online" (docs/SEO_KEYWORDS.md). Quản trị → SEO vẫn ghi đè được title. --}}
-@section('title', 'Học Toán Online Lớp '.\App\Models\Grade::rangeLabel('–').' Cùng AI Tutor | Math AI')
-@section('meta_description', 'Học Toán online lớp '.\App\Models\Grade::rangeLabel('–').' theo chương trình GDPT 2018: bài giảng, luyện tập chấm ngay, đề kiểm tra và AI gợi ý từng bước khi làm sai. Bắt đầu miễn phí.')
-@section('html_class', 'landing-snap')
+@section('title', 'Học Toán Online A.I – Hiểu năng lực, học đúng cách')
+@section('meta_description', 'Khám phá cách học Toán theo năng lực cho học sinh lớp '.\App\Models\Grade::rangeLabel('–').'. Xem lộ trình học minh họa, cách trợ giảng A.I hướng dẫn và báo cáo dành cho phụ huynh.')
 
 @php
-    // Ngày SỬA NỘI DUNG trang chủ (E-E-A-T) — sửa chữ ở hero/FAQ/tính năng thì sửa ngày này.
-    $landingUpdatedAt = '2026-10-30';
+    // Ngày SỬA NỘI DUNG trang chủ (E-E-A-T) — sửa chữ thì sửa ngày này.
+    $landingUpdatedAt = '2026-10-31';
+    $faqs = \App\Support\LandingFaq::items();
 @endphp
 
 @push('head')
@@ -18,7 +22,7 @@
             '@type' => 'WebPage',
             '@id' => route('home').'#webpage',
             'url' => route('home'),
-            'name' => 'Học Toán online lớp '.\App\Models\Grade::rangeLabel('–').' cùng AI Tutor',
+            'name' => 'Học Toán Online A.I – Hiểu năng lực, học đúng cách',
             'inLanguage' => 'vi',
             'isPartOf' => ['@id' => url('/').'#website'],
             'about' => ['@id' => url('/').'#organization'],
@@ -26,35 +30,26 @@
             'dateModified' => $landingUpdatedAt,
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
     </script>
+
+    {{-- FAQPage: PHẢI trùng khối FAQ hiển thị — cùng đọc từ App\Support\LandingFaq. --}}
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => array_map(fn ($faq) => [
+                '@type' => 'Question',
+                'name' => $faq[0],
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq[1]],
+            ], $faqs),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
 @endpush
 
-@push('scripts')
-    @vite('resources/js/install-app.js')
-@endpush
+@section('assets')
+    @include('public.partials.landing-v6-style')
+@endsection
 
 @section('body')
-    @include('public.partials.header')
-
-    <main>
-        @include('public.partials.hero')
-        @include('public.partials.features')
-        @include('public.partials.ai-tutor')
-        @include('public.partials.pwa')
-        @include('public.partials.role-nav')
-        @include('public.partials.for-student')
-        @include('public.partials.for-teacher')
-        @include('public.partials.for-parent')
-        @include('public.partials.grades')
-        @include('public.partials.pricing')
-        @include('public.partials.faq')
-        @include('public.partials.sources', ['updated' => $landingUpdatedAt])
-        @include('public.partials.news')
-        @include('public.partials.cta')
-    </main>
-
-    @include('public.partials.footer')
-
-    @push('scripts')
-        @vite('resources/js/pwa-install.js')
-    @endpush
+    @include('public.partials.landing-v6-body')
+    @include('public.partials.landing-v6-script')
 @endsection

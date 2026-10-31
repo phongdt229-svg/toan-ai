@@ -53,9 +53,14 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Quên mật khẩu: mọi logic ở `PasswordResetService`; giữ nguyên tắc "thông báo giống nhau dù email có tồn tại hay không".
   Local `MAIL_MAILER=log` → link đặt lại nằm trong `storage/logs/laravel.log`.
 - Câu hỏi trong kiểm tra đầu vào là **bản chụp**; chấm qua `PlacementTestQuestion::toQuestion()` để dùng lại `GradingService`.
-- Xác thực email: `User` implement `MustVerifyEmail`, mail gửi qua `VerifyEmailLink` (link ký, hạn 60 phút).
-  Chưa xác thực **vẫn học được**, chỉ chặn mua gói (middleware `verified` ở `packages.checkout`/`packages.pay`).
-  Thêm middleware `verified` vào chỗ khác phải cân nhắc: khoá quá tay là người dùng mới không dùng được gì.
+- Xác thực email: **đăng ký không còn bước xác nhận email** (yêu cầu 31/10) — không gắn `SendEmailVerificationNotification`
+  vào `Registered`, không banner nhắc, không middleware `verified` ở `packages.*`. `User` vẫn `MustVerifyEmail` và route
+  `verification.*` còn đó chỉ để `EmailChangeService` (quản trị đổi hộ email → gửi lại link). Đừng thêm `verified` vào route mới.
+- Thông báo lỗi nhập liệu: tiếng Việt ở `lang/vi/validation.php` (có cả quy tắc `password.*`). Thêm quy tắc mới trong
+  Form Request mà thông báo tiếng Anh lọt ra → bổ sung khoá tương ứng vào file đó. Ngày sinh học sinh phải khớp lớp
+  (`App\Rules\BirthDateMatchesGrade`: tuổi chuẩn = lớp + 5, cho sớm 2 / muộn 3 năm).
+- Menu học sinh: "Hỏi đáp" gom hỏi đáp theo chủ đề + hỏi AI (tab `partials/ask-tabs`); "Lớp của tôi" đã gỡ khỏi menu
+  (route `student.classes.*` vẫn chạy để nhập mã lớp từ trang Bài được giao).
 - Xoá tài khoản: chỉ qua `AccountDeletionService` (soft delete → 30 ngày → `anonymise()`), không `User::delete()` tay.
   Thêm bảng mới chứa dữ liệu cá nhân thì **phải bổ sung vào `anonymise()`**, nếu không là vi phạm Chính sách bảo mật.
   Lệnh dọn: `accounts:purge` (đã đặt lịch 03:00 hằng ngày).
@@ -153,8 +158,11 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   `resources/scss/webfonts.scss`, `layouts/base` chỉ gắn nó **sau first-contentful-paint** ở lượt xem đầu —
   đừng `@import` lại vào `app.scss` (font tranh băng thông với CSS chính, mobile 98 → 92). Font dự phòng cùng
   khổ (chống CLS khi đổi font) vẫn ở `_fonts.scss`.
-  Trang chủ có `scroll-snap` (`.landing-snap`): khối snap đầu trang phải có `scroll-margin-top` ≥ chiều cao nav,
-  nếu không vừa tải trang đã tự cuộn → Chrome không ghi LCP, PageSpeed báo `NO_LCP` và trang chủ mất điểm.
+  Trang chủ giống 100% mẫu V6 (`docs/hoctoan-layout-v6`): `layouts/base` + `@section('assets')` thay bundle Bootstrap/app.js bằng
+  CSS inline của mẫu (`public/partials/landing-v6-*`, sao nguyên văn — đừng viết tay thêm, sửa mẫu thì chép lại). Vì vậy trang chủ
+  KHÔNG có icon font, nút nổi Zalo/Facebook, footer chung (MOIT/mạng xã hội/liên hệ nằm ở footer các trang công khai khác),
+  khối tin tức/PWA/chương trình cũ. FAQ ở `LandingFaq` (4 câu theo mẫu, dùng cho cả JSON-LD). Học phí cố ý "sắp công bố" (không in giá).
+  Logo mới (ô gradient tím→xanh + ∑ + "Học Toán Online A.I") ở `components/brand` và icon PWA/favicon trong `public/icons`.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
   Job `pint --test` đã bật (repo đã dọn 24/09) — trước khi commit chạy `vendor/bin/pint`.
 

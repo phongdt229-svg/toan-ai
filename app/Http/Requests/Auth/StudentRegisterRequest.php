@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\StudentProfile;
+use App\Rules\BirthDateMatchesGrade;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -27,7 +28,7 @@ class StudentRegisterRequest extends FormRequest
                 ->where(fn ($q) => $q->whereBetween('level', [config('learning.grade_min'), config('learning.grade_max')]))],
 
             // §33 — dữ liệu đầu vào cho AI cá nhân hóa.
-            'birth_date' => ['nullable', 'date', 'before:today', 'after:'.now()->subYears(30)->toDateString()],
+            'birth_date' => ['nullable', 'date', 'before:today', 'after:'.now()->subYears(30)->toDateString(), new BirthDateMatchesGrade],
             'address' => ['nullable', 'string', 'max:191'],
             'school' => ['nullable', 'string', 'max:191'],
             'self_assessed_level' => ['nullable', Rule::in(array_keys(StudentProfile::LEVELS))],

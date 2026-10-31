@@ -1,7 +1,7 @@
 @php
     $hasRoute = ! empty($item['route']) && Route::has($item['route']);
     $url = $hasRoute ? route($item['route']) : '#';
-    $active = $hasRoute && request()->routeIs($item['route']);
+    $active = $hasRoute && request()->routeIs(...($item['active'] ?? [$item['route']]));
     $classes = match ($style) {
         'bottom' => 'bottom-nav__item',
         'mobile' => 'mobile-menu__item',
