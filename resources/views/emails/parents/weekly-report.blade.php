@@ -18,6 +18,10 @@ Chào {{ $parent->name }},
 | Tỉ lệ làm đúng | {{ $week['accuracy'] !== null ? $week['accuracy'] . '%' : '—' }} |
 | Đề kiểm tra đã làm | {{ $week['exams_finished'] }} |
 | Điểm trung bình | {{ $week['average_score'] !== null ? \App\Support\Score::format($week['average_score']) . '/10' : '—' }} |
+@if ($week['sessions'])
+| Buổi học đã hoàn thành (theo lộ trình) | {{ $week['sessions']['done'] }}/{{ $week['sessions']['total'] }} ({{ $week['sessions']['percent'] }}%) |
+| Buổi học còn lại | {{ $week['sessions']['remaining'] }} |
+@endif
 </x-mail::table>
 
 @if ($week['assignments']['overdue'] > 0)

@@ -38,6 +38,10 @@ class LandingPageTest extends TestCase
         $this->assertStringContainsString('href="'.route('legal.privacy').'"', $html);
         $this->assertStringContainsString('href="'.route('legal.terms').'"', $html);
         $this->assertStringNotContainsString('assets/gia-dinh-hoc-toan.svg', $html);
+
+        // Mọi nút "Đăng ký…" đi thẳng tới trang đăng ký phụ huynh, không cuộn về form.
+        $this->assertDoesNotMatchRegularExpression('/href="#[^"]*"[^>]*>Đăng ký/u', $html);
+        $this->assertGreaterThanOrEqual(5, preg_match_all('#href="'.preg_quote(route('register.parent'), '#').'"[^>]*>Đăng ký#u', $html));
     }
 
     public function test_landing_page_is_the_standalone_v6_layout(): void
@@ -79,6 +83,18 @@ class LandingPageTest extends TestCase
         $html = $this->get('/')->assertOk()->getContent();
 
         $this->assertStringContainsString('"@type":"WebPage"', preg_replace('/\s+/', '', $html));
+    }
+
+    public function test_moit_badge_shows_in_the_v6_footer_only_when_the_notification_is_approved(): void
+    {
+        config(['site.moit_url' => '']);
+        $this->get('/')->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
+
+        config(['site.moit_url' => 'http://online.gov.vn/Home/WebDetails/123456', 'site.moit_logo' => 'khong-co-file.png']);
+        $this->get('/')->assertOk()
+            ->assertSee('href="http://online.gov.vn/Home/WebDetails/123456"', false)
+            ->assertSee('Đã thông báo Bộ Công Thương')
+            ->assertDontSee('khong-co-file.png', false);
     }
 
     public function test_login_and_register_pages_render(): void

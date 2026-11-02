@@ -454,8 +454,7 @@ return [
             'summary' => 'Đổi thông tin cá nhân, lấy lại mật khẩu và giữ tài khoản an toàn.',
             'steps' => [
                 ['Cập nhật hồ sơ', 'Vào Cài đặt để đổi họ tên, số điện thoại, lớp đang học và tuỳ chọn thông báo.'],
-                ['Xác thực email', 'Ngay sau khi đăng ký, hệ thống gửi một email xác thực. Mở link trong đó là xong — link dùng được 60 phút. Chưa xác thực thì vẫn học bình thường, nhưng không mua được gói và có thể không nhận được email đặt lại mật khẩu.'],
-                ['Gửi lại email xác thực', 'Nếu không thấy thư, bấm "Gửi lại email xác thực" ở dải thông báo màu vàng trên đầu trang, và kiểm tra cả mục spam.'],
+                ['Email đăng nhập', 'Đăng ký xong là dùng được ngay, không cần xác nhận email. Dùng email thật để nhận được thư đặt lại mật khẩu và báo cáo học tập.'],
                 ['Quên mật khẩu', 'Ở trang đăng nhập bấm "Quên mật khẩu?", nhập email và mở link trong hộp thư (kiểm tra cả mục spam).'],
                 ['Đặt mật khẩu mới', 'Link dùng được một lần trong 60 phút. Mật khẩu tối thiểu 8 ký tự, có cả chữ và số.'],
                 ['Đăng xuất thiết bị khác', 'Đổi mật khẩu sẽ đăng xuất mọi thiết bị đang đăng nhập.'],

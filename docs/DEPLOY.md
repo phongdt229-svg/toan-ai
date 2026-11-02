@@ -255,6 +255,7 @@ Lịch đã khai báo trong `routes/console.php` (`php artisan schedule:list`):
 | `subscriptions:expire` | 00:05 | gói hết hạn → `expired`, đăng ký chờ > 24h → huỷ |
 | `backup:database` | 02:00 | sao lưu DB `.sql.gz`, xoá bản cũ hơn `BACKUP_KEEP_DAYS` |
 | `subscriptions:remind-expiring` | 08:00 | nhắc gia hạn gói sắp hết hạn (7/3/1 ngày) |
+| `parents:remind-schedule` | 07:00 | nhắc phụ huynh lịch học hôm nay của con (chuông + đẩy, không email) |
 | `assignments:remind-due` | 18:00 | nhắc học sinh bài giao hết hạn trong 24 giờ tới |
 | `accounts:purge` | 03:00 | ẩn danh vĩnh viễn tài khoản đã yêu cầu xoá quá 30 ngày (cam kết trong Chính sách bảo mật) |
 | `reports:weekly-parents` | CN 19:00 | email báo cáo tuần cho phụ huynh |

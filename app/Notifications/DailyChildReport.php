@@ -14,7 +14,7 @@ class DailyChildReport extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /** @param  array<int, array{name: string, active: int, online: int, attendance: ?string, quizzes: array<int, int>, risk: ?string}>  $lines */
+    /** @param  array<int, array{name: string, active: int, online: int, attendance: ?string, quizzes: array<int, int>, risk: ?string, sessions?: ?array{done: int, total: int, remaining: int, percent: int}}>  $lines */
     public function __construct(
         public readonly Carbon $day,
         public readonly array $lines,
@@ -59,7 +59,7 @@ class DailyChildReport extends Notification implements ShouldQueue
             ->line('Tắt báo cáo cuối ngày trong Cài đặt nếu phụ huynh không cần.');
     }
 
-    /** @param  array{name: string, active: int, online: int, attendance: ?string, quizzes: array<int, int>, risk: ?string}  $l */
+    /** @param  array{name: string, active: int, online: int, attendance: ?string, quizzes: array<int, int>, risk: ?string, sessions?: ?array{done: int, total: int, remaining: int, percent: int}}  $l */
     private function summary(array $l, bool $withName = true): string
     {
         $parts = ["học thực {$l['active']}/{$l['online']} phút online"];
@@ -72,6 +72,9 @@ class DailyChildReport extends Notification implements ShouldQueue
         }
         if ($l['risk']) {
             $parts[] = 'tình hình: '.mb_strtolower($l['risk']);
+        }
+        if (! empty($l['sessions'])) {
+            $parts[] = "đã học {$l['sessions']['done']}/{$l['sessions']['total']} buổi, còn {$l['sessions']['remaining']} buổi";
         }
 
         return ($withName ? $l['name'].': ' : '').implode(', ', $parts);

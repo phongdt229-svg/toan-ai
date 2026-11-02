@@ -214,6 +214,30 @@ class StudentReportService
                 ->with('teacher')
                 ->get(),
             'weak_topics' => $this->mastery->weakTopics($student, 3),
+            'sessions' => $this->sessionProgress($student),
+        ];
+    }
+
+    /**
+     * Tiến độ buổi học theo lộ trình đang chạy: đã học / còn lại / % hoàn thành. Null nếu con chưa có lộ trình
+     * (chưa làm kiểm tra đầu vào) — không bịa số. "Buổi còn lại" = tổng buổi của lộ trình − số buổi đã hoàn thành.
+     *
+     * @return array{done: int, total: int, remaining: int, percent: int}|null
+     */
+    public function sessionProgress(User $student): ?array
+    {
+        $path = LearningPath::where('user_id', $student->id)
+            ->where('status', LearningPath::STATUS_ACTIVE)->latest('id')->first();
+
+        if (! $path || $path->total_sessions < 1) {
+            return null;
+        }
+
+        return [
+            'done' => $path->completed_sessions,
+            'total' => $path->total_sessions,
+            'remaining' => $path->remainingSessions(),
+            'percent' => (int) round($path->completed_sessions / $path->total_sessions * 100),
         ];
     }
 

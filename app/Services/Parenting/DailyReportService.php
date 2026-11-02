@@ -9,6 +9,7 @@ use App\Models\StudySession;
 use App\Models\User;
 use App\Notifications\DailyChildReport;
 use App\Services\Learning\RiskScoreService;
+use App\Services\Learning\StudentReportService;
 use Illuminate\Support\Carbon;
 
 /**
@@ -17,7 +18,10 @@ use Illuminate\Support\Carbon;
  */
 class DailyReportService
 {
-    public function __construct(private readonly RiskScoreService $risk) {}
+    public function __construct(
+        private readonly RiskScoreService $risk,
+        private readonly StudentReportService $reports,
+    ) {}
 
     /** @return int số phụ huynh đã gửi */
     public function sendAll(?Carbon $day = null): int
@@ -51,7 +55,7 @@ class DailyReportService
     }
 
     /**
-     * @return array<int, array{name: string, active: int, online: int, attendance: ?string, quizzes: array<int, int>, risk: ?string}>
+     * @return array<int, array{name: string, active: int, online: int, attendance: ?string, quizzes: array<int, int>, risk: ?string, sessions: ?array{done: int, total: int, remaining: int, percent: int}}>
      */
     public function linesFor(User $parent, Carbon $day): array
     {
@@ -75,6 +79,7 @@ class DailyReportService
                 'quizzes' => StudySession::where('user_id', $child->id)->whereDate('quiz_submitted_at', $day)
                     ->orderBy('quiz_submitted_at')->pluck('quiz_percent')->map(fn ($p) => (int) $p)->all(),
                 'risk' => $risks->get($child->id)['label'] ?? null,
+                'sessions' => $this->reports->sessionProgress($child),
             ];
         }
 

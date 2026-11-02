@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Notifications\AssignmentDueSoon;
 use App\Notifications\AssignmentSubmittedByStudent;
 use App\Notifications\ChildAttendanceAlert;
+use App\Notifications\ChildScheduleReminder;
 use App\Notifications\ChildScoreLow;
 use App\Notifications\DailyChildReport;
 use App\Notifications\ExamResultReady;
@@ -32,6 +33,7 @@ class NotificationType
         AssignmentDueSoon::class => 'Bài giao sắp hết hạn',
         StudyReminder::class => 'Nhắc học hằng ngày & ôn bài sắp quên',
         StudyScheduleChanged::class => 'Lịch học thay đổi',
+        ChildScheduleReminder::class => 'Nhắc lịch học hôm nay của con',
         ChildAttendanceAlert::class => 'Con chưa vào học / vắng buổi theo lịch',
         DailyChildReport::class => 'Báo cáo cuối ngày',
         QaAnswerPosted::class => 'Câu hỏi của tôi có trả lời',

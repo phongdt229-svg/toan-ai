@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Channels\WebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -18,7 +19,7 @@ class WeeklyReportReady extends Notification implements ShouldQueue
     /** @return list<string> */
     public function via(object $notifiable): array
     {
-        return $notifiable->hasMutedNotification(self::class) ? [] : ['database'];
+        return $notifiable->hasMutedNotification(self::class) ? [] : ['database', WebPushChannel::class];
     }
 
     /** @return array<string, mixed> */
@@ -32,5 +33,13 @@ class WeeklyReportReady extends Notification implements ShouldQueue
             'url' => count($this->children) === 1 ? route('parent.children.show', $this->children[0]) : route('parent.dashboard'),
             'icon' => 'bi-envelope-paper',
         ];
+    }
+
+    /** @return array<string, string> */
+    public function toPush(object $notifiable): array
+    {
+        $data = $this->toArray($notifiable);
+
+        return ['title' => $data['title'], 'body' => $data['message'], 'url' => $data['url']];
     }
 }

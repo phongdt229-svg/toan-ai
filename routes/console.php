@@ -32,6 +32,11 @@ Schedule::command('reports:daily-parents')
     ->dailyAt('21:30')
     ->withoutOverlapping();
 
+// 07:00 — trước giờ đi học/đi làm: phụ huynh biết hôm nay con có buổi học nào để nhắc con đúng giờ.
+Schedule::command('parents:remind-schedule')
+    ->dailyAt('07:00')
+    ->withoutOverlapping();
+
 // 19:00 — sau bữa tối, học sinh chưa học hôm nay (hoặc có chủ đề sắp quên) được nhắc một lần.
 Schedule::command('students:remind-study')
     ->dailyAt('19:00')
