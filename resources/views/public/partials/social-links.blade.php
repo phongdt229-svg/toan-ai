@@ -9,6 +9,7 @@
         ['key' => 'youtube', 'icon' => 'bi-youtube', 'label' => 'YouTube'],
         ['key' => 'tiktok', 'icon' => 'bi-tiktok', 'label' => 'TikTok'],
         ['key' => 'x', 'icon' => 'bi-twitter-x', 'label' => 'X'],
+        ['key' => 'pinterest', 'icon' => 'bi-pinterest', 'label' => 'Pinterest'],
         ['key' => 'google', 'icon' => 'bi-google', 'label' => 'Google'],
     ])->map(fn ($item) => $item + ['url' => config("site.social.{$item['key']}")])
       ->filter(fn ($item) => \App\Support\SocialLink::isUsable($item['url']));

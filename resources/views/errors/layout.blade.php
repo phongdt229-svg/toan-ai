@@ -26,8 +26,7 @@
             display: flex; align-items: center; justify-content: center; gap: .55rem; margin-bottom: 18px;
             font-weight: 800; font-size: 1.35rem; letter-spacing: -.02em; color: #0f172a;
         }
-        .brand svg { width: 40px; height: 40px; display: block; }
-        .brand em { font-style: normal; color: #5743e5; }
+        .brand img { display: block; height: 52px; width: auto; padding: 6px 10px; background: #fff; border-radius: 10px; }
         .code {
             display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .08em;
             color: #2563eb; background: #e0ecff; border-radius: 999px; padding: 4px 14px; margin-bottom: 18px;
@@ -48,7 +47,7 @@
         @media (prefers-color-scheme: dark) {
             body { background: #0b1220; color: #e2e8f0; }
             .brand { color: #f1f5f9; }
-            .brand em { color: #b8aeff; }
+            .brand em { color: #60a5fa; }
             .code { background: #1e293b; color: #93c5fd; }
             p { color: #94a3b8; }
             a.ghost { background: transparent; border-color: #334155; color: #cbd5e1; }
@@ -58,23 +57,11 @@
 <body>
     <div class="box">
         {{--
-            Logo vẽ thẳng bằng SVG chứ không dùng <x-brand>: component đó lấy kích thước từ
-            bundle CSS, mà trang lỗi cố tình không nạp bundle. Trước đây chỗ này là emoji —
-            Windows đổ về font đơn sắc nên trông như ảnh hỏng.
+            Đường dẫn tĩnh, không qua <x-brand>: component đó lấy kích thước từ bundle CSS mà trang lỗi
+            cố tình không nạp. File ảnh do web server trả trực tiếp nên vẫn hiện khi PHP/DB hỏng.
         --}}
         <span class="brand">
-            <svg viewBox="0 0 40 40" role="img" aria-label="{{ config('site.brand') }}" focusable="false">
-                <defs>
-                    <linearGradient id="brand-error" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stop-color="#5743e5"/>
-                        <stop offset="1" stop-color="#2781e6"/>
-                    </linearGradient>
-                </defs>
-                <rect width="40" height="40" rx="13" fill="url(#brand-error)"/>
-                <path d="M26.5 11 H14 L21.5 20 L14 29 H26.5" fill="none" stroke="#fff" stroke-width="3.2"
-                      stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Học Toán Online <em>A.I</em></span>
+            <img src="/images/logo.webp" alt="Học Toán Online" width="620" height="168">
         </span>
 
         <div class="code">@yield('code')</div>

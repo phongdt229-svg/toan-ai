@@ -84,20 +84,50 @@ class FooterSocialLinksTest extends TestCase
         $this->assertStringNotContainsString('+10 điểm', $html);
     }
 
-    public function test_all_five_networks_render_when_configured(): void
+    public function test_all_six_networks_render_when_configured(): void
     {
         config(['site.social' => [
             'facebook' => 'https://facebook.com/a',
             'youtube' => 'https://youtube.com/@a',
             'tiktok' => 'https://tiktok.com/@a',
             'x' => 'https://x.com/a',
+            'pinterest' => 'https://www.pinterest.com/a/',
             'google' => 'https://g.page/a',
         ]]);
 
         $response = $this->get(route('legal.terms'))->assertOk();
 
-        foreach (['bi-facebook', 'bi-youtube', 'bi-tiktok', 'bi-twitter-x', 'bi-google'] as $icon) {
+        foreach (['bi-facebook', 'bi-youtube', 'bi-tiktok', 'bi-twitter-x', 'bi-pinterest', 'bi-google'] as $icon) {
             $response->assertSee($icon, false);
+        }
+    }
+
+    public function test_pinterest_reaches_the_footer_and_the_organization_markup(): void
+    {
+        config(['site.social' => ['pinterest' => 'https://www.pinterest.com/hoctoanonlineai/']]);
+
+        $this->get(route('legal.terms'))->assertOk()
+            ->assertSee('href="https://www.pinterest.com/hoctoanonlineai/"', false)
+            ->assertSee('"sameAs":["https://www.pinterest.com/hoctoanonlineai/"]', false);
+    }
+
+    public function test_logo_uses_the_light_file_and_it_exists(): void
+    {
+        $this->assertFileExists(public_path('images/logo.webp'));
+
+        $this->get(route('legal.terms'))->assertOk()
+            ->assertSee('images/logo.webp', false)
+            ->assertSee('alt="Học Toán Online"', false)
+            ->assertDontSee('icons/logo.jpg', false);
+    }
+
+    public function test_every_role_on_the_register_page_has_a_register_button(): void
+    {
+        $html = $this->get(route('register'))->assertOk()->getContent();
+
+        $this->assertSame(3, substr_count($html, '<span class="btn btn-primary btn-sm flex-shrink-0">Đăng ký</span>'));
+        foreach (['register.student', 'register.teacher', 'register.parent'] as $route) {
+            $this->assertStringContainsString('href="'.route($route).'"', $html);
         }
     }
 }

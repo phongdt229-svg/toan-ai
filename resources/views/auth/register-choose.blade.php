@@ -15,12 +15,13 @@
         ] as [$route, $icon, $label, $desc])
             <a href="{{ route($route) }}" class="card border text-decoration-none text-body">
                 <div class="card-body d-flex align-items-center gap-3 p-3">
-                    <div class="feature-card__icon mb-0"><i class="bi {{ $icon }}"></i></div>
+                    <div class="feature-card__icon flex-shrink-0 mb-0"><i class="bi {{ $icon }}"></i></div>
                     <div class="flex-grow-1">
                         <div class="fw-semibold">{{ $label }}</div>
                         <div class="text-secondary small">{{ $desc }}</div>
                     </div>
-                    <i class="bi bi-chevron-right text-secondary"></i>
+                    {{-- span chứ không phải <a>/<button>: cả thẻ đã là link, lồng phần tử bấm được vào link là HTML sai. --}}
+                    <span class="btn btn-primary btn-sm flex-shrink-0">Đăng ký</span>
                 </div>
             </a>
         @endforeach

@@ -1185,6 +1185,14 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
       Bảo mật; bài tin tức + Chương trình đã khai trong @graph nên chỉ thêm thanh hiển thị (`schema => false`).
 - Test: `SeoKeywordsTest`, `BreadcrumbTest`.
 
+### ✅ Đã làm (02/11) — Logo Học Toán Online, thêm mạng xã hội, nút đăng ký
+
+- [x] Logo mới: `public/images/logo.webp` (17 KB, sinh từ `public/icons/logo.jpg`) ở `<x-brand>` + trang lỗi; trên nền tối đặt
+      trong ô trắng. Favicon, icon PWA, ảnh chia sẻ `og-cover.png` vẽ lại từ logo; `sw.js` → v4.
+- [x] Facebook, X, Pinterest (nền tảng mới) là mặc định ở `config/site.php`, tự vào footer + `sameAs`.
+- [x] `/dang-ky`: mỗi thẻ vai trò có nút "Đăng ký".
+- Test: `FooterSocialLinksTest`.
+
 ### ✅ Đã làm (14/10) — Công cụ 3D hình học không gian cho học sinh
 
 Công cụ vẽ hình 3D tương tác (không phải nội dung bài học/câu hỏi) — học sinh chọn hình, nhập số
