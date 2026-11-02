@@ -36,6 +36,7 @@ return [
     | ảnh gốc là http, trang https sẽ chặn). Chưa có file thì footer hiện link chữ thay cho ảnh.
     */
     'moit_url' => env('SITE_MOIT_URL', ''),
+    'moit_logo' => env('SITE_MOIT_LOGO', 'images/da-thong-bao-bo-cong-thuong.png'),
 
     /*
     | Người biên soạn/duyệt nội dung các trang giới thiệu (E-E-A-T: Google và công cụ AI tin trang có tác giả rõ).
@@ -44,7 +45,6 @@ return [
     */
     'editor_name' => env('SITE_EDITOR_NAME', ''),
     'editor_title' => env('SITE_EDITOR_TITLE', ''),
-    'moit_logo' => env('SITE_MOIT_LOGO', 'images/da-thong-bao-bo-cong-thuong.png'),
 
     // Nút chat nổi ở các trang công khai (landing, gói học, hỗ trợ...). Để trống thì ẩn nút
     // tương ứng — KHÔNG bịa link, dán đúng URL Zalo/Facebook thật trước khi chạy production.
@@ -62,12 +62,16 @@ return [
     |
     | 'google' dùng cho hồ sơ Google Doanh nghiệp / Google Maps, không phải trang mạng xã hội —
     | đặt ở đây cho gọn vì chỗ hiển thị là một.
+    |
+    | Trang đã có thật thì ghi luôn làm mặc định (link công khai, không phải bí mật). Dùng `?:` chứ không phải
+    | tham số thứ hai của env(): dòng `SITE_SOCIAL_X=` để trống trong .env trả về '' chứ không rơi về mặc định.
     */
     'social' => [
-        'facebook' => env('SITE_SOCIAL_FACEBOOK', ''),   // https://facebook.com/<trang>
+        'facebook' => env('SITE_SOCIAL_FACEBOOK') ?: 'https://www.facebook.com/hoctoanonline/',
         'youtube' => env('SITE_SOCIAL_YOUTUBE', ''),     // https://youtube.com/@<kênh>
         'tiktok' => env('SITE_SOCIAL_TIKTOK', ''),       // https://tiktok.com/@<tài khoản>
-        'x' => env('SITE_SOCIAL_X', ''),                 // https://x.com/<tài khoản>
+        'x' => env('SITE_SOCIAL_X') ?: 'https://x.com/hoctoanonlineai',
+        'pinterest' => env('SITE_SOCIAL_PINTEREST') ?: 'https://www.pinterest.com/hoctoanonlineai/',
         'google' => env('SITE_SOCIAL_GOOGLE', ''),       // link hồ sơ Google Doanh nghiệp
     ],
 

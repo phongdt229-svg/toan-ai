@@ -8,7 +8,7 @@
  *
  * Đổi VERSION khi sửa file này để xoá cache cũ.
  */
-const VERSION = 'v3';
+const VERSION = 'v4';
 const STATIC_CACHE = `toanai-static-${VERSION}`;
 const LESSON_CACHE = 'toanai-lessons';
 const OFFLINE_URL = '/offline.html';

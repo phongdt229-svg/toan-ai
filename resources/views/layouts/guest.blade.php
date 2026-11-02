@@ -4,7 +4,8 @@
     <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
         <div class="container">
             <a class="navbar-brand p-0" href="{{ route('home') }}">
-                <x-brand size="md" />
+                {{-- sm: thanh này còn hai nút bên phải, logo md đẩy chúng rớt dòng trên điện thoại 360px. --}}
+                <x-brand size="sm" />
             </a>
 
             <div class="d-flex gap-2 ms-auto">
