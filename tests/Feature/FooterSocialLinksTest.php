@@ -113,10 +113,10 @@ class FooterSocialLinksTest extends TestCase
 
     public function test_logo_uses_the_light_file_and_it_exists(): void
     {
-        $this->assertFileExists(public_path('images/logo.webp'));
+        $this->assertFileExists(public_path('images/logo.png'));
 
         $this->get(route('legal.terms'))->assertOk()
-            ->assertSee('images/logo.webp', false)
+            ->assertSee('images/logo.png', false)
             ->assertSee('alt="Học Toán Online"', false)
             ->assertDontSee('icons/logo.jpg', false);
     }

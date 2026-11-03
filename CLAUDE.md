@@ -162,7 +162,7 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   CSS inline của mẫu (`public/partials/landing-v6-*`, sao nguyên văn — đừng viết tay thêm, sửa mẫu thì chép lại). Vì vậy trang chủ
   KHÔNG có icon font, nút nổi Zalo/Facebook, footer chung (MOIT/mạng xã hội/liên hệ nằm ở footer các trang công khai khác),
   khối tin tức/PWA/chương trình cũ. FAQ ở `LandingFaq` (4 câu theo mẫu, dùng cho cả JSON-LD). Học phí cố ý "sắp công bố" (không in giá).
-  Logo chính: `public/images/logo.webp` (sinh từ `public/icons/logo.jpg`), dùng ở `components/brand`, trang lỗi và cả trang chủ V6 —
+  Logo chính: `public/images/logo.png` (nền trong suốt, tách từ `public/icons/logo.jpg`; trên nền tối phải đặt trong ô trắng), dùng ở `components/brand`, trang lỗi và cả trang chủ V6 —
   chép lại mẫu V6 thì phải gắn lại logo ở `landing-v6-body` và giữ các rule thêm cuối `landing-v6-style` (`.site-logo`, sửa tràn ngang điện thoại);
   `LandingPageTest` canh logo, còn tràn ngang phải đo trên trình duyệt ở 320–430px.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).

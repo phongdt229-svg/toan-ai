@@ -1187,7 +1187,7 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
 
 ### ✅ Đã làm (02/11) — Logo Học Toán Online, thêm mạng xã hội, nút đăng ký
 
-- [x] Logo mới: `public/images/logo.webp` (17 KB, sinh từ `public/icons/logo.jpg`) ở `<x-brand>` + trang lỗi; trên nền tối đặt
+- [x] Logo mới: `public/images/logo.png` (nền trong suốt, 19 KB, tách từ `public/icons/logo.jpg`) ở `<x-brand>` + trang lỗi; trên nền tối đặt
       trong ô trắng. Favicon, icon PWA, ảnh chia sẻ `og-cover.png` vẽ lại từ logo; `sw.js` → v4.
 - [x] Facebook, X, Pinterest (nền tảng mới) là mặc định ở `config/site.php`, tự vào footer + `sameAs`.
 - [x] `/dang-ky`: mỗi thẻ vai trò có nút "Đăng ký".

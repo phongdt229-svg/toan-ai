@@ -98,7 +98,7 @@ class LandingPageTest extends TestCase
 
         $html = $this->get(route('home'))->assertOk()->getContent();
 
-        $this->assertSame(2, substr_count($html, 'class="site-logo" src="'.asset('images/logo.webp').'"'));
+        $this->assertSame(2, substr_count($html, 'class="site-logo" src="'.asset('images/logo.png').'"'));
         $this->assertStringNotContainsString('class="mark"', $html);
     }
 }
