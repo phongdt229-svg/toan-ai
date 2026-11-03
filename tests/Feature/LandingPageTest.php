@@ -91,4 +91,14 @@ class LandingPageTest extends TestCase
         $this->get(route('register.teacher'))->assertOk();
         $this->get(route('register.parent'))->assertOk();
     }
+
+    public function test_home_uses_the_main_logo_in_header_and_footer(): void
+    {
+        $this->seed(GradeSeeder::class);
+
+        $html = $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertSame(2, substr_count($html, 'class="site-logo" src="'.asset('images/logo.webp').'"'));
+        $this->assertStringNotContainsString('class="mark"', $html);
+    }
 }
