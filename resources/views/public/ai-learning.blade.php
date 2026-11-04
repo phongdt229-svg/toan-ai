@@ -9,7 +9,7 @@
     $faqs = \App\Support\AiTutorFaq::items();
     $url = route('ai-learning');
     // Ngày SỬA NỘI DUNG trang này — sửa chữ thì sửa luôn ngày (không dùng mtime: deploy nào cũng đổi).
-    $updatedAt = '2026-10-30';
+    $updatedAt = '2026-11-04';
 
     // Nguồn trích dẫn — chỉ link đã kiểm tra mở được, số liệu chép đúng tóm tắt của bài báo.
     $study = [
@@ -37,7 +37,7 @@
         ['Tự làm trước', 'Con đọc lý thuyết, xem ví dụ rồi tự làm bài luyện tập. Hệ thống chấm ngay theo đáp án giáo viên soạn.'],
         ['Kẹt thì xin gợi ý', 'Không biết bắt đầu từ đâu? Bấm "Gợi ý" — AI chỉ mở hướng cho bước tiếp theo.'],
         ['Sai thì hỏi vì sao', 'Làm sai, con hỏi AI giải thích. AI chỉ ra sai ở bước nào và hổng kiến thức gì.'],
-        ['Luyện lại cho chắc', 'Làm một bài tương tự cho tới khi đúng. Tiến độ và chủ đề còn yếu hiện cho cả phụ huynh xem.'],
+        ['Luyện lại cho chắc', 'Làm một bài tương tự cho tới khi đúng.'.(\App\Support\RolePortal::enabled('parent') ? ' Tiến độ và chủ đề còn yếu hiện cho cả phụ huynh xem.' : '')],
     ];
 
     $compare = [
@@ -249,7 +249,9 @@
                     <li><i class="bi bi-clipboard-check text-primary me-2"></i>Điểm do hệ thống chấm theo đáp án giáo viên — AI không quyết định đúng sai.</li>
                     <li><i class="bi bi-calculator text-primary me-2"></i>Chỉ trả lời trong môn Toán; câu hỏi ngoài lề bị từ chối và ghi lại để quản trị xem xét.</li>
                     <li><i class="bi bi-image text-primary me-2"></i>Ảnh đề bài con chụp không được lưu, chỉ giữ phần chữ của đề.</li>
+                    @if (\App\Support\RolePortal::enabled('parent'))
                     <li><i class="bi bi-people text-primary me-2"></i>Phụ huynh theo dõi tiến độ và chủ đề còn yếu; nội dung trò chuyện riêng của con với AI thì không đọc được.</li>
+                    @endif
                 </ul>
 
                 <p class="small text-secondary mt-3 mb-0">

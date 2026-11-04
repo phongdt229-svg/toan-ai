@@ -74,7 +74,9 @@
 
             <div class="row g-3 mt-4 small text-secondary">
                 <div class="col-12 col-md-4"><i class="bi bi-shield-check me-1 text-success"></i>Thanh toán qua {{ app(\App\Services\Payment\PaymentGatewayManager::class)->enabledLabel() }}, gói kích hoạt ngay khi cổng thanh toán xác nhận.</div>
-                <div class="col-12 col-md-4"><i class="bi bi-people me-1 text-primary"></i>Phụ huynh có thể mua gói cho con đã liên kết.</div>
+                @if (\App\Support\RolePortal::enabled('parent'))
+                    <div class="col-12 col-md-4"><i class="bi bi-people me-1 text-primary"></i>Phụ huynh có thể mua gói cho con đã liên kết.</div>
+                @endif
                 <div class="col-12 col-md-4"><i class="bi bi-arrow-repeat me-1 text-warning"></i>Không tự gia hạn — hết hạn tự về gói Free, không mất dữ liệu học.</div>
             </div>
         </div>

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Support\TeacherPortal;
+use App\Support\RolePortal;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -40,11 +40,12 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // Sau khi đúng mật khẩu mới báo: báo sớm hơn thì ai cũng dò được email nào là giáo viên.
-        if (TeacherPortal::blocks(Auth::user())) {
+        // Sau khi đúng mật khẩu mới báo: báo sớm hơn thì ai cũng dò được email nào thuộc vai trò đó.
+        if (RolePortal::blocks(Auth::user())) {
+            $message = RolePortal::closedMessage(Auth::user());
             Auth::logout();
 
-            throw ValidationException::withMessages(['email' => TeacherPortal::CLOSED_MESSAGE]);
+            throw ValidationException::withMessages(['email' => $message]);
         }
 
         RateLimiter::clear($this->throttleKey());

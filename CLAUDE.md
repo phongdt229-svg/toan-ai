@@ -59,11 +59,14 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Thông báo lỗi nhập liệu: tiếng Việt ở `lang/vi/validation.php` (có cả quy tắc `password.*`). Thêm quy tắc mới trong
   Form Request mà thông báo tiếng Anh lọt ra → bổ sung khoá tương ứng vào file đó. Ngày sinh học sinh phải khớp lớp
   (`App\Rules\BirthDateMatchesGrade`: tuổi chuẩn = lớp + 5, cho sớm 2 / muộn 3 năm).
-- Chức năng giáo viên đang **tạm ẩn** (`TEACHER_PORTAL_ENABLED`, mặc định `false`; `phpunit.xml` để `true` cho các test của cổng).
-  Mọi kiểm tra đi qua `App\Support\TeacherPortal`: chặn ở `LoginRequest`, middleware `active` (đẩy phiên đang đăng nhập ra),
-  `teacher.portal` (đăng ký 404), `ImpersonationService`; bài hướng dẫn giáo viên ẩn khỏi trang hướng dẫn, sitemap, llms.txt.
-  Admin vẫn vào `teacher.*` để soạn bài — đừng chặn theo route. Thêm link/nội dung giới thiệu giáo viên ở trang công khai thì
-  bọc `TeacherPortal::enabled()`. Không xoá dữ liệu: bật lại là mọi thứ còn nguyên. Test: `TeacherPortalHiddenTest`.
+- Cổng theo vai trò bật/tắt được: **phụ huynh đang tạm ẩn** (`PARENT_PORTAL_ENABLED`, mặc định `false`), giáo viên mở
+  (`TEACHER_PORTAL_ENABLED`, mặc định `true`); `phpunit.xml` bật cả hai cho test của từng cổng. Mọi kiểm tra đi qua `App\Support\RolePortal`:
+  chặn ở `LoginRequest`, middleware `active` (đẩy phiên đang đăng nhập ra), `portal:parent` (route 404), `ImpersonationService`,
+  `DropClosedPortalNotifications` + `SendWeeklyParentReport` (không gửi thông báo theo dõi). Menu, checklist, bài hướng dẫn có khoá `'portal' => 'parent'`.
+  Trang chủ dùng `$parentPortal`/`$signupUrl`: khi đóng, đăng ký cho con đi qua tài khoản học sinh và bỏ các câu hứa bố mẹ theo dõi được.
+  Admin không bao giờ bị chặn. Thêm nội dung nhắc tới vai trò đó ở trang công khai thì bọc `RolePortal::enabled('parent')`.
+  Không xoá dữ liệu: bật lại là mọi thứ còn nguyên. Test: `RolePortalTest`.
+  Blade không nhận directive viết liền sau chữ (`dõi@endif`) — sẽ lỗi 500, dùng `{{ cond ? '…' : '' }}` hoặc để trước/sau là thẻ HTML.
 - Menu học sinh: "Hỏi đáp" gom hỏi đáp theo chủ đề + hỏi AI (tab `partials/ask-tabs`); "Lớp của tôi" đã gỡ khỏi menu
   (route `student.classes.*` vẫn chạy để nhập mã lớp từ trang Bài được giao).
 - Xoá tài khoản: chỉ qua `AccountDeletionService` (soft delete → 30 ngày → `anonymise()`), không `User::delete()` tay.

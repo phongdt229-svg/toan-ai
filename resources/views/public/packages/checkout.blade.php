@@ -37,7 +37,7 @@
                         </div>
 
                         <ul class="list-unstyled small d-grid gap-1 mt-3 mb-0">
-                            @foreach ($package->features->where('show_on_pricing', true)->where('value', '!=', '0') as $feature)
+                            @foreach ($package->pricingFeatures()->where('value', '!=', '0') as $feature)
                                 <li><i class="bi bi-check-lg text-success me-1"></i>{{ $feature->label }}</li>
                             @endforeach
                         </ul>

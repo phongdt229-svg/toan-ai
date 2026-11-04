@@ -4,7 +4,7 @@ namespace App\Services\Admin;
 
 use App\Models\User;
 use App\Services\AuditLogger;
-use App\Support\TeacherPortal;
+use App\Support\RolePortal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RuntimeException;
@@ -30,8 +30,8 @@ class ImpersonationService
         }
 
         // Không chặn ở đây thì middleware `active` sẽ đăng xuất luôn phiên của admin đang mượn tài khoản.
-        if (TeacherPortal::blocks($target)) {
-            throw new RuntimeException('Chức năng giáo viên đang tạm đóng nên không đăng nhập hộ được tài khoản này.');
+        if (RolePortal::blocks($target)) {
+            throw new RuntimeException(RolePortal::closedMessage($target));
         }
 
         if ($target->hasRole('admin')) {

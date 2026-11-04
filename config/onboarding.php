@@ -18,7 +18,7 @@ return [
             ['key' => 'schedule', 'label' => 'Đặt lịch học trong tuần', 'hint' => 'Chọn ngày và giờ em ngồi vào học — học đều quan trọng hơn học dồn.', 'route' => 'student.schedule.edit'],
             ['key' => 'first_session', 'label' => 'Học xong buổi đầu tiên', 'hint' => 'Làm hết các mục của buổi 1 và bài kiểm tra ngắn cuối buổi.', 'route' => 'student.path.show'],
             ['key' => 'ai_tutor', 'label' => 'Hỏi AI Tutor một câu', 'hint' => 'Bấm nút robot ở góc màn hình, hoặc chụp ảnh đề bài.', 'route' => 'student.ai.index'],
-            ['key' => 'link_parent', 'label' => 'Liên kết với phụ huynh', 'hint' => 'Gửi mã cho bố mẹ để bố mẹ theo dõi và động viên em.', 'route' => 'student.parents.index'],
+            ['key' => 'link_parent', 'portal' => 'parent', 'label' => 'Liên kết với phụ huynh', 'hint' => 'Gửi mã cho bố mẹ để bố mẹ theo dõi và động viên em.', 'route' => 'student.parents.index'],
         ],
         'parent' => [
             ['key' => 'link_child', 'label' => 'Liên kết tài khoản của con', 'hint' => 'Nhập mã con gửi, hoặc quét mã QR trong máy của con.', 'route' => 'parent.children.link'],

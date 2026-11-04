@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Hướng dẫn sử dụng — Math AI')
-@section('meta_description', 'Hướng dẫn sử dụng Math AI cho học sinh'.(\App\Support\TeacherPortal::enabled() ? ', giáo viên' : '').' và phụ huynh: học bài, giao bài, theo dõi con, gói học và thanh toán.')
+@section('meta_description', 'Hướng dẫn sử dụng Math AI cho học sinh'.(\App\Support\RolePortal::enabled('teacher') ? ', giáo viên' : '').(\App\Support\RolePortal::enabled('parent') ? ', phụ huynh' : '').': học bài, giao bài, theo dõi con, gói học và thanh toán.')
 
 @section('body')
     @include('public.partials.header')

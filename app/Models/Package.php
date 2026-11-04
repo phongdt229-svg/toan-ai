@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\RolePortal;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -102,8 +103,16 @@ class Package extends Model
                 'tier' => $tier,
                 'label' => self::TIER_LABELS[$tier] ?? $tier,
                 'packages' => $packages->values(),
-                'features' => $packages->first()->features->where('show_on_pricing', true)->values(),
+                'features' => $packages->first()->pricingFeatures(),
                 'highlighted' => $packages->contains('is_highlighted', true),
             ]);
+    }
+
+    /** Dòng tính năng hiện ở bảng giá. Cổng phụ huynh đóng thì không bán "báo cáo cho phụ huynh" nữa. */
+    public function pricingFeatures(): Collection
+    {
+        return $this->features->where('show_on_pricing', true)
+            ->reject(fn (PackageFeature $feature) => $feature->key === 'reports.advanced' && ! RolePortal::enabled('parent'))
+            ->values();
     }
 }

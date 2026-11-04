@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Services\Content\PublicCurriculumService;
-use App\Support\TeacherPortal;
+use App\Support\RolePortal;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 
@@ -43,7 +43,7 @@ class SitemapController extends Controller
         // Nội dung mọi bài hướng dẫn nằm chung 1 file config — cùng chung một lastmod hợp lý.
         $guidesLastmod = $this->fileMtime(config_path('guides.php'));
 
-        foreach (TeacherPortal::guides()->keys() as $slug) {
+        foreach (RolePortal::guides()->keys() as $slug) {
             $urls[] = ['loc' => route('guides.show', $slug), 'priority' => '0.6', 'changefreq' => 'monthly', 'lastmod' => $guidesLastmod];
         }
 

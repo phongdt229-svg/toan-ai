@@ -1185,13 +1185,16 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
       Bảo mật; bài tin tức + Chương trình đã khai trong @graph nên chỉ thêm thanh hiển thị (`schema => false`).
 - Test: `SeoKeywordsTest`, `BreadcrumbTest`.
 
-### ✅ Đã làm (04/11) — Tạm ẩn chức năng giáo viên
+### ✅ Đã làm (04/11) — Tạm ẩn cổng phụ huynh (giáo viên mở lại)
 
-- [x] Công tắc `TEACHER_PORTAL_ENABLED` (mặc định tắt), mọi kiểm tra ở `App\Support\TeacherPortal`.
-- [x] Giáo viên không đăng nhập được, phiên đang mở bị đẩy ra; đăng ký `/dang-ky/giao-vien` trả 404, bỏ link ở `/dang-ky` + footer.
-- [x] Bài hướng dẫn giáo viên ẩn khỏi trang hướng dẫn, sitemap, llms.txt. Admin vẫn soạn bài ở `teacher.*`, không đăng nhập hộ được giáo viên.
-- [ ] Mở lại: đặt `TEACHER_PORTAL_ENABLED=true`, chạy `php artisan config:cache`. Không cần khôi phục dữ liệu.
-- Test: `TeacherPortalHiddenTest`.
+- [x] Công tắc chung `App\Support\RolePortal`: `PARENT_PORTAL_ENABLED` (mặc định tắt), `TEACHER_PORTAL_ENABLED` (mặc định bật).
+- [x] Phụ huynh không đăng nhập được, phiên đang mở bị đẩy ra; đăng ký `/dang-ky/phu-huynh` trả 404, bỏ link ở `/dang-ky` + footer.
+- [x] Trang chủ: nút đăng ký cho con dẫn tới tài khoản học sinh, ẩn khối "Bố mẹ biết con tiến bộ…" và các câu hứa theo dõi.
+- [x] Học sinh: ẩn mục Phụ huynh + bước "Liên kết với phụ huynh"; bài hướng dẫn phụ huynh ẩn khỏi trang hướng dẫn, sitemap, llms.txt;
+      bảng giá bỏ dòng báo cáo phụ huynh; ngừng gửi thông báo theo dõi. Biên lai, hoàn tiền, đặt lại mật khẩu vẫn gửi.
+- [ ] Mở lại: đặt `PARENT_PORTAL_ENABLED=true`, chạy `php artisan config:cache`. Không cần khôi phục dữ liệu.
+- [ ] Sửa tay ở Quản trị → Gói học: mô tả Premium còn ghi "báo cáo chi tiết cho phụ huynh" (dữ liệu DB, không nằm trong code).
+- Test: `RolePortalTest`.
 
 ### ✅ Đã làm (02/11) — Logo Học Toán Online, thêm mạng xã hội, nút đăng ký
 
