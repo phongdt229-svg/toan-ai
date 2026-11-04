@@ -151,8 +151,8 @@ Route::middleware('guest')->group(function () {
     Route::get('dang-ky', [RegisterController::class, 'choose'])->name('register');
     Route::get('dang-ky/hoc-sinh', [RegisterController::class, 'createStudent'])->name('register.student');
     Route::post('dang-ky/hoc-sinh', [RegisterController::class, 'storeStudent']);
-    Route::get('dang-ky/giao-vien', [RegisterController::class, 'createTeacher'])->name('register.teacher');
-    Route::post('dang-ky/giao-vien', [RegisterController::class, 'storeTeacher']);
+    Route::get('dang-ky/giao-vien', [RegisterController::class, 'createTeacher'])->middleware('teacher.portal')->name('register.teacher');
+    Route::post('dang-ky/giao-vien', [RegisterController::class, 'storeTeacher'])->middleware('teacher.portal');
     Route::get('dang-ky/phu-huynh', [RegisterController::class, 'createParent'])->name('register.parent');
     Route::post('dang-ky/phu-huynh', [RegisterController::class, 'storeParent']);
 });

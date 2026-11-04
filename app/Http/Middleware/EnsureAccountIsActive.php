@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
+use App\Support\TeacherPortal;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,17 @@ class EnsureAccountIsActive
 
         if (! $user) {
             return $next($request);
+        }
+
+        // Giáo viên đang đăng nhập sẵn (hoặc có cookie ghi nhớ) lúc tắt công tắc: đẩy ra luôn, không đợi hết phiên.
+        if (TeacherPortal::blocks($user)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => TeacherPortal::CLOSED_MESSAGE], 403)
+                : redirect()->route('login')->withErrors(['email' => TeacherPortal::CLOSED_MESSAGE]);
         }
 
         if ($user->status === User::STATUS_PENDING) {

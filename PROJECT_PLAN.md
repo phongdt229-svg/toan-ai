@@ -1185,6 +1185,14 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
       Bảo mật; bài tin tức + Chương trình đã khai trong @graph nên chỉ thêm thanh hiển thị (`schema => false`).
 - Test: `SeoKeywordsTest`, `BreadcrumbTest`.
 
+### ✅ Đã làm (04/11) — Tạm ẩn chức năng giáo viên
+
+- [x] Công tắc `TEACHER_PORTAL_ENABLED` (mặc định tắt), mọi kiểm tra ở `App\Support\TeacherPortal`.
+- [x] Giáo viên không đăng nhập được, phiên đang mở bị đẩy ra; đăng ký `/dang-ky/giao-vien` trả 404, bỏ link ở `/dang-ky` + footer.
+- [x] Bài hướng dẫn giáo viên ẩn khỏi trang hướng dẫn, sitemap, llms.txt. Admin vẫn soạn bài ở `teacher.*`, không đăng nhập hộ được giáo viên.
+- [ ] Mở lại: đặt `TEACHER_PORTAL_ENABLED=true`, chạy `php artisan config:cache`. Không cần khôi phục dữ liệu.
+- Test: `TeacherPortalHiddenTest`.
+
 ### ✅ Đã làm (02/11) — Logo Học Toán Online, thêm mạng xã hội, nút đăng ký
 
 - [x] Logo mới: `public/images/logo.png` (nền trong suốt, 19 KB, tách từ `public/icons/logo.jpg`) ở `<x-brand>` + trang lỗi; trên nền tối đặt

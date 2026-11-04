@@ -85,6 +85,10 @@ return [
     // Chỉ gửi URL trang công khai, không có dữ liệu người dùng.
     'indexnow_key' => env('INDEXNOW_KEY', ''),
 
+    // Tạm ẩn chức năng giáo viên: bỏ link + bài hướng dẫn, đăng ký trả 404, tài khoản giáo viên không đăng nhập được.
+    // Mặc định TẮT; mở lại: TEACHER_PORTAL_ENABLED=true trong .env. Xem App\Support\TeacherPortal.
+    'teacher_portal' => (bool) env('TEACHER_PORTAL_ENABLED', false),
+
     // Số dòng mỗi trang ở khu quản trị (danh sách người dùng, giao dịch, hỗ trợ…).
     'per_page' => (int) env('SITE_PER_PAGE', 10),
 

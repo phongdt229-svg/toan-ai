@@ -1,18 +1,18 @@
 @extends('layouts.guest')
 
 @section('title', 'Đăng ký — Math AI')
-@section('meta_description', 'Tạo tài khoản Math AI miễn phí cho học sinh, giáo viên hoặc phụ huynh — bắt đầu học Toán lớp 1–12 ngay.')
+@section('meta_description', 'Tạo tài khoản Math AI miễn phí cho học sinh'.(\App\Support\TeacherPortal::enabled() ? ', giáo viên' : '').' hoặc phụ huynh — bắt đầu học Toán lớp 1–12 ngay.')
 
 @section('content')
     <h1 class="h4 fw-bold text-center mb-1">Bạn là ai?</h1>
     <p class="text-secondary text-center small mb-4">Chọn loại tài khoản để tiếp tục.</p>
 
     <div class="d-grid gap-3">
-        @foreach ([
+        @foreach (array_filter([
             ['register.student', 'bi-mortarboard', 'Học sinh', 'Học lý thuyết, luyện tập và hỏi AI Tutor.'],
-            ['register.teacher', 'bi-person-video3', 'Giáo viên', 'Soạn bài, quản lý lớp và giao bài tập.'],
+            \App\Support\TeacherPortal::enabled() ? ['register.teacher', 'bi-person-video3', 'Giáo viên', 'Soạn bài, quản lý lớp và giao bài tập.'] : null,
             ['register.parent', 'bi-people', 'Phụ huynh', 'Theo dõi việc học của con.'],
-        ] as [$route, $icon, $label, $desc])
+        ]) as [$route, $icon, $label, $desc])
             <a href="{{ route($route) }}" class="card border text-decoration-none text-body">
                 <div class="card-body d-flex align-items-center gap-3 p-3">
                     <div class="feature-card__icon flex-shrink-0 mb-0"><i class="bi {{ $icon }}"></i></div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use App\Services\Auth\TwoFactorService;
+use App\Support\TeacherPortal;
 use Database\Seeders\DemoUserSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -75,7 +76,7 @@ class LoginController extends Controller
         $users = User::whereIn('email', array_keys(DemoUserSeeder::ACCOUNTS))->get(['name', 'email', 'status'])->keyBy('email');
 
         return collect(DemoUserSeeder::ACCOUNTS)
-            ->filter(fn ($role, $email) => $users->has($email))
+            ->filter(fn ($role, $email) => $users->has($email) && (TeacherPortal::enabled() || ! str_starts_with($email, 'teacher')))
             ->map(fn ($role, $email) => [
                 'email' => $email,
                 'role' => $role,
