@@ -6,12 +6,15 @@
 @extends('layouts.base')
 
 @section('title', 'Học Toán Online A.I – Hiểu năng lực, học đúng cách')
-@section('meta_description', 'Khám phá cách học Toán theo năng lực cho học sinh lớp '.\App\Models\Grade::rangeLabel('–').'. Xem lộ trình học minh họa, cách trợ giảng A.I hướng dẫn và báo cáo dành cho phụ huynh.')
+@section('meta_description', 'Khám phá cách học Toán theo năng lực cho học sinh lớp '.\App\Models\Grade::rangeLabel('–').'. Xem lộ trình học minh họa, cách trợ giảng A.I hướng dẫn'.(\App\Support\RolePortal::enabled('parent') ? ' và báo cáo dành cho phụ huynh' : '').'.')
 
 @php
     // Ngày SỬA NỘI DUNG trang chủ (E-E-A-T) — sửa chữ thì sửa ngày này.
-    $landingUpdatedAt = '2026-10-31';
+    $landingUpdatedAt = '2026-11-04';
     $faqs = \App\Support\LandingFaq::items();
+    // Cổng phụ huynh đang ẩn: đăng ký cho con đi qua tài khoản học sinh, bỏ các câu hứa bố mẹ theo dõi được (không có thật khi đóng).
+    $parentPortal = \App\Support\RolePortal::enabled('parent');
+    $signupUrl = route($parentPortal ? 'register.parent' : 'register.student');
 @endphp
 
 @push('head')

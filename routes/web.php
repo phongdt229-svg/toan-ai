@@ -151,10 +151,10 @@ Route::middleware('guest')->group(function () {
     Route::get('dang-ky', [RegisterController::class, 'choose'])->name('register');
     Route::get('dang-ky/hoc-sinh', [RegisterController::class, 'createStudent'])->name('register.student');
     Route::post('dang-ky/hoc-sinh', [RegisterController::class, 'storeStudent']);
-    Route::get('dang-ky/giao-vien', [RegisterController::class, 'createTeacher'])->name('register.teacher');
-    Route::post('dang-ky/giao-vien', [RegisterController::class, 'storeTeacher']);
-    Route::get('dang-ky/phu-huynh', [RegisterController::class, 'createParent'])->name('register.parent');
-    Route::post('dang-ky/phu-huynh', [RegisterController::class, 'storeParent']);
+    Route::get('dang-ky/giao-vien', [RegisterController::class, 'createTeacher'])->middleware('portal:teacher')->name('register.teacher');
+    Route::post('dang-ky/giao-vien', [RegisterController::class, 'storeTeacher'])->middleware('portal:teacher');
+    Route::get('dang-ky/phu-huynh', [RegisterController::class, 'createParent'])->middleware('portal:parent')->name('register.parent');
+    Route::post('dang-ky/phu-huynh', [RegisterController::class, 'storeParent'])->middleware('portal:parent');
 });
 
 /*
@@ -290,9 +290,9 @@ Route::middleware('auth')->group(function () {
 
             Route::get('goi-cua-toi', [StudentSubscriptionController::class, 'index'])->name('subscription.index');
 
-            Route::get('phu-huynh', [ParentConnectionController::class, 'index'])->name('parents.index');
-            Route::post('phu-huynh/doi-ma', [ParentConnectionController::class, 'regenerate'])->name('parents.regenerate');
-            Route::delete('phu-huynh/{parent}', [ParentConnectionController::class, 'revoke'])->name('parents.revoke');
+            Route::get('phu-huynh', [ParentConnectionController::class, 'index'])->middleware('portal:parent')->name('parents.index');
+            Route::post('phu-huynh/doi-ma', [ParentConnectionController::class, 'regenerate'])->middleware('portal:parent')->name('parents.regenerate');
+            Route::delete('phu-huynh/{parent}', [ParentConnectionController::class, 'revoke'])->middleware('portal:parent')->name('parents.revoke');
 
             Route::get('lop-cua-toi', [StudentClassController::class, 'index'])->name('classes.index');
             Route::post('lop-cua-toi/tham-gia', [StudentClassController::class, 'join'])

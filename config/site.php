@@ -85,6 +85,13 @@ return [
     // Chỉ gửi URL trang công khai, không có dữ liệu người dùng.
     'indexnow_key' => env('INDEXNOW_KEY', ''),
 
+    // Tạm ẩn cổng theo vai trò: bỏ link + bài hướng dẫn, đăng ký trả 404, tài khoản vai trò đó không đăng nhập được,
+    // thông báo theo dõi không gửi. Không xoá dữ liệu. Xem App\Support\RolePortal.
+    'portals' => [
+        'teacher' => (bool) env('TEACHER_PORTAL_ENABLED', true),
+        'parent' => (bool) env('PARENT_PORTAL_ENABLED', false),
+    ],
+
     // Số dòng mỗi trang ở khu quản trị (danh sách người dùng, giao dịch, hỗ trợ…).
     'per_page' => (int) env('SITE_PER_PAGE', 10),
 

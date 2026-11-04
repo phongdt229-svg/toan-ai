@@ -59,6 +59,14 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Thông báo lỗi nhập liệu: tiếng Việt ở `lang/vi/validation.php` (có cả quy tắc `password.*`). Thêm quy tắc mới trong
   Form Request mà thông báo tiếng Anh lọt ra → bổ sung khoá tương ứng vào file đó. Ngày sinh học sinh phải khớp lớp
   (`App\Rules\BirthDateMatchesGrade`: tuổi chuẩn = lớp + 5, cho sớm 2 / muộn 3 năm).
+- Cổng theo vai trò bật/tắt được: **phụ huynh đang tạm ẩn** (`PARENT_PORTAL_ENABLED`, mặc định `false`), giáo viên mở
+  (`TEACHER_PORTAL_ENABLED`, mặc định `true`); `phpunit.xml` bật cả hai cho test của từng cổng. Mọi kiểm tra đi qua `App\Support\RolePortal`:
+  chặn ở `LoginRequest`, middleware `active` (đẩy phiên đang đăng nhập ra), `portal:parent` (route 404), `ImpersonationService`,
+  `DropClosedPortalNotifications` + `SendWeeklyParentReport` (không gửi thông báo theo dõi). Menu, checklist, bài hướng dẫn có khoá `'portal' => 'parent'`.
+  Trang chủ dùng `$parentPortal`/`$signupUrl`: khi đóng, đăng ký cho con đi qua tài khoản học sinh và bỏ các câu hứa bố mẹ theo dõi được.
+  Admin không bao giờ bị chặn. Thêm nội dung nhắc tới vai trò đó ở trang công khai thì bọc `RolePortal::enabled('parent')`.
+  Không xoá dữ liệu: bật lại là mọi thứ còn nguyên. Test: `RolePortalTest`.
+  Blade không nhận directive viết liền sau chữ (`dõi@endif`) — sẽ lỗi 500, dùng `{{ cond ? '…' : '' }}` hoặc để trước/sau là thẻ HTML.
 - Menu học sinh: "Hỏi đáp" gom hỏi đáp theo chủ đề + hỏi AI (tab `partials/ask-tabs`); "Lớp của tôi" đã gỡ khỏi menu
   (route `student.classes.*` vẫn chạy để nhập mã lớp từ trang Bài được giao).
 - Xoá tài khoản: chỉ qua `AccountDeletionService` (soft delete → 30 ngày → `anonymise()`), không `User::delete()` tay.
@@ -162,7 +170,9 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   CSS inline của mẫu (`public/partials/landing-v6-*`, sao nguyên văn — đừng viết tay thêm, sửa mẫu thì chép lại). Vì vậy trang chủ
   KHÔNG có icon font, nút nổi Zalo/Facebook, footer chung (MOIT/mạng xã hội/liên hệ nằm ở footer các trang công khai khác),
   khối tin tức/PWA/chương trình cũ. FAQ ở `LandingFaq` (4 câu theo mẫu, dùng cho cả JSON-LD). Học phí cố ý "sắp công bố" (không in giá).
-  Logo mới (ô gradient tím→xanh + ∑ + "Học Toán Online A.I") ở `components/brand` và icon PWA/favicon trong `public/icons`.
+  Logo chính: `public/images/logo.png` (nền trong suốt, tách từ `public/icons/logo.jpg`; trên nền tối phải đặt trong ô trắng), dùng ở `components/brand`, trang lỗi và cả trang chủ V6 —
+  chép lại mẫu V6 thì phải gắn lại logo ở `landing-v6-body` và giữ các rule thêm cuối `landing-v6-style` (`.site-logo`, sửa tràn ngang điện thoại);
+  `LandingPageTest` canh logo, còn tràn ngang phải đo trên trình duyệt ở 320–430px.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
   Job `pint --test` đã bật (repo đã dọn 24/09) — trước khi commit chạy `vendor/bin/pint`.
 

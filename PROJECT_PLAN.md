@@ -1185,9 +1185,20 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
       Bảo mật; bài tin tức + Chương trình đã khai trong @graph nên chỉ thêm thanh hiển thị (`schema => false`).
 - Test: `SeoKeywordsTest`, `BreadcrumbTest`.
 
+### ✅ Đã làm (04/11) — Tạm ẩn cổng phụ huynh (giáo viên mở lại)
+
+- [x] Công tắc chung `App\Support\RolePortal`: `PARENT_PORTAL_ENABLED` (mặc định tắt), `TEACHER_PORTAL_ENABLED` (mặc định bật).
+- [x] Phụ huynh không đăng nhập được, phiên đang mở bị đẩy ra; đăng ký `/dang-ky/phu-huynh` trả 404, bỏ link ở `/dang-ky` + footer.
+- [x] Trang chủ: nút đăng ký cho con dẫn tới tài khoản học sinh, ẩn khối "Bố mẹ biết con tiến bộ…" và các câu hứa theo dõi.
+- [x] Học sinh: ẩn mục Phụ huynh + bước "Liên kết với phụ huynh"; bài hướng dẫn phụ huynh ẩn khỏi trang hướng dẫn, sitemap, llms.txt;
+      bảng giá bỏ dòng báo cáo phụ huynh; ngừng gửi thông báo theo dõi. Biên lai, hoàn tiền, đặt lại mật khẩu vẫn gửi.
+- [ ] Mở lại: đặt `PARENT_PORTAL_ENABLED=true`, chạy `php artisan config:cache`. Không cần khôi phục dữ liệu.
+- [ ] Sửa tay ở Quản trị → Gói học: mô tả Premium còn ghi "báo cáo chi tiết cho phụ huynh" (dữ liệu DB, không nằm trong code).
+- Test: `RolePortalTest`.
+
 ### ✅ Đã làm (02/11) — Logo Học Toán Online, thêm mạng xã hội, nút đăng ký
 
-- [x] Logo mới: `public/images/logo.webp` (17 KB, sinh từ `public/icons/logo.jpg`) ở `<x-brand>` + trang lỗi; trên nền tối đặt
+- [x] Logo mới: `public/images/logo.png` (nền trong suốt, 19 KB, tách từ `public/icons/logo.jpg`) ở `<x-brand>` + trang lỗi; trên nền tối đặt
       trong ô trắng. Favicon, icon PWA, ảnh chia sẻ `og-cover.png` vẽ lại từ logo; `sw.js` → v4.
 - [x] Facebook, X, Pinterest (nền tảng mới) là mặc định ở `config/site.php`, tự vào footer + `sameAs`.
 - [x] `/dang-ky`: mỗi thẻ vai trò có nút "Đăng ký".

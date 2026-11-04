@@ -63,8 +63,12 @@
                 <div class="site-footer__heading">Tài khoản</div>
                 <ul class="list-unstyled small d-grid gap-2 mb-0">
                     <li><a href="{{ route('register.student') }}">Học sinh</a></li>
-                    <li><a href="{{ route('register.teacher') }}">Giáo viên</a></li>
-                    <li><a href="{{ route('register.parent') }}">Phụ huynh</a></li>
+                    @if (\App\Support\RolePortal::enabled('teacher'))
+                        <li><a href="{{ route('register.teacher') }}">Giáo viên</a></li>
+                    @endif
+                    @if (\App\Support\RolePortal::enabled('parent'))
+                        <li><a href="{{ route('register.parent') }}">Phụ huynh</a></li>
+                    @endif
                     <li><a href="{{ route('login') }}">Đăng nhập</a></li>
                 </ul>
             </div>

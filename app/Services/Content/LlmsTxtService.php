@@ -5,6 +5,7 @@ namespace App\Services\Content;
 use App\Models\BlogPost;
 use App\Models\Package;
 use App\Support\LandingFaq;
+use App\Support\RolePortal;
 use App\Support\SiteContact;
 use Illuminate\Support\Str;
 
@@ -42,8 +43,10 @@ class LlmsTxtService
             $brand.($aliases ? ' (còn gọi là '.implode(', ', $aliases).')' : '')
                 .' — '.parse_url(url('/'), PHP_URL_HOST).' — là nền tảng học Toán trực tuyến bằng tiếng Việt cho học sinh lớp '
                 .config('learning.grade_min').' đến lớp '.config('learning.grade_max').', bám sát chương trình giáo dục phổ thông 2018 của Việt Nam. '
-                .'Có ba vai trò: học sinh (học bài, luyện tập, làm đề, hỏi AI Tutor), giáo viên (lớp học, giao bài, ngân hàng câu hỏi) '
-                .'và phụ huynh (theo dõi tiến độ, nhận báo cáo tuần). AI Tutor gợi ý từng bước chứ không đưa sẵn đáp án, '
+                .'Dành cho học sinh (học bài, luyện tập, làm đề, hỏi AI Tutor)'
+                .(RolePortal::enabled('teacher') ? ', giáo viên (lớp học, giao bài, ngân hàng câu hỏi)' : '')
+                .(RolePortal::enabled('parent') ? ', phụ huynh (theo dõi tiến độ, nhận báo cáo tuần)' : '')
+                .'. AI Tutor gợi ý từng bước chứ không đưa sẵn đáp án, '
                 .'và bị khoá trong lúc học sinh làm bài kiểm tra. Bắt đầu miễn phí, không cần thẻ.',
             '',
             '## Trang chính',
@@ -52,7 +55,7 @@ class LlmsTxtService
             $this->link('Học Toán với AI', route('ai-learning'), 'AI Tutor gợi ý từng bước, không giải hộ, khoá khi làm bài kiểm tra'),
             $this->link('Chương trình học', route('curriculum.index'), 'danh sách bài theo lớp, chương, chủ đề'),
             $this->link('Gói học và bảng giá', route('packages.index')),
-            $this->link('Trung tâm hướng dẫn', route('guides.index'), 'cách dùng cho học sinh, giáo viên, phụ huynh'),
+            $this->link('Trung tâm hướng dẫn', route('guides.index'), 'cách dùng cho học sinh'.(RolePortal::enabled('teacher') ? ', giáo viên' : '').(RolePortal::enabled('parent') ? ', phụ huynh' : '')),
             $this->link('Đăng ký miễn phí', route('register')),
             $this->link('Hỗ trợ', route('support.create'), 'gửi câu hỏi hoặc báo lỗi'),
             '',
@@ -150,7 +153,7 @@ class LlmsTxtService
         $lines = ['## Hướng dẫn sử dụng', ''];
         $audiences = config('guides.audiences', []);
 
-        foreach (collect(config('guides.articles', []))->groupBy('audience', true) as $audience => $articles) {
+        foreach (RolePortal::guides()->groupBy('audience', true) as $audience => $articles) {
             $lines[] = '### '.($audiences[$audience]['label'] ?? $audience);
             $lines[] = '';
 

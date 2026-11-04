@@ -20,7 +20,7 @@ return [
         ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'active' => ['student.qa.*', 'student.ai.*'], 'bottom' => true],
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'student.exams.index', 'bottom' => false],
         ['label' => 'Bài được giao', 'icon' => 'bi-list-check', 'route' => 'student.assignments.index', 'bottom' => false],
-        ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false],
+        ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false, 'portal' => 'parent'],
         ['label' => 'Lộ trình', 'icon' => 'bi-signpost-split', 'route' => 'student.path.show', 'bottom' => false, 'tour' => 'nav-path'],
         ['label' => 'Hình học phẳng', 'icon' => 'bi-triangle', 'route' => 'student.plane-geometry.index', 'bottom' => false],
         ['label' => 'Hình học không gian', 'icon' => 'bi-box', 'route' => 'student.solid-geometry.index', 'bottom' => false],

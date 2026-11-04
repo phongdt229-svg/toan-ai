@@ -8,7 +8,7 @@
 @section('robots', 'noindex,nofollow')
 
 @php
-    $items = config("navigation.{$portal}", []);
+    $items = array_values(array_filter(config("navigation.{$portal}", []), fn (array $item) => \App\Support\RolePortal::enabled($item['portal'] ?? null)));
     $bottomItems = collect($items)->where('bottom', true)->take(4);
 
     $recentNotifications = auth()->user()->notifications()->latest()->take(8)->get();

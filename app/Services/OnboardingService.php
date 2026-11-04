@@ -12,6 +12,7 @@ use App\Models\StudySchedule;
 use App\Models\StudySession;
 use App\Models\User;
 use App\Models\UserOnboarding;
+use App\Support\RolePortal;
 use Closure;
 use Illuminate\Support\Facades\DB;
 
@@ -76,7 +77,7 @@ class OnboardingService
     public function checklist(User $user): ?array
     {
         $role = $this->roleOf($user);
-        $items = config("onboarding.checklists.{$role}", []);
+        $items = array_values(array_filter(config("onboarding.checklists.{$role}", []), fn (array $item) => RolePortal::enabled($item['portal'] ?? null)));
 
         if (! $role || $items === []) {
             return null;

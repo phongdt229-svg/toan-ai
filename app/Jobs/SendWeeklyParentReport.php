@@ -7,6 +7,7 @@ use App\Models\ParentProfile;
 use App\Models\User;
 use App\Notifications\WeeklyReportReady;
 use App\Services\Learning\StudentReportService;
+use App\Support\RolePortal;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Mail;
@@ -31,7 +32,8 @@ class SendWeeklyParentReport implements ShouldQueue
         $parent = User::with('parentProfile')->find($this->parentId);
         $profile = $parent?->parentProfile;
 
-        if (! $parent || ! $profile?->weekly_report_enabled) {
+        // Cổng phụ huynh đang ẩn: thư này dẫn về trang họ không mở được.
+        if (! $parent || ! $profile?->weekly_report_enabled || RolePortal::blocks($parent)) {
             return;
         }
 

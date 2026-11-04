@@ -141,6 +141,7 @@ return [
 
         'lien-ket-voi-phu-huynh' => [
             'audience' => 'student',
+            'portal' => 'parent',
             'icon' => 'bi-house-heart',
             'title' => 'Liên kết tài khoản với phụ huynh',
             'summary' => 'Chia sẻ mã liên kết để bố mẹ theo dõi kết quả học — và gỡ liên kết khi cần.',

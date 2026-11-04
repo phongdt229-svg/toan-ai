@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\BlockWhenImpersonating;
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureRolePortalOpen;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\MinifyHtml;
 use App\Http\Middleware\RequireAdminTwoFactor;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
             'active' => EnsureAccountIsActive::class,
             'admin.2fa' => RequireAdminTwoFactor::class,
+            'portal' => EnsureRolePortalOpen::class,
         ]);
 
         // MoMo gọi server-to-server, không có CSRF token (PROJECT_PLAN.md §8).

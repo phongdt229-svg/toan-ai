@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Support\RolePortal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RuntimeException;
@@ -26,6 +27,11 @@ class ImpersonationService
 
         if ($admin->is($target)) {
             throw new RuntimeException('Không thể đăng nhập hộ chính mình.');
+        }
+
+        // Không chặn ở đây thì middleware `active` sẽ đăng xuất luôn phiên của admin đang mượn tài khoản.
+        if (RolePortal::blocks($target)) {
+            throw new RuntimeException(RolePortal::closedMessage($target));
         }
 
         if ($target->hasRole('admin')) {

@@ -26,7 +26,7 @@
             display: flex; align-items: center; justify-content: center; gap: .55rem; margin-bottom: 18px;
             font-weight: 800; font-size: 1.35rem; letter-spacing: -.02em; color: #0f172a;
         }
-        .brand img { display: block; height: 52px; width: auto; padding: 6px 10px; background: #fff; border-radius: 10px; }
+        .brand img { display: block; height: 44px; width: auto; }
         .code {
             display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .08em;
             color: #2563eb; background: #e0ecff; border-radius: 999px; padding: 4px 14px; margin-bottom: 18px;
@@ -46,7 +46,8 @@
         .foot a { color: #64748b; }
         @media (prefers-color-scheme: dark) {
             body { background: #0b1220; color: #e2e8f0; }
-            .brand { color: #f1f5f9; }
+            /* Chữ xanh đậm của logo chìm trên nền tối nên chỉ ở chế độ này mới đặt trong ô trắng. */
+            .brand img { box-sizing: content-box; padding: 6px 10px; background: #fff; border-radius: 10px; }
             .brand em { color: #60a5fa; }
             .code { background: #1e293b; color: #93c5fd; }
             p { color: #94a3b8; }
@@ -61,7 +62,7 @@
             cố tình không nạp. File ảnh do web server trả trực tiếp nên vẫn hiện khi PHP/DB hỏng.
         --}}
         <span class="brand">
-            <img src="/images/logo.webp" alt="Học Toán Online" width="620" height="168">
+            <img src="/images/logo.png" alt="Học Toán Online" width="406" height="110">
         </span>
 
         <div class="code">@yield('code')</div>

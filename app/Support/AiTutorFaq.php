@@ -18,7 +18,7 @@ class AiTutorFaq
      */
     public static function items(): array
     {
-        return [
+        $items = [
             [
                 'Học Toán với AI có khác dùng app chụp ảnh ra đáp án không?',
                 'Khác. App chụp ảnh đưa ngay lời giải nên con chép được mà không hiểu. AI Tutor của '.config('site.brand')
@@ -56,5 +56,8 @@ class AiTutorFaq
                 .'Số lượt hỏi và các tính năng AI nâng cao (phân tích lỗi sai, tạo bài tương tự) tuỳ theo gói, xem ở trang Gói học.',
             ],
         ];
+
+        // Câu về phụ huynh chỉ đúng khi cổng phụ huynh đang mở.
+        return array_values(array_filter($items, fn (array $item) => RolePortal::enabled('parent') || ! str_starts_with($item[0], 'Phụ huynh')));
     }
 }

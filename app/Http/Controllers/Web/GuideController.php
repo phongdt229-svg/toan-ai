@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Support\RolePortal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -26,14 +27,14 @@ class GuideController extends Controller
 
         // Lọc theo vai trò vẫn giữ nhóm "Tài khoản & thanh toán" (audience = all):
         // tài khoản, gói học, thanh toán thì ai cũng cần, ẩn đi là người dùng tưởng không có.
-        if (array_key_exists($audience, config('guides.audiences')) && $audience !== 'all') {
+        if (array_key_exists($audience, RolePortal::guideAudiences()) && $audience !== 'all') {
             $articles = $articles->whereIn('audience', [$audience, 'all']);
         } elseif ($audience === 'all') {
             $articles = $articles->where('audience', 'all');
         }
 
         return view('public.guides.index', [
-            'audiences' => config('guides.audiences'),
+            'audiences' => RolePortal::guideAudiences(),
             'grouped' => $articles->groupBy('audience'),
             'total' => $articles->count(),
             'search' => $search,
@@ -61,7 +62,7 @@ class GuideController extends Controller
     /** @return Collection<string, array<string, mixed>> */
     private function articles(): Collection
     {
-        return collect(config('guides.articles'))
+        return RolePortal::guides()
             ->map(fn (array $article, string $slug) => [...$article, 'slug' => $slug]);
     }
 

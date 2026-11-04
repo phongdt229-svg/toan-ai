@@ -13,5 +13,9 @@
 
 /* --- Phần ngoài mẫu V6: dải cookie (bắt buộc theo luật, markup ở components/cookie-consent) --- */
 .cookie-consent{position:fixed;left:0;right:0;bottom:0;z-index:2100;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem 1.25rem;padding:.875rem 1rem calc(.875rem + env(safe-area-inset-bottom,0px));background:#182448;color:rgba(255,255,255,.85);font-size:13px;line-height:1.5;box-shadow:0 -6px 24px rgba(15,23,42,.3)}.cookie-consent a{color:#fff;text-decoration:underline}.cookie-consent__text{flex:1 1 320px}.cookie-consent__actions{display:flex;flex-wrap:wrap;gap:8px}.cookie-consent__actions form{margin:0}.cookie-consent .btn{padding:8px 14px;font-size:13px;border-radius:10px}.cookie-consent .btn-outline-light{background:transparent;border-color:rgba(255,255,255,.5)}.cookie-consent .btn-outline-light:hover{background:rgba(255,255,255,.12)}
+/* Logo chính (public/images/logo.png, nền trong suốt) thay ô ∑ của mẫu V6; chữ xanh đậm chìm trên nền tối nên footer đặt logo trong ô trắng. */
+.site-logo{display:block;height:44px;width:auto;max-width:100%}.site-logo-plate{display:inline-flex;padding:8px 12px;background:#fff;border-radius:12px}@media(max-width:560px){.site-logo{height:36px}}
+/* Sửa tràn ngang trên điện thoại (mẫu V6 bị): ô grid mặc định không co nhỏ hơn nội dung, nút nowrap giữ cột rộng 344px → màn dưới 378px tràn; .float.two thò 18px quá lề 17px. Đừng che bằng overflow:hidden — sẽ cắt mất chữ. */
+.hero-grid>*{min-width:0}@media(max-width:580px){.entry .btn{white-space:normal}.float.two{right:-10px}}
 </style>
 @endverbatim
