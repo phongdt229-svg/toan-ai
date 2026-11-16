@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Services\Content\LegalPageService;
 use App\Services\Content\PublicCurriculumService;
 use App\Support\RolePortal;
 use Illuminate\Http\Response;
@@ -27,7 +28,7 @@ use Illuminate\Support\Carbon;
  */
 class SitemapController extends Controller
 {
-    public function __invoke(PublicCurriculumService $curriculum): Response
+    public function __invoke(PublicCurriculumService $curriculum, LegalPageService $legal): Response
     {
         $urls = [
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'weekly', 'lastmod' => $this->viewMtime('public.landing')],
@@ -36,8 +37,9 @@ class SitemapController extends Controller
             ['loc' => route('guides.index'), 'priority' => '0.8', 'changefreq' => 'monthly', 'lastmod' => $this->viewMtime('public.guides.index')],
             ['loc' => route('support.create'), 'priority' => '0.5', 'changefreq' => 'yearly', 'lastmod' => $this->viewMtime('public.support.create')],
             ['loc' => route('register'), 'priority' => '0.7', 'changefreq' => 'yearly', 'lastmod' => $this->viewMtime('auth.register-choose')],
-            ['loc' => route('legal.terms'), 'priority' => '0.3', 'changefreq' => 'yearly', 'lastmod' => $this->viewMtime('public.legal.terms')],
-            ['loc' => route('legal.privacy'), 'priority' => '0.3', 'changefreq' => 'yearly', 'lastmod' => $this->viewMtime('public.legal.privacy')],
+            // Bản admin soạn thì lastmod = lần lưu cuối; bản mặc định thì theo file view như trang tĩnh khác.
+            ['loc' => route('legal.terms'), 'priority' => '0.3', 'changefreq' => 'yearly', 'lastmod' => $legal->lastModified('terms')?->toAtomString() ?? $this->viewMtime('public.legal.terms')],
+            ['loc' => route('legal.privacy'), 'priority' => '0.3', 'changefreq' => 'yearly', 'lastmod' => $legal->lastModified('privacy')?->toAtomString() ?? $this->viewMtime('public.legal.privacy')],
         ];
 
         // Nội dung mọi bài hướng dẫn nằm chung 1 file config — cùng chung một lastmod hợp lý.

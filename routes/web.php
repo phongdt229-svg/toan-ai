@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\ImpersonationController;
+use App\Http\Controllers\Admin\LegalPageController as AdminLegalPageController;
 use App\Http\Controllers\Admin\MaintenanceController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -70,6 +71,7 @@ use App\Http\Controllers\Web\CookieConsentController;
 use App\Http\Controllers\Web\GuideController;
 use App\Http\Controllers\Web\IndexNowKeyController;
 use App\Http\Controllers\Web\LandingController;
+use App\Http\Controllers\Web\LegalPageController;
 use App\Http\Controllers\Web\LlmsTxtController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\PackageController;
@@ -91,8 +93,9 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::get('goi-hoc', [PackageController::class, 'index'])->name('packages.index');
 
 // Trang pháp lý — tĩnh, ai cũng xem được (footer và trang đăng ký trỏ tới).
-Route::view('dieu-khoan-su-dung', 'public.legal.terms')->name('legal.terms');
-Route::view('chinh-sach-bao-mat', 'public.legal.privacy')->name('legal.privacy');
+// Nội dung admin sửa được ở Quản trị → Chính sách (LegalPageService), chưa sửa thì dùng bản mặc định trong code.
+Route::get('dieu-khoan-su-dung', [LegalPageController::class, 'terms'])->name('legal.terms');
+Route::get('chinh-sach-bao-mat', [LegalPageController::class, 'privacy'])->name('legal.privacy');
 
 // Hỗ trợ / báo lỗi nội dung: khách chưa đăng nhập cũng gửi được (có captcha + throttle trong request).
 // Trung tâm hướng dẫn — nội dung tĩnh trong config/guides.php, ai cũng xem được.
@@ -547,6 +550,11 @@ Route::middleware('auth')->group(function () {
 
             Route::get('seo', [SeoPageController::class, 'index'])->name('seo.index');
             Route::put('seo', [SeoPageController::class, 'update'])->name('seo.update');
+
+            Route::get('chinh-sach', [AdminLegalPageController::class, 'index'])->name('legal.index');
+            Route::get('chinh-sach/{page}/sua', [AdminLegalPageController::class, 'edit'])->whereIn('page', ['terms', 'privacy'])->name('legal.edit');
+            Route::put('chinh-sach/{page}', [AdminLegalPageController::class, 'update'])->whereIn('page', ['terms', 'privacy'])->name('legal.update');
+            Route::delete('chinh-sach/{page}', [AdminLegalPageController::class, 'destroy'])->whereIn('page', ['terms', 'privacy'])->name('legal.destroy');
         });
     });
 });

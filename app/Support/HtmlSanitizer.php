@@ -21,7 +21,11 @@ class HtmlSanitizer
 
     private HTMLPurifier $purifier;
 
-    public function __construct()
+    /**
+     * @param  list<string>  $extraSchemes  vd ['mailto', 'tel'] cho trang chính sách (mục Liên hệ). Mặc định chỉ http/https
+     *                                      — nội dung bài học/hỏi đáp không có lý do gì để chứa link kiểu khác.
+     */
+    public function __construct(array $extraSchemes = [])
     {
         $config = HTMLPurifier_Config::createDefault();
 
@@ -29,7 +33,7 @@ class HtmlSanitizer
         $config->set('AutoFormat.RemoveEmpty', true);
         $config->set('AutoFormat.AutoParagraph', false);
         // Chặn javascript:, data: trong href/src.
-        $config->set('URI.AllowedSchemes', ['http' => true, 'https' => true]);
+        $config->set('URI.AllowedSchemes', ['http' => true, 'https' => true] + array_fill_keys($extraSchemes, true));
         $config->set('Attr.AllowedRel', ['nofollow', 'noopener', 'noreferrer']);
         $config->set('Cache.SerializerPath', storage_path('app/purifier'));
 

@@ -1185,6 +1185,15 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
       Bảo mật; bài tin tức + Chương trình đã khai trong @graph nên chỉ thêm thanh hiển thị (`schema => false`).
 - Test: `SeoKeywordsTest`, `BreadcrumbTest`.
 
+### ✅ Đã làm (16/11) — Admin soạn nội dung chính sách
+
+- [x] Quản trị → Chính sách: sửa Điều khoản sử dụng + Chính sách bảo mật bằng trình soạn thảo (bảng `legal_pages`,
+      `LegalPageService`, lọc HTML lúc lưu, giữ link mailto/tel, audit log, khôi phục bản mặc định).
+- [x] Chưa soạn thì dùng bản mặc định trong code; ngày "Cập nhật" + sitemap lastmod theo lần lưu.
+- [ ] Production đang có thêm 6 trang chính sách + thanh toán "Chuyển khoản QR" KHÔNG có trong git — đưa code server vào git
+      trước khi deploy, rồi gộp 6 trang vào cùng cơ chế soạn thảo.
+- Test: `LegalPageTest`.
+
 ### ✅ Đã làm (04/11) — Tạm ẩn cổng phụ huynh (giáo viên mở lại)
 
 - [x] Công tắc chung `App\Support\RolePortal`: `PARENT_PORTAL_ENABLED` (mặc định tắt), `TEACHER_PORTAL_ENABLED` (mặc định bật).
