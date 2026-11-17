@@ -17,5 +17,7 @@
 .site-logo{display:block;height:44px;width:auto;max-width:100%}.site-logo-plate{display:inline-flex;padding:8px 12px;background:#fff;border-radius:12px}@media(max-width:560px){.site-logo{height:36px}}
 /* Sửa tràn ngang trên điện thoại (mẫu V6 bị): ô grid mặc định không co nhỏ hơn nội dung, nút nowrap giữ cột rộng 344px → màn dưới 378px tràn; .float.two thò 18px quá lề 17px. Đừng che bằng overflow:hidden — sẽ cắt mất chữ. */
 .hero-grid>*{min-width:0}@media(max-width:580px){.entry .btn{white-space:normal}.float.two{right:-10px}}
+/* Hàng link trang chính sách ở chân trang (Quản trị → Chính sách) — ngoài mẫu V6, Bộ Công Thương yêu cầu có ở mọi trang. */
+.foot .legal-links{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0 0 12px}.foot .legal-links a{display:inline;margin:0}
 </style>
 @endverbatim

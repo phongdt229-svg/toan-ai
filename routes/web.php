@@ -552,9 +552,16 @@ Route::middleware('auth')->group(function () {
             Route::put('seo', [SeoPageController::class, 'update'])->name('seo.update');
 
             Route::get('chinh-sach', [AdminLegalPageController::class, 'index'])->name('legal.index');
-            Route::get('chinh-sach/{page}/sua', [AdminLegalPageController::class, 'edit'])->whereIn('page', ['terms', 'privacy'])->name('legal.edit');
-            Route::put('chinh-sach/{page}', [AdminLegalPageController::class, 'update'])->whereIn('page', ['terms', 'privacy'])->name('legal.update');
-            Route::delete('chinh-sach/{page}', [AdminLegalPageController::class, 'destroy'])->whereIn('page', ['terms', 'privacy'])->name('legal.destroy');
+            Route::get('chinh-sach/tao-moi', [AdminLegalPageController::class, 'create'])->name('legal.create');
+            Route::post('chinh-sach', [AdminLegalPageController::class, 'store'])->name('legal.store');
+            Route::get('chinh-sach/{page}/sua', [AdminLegalPageController::class, 'edit'])->name('legal.edit');
+            Route::put('chinh-sach/{page}', [AdminLegalPageController::class, 'update'])->name('legal.update');
+            Route::put('chinh-sach/{page}/mac-dinh', [AdminLegalPageController::class, 'reset'])->name('legal.reset');
+            Route::delete('chinh-sach/{page}', [AdminLegalPageController::class, 'destroy'])->name('legal.destroy');
         });
     });
 });
+
+// Trang chính sách admin tạo thêm (/chinh-sach-gia, /quyen-va-nghia-vu…) — fallback để giữ đúng đường dẫn gốc
+// mà không đè route có sẵn; đường dẫn không phải trang chính sách vẫn 404. PHẢI là route cuối file.
+Route::fallback([LegalPageController::class, 'fallback']);

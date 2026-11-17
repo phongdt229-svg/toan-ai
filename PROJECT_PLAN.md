@@ -1190,8 +1190,10 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
 - [x] Quản trị → Chính sách: sửa Điều khoản sử dụng + Chính sách bảo mật bằng trình soạn thảo (bảng `legal_pages`,
       `LegalPageService`, lọc HTML lúc lưu, giữ link mailto/tel, audit log, khôi phục bản mặc định).
 - [x] Chưa soạn thì dùng bản mặc định trong code; ngày "Cập nhật" + sitemap lastmod theo lần lưu.
-- [ ] Production đang có thêm 6 trang chính sách + thanh toán "Chuyển khoản QR" KHÔNG có trong git — đưa code server vào git
-      trước khi deploy, rồi gộp 6 trang vào cùng cơ chế soạn thảo.
+- [x] (17/11) Thành CMS: admin tạo / sửa / ẩn / xoá trang, slug cố định từ lúc tạo; trang mới qua `Route::fallback`;
+      footer + "Các chính sách khác" + sitemap tự liệt kê. Nạp sẵn 6 trang đang chạy trên production (`database/data/legal_pages.php`).
+      SQL cho production: `deploy/sql/2026-11-17-legal-pages.sql` (chạy lại an toàn).
+- [ ] Thanh toán "Chuyển khoản QR" có trên production nhưng KHÔNG có trong git — đưa code server vào git trước khi deploy.
 - Test: `LegalPageTest`.
 
 ### ✅ Đã làm (04/11) — Tạm ẩn cổng phụ huynh (giáo viên mở lại)

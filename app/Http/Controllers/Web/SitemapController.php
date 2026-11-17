@@ -37,10 +37,12 @@ class SitemapController extends Controller
             ['loc' => route('guides.index'), 'priority' => '0.8', 'changefreq' => 'monthly', 'lastmod' => $this->viewMtime('public.guides.index')],
             ['loc' => route('support.create'), 'priority' => '0.5', 'changefreq' => 'yearly', 'lastmod' => $this->viewMtime('public.support.create')],
             ['loc' => route('register'), 'priority' => '0.7', 'changefreq' => 'yearly', 'lastmod' => $this->viewMtime('auth.register-choose')],
-            // Bản admin soạn thì lastmod = lần lưu cuối; bản mặc định thì theo file view như trang tĩnh khác.
-            ['loc' => route('legal.terms'), 'priority' => '0.3', 'changefreq' => 'yearly', 'lastmod' => $legal->lastModified('terms')?->toAtomString() ?? $this->viewMtime('public.legal.terms')],
-            ['loc' => route('legal.privacy'), 'priority' => '0.3', 'changefreq' => 'yearly', 'lastmod' => $legal->lastModified('privacy')?->toAtomString() ?? $this->viewMtime('public.legal.privacy')],
         ];
+
+        // Trang chính sách (CMS): bản admin soạn lấy lần lưu cuối, bản mặc định lấy thời gian sửa file view.
+        foreach ($legal->footerPages() as $page) {
+            $urls[] = ['loc' => $page->url(), 'priority' => '0.3', 'changefreq' => 'yearly', 'lastmod' => $legal->lastModified($legal->findActive($page->slug))];
+        }
 
         // Nội dung mọi bài hướng dẫn nằm chung 1 file config — cùng chung một lastmod hợp lý.
         $guidesLastmod = $this->fileMtime(config_path('guides.php'));

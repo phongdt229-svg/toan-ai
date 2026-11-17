@@ -4,35 +4,45 @@
 @section('page_title', 'Chính sách')
 
 @section('content')
-    <p class="text-secondary small mb-4" style="max-width:720px">
-        Nội dung trang Điều khoản sử dụng và Chính sách bảo mật. Chưa sửa thì trang dùng bản mặc định viết sẵn
-        (tự cập nhật email, hotline, dịch vụ bên thứ ba theo cấu hình). Đã sửa thì trang hiện đúng bản bạn lưu,
-        và ngày "Cập nhật" ở đầu trang là ngày lưu.
-    </p>
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3" style="max-width:820px">
+        <p class="text-secondary small mb-0" style="max-width:560px">
+            Các trang chính sách hiện ở chân trang và cuối mỗi trang chính sách. Đường dẫn (slug) tự sinh từ tiêu đề lúc
+            tạo và <strong>không đổi được</strong> — để link đã đăng ký với Bộ Công Thương hay đã chia sẻ không bị gãy.
+        </p>
+        <a href="{{ route('admin.legal.create') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>Tạo trang mới
+        </a>
+    </div>
 
-    <div class="d-flex flex-column gap-3" style="max-width:720px">
-        @foreach ($pages as $page)
-            <div class="card border">
-                <div class="card-body d-flex flex-wrap align-items-center gap-3">
-                    <div class="flex-grow-1">
-                        <h3 class="h6 fw-bold mb-1">{{ $page['title'] }}</h3>
-                        <div class="small text-secondary">
-                            @if ($page['custom'])
-                                <span class="badge text-bg-primary">Đã tự soạn</span>
-                            @else
+    <div class="card border" style="max-width:820px">
+        <div class="list-group list-group-flush">
+            @foreach ($pages as $page)
+                <div class="list-group-item d-flex flex-wrap align-items-center gap-2 py-3">
+                    <div class="flex-grow-1" style="min-width:0">
+                        <div class="fw-semibold">{{ $page->title }}</div>
+                        <div class="small text-secondary text-break">
+                            /{{ $page->slug }} · Cập nhật {{ $service->updatedLabel($page) }}
+                            @if ($page->is_system)
+                                · <span class="badge text-bg-light border">Trang hệ thống</span>
+                            @endif
+                            @if ($service->usesDefault($page))
                                 <span class="badge text-bg-light border">Bản mặc định</span>
                             @endif
-                            · Cập nhật {{ $page['updated'] }}
+                            @unless ($page->is_active)
+                                <span class="badge text-bg-secondary">Đang ẩn</span>
+                            @endunless
                         </div>
                     </div>
-                    <a href="{{ route($page['route']) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-box-arrow-up-right me-1"></i>Xem trang
-                    </a>
-                    <a href="{{ route('admin.legal.edit', $page['slug']) }}" class="btn btn-sm btn-primary">
-                        <i class="bi bi-pencil me-1"></i>Sửa nội dung
+                    @if ($page->is_active)
+                        <a href="{{ $page->url() }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-box-arrow-up-right"></i><span class="visually-hidden">Xem trang</span>
+                        </a>
+                    @endif
+                    <a href="{{ route('admin.legal.edit', $page) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>Sửa
                     </a>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
     </div>
 @endsection

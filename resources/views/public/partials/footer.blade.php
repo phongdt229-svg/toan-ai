@@ -87,8 +87,10 @@
             <div class="col-6 col-lg-2">
                 <div class="site-footer__heading">Pháp lý</div>
                 <ul class="list-unstyled small d-grid gap-2 mb-0">
-                    <li><a href="{{ route('legal.terms') }}">Điều khoản sử dụng</a></li>
-                    <li><a href="{{ route('legal.privacy') }}">Chính sách bảo mật</a></li>
+                    {{-- Trang chính sách đang bật (Quản trị → Chính sách): tạo trang mới là tự hiện ở đây. --}}
+                    @foreach (app(\App\Services\Content\LegalPageService::class)->footerPages() as $legalPage)
+                        <li><a href="{{ $legalPage->url() }}">{{ $legalPage->title }}</a></li>
+                    @endforeach
                     @if (config('site.google_analytics_id') || config('site.google_tag_manager_id'))
                         {{-- Đổi lựa chọn cookie: xoá cookie ghi nhớ rồi dải hỏi hiện lại. --}}
                         <li>

@@ -81,9 +81,13 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Đo lường (GA4 + GTM + thẻ xác minh Search Console) khai ở `config/site.php`, nhúng ở `layouts/base`.
   Local/test để TRỐNG để không làm bẩn số liệu thật — thử thì đặt `GOOGLE_ANALYTICS_ID` / `GOOGLE_TAG_MANAGER_ID` trong `.env`.
   Bật thêm công cụ theo dõi nào cũng **phải khai vào Chính sách bảo mật §3 + §8** và sửa `legal_updated_at`;
-  `SeoTest` có test canh đúng chuyện này. Nội dung chính sách admin sửa được ở Quản trị → Chính sách (`LegalPageService`,
-  bảng `legal_pages`): chưa soạn thì dùng bản mặc định `public/legal/_{terms,privacy}-default` (tự đổi theo cấu hình);
-  đã soạn thì là văn bản cố định — bật dịch vụ mới thì nhắc admin sửa lại (trang sửa liệt kê dịch vụ đang bật). Test: `LegalPageTest`.
+  `SeoTest` có test canh đúng chuyện này. Trang chính sách là CMS ở Quản trị → Chính sách (`LegalPageService`,
+  bảng `legal_pages`): admin tạo / sửa / ẩn / xoá trang; **slug cố định** từ lúc tạo (không nằm trong `$fillable`, form không có ô nhập,
+  sinh từ tiêu đề, né trùng route có sẵn) — link đã đăng ký Bộ Công Thương không được gãy. Trang mới phục vụ qua `Route::fallback`
+  (route cuối `routes/web.php`). Hai trang hệ thống Điều khoản/Bảo mật không xoá/ẩn được; nội dung NULL = bản mặc định
+  `public/legal/_{terms,privacy}-default` (tự đổi theo cấu hình), đã soạn thì là văn bản cố định — bật dịch vụ mới thì nhắc admin sửa lại.
+  Footer + "Các chính sách khác" + sitemap tự liệt kê trang đang bật. Production không chạy migrate được thì dùng
+  `deploy/sql/2026-11-17-legal-pages.sql`. Test: `LegalPageTest`.
 - Mã giảm giá công khai: `vouchers.is_public` **mặc định tắt** — mã của một chiến dịch riêng đem khoe ở
   trang Gói học là ai cũng dùng được. `VoucherService::publicOffers()` lọc luôn mã hết lượt/hết hạn.
   `quote()` nhận user **nullable**: phần lớn người bấm link `?ma=` là khách chưa đăng nhập.

@@ -265,7 +265,8 @@ class SeoTest extends TestCase
     {
         $xml = $this->get('/sitemap.xml')->getContent();
 
-        $expected = Carbon::createFromTimestamp(filemtime(view('public.legal.privacy')->getPath()))->toAtomString();
+        // Chính sách bảo mật chưa ai soạn lại → dùng bản mặc định, lastmod theo file view của bản đó.
+        $expected = Carbon::createFromTimestamp(filemtime(view('public.legal._privacy-default')->getPath()))->toAtomString();
 
         $this->assertStringContainsString(
             '<loc>'.route('legal.privacy').'</loc>'."\n".'    <lastmod>'.$expected.'</lastmod>',

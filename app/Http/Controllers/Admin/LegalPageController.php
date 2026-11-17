@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\LegalPageActionRequest;
 use App\Http\Requests\Admin\LegalPageRequest;
+use App\Models\LegalPage;
 use App\Services\Content\LegalPageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-/** Quản trị → Chính sách: soạn Điều khoản sử dụng / Chính sách bảo mật. Chỉ admin (route nhóm admin + Form Request). */
+/** Quản trị → Chính sách: tạo / sửa trang chính sách. Slug cố định, xem LegalPageService. */
 class LegalPageController extends Controller
 {
     public function __construct(private readonly LegalPageService $pages) {}
@@ -16,40 +18,58 @@ class LegalPageController extends Controller
     public function index(): View
     {
         return view('admin.legal.index', [
-            'pages' => collect(LegalPageService::PAGES)->map(fn (array $meta, string $slug) => $meta + [
-                'slug' => $slug,
-                'custom' => $this->pages->custom($slug),
-                'updated' => $this->pages->updatedLabel($slug),
-            ]),
+            'pages' => LegalPage::ordered()->get(),
+            'service' => $this->pages,
         ]);
     }
 
-    public function edit(string $page): View
+    public function create(): View
     {
-        $custom = $this->pages->custom($page);
-
-        return view('admin.legal.edit', [
-            'slug' => $page,
-            'meta' => LegalPageService::PAGES[$page],
-            'custom' => $custom,
-            // Chưa soạn bao giờ: nạp sẵn bản mặc định đang hiện trên web để admin sửa tiếp, không phải gõ lại từ đầu.
-            'content' => $custom?->content ?? $this->pages->defaultHtml($page),
-            'services' => $page === 'privacy' ? $this->pages->activeServices() : [],
+        return view('admin.legal.form', [
+            'page' => new LegalPage(['is_active' => true, 'sort_order' => (int) LegalPage::max('sort_order') + 1]),
+            'content' => '',
+            'usesDefault' => false,
+            'services' => [],
         ]);
     }
 
-    public function update(LegalPageRequest $request, string $page): RedirectResponse
+    public function store(LegalPageRequest $request): RedirectResponse
     {
-        $saved = $this->pages->update($page, $request->validated('content'));
+        $page = $this->pages->create($request->pageData());
 
         return redirect()->route('admin.legal.edit', $page)
-            ->with('status', $saved ? 'Đã lưu. Trang công khai hiện nội dung mới.' : 'Nội dung trống — đã dùng lại bản mặc định.');
+            ->with('status', "Đã tạo trang «{$page->title}» tại /{$page->slug}.");
     }
 
-    public function destroy(string $page): RedirectResponse
+    public function edit(LegalPage $page): View
     {
-        $this->pages->reset($page);
+        return view('admin.legal.form', [
+            'page' => $page,
+            // Chưa soạn bao giờ: nạp sẵn bản mặc định đang hiện trên web để admin sửa tiếp, không phải gõ lại.
+            'content' => $this->pages->editableContent($page),
+            'usesDefault' => $this->pages->usesDefault($page),
+            'services' => $page->slug === 'chinh-sach-bao-mat' ? $this->pages->activeServices() : [],
+        ]);
+    }
+
+    public function update(LegalPageRequest $request, LegalPage $page): RedirectResponse
+    {
+        $this->pages->update($page, $request->pageData());
+
+        return redirect()->route('admin.legal.edit', $page)->with('status', 'Đã lưu. Trang công khai hiện nội dung mới.');
+    }
+
+    public function reset(LegalPageActionRequest $request, LegalPage $page): RedirectResponse
+    {
+        $this->pages->resetToDefault($page);
 
         return redirect()->route('admin.legal.edit', $page)->with('status', 'Đã khôi phục nội dung mặc định.');
+    }
+
+    public function destroy(LegalPageActionRequest $request, LegalPage $page): RedirectResponse
+    {
+        $this->pages->delete($page);
+
+        return redirect()->route('admin.legal.index')->with('status', "Đã xoá trang «{$page->title}».");
     }
 }
