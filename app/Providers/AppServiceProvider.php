@@ -11,6 +11,7 @@ use App\Services\AI\Providers\FakeProvider;
 use App\Services\AI\Providers\OpenAiProvider;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\Payment\PaymentGatewayManager;
+use App\Support\DiagnosticDebug;
 use App\Support\HtmlSanitizer;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -30,6 +31,13 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // Đặt đầu tiên: lỗi xảy ra ở bất kỳ đâu sau đó đều được vẽ thành trang debug cho người gỡ lỗi.
+        // Request đã gắn vào container trước khi Kernel nạp provider, nên đọc cookie được ở đây.
+        if ($this->app->bound('request')
+            && DiagnosticDebug::allows($this->app->make('request'), $this->app['config']->get('app.diag_token'))) {
+            $this->app['config']->set('app.debug', true);
+        }
+
         // Khởi tạo HTMLPurifier khá nặng — dùng chung một instance cho cả request.
         $this->app->singleton(HtmlSanitizer::class);
 

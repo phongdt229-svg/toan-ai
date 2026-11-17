@@ -179,6 +179,9 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Logo chính: `public/images/logo.png` (nền trong suốt, tách từ `public/icons/logo.jpg`; trên nền tối phải đặt trong ô trắng), dùng ở `components/brand`, trang lỗi và cả trang chủ V6 —
   chép lại mẫu V6 thì phải gắn lại logo ở `landing-v6-body` và giữ các rule thêm cuối `landing-v6-style` (`.site-logo`, sửa tràn ngang điện thoại);
   `LandingPageTest` canh logo, còn tràn ngang phải đo trên trình duyệt ở 320–430px.
+- Gỡ lỗi 500 production: `public/_diag.php?token=DIAG_TOKEN` (đứng ngoài Laravel, xem `docs/DEPLOY.md §7.1`), `&debug=1`
+  bật debug cho riêng trình duyệt đó qua `App\Support\DiagnosticDebug` (đọc ở đầu `AppServiceProvider::register`).
+  Không bật `APP_DEBUG=true` cho cả site. `DIAG_TOKEN` trống = tắt hẳn (404); token < 32 ký tự cũng coi như tắt.
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
   Job `pint --test` đã bật (repo đã dọn 24/09) — trước khi commit chạy `vendor/bin/pint`.
 

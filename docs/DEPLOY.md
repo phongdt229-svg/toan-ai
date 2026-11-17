@@ -330,6 +330,24 @@ gunzip -c /var/backups/toan-ai/toan_ai-YYYYMMDD-HHMMSS.sql.gz | mysql -u root -p
 
 Thư mục sao lưu nằm trên cùng máy → **đồng bộ ra ngoài** (rclone/S3/NAS) hằng ngày. Thử khôi phục vào DB phụ ít nhất mỗi tháng một lần.
 
+## 7.1. Gỡ lỗi 500 trên production
+
+Không bật `APP_DEBUG=true` cho cả site (lộ stack trace, SQL, dữ liệu học sinh cho mọi khách). Thay vào đó:
+
+1. Trong `.env` đặt `DIAG_TOKEN=` một chuỗi ngẫu nhiên ≥ 32 ký tự (`php -r "echo bin2hex(random_bytes(24));"`).
+   Đang `config:cache` thì chạy `php artisan config:clear`.
+2. Mở `https://hoctoanonline.com/_diag.php?token=<DIAG_TOKEN>` — báo cáo dạng chữ: PHP/extension, quyền ghi,
+   `bootstrap/cache` (provider thiếu class, cache mang từ Windows), kết nối DB, migration chưa chạy, cuối log,
+   và chạy thử Laravel kèm exception gốc. **Không cần Laravel chạy được** — dùng đúng lúc mọi trang đều 500.
+   Thêm `&path=/dang-nhap` để thử trang khác, `&lines=200` để xem nhiều log hơn.
+3. `&debug=1` → riêng trình duyệt của bạn thấy trang lỗi chi tiết của Laravel trong 2 giờ (cookie `diag_debug`);
+   khách khác vẫn thấy trang 500 bình thường. `&debug=0` để tắt.
+4. Xong việc **xoá giá trị `DIAG_TOKEN`** (trống = trang trả 404, cookie hết tác dụng).
+
+Lỗi hay gặp: upload zip từ máy local kèm `bootstrap/cache/packages.php`/`services.php` → server `--no-dev` thiếu
+provider của Pail/Sail/Collision → mọi request 500. Sửa: `rm bootstrap/cache/*.php && php artisan optimize`.
+Đóng zip deploy thì bỏ `bootstrap/cache/*.php`, `storage/framework/cache/data`, `storage/logs`.
+
 ## 8. Checklist trước khi mở cho người dùng
 
 - [ ] `APP_DEBUG=false`, `APP_ENV=production`, `php artisan about` không cảnh báo

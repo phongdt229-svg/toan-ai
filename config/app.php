@@ -41,6 +41,10 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
+    // Token trang chẩn đoán /_diag.php — cũng mở debug cho riêng trình duyệt đã bấm &debug=1
+    // (App\Support\DiagnosticDebug). Trống = tắt. Khai ở đây để vẫn đọc được khi đã config:cache.
+    'diag_token' => env('DIAG_TOKEN'),
+
     /*
     |--------------------------------------------------------------------------
     | Application URL
