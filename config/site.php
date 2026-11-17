@@ -24,6 +24,13 @@ return [
     'email' => env('SITE_EMAIL', 'lienhe@hoctoanonline.com'),
     'hotline' => env('SITE_HOTLINE', ''),
     'address' => env('SITE_ADDRESS', ''),
+    'office_address' => env('SITE_OFFICE_ADDRESS', ''),
+
+    // Thông tin pháp nhân theo Giấy chứng nhận ĐKDN — website TMĐT phải công bố ở chân trang (NĐ 52/2013
+    // Điều 29, hồ sơ Bộ Công Thương). Hiện ở footer qua SiteContact::companyDetails(); trống ô nào bỏ ô đó.
+    'company_tax_code' => env('SITE_COMPANY_TAX_CODE', ''),
+    'company_license_date' => env('SITE_COMPANY_LICENSE_DATE', ''),
+    'company_license_place' => env('SITE_COMPANY_LICENSE_PLACE', ''),
 
     // Local SEO: tách tỉnh/thành, quận/huyện, mã bưu chính ra để JSON-LD khai PostalAddress đủ trường
     // (App\Support\SiteContact). Viết Y HỆT hồ sơ Google Doanh nghiệp — lệch chữ là Google tách hai thực thể.
@@ -40,6 +47,8 @@ return [
     | ảnh gốc là http, trang https sẽ chặn). Chưa có file thì footer hiện link chữ thay cho ảnh.
     */
     'moit_url' => env('SITE_MOIT_URL', ''),
+    // Tạm ẩn huy hiệu mà vẫn giữ link hồ sơ trong .env (yêu cầu 17/11). Bật lại: SITE_MOIT_BADGE=true.
+    'moit_badge' => (bool) env('SITE_MOIT_BADGE', false),
     'moit_logo' => env('SITE_MOIT_LOGO', 'images/da-thong-bao-bo-cong-thuong.png'),
 
     /*

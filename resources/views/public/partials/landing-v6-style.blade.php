@@ -19,5 +19,7 @@
 .hero-grid>*{min-width:0}@media(max-width:580px){.entry .btn{white-space:normal}.float.two{right:-10px}}
 /* Hàng link trang chính sách ở chân trang (Quản trị → Chính sách) — ngoài mẫu V6, Bộ Công Thương yêu cầu có ở mọi trang. */
 .foot .legal-links{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0 0 12px}.foot .legal-links a{display:inline;margin:0}
+/* Khối đơn vị chủ quản (NĐ 52/2013) — ngoài mẫu V6; link trong đoạn văn phải inline, không theo .foot a (block). */
+.foot .company-info{line-height:1.7;overflow-wrap:anywhere}.foot .company-info strong{color:#fff}.foot .company-info a{display:inline;margin:0}
 </style>
 @endverbatim

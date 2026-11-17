@@ -51,9 +51,20 @@ class FooterSocialLinksTest extends TestCase
             ->assertSee('aria-label="Facebook"', false);
     }
 
+    public function test_moit_badge_stays_hidden_while_the_switch_is_off(): void
+    {
+        // Đã có link hồ sơ hợp lệ nhưng công tắc tắt (mặc định) → không hiện huy hiệu.
+        config(['site.moit_badge' => false, 'site.moit_url' => 'http://online.gov.vn/Home/WebDetails/123456']);
+
+        $this->get(route('legal.terms'))->assertOk()
+            ->assertDontSee('Đã thông báo Bộ Công Thương')
+            ->assertDontSee('online.gov.vn', false);
+        $this->get('/')->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
+    }
+
     public function test_moit_badge_is_hidden_until_the_notification_is_approved(): void
     {
-        config(['site.moit_url' => '']);
+        config(['site.moit_badge' => true, 'site.moit_url' => '']);
         $this->get(route('legal.terms'))->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
 
         // Link không về online.gov.vn (chép nhầm, link mẫu) cũng không được gắn huy hiệu.
@@ -64,6 +75,7 @@ class FooterSocialLinksTest extends TestCase
     public function test_moit_badge_links_to_the_registration_page(): void
     {
         config([
+            'site.moit_badge' => true,
             'site.moit_url' => 'http://online.gov.vn/Home/WebDetails/123456',
             'site.moit_logo' => 'khong-co-file-nay.png',
         ]);

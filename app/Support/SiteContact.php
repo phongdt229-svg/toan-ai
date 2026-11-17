@@ -75,6 +75,11 @@ class SiteContact
      */
     public static function moitUrl(): ?string
     {
+        // Công tắc tắt thì coi như chưa có link: mọi chỗ hiện huy hiệu đều đi qua hàm này.
+        if (! config('site.moit_badge')) {
+            return null;
+        }
+
         $url = (string) config('site.moit_url');
         $parts = parse_url($url);
 
@@ -84,6 +89,45 @@ class SiteContact
             && trim($parts['path'] ?? '', '/') !== '';
 
         return $ok ? $url : null;
+    }
+
+    /**
+     * Khối "giới thiệu công ty" ở chân trang — dùng chung cho footer các trang công khai và footer trang chủ V6,
+     * để thông tin pháp nhân không lệch nhau giữa hai nơi (Bộ Công Thương đối chiếu từng chữ với hồ sơ).
+     *
+     * @return array{name: string, registration: ?string, head_office: ?string, office: ?string}|null
+     */
+    public static function companyDetails(): ?array
+    {
+        $name = trim((string) config('site.company'));
+        $tax = trim((string) config('site.company_tax_code'));
+        if ($name === '' || $tax === '') {
+            // Chưa khai mã số doanh nghiệp thì không dựng khối pháp nhân nửa vời — footer giữ dòng © như cũ.
+            return null;
+        }
+
+        $registration = 'Mã số doanh nghiệp: '.$tax;
+        $date = trim((string) config('site.company_license_date'));
+        $place = trim((string) config('site.company_license_place'));
+        if ($date !== '') {
+            $registration .= ', cấp lần đầu ngày '.$date;
+        }
+        if ($place !== '') {
+            $registration .= ' tại '.$place;
+        }
+
+        $office = trim((string) config('site.office_address'));
+        if ($office !== '') {
+            // .env có thể đã ghi kèm tên văn phòng ("Tây Nguyên: 42/10 …") → "Văn phòng Tây Nguyên: …".
+            $office = str_contains($office, ':') ? 'Văn phòng '.$office : 'Văn phòng: '.$office;
+        }
+
+        return [
+            'name' => $name,
+            'registration' => $registration,
+            'head_office' => trim((string) config('site.address')) !== '' ? 'Trụ sở: '.trim((string) config('site.address')) : null,
+            'office' => $office !== '' ? $office : null,
+        ];
     }
 
     /** Hồ sơ Google Doanh nghiệp / Google Maps — chỉ link thật (cùng lưới lọc với footer). */

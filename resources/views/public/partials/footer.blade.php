@@ -8,6 +8,15 @@
                     lộ trình cá nhân hoá và AI Tutor giúp học sinh hiểu bài thay vì chép đáp án.
                 </p>
 
+                {{-- Giới thiệu đơn vị chủ quản (NĐ 52/2013): tên pháp nhân + mã số doanh nghiệp, lấy từ .env SITE_COMPANY_*. --}}
+                @php $company = \App\Support\SiteContact::companyDetails(); @endphp
+                @if ($company)
+                    <div class="small mb-3" data-company-info>
+                        <div class="fw-semibold">{{ $company['name'] }}</div>
+                        <div>{{ $company['registration'] }}</div>
+                    </div>
+                @endif
+
                 <ul class="list-unstyled small d-grid gap-1 mb-0">
                     <li>
                         <i class="bi bi-envelope me-1"></i>
@@ -23,11 +32,19 @@
                     @if (config('site.address'))
                         <li>
                             <i class="bi bi-geo-alt me-1"></i>
+                            @if ($company)
+                                Trụ sở:
+                            @endif
                             @if ($mapUrl = \App\Support\SiteContact::mapUrl())
                                 <a href="{{ $mapUrl }}" target="_blank" rel="noopener">{{ config('site.address') }}</a>
                             @else
                                 {{ config('site.address') }}
                             @endif
+                        </li>
+                    @endif
+                    @if ($company && $company['office'])
+                        <li>
+                            <i class="bi bi-building me-1"></i>{{ $company['office'] }}
                         </li>
                     @endif
                 </ul>

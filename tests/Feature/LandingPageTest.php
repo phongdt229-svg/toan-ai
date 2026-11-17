@@ -87,7 +87,7 @@ class LandingPageTest extends TestCase
 
     public function test_moit_badge_shows_in_the_v6_footer_only_when_the_notification_is_approved(): void
     {
-        config(['site.moit_url' => '']);
+        config(['site.moit_badge' => true, 'site.moit_url' => '']);
         $this->get('/')->assertOk()->assertDontSee('Đã thông báo Bộ Công Thương');
 
         config(['site.moit_url' => 'http://online.gov.vn/Home/WebDetails/123456', 'site.moit_logo' => 'khong-co-file.png']);

@@ -124,6 +124,7 @@
                         // về CÙNG một thực thể. sameAs chỉ nhận link thật (SocialLink lọc link mẫu).
                         'alternateName' => \App\Services\Content\LlmsTxtService::alternateNames() ?: null,
                         'legalName' => config('site.company'),
+                        'taxID' => config('site.company_tax_code') ?: null,
                         'description' => 'Nền tảng học Toán trực tuyến lớp '.config('learning.grade_min').'–'.config('learning.grade_max')
                             .' bám sát chương trình giáo dục phổ thông 2018 của Việt Nam, có AI Tutor gợi ý từng bước thay vì đưa sẵn đáp án.',
                         'url' => url('/'),
