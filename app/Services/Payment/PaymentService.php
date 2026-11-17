@@ -94,7 +94,7 @@ class PaymentService
                     'currency' => $package->currency,
                     'method' => $quote?->isFree() ? Payment::METHOD_VOUCHER : $method,
                     'status' => Payment::STATUS_PENDING,
-                    'expires_at' => now()->addMinutes(config('payment.pending_expire_minutes')),
+                    'expires_at' => now()->addMinutes($this->expiryMinutes($method)),
                     'client_ip' => $ip,
                 ]);
 
@@ -301,6 +301,53 @@ class PaymentService
         return $refund->refresh();
     }
 
+    /**
+     * Quản trị xác nhận đã thấy tiền chuyển khoản về tài khoản (chưa có webhook, hoặc khách ghi sai nội dung).
+     *
+     * Đi qua đúng `apply()` như webhook: khoá dòng, idempotent, kích hoạt gói bằng SubscriptionService,
+     * cả đơn đã bị huỷ do hết hạn (khách chuyển trễ) cũng được cấp gói. `$reference` là mã giao dịch ngân hàng
+     * quản trị đã đối chiếu — bắt buộc để sau này tra lại được.
+     *
+     * @throws PaymentException
+     */
+    public function confirmBankTransfer(Payment $payment, User $admin, string $reference): Payment
+    {
+        if ($payment->method !== Payment::METHOD_BANK_QR) {
+            throw new PaymentException('Chỉ xác nhận tay được đơn chuyển khoản QR.');
+        }
+
+        if (! in_array($payment->status, [Payment::STATUS_PENDING, Payment::STATUS_CANCELLED], true)) {
+            throw new PaymentException('Đơn này không còn chờ thanh toán.');
+        }
+
+        $notification = new GatewayNotification(
+            orderCode: $payment->order_code,
+            amount: $payment->amountInt(), // quản trị xác nhận đủ tiền của ĐƠN — số lấy từ DB
+            transactionId: Str::limit(trim($reference), 100, ''),
+            resultCode: 0,
+            message: 'Quản trị xác nhận đã nhận chuyển khoản',
+            raw: ['confirmed_by' => $admin->id, 'reference' => trim($reference)],
+        );
+
+        $log = PaymentWebhookLog::create([
+            'provider' => Payment::METHOD_BANK_QR.'-manual',
+            'order_code' => $payment->order_code,
+            'signature_valid' => true,
+            'payload' => $notification->raw,
+        ]);
+
+        $result = $this->finish($log, ...$this->apply($notification, Payment::METHOD_BANK_QR));
+
+        if ($result === PaymentWebhookLog::RESULT_PROCESSED) {
+            $this->audit->log('payment.bank_transfer_confirmed', $payment, ['status' => $payment->status], [
+                'reference' => trim($reference),
+                'amount' => $payment->amountInt(),
+            ]);
+        }
+
+        return $payment->refresh();
+    }
+
     /** Đơn chờ quá hạn → huỷ cùng đăng ký chờ. Trước khi huỷ hỏi lại cổng một lần để không huỷ nhầm đơn đã trả. */
     public function expireStale(): int
     {
@@ -466,6 +513,14 @@ class PaymentService
         $log->update(['result' => $result, 'message' => $message, 'processed_at' => now()]);
 
         return $result;
+    }
+
+    /** Chuyển khoản QR có hạn riêng (khách phải mở app ngân hàng); cổng khác dùng hạn chung. */
+    private function expiryMinutes(string $method): int
+    {
+        $minutes = $method === Payment::METHOD_BANK_QR ? (int) config('payment.bank_qr.expires_minutes') : 0;
+
+        return $minutes > 0 ? $minutes : (int) config('payment.pending_expire_minutes');
     }
 
     /** Mã đơn: TOANAI + ngày giờ + ngẫu nhiên — không đoán được, không lộ id nội bộ. */

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Package;
 use App\Models\Payment;
 use App\Services\Payment\Contracts\SimulatesPayments;
+use App\Services\Payment\Gateways\BankQrGateway;
 use App\Services\Payment\PaymentException;
 use App\Services\Payment\PaymentGatewayManager;
 use App\Services\Payment\PaymentService;
@@ -83,7 +84,15 @@ class PaymentController extends Controller
             $payment = $this->payments->reconcile($payment);
         }
 
-        return view('payment.show', ['payment' => $payment->load('package', 'subscription.user')]);
+        // Chuyển khoản QR: "cổng" chính là trang này — hiện mã QR + số tài khoản trong lúc đơn còn chờ.
+        $bankQr = $payment->isPending() && $payment->method === Payment::METHOD_BANK_QR
+            ? app(BankQrGateway::class)->instructions($payment)
+            : null;
+
+        return view('payment.show', [
+            'payment' => $payment->load('package', 'subscription.user'),
+            'bankQr' => $bankQr,
+        ]);
     }
 
     /** Trang kết quả hỏi định kỳ trong lúc chờ IPN. */

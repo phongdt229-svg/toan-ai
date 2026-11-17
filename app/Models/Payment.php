@@ -27,10 +27,14 @@ class Payment extends Model
 
     public const METHOD_STRIPE = 'stripe';
 
+    /** Chuyển khoản ngân hàng quét mã VietQR — xác nhận qua webhook biến động số dư hoặc quản trị xác nhận tay. */
+    public const METHOD_BANK_QR = 'bank_qr';
+
     public const METHOD_LABELS = [
         self::METHOD_MOMO => 'MoMo',
         self::METHOD_VNPAY => 'VNPAY',
         self::METHOD_STRIPE => 'Thẻ quốc tế (Stripe)',
+        self::METHOD_BANK_QR => 'Chuyển khoản QR',
         self::METHOD_VOUCHER => 'Mã giảm giá',
     ];
 

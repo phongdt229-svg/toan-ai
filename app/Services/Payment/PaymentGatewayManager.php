@@ -4,6 +4,7 @@ namespace App\Services\Payment;
 
 use App\Models\Payment;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
+use App\Services\Payment\Gateways\BankQrGateway;
 use App\Services\Payment\Gateways\FakeMomoGateway;
 use App\Services\Payment\Gateways\FakeStripeGateway;
 use App\Services\Payment\Gateways\FakeVnpayGateway;
@@ -22,6 +23,7 @@ class PaymentGatewayManager
         Payment::METHOD_MOMO => MomoGateway::class,
         Payment::METHOD_VNPAY => VnpayGateway::class,
         Payment::METHOD_STRIPE => StripeGateway::class,
+        Payment::METHOD_BANK_QR => BankQrGateway::class,
     ];
 
     /** @var array<string, class-string<PaymentGatewayInterface>> */
@@ -29,6 +31,8 @@ class PaymentGatewayManager
         Payment::METHOD_MOMO => FakeMomoGateway::class,
         Payment::METHOD_VNPAY => FakeVnpayGateway::class,
         Payment::METHOD_STRIPE => FakeStripeGateway::class,
+        // Không có cổng ngoài để giả lập: QR thật vẫn quét được, local xác nhận qua nút của quản trị.
+        Payment::METHOD_BANK_QR => BankQrGateway::class,
     ];
 
     /** @var array<string, PaymentGatewayInterface> */

@@ -156,6 +156,11 @@
                                         <i class="bi bi-globe2 me-1"></i>Thẻ quốc tế
                                         <span class="d-block small fw-normal opacity-75">Visa, Mastercard, Apple Pay, Google Pay</span>
                                     </button>
+                                @elseif ($method === \App\Models\Payment::METHOD_BANK_QR)
+                                    <button name="method" value="bank_qr" class="btn btn-lg w-100 text-white" style="background:#0f766e">
+                                        <i class="bi bi-qr-code-scan me-1"></i>Chuyển khoản QR
+                                        <span class="d-block small fw-normal opacity-75">Quét mã bằng app ngân hàng bất kỳ, không mất phí</span>
+                                    </button>
                                 @elseif ($method === \App\Models\Payment::METHOD_VNPAY)
                                     <button name="method" value="vnpay" class="btn btn-lg w-100 text-white" style="background:#005baa">
                                         <i class="bi bi-credit-card me-1"></i>Thanh toán qua VNPAY

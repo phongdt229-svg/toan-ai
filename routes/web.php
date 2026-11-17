@@ -524,6 +524,7 @@ Route::middleware('auth')->group(function () {
             Route::post('giao-dich/{payment}/hoan-tien', [AdminPaymentController::class, 'refund'])
                 ->middleware('throttle:10,1')->name('payments.refund');
             Route::post('giao-dich/{payment}/doi-soat', [AdminPaymentController::class, 'reconcile'])->name('payments.reconcile');
+            Route::post('giao-dich/{payment}/xac-nhan-chuyen-khoan', [AdminPaymentController::class, 'confirmBankTransfer'])->name('payments.confirm-bank');
             Route::post('dang-ky-goi/{subscription}/huy', [AdminSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
 
             Route::get('chuong-trinh', [CurriculumController::class, 'index'])->name('curriculum.index');

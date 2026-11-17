@@ -9,13 +9,35 @@
     <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mb-3">
         <h2 class="h5 fw-bold mb-0"><code>{{ $payment->order_code }}</code></h2>
         <span class="badge text-bg-{{ ['paid' => 'success', 'pending' => 'warning', 'failed' => 'danger', 'cancelled' => 'secondary', 'refunded' => 'info'][$payment->status] }}">{{ $payment->statusLabel() }}</span>
-        @if (! in_array($payment->status, ['paid', 'refunded'], true))
+        @if (! in_array($payment->status, ['paid', 'refunded'], true) && $payment->method !== \App\Models\Payment::METHOD_BANK_QR)
             <form method="POST" action="{{ route('admin.payments.reconcile', $payment) }}" class="ms-auto">
                 @csrf
                 <button class="btn btn-sm btn-outline-primary"><i class="bi bi-arrow-repeat me-1"></i>Đối soát với {{ $payment->methodLabel() }}</button>
             </form>
         @endif
     </div>
+
+    {{-- Chuyển khoản QR: ngân hàng không có API tra cứu — quản trị mở app/sao kê, thấy tiền về thì xác nhận ở đây. --}}
+    @if ($payment->method === \App\Models\Payment::METHOD_BANK_QR && in_array($payment->status, ['pending', 'cancelled'], true))
+        <div class="card border-warning mb-3">
+            <div class="card-body small">
+                <div class="fw-semibold mb-1"><i class="bi bi-bank me-1"></i>Xác nhận chuyển khoản</div>
+                <p class="text-secondary mb-2">
+                    Kiểm tra tài khoản nhận có khoản <strong>{{ $payment->amountLabel() }}</strong> với nội dung
+                    <code>{{ $payment->order_code }}</code> (hoặc khách đã gửi biên lai). Xác nhận là gói được kích hoạt ngay
+                    — kể cả đơn đã huỷ vì hết hạn.
+                </p>
+                <form method="POST" action="{{ route('admin.payments.confirm-bank', $payment) }}" class="d-flex flex-column flex-sm-row gap-2"
+                      data-confirm="Xác nhận đã nhận {{ $payment->amountLabel() }} cho đơn {{ $payment->order_code }} và kích hoạt gói?" data-confirm-ok="Xác nhận">
+                    @csrf
+                    <input name="reference" class="form-control form-control-sm @error('reference') is-invalid @enderror" maxlength="100" required
+                           placeholder="Mã giao dịch ngân hàng (FT…)" aria-label="Mã giao dịch ngân hàng" value="{{ old('reference') }}">
+                    <button class="btn btn-sm btn-success text-nowrap"><i class="bi bi-check2-circle me-1"></i>Xác nhận đã nhận tiền</button>
+                </form>
+                @error('reference')<div class="text-danger mt-1">{{ $message }}</div>@enderror
+            </div>
+        </div>
+    @endif
 
     @if ($payment->flag_reason)
         <div class="alert alert-danger small">
@@ -103,6 +125,9 @@
                     <div class="form-text">
                         Còn hoàn được {{ number_format($payment->refundableInt(), 0, ',', '.') }}₫.
                         Hoàn toàn bộ thì gói bị thu hồi; hoàn một phần thì gói được giữ nguyên.
+                        @if ($payment->method === \App\Models\Payment::METHOD_BANK_QR)
+                            <strong class="text-danger d-block mt-1">Chuyển khoản QR không có cổng để hoàn: hãy tự chuyển khoản trả khách TRƯỚC, nút này chỉ ghi sổ.</strong>
+                        @endif
                     </div>
                 @endif
             </div>

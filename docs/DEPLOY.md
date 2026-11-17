@@ -122,6 +122,16 @@ BACKUP_KEEP_DAYS=14
 > Thu bằng **VND** (D-06) — Stripe coi VND là đơn vị không thập phân, giá gửi đi đúng bằng giá trong bảng `packages`.
 > Bật Stripe thì Chính sách bảo mật tự khai Stripe là bên xử lý thanh toán (điều kiện theo `PAYMENT_METHODS`) — nhớ sửa `SITE_LEGAL_UPDATED_AT`.
 
+### 2.3. Bật chuyển khoản QR (VietQR)
+
+1. `.env`: điền `BANK_QR_BANK_BIN`, `BANK_QR_BANK_NAME`, `BANK_QR_ACCOUNT_NO`, `BANK_QR_ACCOUNT_NAME`, thêm `bank_qr` vào
+   `PAYMENT_METHODS`, rồi `php artisan config:clear`.
+2. Tự động xác nhận (khuyên dùng): đăng ký dịch vụ biến động số dư (SePay), webhook URL
+   `https://hoctoanonline.com/api/v1/payment/bank-qr/webhook`, kiểu xác thực **API Key**; đặt cùng khoá vào `BANK_QR_WEBHOOK_SECRET`.
+3. Chưa có webhook: khách chuyển xong, quản trị mở Quản trị → Giao dịch → đơn → **Xác nhận đã nhận tiền** (nhập mã giao dịch ngân hàng).
+   Tiền về mà không khớp đơn (sửa nội dung, chuyển thiếu) hiện ở thẻ "Chuyển khoản chưa khớp".
+4. Hoàn tiền đơn QR: tự chuyển khoản trả khách trước, rồi bấm Hoàn tiền để ghi sổ.
+
 ## 3. Các bước deploy (mỗi lần phát hành)
 
 Dùng sẵn script [deploy/deploy.sh](../deploy/deploy.sh) — nó bật trang bảo trì, làm đủ các bước dưới đây,

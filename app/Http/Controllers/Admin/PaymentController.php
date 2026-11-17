@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ConfirmBankTransferRequest;
 use App\Http\Requests\Admin\RefundPaymentRequest;
 use App\Models\Payment;
 use App\Models\PaymentWebhookLog;
 use App\Services\Payment\PaymentException;
 use App\Services\Payment\PaymentService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -42,9 +44,40 @@ class PaymentController extends Controller
                 'flagged' => Payment::whereNotNull('flag_reason')->count(),
                 'bad_signatures_7d' => PaymentWebhookLog::where('result', PaymentWebhookLog::RESULT_INVALID_SIGNATURE)
                     ->where('created_at', '>=', now()->subDays(7))->count(),
+                'unmatched_bank' => $this->unmatchedBankTransfers()->count(),
             ],
+            'unmatchedBank' => $this->unmatchedBankTransfers()->latest('id')->limit(10)->get(),
             'daily' => $this->dailyForChart(),
         ]);
+    }
+
+    /**
+     * Tiền chuyển khoản đã về (webhook hợp lệ) mà không khớp được đơn còn mở — trong 30 ngày.
+     * Đơn sau đó đã được xác nhận (tay hoặc webhook gửi lại) thì không tính nữa.
+     */
+    private function unmatchedBankTransfers(): Builder
+    {
+        return PaymentWebhookLog::query()
+            ->where('provider', Payment::METHOD_BANK_QR)
+            ->where('signature_valid', true)
+            ->whereIn('result', [PaymentWebhookLog::RESULT_NOT_FOUND, PaymentWebhookLog::RESULT_AMOUNT_MISMATCH])
+            ->where('created_at', '>=', now()->subDays(30))
+            ->where(fn ($q) => $q->whereNull('order_code')->orWhereNotIn('order_code', Payment::query()
+                ->select('order_code')->whereIn('status', [Payment::STATUS_PAID, Payment::STATUS_REFUNDED])));
+    }
+
+    /** Quản trị đã thấy tiền về tài khoản ngân hàng → kích hoạt đơn chuyển khoản QR (qua PaymentService). */
+    public function confirmBankTransfer(ConfirmBankTransferRequest $request, Payment $payment, PaymentService $payments): RedirectResponse
+    {
+        try {
+            $payment = $payments->confirmBankTransfer($payment, $request->user(), $request->validated('reference'));
+        } catch (PaymentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with($payment->isPaid() ? 'status' : 'error', $payment->isPaid()
+            ? 'Đã xác nhận chuyển khoản và kích hoạt gói.'
+            : 'Chưa kích hoạt được — xem log bên dưới.');
     }
 
     /**

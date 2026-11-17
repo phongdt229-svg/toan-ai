@@ -53,6 +53,23 @@ return [
         'timeout' => 30,
     ],
 
+    /*
+    | Chuyển khoản QR (VietQR) — thêm "bank_qr" vào PAYMENT_METHODS để hiện nút. QR dựng ngay trên server
+    | (App\Support\VietQr), không gọi dịch vụ ngoài. Nội dung chuyển khoản = mã đơn.
+    | Xác nhận tự động: dịch vụ biến động số dư (SePay/…) gọi ${APP_URL}/api/v1/payment/bank-qr/webhook
+    | kèm header "Authorization: Apikey <webhook_secret>". Trống khoá = webhook từ chối hết, quản trị
+    | xác nhận tay ở Quản trị → Giao dịch → đơn → "Xác nhận đã nhận tiền".
+    */
+    'bank_qr' => [
+        'bank_bin' => env('BANK_QR_BANK_BIN'),
+        'bank_name' => env('BANK_QR_BANK_NAME'),
+        'account_no' => env('BANK_QR_ACCOUNT_NO'),
+        'account_name' => env('BANK_QR_ACCOUNT_NAME'),
+        'webhook_secret' => env('BANK_QR_WEBHOOK_SECRET'),
+        // Người dùng phải mở app ngân hàng, quét, chuyển — hạn riêng thay cho pending_expire_minutes.
+        'expires_minutes' => (int) env('BANK_QR_EXPIRES_MINUTES', 15),
+    ],
+
     'vnpay' => [
         'tmn_code' => env('VNPAY_TMN_CODE'),
         'hash_secret' => env('VNPAY_HASH_SECRET'),

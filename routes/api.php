@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\ActivityController;
 use App\Http\Controllers\Api\V1\AiController;
+use App\Http\Controllers\Api\V1\BankQrWebhookController;
 use App\Http\Controllers\Api\V1\MomoIpnController;
 use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\StripeWebhookController;
@@ -106,6 +107,11 @@ Route::post('onboarding', OnboardingController::class)
 Route::post('payment/stripe/webhook', StripeWebhookController::class)
     ->middleware('throttle:120,1')
     ->name('api.payment.stripe.webhook');
+
+// Webhook biến động số dư cho chuyển khoản QR (SePay…): khoá bí mật trong header Authorization — loại trừ CSRF ở bootstrap/app.php.
+Route::post('payment/bank-qr/webhook', BankQrWebhookController::class)
+    ->middleware('throttle:120,1')
+    ->name('api.payment.bank-qr.webhook');
 
 // IPN VNPAY là GET nên không đụng CSRF; URL này phải khai trong trang quản trị merchant của VNPAY.
 Route::get('payment/vnpay/ipn', VnpayIpnController::class)

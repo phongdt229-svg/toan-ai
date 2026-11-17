@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/v1/payment/momo/ipn',
             'api/v1/payment/stripe/webhook',
+            'api/v1/payment/bank-qr/webhook',
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));
