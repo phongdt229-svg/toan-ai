@@ -1193,8 +1193,16 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
 - [x] (17/11) Thành CMS: admin tạo / sửa / ẩn / xoá trang, slug cố định từ lúc tạo; trang mới qua `Route::fallback`;
       footer + "Các chính sách khác" + sitemap tự liệt kê. Nạp sẵn 6 trang đang chạy trên production (`database/data/legal_pages.php`).
       SQL cho production: `deploy/sql/2026-11-17-legal-pages.sql` (chạy lại an toàn).
-- [ ] Thanh toán "Chuyển khoản QR" có trên production nhưng KHÔNG có trong git — đưa code server vào git trước khi deploy.
-- Test: `LegalPageTest`.
+- [x] (17/11) Thanh toán "Chuyển khoản QR" dựng lại trong git (`BankQrGateway`, `App\Support\VietQr`, webhook SePay,
+      quản trị xác nhận tay). Kèm trang chẩn đoán `_diag.php`, công tắc huy hiệu Bộ Công Thương, khối thông tin công ty ở footer.
+- Test: `LegalPageTest`, `BankQrPaymentTest`, `DiagnosticDebugTest`, `FooterCompanyInfoTest`.
+
+### ✅ Đã làm (18/11) — Trang chủ: lối vào cổng khi đã đăng nhập
+
+- [x] Đã đăng nhập thì header, menu điện thoại, nút dính và cột "Tài khoản" ở footer thay Đăng nhập/Đăng ký bằng nút
+      vào đúng cổng (`User::homeRoute()`): quản trị / giáo viên / học sinh / phụ huynh. Vai trò đang đóng cổng coi như khách.
+      Trang có tên người dùng nên `SecurityHeaders` đặt `no-store` — CDN không cache nhầm.
+- Test: `LandingPortalLinkTest`.
 
 ### ✅ Đã làm (04/11) — Tạm ẩn cổng phụ huynh (giáo viên mở lại)
 

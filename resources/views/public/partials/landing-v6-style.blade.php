@@ -21,5 +21,7 @@
 .foot .legal-links{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0 0 12px}.foot .legal-links a{display:inline;margin:0}
 /* Khối đơn vị chủ quản (NĐ 52/2013) — ngoài mẫu V6; link trong đoạn văn phải inline, không theo .foot a (block). */
 .foot .company-info{line-height:1.7;overflow-wrap:anywhere}.foot .company-info strong{color:#fff}.foot .company-info a{display:inline;margin:0}
+/* Tên người đã đăng nhập cạnh nút vào cổng — ngoài mẫu V6; tên dài không được đẩy vỡ hàng nav. */
+.navright .hello{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
 </style>
 @endverbatim

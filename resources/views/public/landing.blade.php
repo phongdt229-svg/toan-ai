@@ -15,6 +15,18 @@
     // Cổng phụ huynh đang ẩn: đăng ký cho con đi qua tài khoản học sinh, bỏ các câu hứa bố mẹ theo dõi được (không có thật khi đóng).
     $parentPortal = \App\Support\RolePortal::enabled('parent');
     $signupUrl = route($parentPortal ? 'register.parent' : 'register.student');
+    // Đã đăng nhập: thay nút Đăng nhập/Đăng ký bằng lối vào đúng cổng của vai trò (SecurityHeaders đã đặt no-store
+    // cho người đăng nhập nên CDN không cache nhầm bản này cho khách). Vai trò đang đóng cổng thì coi như khách.
+    $viewer = auth()->user();
+    $portalLink = $viewer && ! \App\Support\RolePortal::blocks($viewer) ? [
+        'url' => $viewer->homeRoute(),
+        'label' => match (true) {
+            $viewer->isAdmin() => 'Vào trang quản trị',
+            $viewer->isTeacher() => 'Vào trang giáo viên',
+            $viewer->isParent() => 'Vào trang phụ huynh',
+            default => 'Vào học ngay',
+        },
+    ] : null;
 @endphp
 
 @push('head')
