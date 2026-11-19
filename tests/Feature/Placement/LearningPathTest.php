@@ -326,6 +326,25 @@ class LearningPathTest extends PlacementTestCase
         }])->all();
     }
 
+    /** Đáp án đúng cho một tập con câu hỏi sao cho điểm (làm tròn như service) nằm trong [$min, $max). */
+    private function answersScoringBetween(StudySession $session, int $min, int $max): array
+    {
+        $correct = $this->correctAnswers($session);
+        $points = Question::whereIn('id', array_keys($correct))->pluck('points', 'id')->map(fn ($p) => (float) $p);
+        $total = $points->sum();
+        $ids = array_keys($correct);
+
+        for ($mask = 1; $mask < (1 << count($ids)); $mask++) {
+            $picked = array_values(array_filter($ids, fn ($id, $i) => $mask & (1 << $i), ARRAY_FILTER_USE_BOTH));
+            $percent = (int) round($points->only($picked)->sum() / $total * 100);
+            if ($percent >= $min && $percent < $max) {
+                return array_intersect_key($correct, array_flip($picked));
+            }
+        }
+
+        $this->fail("Không có tổ hợp câu nào cho điểm {$min}–{$max}% với điểm từng câu: ".$points->toJson());
+    }
+
     private function sessionAtQuiz(User $student): StudySession
     {
         $this->completePlacement($student);
@@ -350,8 +369,9 @@ class LearningPathTest extends PlacementTestCase
         $session = $this->sessionAtQuiz($student);
         $this->assertCount(5, $session->quiz_question_ids);
 
-        // Đúng 3/5 câu → khoảng 50–79% (điểm từng câu khác nhau) → nhánh "bài mới + ~30% ôn".
-        $answers = array_slice($this->correctAnswers($session), 0, 3, true);
+        // Trả lời đúng một nhóm câu cho tổng điểm 50–79% → nhánh "bài mới + ~30% ôn".
+        // Không lấy cứng "3 câu đầu": câu được chọn ngẫu nhiên và điểm từng câu khác nhau, có lượt 3/5 câu chỉ được 40%.
+        $answers = $this->answersScoringBetween($session, LearningPathService::QUIZ_PASS_PERCENT, LearningPathService::QUIZ_ADVANCE_PERCENT);
         $result = $this->paths()->submitQuiz($session, $answers);
 
         $this->assertGreaterThanOrEqual(LearningPathService::QUIZ_PASS_PERCENT, $result['percent']);
