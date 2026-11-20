@@ -1197,6 +1197,28 @@ Kế hoạch đầy đủ: [docs/SEO_KEYWORDS.md](docs/SEO_KEYWORDS.md).
       quản trị xác nhận tay). Kèm trang chẩn đoán `_diag.php`, công tắc huy hiệu Bộ Công Thương, khối thông tin công ty ở footer.
 - Test: `LegalPageTest`, `BankQrPaymentTest`, `DiagnosticDebugTest`, `FooterCompanyInfoTest`.
 
+### ✅ Đã làm (19/11) — Nội dung + tăng trưởng: nhập đề Word · điểm thưởng · giới thiệu bạn bè · thi thử · gói gia đình
+
+Chốt với người dùng: điểm chỉ dùng cho huy hiệu + xếp hạng · giới thiệu mặc định bạn mới 10% / người mời 20% ·
+gói gia đình vào bằng mã · đề thi thử khoá theo từng đề. Production: `php artisan migrate` hoặc `deploy/sql/2026-11-19-growth-features.sql`.
+
+- [x] **Nhập đề Word (.docx)** — "Câu N:", đáp án A–F (cùng dòng/tab/ô bảng), "Đáp án: B" hoặc gạch chân/tô đỏ, "Lời giải:",
+      "Mức độ:", "(0,5 điểm)", Đúng/Sai, trả lời ngắn, không đáp án → tự luận. Công thức Equation (OMML) → LaTeX.
+      Xem trước từng câu (lỗi/cảnh báo) rồi mới lưu; tệp đề mẫu tải được. Chưa lấy được hình ảnh và MathType dạng ảnh (có cảnh báo).
+- [x] **Điểm thưởng + huy hiệu** — học bài, nộp đề, đề ≥ 80%, xong buổi lộ trình, ngày học đủ giờ; 11 huy hiệu; trang Thành tích,
+      xếp hạng tuần trong lớp (ẩn tên được); Quản trị → Điểm thưởng. Trang chủ vẫn CHƯA quảng cáo điểm thưởng (chờ người dùng duyệt nội dung).
+- [x] **Giới thiệu bạn bè** — link riêng, mã chào mừng cho bạn mới, mã thưởng khi bạn trả tiền thật, thu lại khi hoàn tiền,
+      giới hạn số lần thưởng; trang "Mời bạn học cùng" + Quản trị → Giới thiệu bạn bè.
+- [x] **Thi thử vào 10 / THPT** — loại đề "Thi thử" + kỳ thi; trang `/hoc-sinh/thi-thu`; kết quả có điểm thang 10, hạng,
+      % thí sinh làm kém hơn, điểm TB, chủ đề cần ôn. Còn thiếu: **đề thi thật** (việc soạn nội dung).
+- [x] **Gói gia đình** — `max_members` ở form Gói học; mã gia đình ở "Gói của tôi"; thành viên nhập mã, chủ gói gỡ, thành viên tự rời;
+      gia hạn tự chuyển thành viên; hết hạn / hoàn tiền là mọi thành viên mất quyền. Phụ huynh thấy mã gia đình ở trang gói của con.
+- [x] Chủ đề yếu ở kết quả thi thử dẫn thẳng tới trang bài học của chủ đề đó.
+- [x] Hình học phẳng / không gian bỏ khỏi menu trái → thẻ trên trang Học của lớp phù hợp (phẳng 6–10, không gian 8, 9, 11, 12).
+- [ ] Việc của người vận hành: tạo gói gia đình thật (giá, số học sinh) ở Quản trị → Gói học; soạn đề thi thử; cân nhắc
+      thêm "điểm thưởng" vào trang chủ khi muốn quảng cáo.
+- Test: `WordQuestionImportTest`, `RewardTest`, `ReferralTest`, `MockExamTest`, `FamilyPlanTest`, `GeometryToolsPlacementTest`.
+
 ### ✅ Đã làm (18/11) — Trang chủ: lối vào cổng khi đã đăng nhập
 
 - [x] Đã đăng nhập thì header, menu điện thoại, nút dính và cột "Tài khoản" ở footer thay Đăng nhập/Đăng ký bằng nút

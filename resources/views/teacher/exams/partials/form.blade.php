@@ -38,6 +38,17 @@
     </div>
 
     <div class="col-6 col-lg-3">
+        <label for="mock_track" class="form-label">Kỳ thi (chỉ cho đề Thi thử)</label>
+        <select id="mock_track" name="mock_track" class="form-select @error('mock_track') is-invalid @enderror">
+            <option value="">—</option>
+            @foreach (Exam::MOCK_TRACKS as $value => $label)
+                <option value="{{ $value }}" @selected(old('mock_track', $exam->mock_track) === $value)>{{ $label }}</option>
+            @endforeach
+        </select>
+        @error('mock_track') <div class="invalid-feedback">{{ $message }}</div> @enderror
+    </div>
+
+    <div class="col-6 col-lg-3">
         <label for="duration_minutes" class="form-label">Thời gian (phút)</label>
         <input type="number" id="duration_minutes" name="duration_minutes" min="1" max="300"
                value="{{ old('duration_minutes', $exam->duration_minutes) }}"

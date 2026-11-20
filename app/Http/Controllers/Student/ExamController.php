@@ -9,6 +9,7 @@ use App\Models\ExamAttempt;
 use App\Services\AccessControlService;
 use App\Services\Learning\ExamException;
 use App\Services\Learning\ExamService;
+use App\Services\Learning\MockExamService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,6 +31,7 @@ class ExamController extends Controller
         $exams = Exam::query()
             ->published()
             ->open()
+            ->where('type', '!=', Exam::TYPE_MOCK) // đề thi thử có trang riêng (MockExamController)
             ->when($gradeId, fn ($q) => $q->where('grade_id', $gradeId))
             ->withCount(['attempts as my_attempts_count' => fn ($q) => $q->where('user_id', $user->id)])
             ->withMax(['attempts as my_best_score' => fn ($q) => $q->where('user_id', $user->id)], 'score')
@@ -152,6 +154,11 @@ class ExamController extends Controller
             'answers' => $attempt->answers->keyBy('question_id'),
             'breakdown' => $this->exams->breakdownByTopic($attempt),
             'revealAnswers' => $attempt->exam->answersRevealable(),
+            // Đề thi thử: thêm điểm thang 10, xếp hạng giữa các thí sinh, chủ đề cần ôn.
+            'mock' => $attempt->exam->isMock() ? [
+                'standing' => app(MockExamService::class)->standing($attempt),
+                'weak' => app(MockExamService::class)->weakTopics($attempt),
+            ] : null,
         ]);
     }
 }

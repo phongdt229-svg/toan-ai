@@ -26,7 +26,7 @@ class Voucher extends Model
 
     protected $fillable = [
         'code', 'description', 'type', 'value', 'max_discount', 'min_order_amount',
-        'starts_at', 'ends_at', 'max_uses', 'max_uses_per_user', 'is_active', 'is_public', 'created_by',
+        'starts_at', 'ends_at', 'max_uses', 'max_uses_per_user', 'is_active', 'is_public', 'created_by', 'owner_id',
     ];
 
     protected function casts(): array
@@ -70,6 +70,12 @@ class Voucher extends Model
     public function heldRedemptions(): HasMany
     {
         return $this->redemptions()->whereNull('released_at');
+    }
+
+    /** Mã riêng (thưởng giới thiệu): chỉ tài khoản này dùng được. */
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
     public function creator(): BelongsTo

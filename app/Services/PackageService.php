@@ -28,6 +28,7 @@ class PackageService
                 'tier' => $data['tier'],
                 'price' => $data['price'],
                 'duration_days' => $data['duration_days'] ?? null,
+                'max_members' => (int) ($data['max_members'] ?? 1),
                 'description' => $data['description'] ?? null,
                 'sort_order' => $data['sort_order'] ?? 0,
                 'is_active' => $data['is_active'],

@@ -35,6 +35,7 @@ class ExamRequest extends FormRequest
                 },
             ],
             'type' => ['required', Rule::in(array_keys(Exam::TYPES))],
+            'mock_track' => ['nullable', 'required_if:type,'.Exam::TYPE_MOCK, Rule::in(array_keys(Exam::MOCK_TRACKS))],
             'duration_minutes' => ['required', 'integer', 'min:1', 'max:300'],
             'difficulty' => ['required', Rule::in(array_keys(Exam::DIFFICULTIES))],
             'access_level' => ['required', Rule::in(['free', 'pro', 'premium'])],
@@ -54,6 +55,8 @@ class ExamRequest extends FormRequest
             'shuffle_questions' => $this->boolean('shuffle_questions'),
             'shuffle_options' => $this->boolean('shuffle_options'),
             'show_answers_after_submit' => $this->boolean('show_answers_after_submit'),
+            // Kỳ thi chỉ có nghĩa với đề thi thử — đổi sang loại khác thì xoá đi.
+            'mock_track' => $this->input('type') === Exam::TYPE_MOCK ? $this->input('mock_track') : null,
         ]);
     }
 
@@ -67,6 +70,13 @@ class ExamRequest extends FormRequest
             'max_attempts' => 'số lượt làm',
             'available_from' => 'thời điểm mở',
             'available_to' => 'thời điểm đóng',
+            'mock_track' => 'kỳ thi',
         ];
+    }
+
+    /** @return array<string, string> */
+    public function messages(): array
+    {
+        return ['mock_track.required_if' => 'Đề thi thử cần chọn kỳ thi (vào lớp 10 hay tốt nghiệp THPT).'];
     }
 }

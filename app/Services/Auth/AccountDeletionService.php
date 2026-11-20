@@ -108,6 +108,11 @@ class AccountDeletionService
             DB::table('study_schedules')->where('student_id', $user->id)->delete();
             DB::table('student_attendances')->where('student_id', $user->id)->delete();
             DB::table('user_onboarding')->where('user_id', $user->id)->delete();
+            // Điểm thưởng + huy hiệu gắn với hành vi học của một em — không phục vụ sổ sách nào.
+            DB::table('reward_points')->where('user_id', $user->id)->delete();
+            DB::table('user_badges')->where('user_id', $user->id)->delete();
+            // Rời mọi gói gia đình — chủ gói không còn thấy tên tài khoản đã xoá trong danh sách thành viên.
+            DB::table('subscription_members')->where('user_id', $user->id)->delete();
 
             // Yêu cầu hỗ trợ giữ lại để đối soát nhưng bỏ tên và email.
             DB::table('support_tickets')->where('user_id', $user->id)->update([
@@ -128,6 +133,8 @@ class AccountDeletionService
                 'email' => "deleted-{$user->id}@deleted.invalid",
                 'phone' => null,
                 'avatar' => null,
+                // Mã giới thiệu đã chia sẻ công khai — link không được dẫn tới tài khoản đã xoá nữa.
+                'referral_code' => null,
                 'password' => Hash::make(Str::random(40)),
                 'remember_token' => null,
                 'notification_preferences' => null,

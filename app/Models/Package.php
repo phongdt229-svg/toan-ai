@@ -22,13 +22,14 @@ class Package extends Model
     public const TIER_LABELS = [self::TIER_FREE => 'Free', self::TIER_PRO => 'Pro', self::TIER_PREMIUM => 'Premium'];
 
     protected $fillable = [
-        'name', 'slug', 'tier', 'price', 'currency', 'duration_days', 'description',
+        'name', 'slug', 'tier', 'price', 'currency', 'duration_days', 'max_members', 'description',
         'is_default', 'is_active', 'is_highlighted', 'sort_order',
     ];
 
     protected function casts(): array
     {
         return [
+            'max_members' => 'integer',
             'price' => 'decimal:2',
             'duration_days' => 'integer',
             'is_default' => 'boolean',
@@ -65,6 +66,12 @@ class Package extends Model
     public function isFree(): bool
     {
         return (float) $this->price <= 0;
+    }
+
+    /** Gói gia đình: nhiều học sinh dùng chung một đơn (người mua + thành viên vào bằng mã). */
+    public function isFamily(): bool
+    {
+        return (int) $this->max_members > 1;
     }
 
     public function tierLabel(): string

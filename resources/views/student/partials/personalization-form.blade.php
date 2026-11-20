@@ -51,6 +51,14 @@
                     @error('target_score')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
+                <div class="form-check mb-3">
+                    <input type="hidden" name="hide_from_leaderboard" value="0">
+                    <input class="form-check-input" type="checkbox" id="set-hide-leaderboard" name="hide_from_leaderboard" value="1"
+                           @checked(old('hide_from_leaderboard', $profile->hide_from_leaderboard))>
+                    <label class="form-check-label" for="set-hide-leaderboard">Ẩn tên em trên bảng xếp hạng của lớp</label>
+                    <div class="form-text">Các bạn sẽ thấy "Bạn học ẩn danh" thay cho tên em. Điểm vẫn được tính.</div>
+                </div>
+
                 <button class="btn btn-primary btn-touch">Lưu cá nhân hoá</button>
             </form>
         </div>

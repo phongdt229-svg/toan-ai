@@ -18,7 +18,7 @@
         </div>
     @else
         <div class="row g-3 mb-4">
-            @foreach ($children as ['student' => $student, 'current' => $current])
+            @foreach ($children as ['student' => $student, 'current' => $current, 'family' => $family, 'familySeats' => $familySeats, 'memberOf' => $memberOf])
                 <div class="col-12 col-md-6">
                     <div class="card border h-100">
                         <div class="card-body">
@@ -32,6 +32,21 @@
                                 </div>
                             @else
                                 <div class="mb-3"><span class="badge text-bg-light border">Free</span></div>
+                            @endif
+
+                            @if ($family)
+                                <div class="border rounded-3 p-2 mb-3 small" data-family-code>
+                                    Mã gia đình: <strong class="font-monospace">{{ $family->join_code }}</strong>
+                                    — các con khác đăng nhập tài khoản của mình, vào <em>Gói của tôi</em> và nhập mã này.
+                                    <div class="text-secondary mt-1">
+                                        @if ($family->members->isNotEmpty())
+                                            Đang dùng chung: {{ $family->members->pluck('name')->join(', ') }} ·
+                                        @endif
+                                        Còn {{ $familySeats }} chỗ.
+                                    </div>
+                                </div>
+                            @elseif ($memberOf)
+                                <p class="small text-secondary mb-3">Đang dùng chung gói gia đình của {{ $memberOf->user->name }}.</p>
                             @endif
 
                             <a href="{{ route('packages.index') }}" class="btn btn-sm {{ $current ? 'btn-outline-primary' : 'btn-warning' }}">

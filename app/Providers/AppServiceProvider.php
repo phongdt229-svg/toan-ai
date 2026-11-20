@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Services\Admin\MaintenanceModeService;
 use App\Services\AI\Contracts\AiProviderInterface;
 use App\Services\AI\Providers\FakeProvider;
 use App\Services\AI\Providers\OpenAiProvider;
+use App\Services\FamilyPlanService;
 use App\Services\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\Payment\PaymentGatewayManager;
 use App\Support\DiagnosticDebug;
@@ -144,5 +146,9 @@ class AppServiceProvider extends ServiceProvider
         // Lịch học (D-01): chính học sinh, hoặc phụ huynh ĐÃ liên kết. Giáo viên không đặt lịch ở nhà cho học sinh.
         Gate::define('manage-study-schedule', fn (User $actor, User $student) => $student->isStudent()
             && ($actor->is($student) || $actor->isParentOf($student)));
+
+        // Gói gia đình: chủ gói, người trả tiền (quản trị đã qua Gate::before) gỡ được thành viên; thành viên tự rời được.
+        Gate::define('manage-family-member', fn (User $actor, Subscription $subscription, User $member) => $actor->id === $member->id
+            || app(FamilyPlanService::class)->canManage($actor, $subscription));
     }
 }

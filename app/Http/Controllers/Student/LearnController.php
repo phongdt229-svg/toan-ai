@@ -26,6 +26,8 @@ class LearnController extends Controller
             'grade' => $grade,
             'grades' => Grade::active()->ordered()->get(),
             'subjects' => $this->lessons->curriculumTree($grade),
+            'geometryTools' => collect(config('learning.geometry_tools', []))
+                ->filter(fn (array $tool) => in_array($grade->level, $tool['levels'], true)),
         ]);
     }
 

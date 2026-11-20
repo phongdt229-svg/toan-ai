@@ -60,10 +60,7 @@ class QuestionImporter
         $line = 1;
 
         // Cache chủ đề hợp lệ của lớp này để không query mỗi dòng.
-        $validTopicIds = Topic::query()
-            ->whereHas('chapter.subject', fn ($q) => $q->where('grade_id', $grade->id))
-            ->pluck('id')
-            ->flip();
+        $validTopicIds = $this->topicIdsOf($grade);
 
         while (($raw = fgetcsv($handle)) !== false) {
             $line++;
@@ -89,6 +86,54 @@ class QuestionImporter
         fclose($handle);
 
         return ['imported' => $imported, 'skipped' => $skipped, 'errors' => $errors];
+    }
+
+    /**
+     * Nhập các dòng đã tách sẵn (cùng dạng cột CSV) — dùng cho đề Word sau khi giáo viên xem trước.
+     * Dòng còn lỗi thì bỏ qua, giống CSV.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return array{imported: int, skipped: int, errors: array<int, string>}
+     */
+    public function importRows(array $rows, Grade $grade, User $author, string $status = 'draft', ?int $topicId = null): array
+    {
+        $validTopicIds = $this->topicIdsOf($grade);
+        $imported = 0;
+        $skipped = 0;
+        $errors = [];
+
+        foreach ($rows as $row) {
+            $label = 'Câu '.($row['number'] ?? '?');
+            if (! empty($row['errors'])) {
+                $skipped++;
+
+                continue;
+            }
+
+            $row = array_map(fn ($v) => is_scalar($v) ? (string) $v : '', $row);
+            $row['topic_id'] = $topicId !== null ? (string) $topicId : '';
+
+            try {
+                $this->importRow($row, $grade, $author, $status, $validTopicIds);
+                $imported++;
+            } catch (\InvalidArgumentException $e) {
+                $skipped++;
+                if (count($errors) < 20) {
+                    $errors[] = "{$label}: {$e->getMessage()}";
+                }
+            }
+        }
+
+        return ['imported' => $imported, 'skipped' => $skipped, 'errors' => $errors];
+    }
+
+    /** @return Collection<int, int> */
+    private function topicIdsOf(Grade $grade): Collection
+    {
+        return Topic::query()
+            ->whereHas('chapter.subject', fn ($q) => $q->where('grade_id', $grade->id))
+            ->pluck('id')
+            ->flip();
     }
 
     /**

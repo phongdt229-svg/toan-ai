@@ -135,6 +135,9 @@
         @else
             <span class="text-success">· hôm nay đã tính ✓</span>
         @endif
+        <a href="{{ route('student.rewards.index') }}" class="ms-sm-auto badge text-bg-light border text-decoration-none fs-6" data-testid="reward-summary">
+            <i class="bi bi-star-fill text-warning"></i> {{ number_format($rewardPoints, 0, ',', '.') }} điểm · {{ $badgeCount }} huy hiệu
+        </a>
     </div>
 
     {{-- Thời gian học thật hôm nay — chỉ tính lúc có tương tác, không phải lúc để tab mở. --}}

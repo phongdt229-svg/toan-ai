@@ -5,6 +5,7 @@ import { initAiTutor } from './ai-tutor';
 import { initActivityTracker } from './activity-tracker';
 import { initOnboarding } from './onboarding-tour';
 import './confirm-dialog';
+import './share-link';
 import { renderGeometry } from './geometry-embed';
 
 window.bootstrap = bootstrap;

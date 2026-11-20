@@ -24,7 +24,19 @@ class Exam extends Model
         'practice' => 'Ôn tập',
         'quiz' => 'Kiểm tra nhanh',
         'test' => 'Kiểm tra',
+        'mock' => 'Thi thử',
     ];
+
+    public const TYPE_MOCK = 'mock';
+
+    /** Kỳ thi của đề thi thử — học sinh lớp 9 thấy "vào 10", lớp 12 thấy "THPT" trước. */
+    public const MOCK_TRACKS = [
+        'grade10' => 'Thi vào lớp 10',
+        'thpt' => 'Tốt nghiệp THPT',
+    ];
+
+    /** Lớp mà mỗi kỳ thi nhắm tới. */
+    public const MOCK_TRACK_GRADE = ['grade10' => 9, 'thpt' => 12];
 
     /** @var array<string, string> */
     public const DIFFICULTIES = [
@@ -35,7 +47,7 @@ class Exam extends Model
     ];
 
     protected $fillable = [
-        'title', 'slug', 'description', 'grade_id', 'type', 'duration_minutes',
+        'title', 'slug', 'description', 'grade_id', 'type', 'mock_track', 'duration_minutes',
         'total_questions', 'total_points', 'difficulty', 'access_level', 'max_attempts',
         'shuffle_questions', 'shuffle_options', 'show_answers_after_submit',
         'available_from', 'available_to', 'status', 'created_by',
@@ -100,6 +112,16 @@ class Exam extends Model
         return $query
             ->where(fn ($q) => $q->whereNull('available_from')->orWhere('available_from', '<=', now()))
             ->where(fn ($q) => $q->whereNull('available_to')->orWhere('available_to', '>=', now()));
+    }
+
+    public function isMock(): bool
+    {
+        return $this->type === self::TYPE_MOCK;
+    }
+
+    public function scopeMock(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_MOCK);
     }
 
     public function isPublished(): bool

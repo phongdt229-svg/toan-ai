@@ -57,6 +57,52 @@
         </div>
     </div>
 
+    @if ($mock)
+        @php $st = $mock['standing']; @endphp
+        <div class="card border border-primary mb-4" data-mock-standing>
+            <div class="card-body">
+                <h2 class="h6 fw-bold mb-3">{{ \App\Models\Exam::MOCK_TRACKS[$exam->mock_track] ?? 'Thi thử' }} — kết quả của em</h2>
+                <div class="row g-3 text-center">
+                    <div class="col-4">
+                        <div class="small text-secondary">Điểm thang 10</div>
+                        <div class="h3 fw-bold mb-0 text-primary">{{ rtrim(rtrim(number_format($st['score10'], 2, ',', ''), '0'), ',') }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="small text-secondary">Hạng</div>
+                        <div class="h3 fw-bold mb-0">{{ $st['rank'] }}<span class="fs-6 text-secondary">/{{ $st['candidates'] }}</span></div>
+                    </div>
+                    <div class="col-4">
+                        <div class="small text-secondary">Điểm TB thí sinh</div>
+                        <div class="h3 fw-bold mb-0">{{ rtrim(rtrim(number_format($st['average10'], 2, ',', ''), '0'), ',') }}</div>
+                    </div>
+                </div>
+                @if ($st['candidates'] > 1)
+                    <p class="small mt-3 mb-0">Em làm tốt hơn <strong>{{ $st['beat_percent'] }}%</strong> thí sinh đã làm đề này (tính lượt tốt nhất của mỗi bạn).</p>
+                @else
+                    <p class="small text-secondary mt-3 mb-0">Em là thí sinh đầu tiên — xếp hạng sẽ rõ hơn khi có thêm bạn làm đề.</p>
+                @endif
+                @if ($mock['weak'])
+                    <div class="small mt-3">
+                        <div class="fw-semibold">Nên ôn trước kỳ thi:</div>
+                        <ul class="mb-0 ps-3">
+                            @foreach ($mock['weak'] as $row)
+                                <li>
+                                    @if ($row['topic_id'])
+                                        <a href="{{ route('student.learn.topic', $row['topic_id']) }}">{{ $row['topic'] }}</a>
+                                    @else
+                                        {{ $row['topic'] }}
+                                    @endif
+                                    — đúng {{ $row['percent'] }}%
+                                </li>
+                            @endforeach
+                        </ul>
+                        <a href="{{ route('student.practice.index') }}" class="btn btn-sm btn-outline-primary mt-2">Luyện tập các chủ đề này</a>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
+
     @if (count($breakdown) > 0)
         <div class="card border mb-4">
             <div class="card-body">

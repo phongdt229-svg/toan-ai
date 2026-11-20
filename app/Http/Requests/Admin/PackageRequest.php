@@ -35,6 +35,8 @@ class PackageRequest extends FormRequest
             'tier' => ['required', Rule::in(array_keys(Package::TIER_LABELS))],
             'price' => ['required', 'numeric', 'min:0', 'max:100000000'],
             'duration_days' => ['nullable', 'integer', 'min:1', 'max:3650', 'required_unless:price,0'],
+            // Gói gia đình: tổng số học sinh dùng chung một đơn (kể cả người mua). 1 = gói thường.
+            'max_members' => ['nullable', 'integer', 'min:1', 'max:10'],
             'description' => ['nullable', 'string', 'max:500'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:1000'],
             'is_active' => ['boolean'],
@@ -84,6 +86,7 @@ class PackageRequest extends FormRequest
             'tier' => 'hạng',
             'price' => 'giá',
             'duration_days' => 'số ngày',
+            'max_members' => 'số học sinh dùng chung',
         ];
     }
 }

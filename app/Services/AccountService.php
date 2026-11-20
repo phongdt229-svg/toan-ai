@@ -32,6 +32,7 @@ class AccountService
             'favorite_color' => $data['favorite_color'] ?? null,
             'interests' => StudentProfile::parseInterests($data['interests'] ?? null),
             'target_score' => $data['target_score'] ?? null,
+            'hide_from_leaderboard' => (bool) ($data['hide_from_leaderboard'] ?? false),
         ]);
 
         return $profile;

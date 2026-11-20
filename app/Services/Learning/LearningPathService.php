@@ -2,6 +2,7 @@
 
 namespace App\Services\Learning;
 
+use App\Events\StudySessionCompleted;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\LearningPath;
@@ -465,6 +466,7 @@ class LearningPathService
             if ($ids === []) {
                 $session->update(['status' => StudySession::STATUS_DONE, 'completed_at' => now()]);
                 $this->recalculate($session->loadMissing('path')->path);
+                StudySessionCompleted::dispatch($session->path->user()->firstOrFail(), $session);
 
                 return collect();
             }
@@ -588,6 +590,7 @@ class LearningPathService
 
             $this->mastery->recalculateForTopics($student, $questions->pluck('topic_id')->filter()->all());
             $this->recalculate($locked->path);
+            StudySessionCompleted::dispatch($student, $locked);
 
             return [
                 'percent' => $percent,

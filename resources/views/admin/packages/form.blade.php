@@ -50,6 +50,13 @@
                     @error('duration_days')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-6 col-md-3">
+                    <label class="form-label" for="max_members">Số học sinh dùng chung</label>
+                    <input id="max_members" name="max_members" type="number" min="1" max="10" class="form-control @error('max_members') is-invalid @enderror"
+                           value="{{ old('max_members', $package->max_members ?? 1) }}">
+                    <div class="form-text">1 = gói thường. Từ 2 = gói gia đình: người mua nhận mã để anh chị em tự vào gói.</div>
+                    @error('max_members')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-6 col-md-3">
                     <label class="form-label" for="sort_order">Thứ tự</label>
                     <input id="sort_order" name="sort_order" type="number" min="0" class="form-control" value="{{ old('sort_order', $package->sort_order ?? 0) }}">
                 </div>

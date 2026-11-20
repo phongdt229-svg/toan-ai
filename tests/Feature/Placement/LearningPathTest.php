@@ -377,6 +377,10 @@ class LearningPathTest extends PlacementTestCase
         $this->assertGreaterThanOrEqual(LearningPathService::QUIZ_PASS_PERCENT, $result['percent']);
         $this->assertLessThan(LearningPathService::QUIZ_ADVANCE_PERCENT, $result['percent']);
         $this->assertSame(LearningPathService::NEXT_REVIEW_SHARE, $result['next']);
+        // Xong buổi → điểm thưởng "hoàn thành buổi lộ trình" (listener AwardLearningPoints).
+        $this->assertDatabaseHas('reward_points', [
+            'user_id' => $student->id, 'reason' => 'path_session_done', 'source_type' => 'study_session', 'source_id' => $session->id,
+        ]);
 
         $path = $this->pathFor($student);
         $reviews = $path->items()->where('origin', 'review')->get();

@@ -2,6 +2,8 @@
 
 namespace App\Services\Payment;
 
+use App\Events\PaymentCompleted;
+use App\Events\PaymentFullyRefunded;
 use App\Models\Package;
 use App\Models\Payment;
 use App\Models\PaymentRefund;
@@ -296,6 +298,9 @@ class PaymentService
             ]);
 
             DB::afterCommit(fn () => $payment->user->notify(new PaymentRefunded($payment, $refund)));
+            if ($full) {
+                DB::afterCommit(fn () => PaymentFullyRefunded::dispatch($payment));
+            }
         });
 
         return $refund->refresh();
@@ -481,6 +486,8 @@ class PaymentService
 
             $payment->load('user', 'package', 'subscription.user');
             DB::afterCommit(fn () => $payment->user->notify(new PaymentSucceeded($payment)));
+            // Module khác (thưởng giới thiệu…) nghe sự kiện này — không gọi thẳng từ đây.
+            DB::afterCommit(fn () => PaymentCompleted::dispatch($payment));
 
             return [PaymentWebhookLog::RESULT_PROCESSED];
         });

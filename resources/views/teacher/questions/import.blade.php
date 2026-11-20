@@ -8,6 +8,65 @@
         <i class="bi bi-chevron-left"></i> Ngân hàng câu hỏi
     </a>
 
+    {{-- Word trước CSV: giáo viên soạn đề bằng Word + Equation là chính, CSV dành cho người quen bảng tính. --}}
+    <h2 class="h5 fw-bold mt-2 mb-1">Nhập đề từ tệp Word</h2>
+    <p class="text-secondary small mb-3">
+        Mỗi câu bắt đầu bằng <code>Câu 1:</code>, đáp án <code>A.</code> <code>B.</code>…, dòng <code>Đáp án: B</code>
+        (hoặc gạch chân / tô đỏ đáp án đúng) và <code>Lời giải:</code>. Công thức gõ bằng <strong>Insert → Equation</strong>.
+        Bạn sẽ được xem trước từng câu trước khi lưu.
+    </p>
+
+    <div class="card border mb-4" data-word-import>
+        <div class="card-body">
+            <form method="POST" action="{{ route('teacher.questions.import.word') }}" enctype="multipart/form-data">
+                @csrf
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6">
+                        <label for="word_grade_id" class="form-label">Nhập vào lớp <span class="text-danger">*</span></label>
+                        <select id="word_grade_id" name="grade_id" class="form-select" required>
+                            @foreach ($grades as $g)
+                                <option value="{{ $g->id }}" @selected($g->id === $grade->id)>{{ $g->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label for="word_topic_id" class="form-label">Gắn vào chủ đề của {{ $grade->name }}</label>
+                        <select id="word_topic_id" name="topic_id" class="form-select @error('topic_id') is-invalid @enderror">
+                            <option value="">— Chưa gắn (gắn sau trong ngân hàng câu hỏi) —</option>
+                            @foreach ($topics as $topic)
+                                <option value="{{ $topic->id }}" @selected((string) old('topic_id') === (string) $topic->id)>{{ $topic->chapter->name }} · {{ $topic->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('topic_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="form-text">
+                            Chủ đề của lớp khác:
+                            @foreach ($grades as $g)
+                                @if ($g->id !== $grade->id)
+                                    <a href="{{ route('teacher.questions.import', ['grade' => $g->slug]) }}">{{ $g->name }}</a>{{ $loop->last ? '' : ' ·' }}
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label for="word_file" class="form-label">Tệp Word (.docx) <span class="text-danger">*</span></label>
+                        <input type="file" id="word_file" name="file" required
+                               accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                               class="form-control @error('file') is-invalid @enderror">
+                        @error('file') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="form-text">Tối đa 10MB. Tệp .doc cũ: mở bằng Word rồi lưu lại dạng .docx.
+                            Công thức MathType: chọn MathType → Convert Equations → Office Math trước khi tải lên.</div>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-touch"><i class="bi bi-eye me-1"></i>Tải lên và xem trước</button>
+                    <a href="{{ route('teacher.questions.import.word.template') }}" class="btn btn-outline-secondary btn-touch">
+                        <i class="bi bi-file-earmark-word me-1"></i>Tải đề mẫu Word
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <h2 class="h5 fw-bold mt-2 mb-3">Nhập câu hỏi từ tệp CSV</h2>
 
     @if (session('import_errors'))

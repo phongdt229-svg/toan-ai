@@ -69,6 +69,8 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
   Blade không nhận directive viết liền sau chữ (`dõi@endif`) — sẽ lỗi 500, dùng `{{ cond ? '…' : '' }}` hoặc để trước/sau là thẻ HTML.
 - Menu học sinh: "Hỏi đáp" gom hỏi đáp theo chủ đề + hỏi AI (tab `partials/ask-tabs`); "Lớp của tôi" đã gỡ khỏi menu
   (route `student.classes.*` vẫn chạy để nhập mã lớp từ trang Bài được giao).
+  Hình học phẳng / không gian **không ở menu** — hiện thành thẻ trên trang Học của lớp phù hợp
+  (`config/learning.php → geometry_tools.levels`: phẳng 6–10, không gian 8, 9, 11, 12). Test: `GeometryToolsPlacementTest`.
 - Xoá tài khoản: chỉ qua `AccountDeletionService` (soft delete → 30 ngày → `anonymise()`), không `User::delete()` tay.
   Thêm bảng mới chứa dữ liệu cá nhân thì **phải bổ sung vào `anonymise()`**, nếu không là vi phạm Chính sách bảo mật.
   Lệnh dọn: `accounts:purge` (đã đặt lịch 03:00 hằng ngày).
@@ -186,6 +188,27 @@ Roadmap **Phase 0–10 đã xong**. Triển khai production: [docs/DEPLOY.md](do
 - Gỡ lỗi 500 production: `public/_diag.php?token=DIAG_TOKEN` (đứng ngoài Laravel, xem `docs/DEPLOY.md §7.1`), `&debug=1`
   bật debug cho riêng trình duyệt đó qua `App\Support\DiagnosticDebug` (đọc ở đầu `AppServiceProvider::register`).
   Không bật `APP_DEBUG=true` cho cả site. `DIAG_TOKEN` trống = tắt hẳn (404); token < 32 ký tự cũng coi như tắt.
+- Nhập đề Word (`DocxQuestionParser` + `App\Support\Docx\OmmlToLatex`): chỉ đọc công thức **Equation của Word (OMML)**;
+  MathType dạng ảnh OLE không đọc được (cảnh báo bảo giáo viên Convert → Office Math). Kết quả tách giữ ở **cache server**
+  theo (giáo viên, token), form xác nhận chỉ gửi token — không cho trình duyệt gửi lại đáp án. Lưu qua `QuestionImporter::importRows()`
+  (chung đường với CSV). Text escape từng dòng rồi mới ghép `<br>`. Test dựng tệp bằng `App\Support\Docx\SimpleDocx`.
+- Điểm thưởng (`App\Services\Rewards\RewardService`): chỉ để mở huy hiệu + xếp hạng tuần — **không đổi ra tiền/mã giảm giá** (chốt 19/11).
+  Sổ cái `reward_points` unique (user, lý do, nguồn) → gọi lại vô hại; nguồn của đề là ĐỀ (không phải lượt làm). Số điểm ở
+  `reward_rules` (Quản trị → Điểm thưởng). Huy hiệu khai ở `config/badges.php` — chỉ thêm, không đổi tên khoá đã trao.
+  Cộng điểm qua listener `AwardLearningPoints` (`LessonCompleted`, `ExamAttemptFinished`, `StudySessionCompleted`) + heartbeat
+  (ngày học đủ giờ). Không cộng khi đăng nhập hộ. Bảng xếp hạng tôn trọng `student_profiles.hide_from_leaderboard`.
+- Giới thiệu bạn bè (`App\Services\Referral\ReferralService`): link `/gioi-thieu/{mã}` chỉ đặt cookie MÃ; gắn quan hệ lúc đăng ký
+  học sinh. Phần thưởng là **mã giảm giá riêng** (`vouchers.owner_id` — `VoucherService` chặn người khác dùng, `publicOffers()` loại ra).
+  Người giới thiệu chỉ được thưởng khi bạn mới trả **tiền thật** (event `PaymentCompleted`, bắn sau commit từ `PaymentService::apply()`);
+  hoàn đủ tiền (`PaymentFullyRefunded`) → tắt mã thưởng chưa dùng. Mức thưởng ở `referral_settings` (Quản trị → Giới thiệu bạn bè).
+  Module mới cần phản ứng khi đơn trả xong/hoàn tiền → nghe hai event này, đừng gọi thẳng từ `PaymentService`.
+- Thi thử: đề `type=mock` + `mock_track` (grade10 | thpt), làm bài đi nguyên luồng `ExamService`; trang `/hoc-sinh/thi-thu`,
+  danh sách Đề kiểm tra **loại** đề mock. Điểm thang 10 / hạng / chủ đề yếu ở `MockExamService`. Khoá theo `access_level` từng đề.
+- Gói gia đình: `packages.max_members > 1`. Thành viên vào bằng `subscriptions.join_code` (sinh trong `SubscriptionService::activate()`),
+  quyền đọc ở **một chỗ**: `SubscriptionService::effective()` xét cả `subscription_members`. Mọi thay đổi thành viên qua
+  `FamilyPlanService` (khoá dòng, kiểm số chỗ, gắn/gỡ khỏi cả gói đang chạy lẫn gói gia hạn nối tiếp). Gia hạn tự chuyển thành viên.
+- Bảng mới đợt 19/11 đã thêm vào `anonymise()` + `DataExportService`: `reward_points`, `user_badges`, `subscription_members`,
+  `users.referral_code`. Production không migrate được thì chạy `deploy/sql/2026-11-19-growth-features.sql` (một lần).
 - CI chạy `php artisan test` trên mỗi push/PR vào `main` ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
   Job `pint --test` đã bật (repo đã dọn 24/09) — trước khi commit chạy `vendor/bin/pint`.
 

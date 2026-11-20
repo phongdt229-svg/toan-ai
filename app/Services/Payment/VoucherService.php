@@ -111,6 +111,7 @@ class VoucherService
             ->with('packages:id,name')
             ->where('is_active', true)
             ->where('is_public', true)
+            ->whereNull('owner_id')
             ->where(fn ($q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
             ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
             ->withCount(['redemptions as used' => fn ($q) => $q->whereNull('released_at')])
@@ -146,6 +147,13 @@ class VoucherService
 
         if ($voucher->hasEnded()) {
             throw new VoucherException('Mã giảm giá đã hết hạn.');
+        }
+
+        // Mã riêng (thưởng giới thiệu): chỉ chủ mã dùng được. Khách chưa đăng nhập thì chưa biết là ai → mời đăng nhập.
+        if ($voucher->owner_id !== null && $user?->id !== $voucher->owner_id) {
+            throw new VoucherException($user
+                ? 'Mã này dành riêng cho tài khoản được tặng.'
+                : 'Mã này dành riêng cho một tài khoản — hãy đăng nhập để dùng.');
         }
 
         if (! $voucher->appliesTo($package)) {

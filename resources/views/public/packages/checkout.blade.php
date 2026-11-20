@@ -29,6 +29,12 @@
                             <div>
                                 <div class="fw-bold fs-5">{{ $package->name }}</div>
                                 <div class="text-secondary small">{{ $package->description }}</div>
+                                @if ($package->isFamily())
+                                    <div class="small text-primary mt-1" data-family-note>
+                                        <i class="bi bi-people-fill me-1"></i>Gói gia đình: dùng chung cho tối đa {{ $package->max_members }} học sinh.
+                                        Sau khi thanh toán, vào <strong>Gói của tôi</strong> để lấy mã mời anh chị em.
+                                    </div>
+                                @endif
                             </div>
                             <div class="text-end">
                                 <div class="fw-bold fs-4 text-primary">{{ $package->priceLabel() }}</div>

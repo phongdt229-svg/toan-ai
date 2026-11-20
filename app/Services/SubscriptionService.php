@@ -46,9 +46,12 @@ class SubscriptionService
             return $this->effectiveCache[$user][1];
         }
 
+        // Gói của chính em, hoặc gói gia đình em là thành viên (subscription_members) — một chỗ duy nhất,
+        // nên limit()/allows()/AccessControlService đều tự đúng cho thành viên gói gia đình.
         $effective = Subscription::query()
             ->effective()
-            ->where('user_id', $user->id)
+            ->where(fn ($q) => $q->where('user_id', $user->id)
+                ->orWhereIn('id', DB::table('subscription_members')->where('user_id', $user->id)->select('subscription_id')))
             ->with('package.features')
             ->get()
             ->sortByDesc(fn (Subscription $s) => [Package::TIER_RANK[$s->package->tier] ?? 0, $s->ends_at->timestamp])
@@ -191,7 +194,27 @@ class SubscriptionService
                 'activated_at' => now(),
                 // Gia hạn xong thì nhắc lại từ đầu cho chu kỳ mới.
                 'expiry_reminded_days' => null,
+                // Gói gia đình: mã để anh chị em tự vào gói (FamilyPlanService::join).
+                'join_code' => $locked->package->max_members > 1 ? $this->newJoinCode() : null,
             ]);
+
+            // Gia hạn gói gia đình = một đăng ký MỚI nối tiếp: chuyển thành viên của gói gia đình gần nhất sang,
+            // không thì hết hạn gói cũ là các em mất quyền dù chủ gói đã trả tiền gia hạn.
+            if ($locked->package->max_members > 1) {
+                $previous = Subscription::query()
+                    ->where('user_id', $locked->user_id)
+                    ->whereKeyNot($locked->id)
+                    ->where('status', Subscription::STATUS_ACTIVE)
+                    ->whereHas('package', fn ($q) => $q->where('max_members', '>', 1))
+                    ->latest('ends_at')
+                    ->first();
+
+                if ($previous) {
+                    $memberIds = DB::table('subscription_members')->where('subscription_id', $previous->id)
+                        ->limit($locked->package->max_members - 1)->pluck('user_id');
+                    $locked->members()->syncWithoutDetaching($memberIds->mapWithKeys(fn ($id) => [$id => ['joined_at' => now()]])->all());
+                }
+            }
 
             self::$generation++;
 
@@ -261,6 +284,15 @@ class SubscriptionService
                 'cancelled_at' => now(),
                 'cancel_reason' => 'Quá hạn thanh toán',
             ]);
+    }
+
+    private function newJoinCode(): string
+    {
+        do {
+            $code = 'GD'.substr(str_shuffle(str_repeat('ABCDEFGHJKMNPQRSTUVWXYZ23456789', 2)), 0, 6);
+        } while (Subscription::where('join_code', $code)->exists());
+
+        return $code;
     }
 
     public function forget(User $user): void

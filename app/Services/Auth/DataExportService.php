@@ -77,9 +77,23 @@ class DataExportService
             ],
             'billing' => [
                 'subscriptions' => $mine('subscriptions', 'user_id', ['purchased_by']),
+                'family_memberships' => $mine('subscription_members'),
                 'payments' => $mine('payments', 'user_id', [
                     'gateway_response', 'pay_url', 'client_ip', 'gateway_request_id', 'flag_reason',
                 ]),
+            ],
+            'rewards' => [
+                'points' => $mine('reward_points'),
+                'badges' => $mine('user_badges'),
+            ],
+            // Chỉ phía của chính người này: ai đã giới thiệu mình + những ai mình giới thiệu (không kèm email bạn bè).
+            'referrals' => [
+                'referral_code' => $user->referral_code,
+                'referred_by' => $user->referred_by,
+                'invited' => DB::table('referrals')->where('referrer_id', $user->id)
+                    ->get(['referred_id', 'status', 'rewarded_at', 'created_at'])->map(fn ($r) => (array) $r)->all(),
+                'personal_vouchers' => DB::table('vouchers')->where('owner_id', $user->id)
+                    ->get(['code', 'value', 'ends_at', 'is_active'])->map(fn ($r) => (array) $r)->all(),
             ],
             'onboarding' => $mine('user_onboarding'),
             'support_tickets' => $mine('support_tickets', 'user_id', ['ip_address', 'user_agent', 'admin_note', 'handled_by']),

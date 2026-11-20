@@ -14,16 +14,18 @@ return [
 
     'student' => [
         ['label' => 'Trang chủ', 'icon' => 'bi-house', 'route' => 'student.dashboard', 'bottom' => true],
-        ['label' => 'Học', 'icon' => 'bi-journal-text', 'route' => 'student.learn.index', 'bottom' => true, 'tour' => 'nav-learn'],
+        // Công cụ hình học không còn mục riêng — vào từ trang Học của lớp phù hợp (config learning.geometry_tools).
+        ['label' => 'Học', 'icon' => 'bi-journal-text', 'route' => 'student.learn.index', 'active' => ['student.learn.*', 'student.plane-geometry.*', 'student.solid-geometry.*'], 'bottom' => true, 'tour' => 'nav-learn'],
         ['label' => 'Bài tập', 'icon' => 'bi-pencil-square', 'route' => 'student.practice.index', 'bottom' => true],
         // Hỏi đáp theo chủ đề + hỏi AI gom một mục (yêu cầu 31/10); hai trang có thanh tab chuyển qua lại.
         ['label' => 'Hỏi đáp', 'icon' => 'bi-chat-dots', 'route' => 'student.qa.index', 'active' => ['student.qa.*', 'student.ai.*'], 'bottom' => true],
         ['label' => 'Đề kiểm tra', 'icon' => 'bi-clipboard-check', 'route' => 'student.exams.index', 'bottom' => false],
+        ['label' => 'Thi thử', 'icon' => 'bi-mortarboard', 'route' => 'student.mock-exams.index', 'bottom' => false],
         ['label' => 'Bài được giao', 'icon' => 'bi-list-check', 'route' => 'student.assignments.index', 'bottom' => false],
         ['label' => 'Phụ huynh', 'icon' => 'bi-house-heart', 'route' => 'student.parents.index', 'bottom' => false, 'portal' => 'parent'],
         ['label' => 'Lộ trình', 'icon' => 'bi-signpost-split', 'route' => 'student.path.show', 'bottom' => false, 'tour' => 'nav-path'],
-        ['label' => 'Hình học phẳng', 'icon' => 'bi-triangle', 'route' => 'student.plane-geometry.index', 'bottom' => false],
-        ['label' => 'Hình học không gian', 'icon' => 'bi-box', 'route' => 'student.solid-geometry.index', 'bottom' => false],
+        ['label' => 'Thành tích', 'icon' => 'bi-trophy', 'route' => 'student.rewards.index', 'bottom' => false],
+        ['label' => 'Mời bạn học cùng', 'icon' => 'bi-gift', 'route' => 'student.referrals.index', 'bottom' => false],
         ['label' => 'Lịch học', 'icon' => 'bi-calendar-week', 'route' => 'student.schedule.edit', 'bottom' => false, 'tour' => 'nav-schedule'],
         ['label' => 'Gói của tôi', 'icon' => 'bi-gem', 'route' => 'student.subscription.index', 'bottom' => false],
         ['label' => 'Cài đặt', 'icon' => 'bi-gear', 'route' => 'student.settings', 'bottom' => false],
@@ -62,6 +64,8 @@ return [
         ['label' => 'Danh mục bài viết', 'icon' => 'bi-tags', 'route' => 'admin.blog-categories.index', 'bottom' => false],
         ['label' => 'Gói học', 'icon' => 'bi-gem', 'route' => 'admin.packages.index', 'bottom' => false],
         ['label' => 'Mã giảm giá', 'icon' => 'bi-ticket-perforated', 'route' => 'admin.vouchers.index', 'bottom' => false],
+        ['label' => 'Điểm thưởng', 'icon' => 'bi-stars', 'route' => 'admin.rewards.index', 'bottom' => false],
+        ['label' => 'Giới thiệu bạn bè', 'icon' => 'bi-gift', 'route' => 'admin.referrals.index', 'bottom' => false],
         ['label' => 'Đăng ký gói', 'icon' => 'bi-person-vcard', 'route' => 'admin.subscriptions.index', 'bottom' => false],
         ['label' => 'Giao dịch', 'icon' => 'bi-credit-card', 'route' => 'admin.payments.index', 'bottom' => false],
         ['label' => 'Google Analytics', 'icon' => 'bi-graph-up-arrow', 'route' => 'admin.analytics.index', 'bottom' => false],

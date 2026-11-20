@@ -4,6 +4,63 @@
 @section('page_title', 'Gói của tôi')
 
 @section('content')
+    {{-- Gói gia đình: chủ gói thấy mã + thành viên; thành viên thấy gói đang dùng chung; còn lại thấy ô nhập mã. --}}
+    @if ($ownedFamily)
+        <div class="card border border-primary mb-4" data-family-owner>
+            <div class="card-body">
+                <h2 class="h6 fw-bold"><i class="bi bi-people-fill me-1"></i>Gói gia đình {{ $ownedFamily->package->name }}</h2>
+                <p class="small mb-2">
+                    Gửi mã này cho anh chị em — các bạn vào <strong>Gói của tôi</strong> và nhập mã để dùng chung gói.
+                    Còn <strong>{{ $seatsLeft }}</strong> chỗ.
+                </p>
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                    <span class="font-monospace fs-5 fw-bold">{{ $ownedFamily->join_code }}</span>
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-copy-text="{{ $ownedFamily->join_code }}">
+                        <i class="bi bi-copy me-1"></i><span data-copy-label>Sao chép</span>
+                    </button>
+                </div>
+                @foreach ($ownedFamily->members as $member)
+                    <div class="d-flex align-items-center gap-2 small border-top py-2">
+                        <i class="bi bi-person"></i><span class="flex-grow-1">{{ $member->name }}</span>
+                        <form method="POST" action="{{ route('student.family.remove', [$ownedFamily, $member]) }}"
+                              data-confirm="Gỡ {{ $member->name }} khỏi gói gia đình? Bạn ấy sẽ mất quyền gói ngay." data-confirm-ok="Gỡ">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-sm btn-outline-danger">Gỡ</button>
+                        </form>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @elseif ($memberFamily)
+        <div class="card border border-primary mb-4" data-family-member>
+            <div class="card-body small d-flex flex-wrap gap-2 align-items-center">
+                <i class="bi bi-people-fill text-primary"></i>
+                <span class="flex-grow-1">Em đang dùng chung gói gia đình <strong>{{ $memberFamily->package->name }}</strong>
+                    của {{ $memberFamily->user->name }} · hết hạn {{ $memberFamily->ends_at->format('d/m/Y') }}</span>
+                <form method="POST" action="{{ route('student.family.remove', [$memberFamily, auth()->user()]) }}"
+                      data-confirm="Rời gói gia đình? Em sẽ quay về gói của riêng em." data-confirm-ok="Rời gói">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-sm btn-outline-secondary">Rời gói</button>
+                </form>
+            </div>
+        </div>
+    @else
+        <form method="POST" action="{{ route('student.family.join') }}" class="card border mb-4" data-family-join>
+            @csrf
+            <div class="card-body">
+                <label for="join_code" class="form-label small fw-semibold">Có mã gói gia đình? Nhập vào đây để dùng chung gói</label>
+                <div class="input-group" style="max-width:360px">
+                    <input id="join_code" name="join_code" maxlength="12" value="{{ old('join_code') }}" autocomplete="off"
+                           class="form-control text-uppercase @error('join_code') is-invalid @enderror" placeholder="VD: GDAB12CD">
+                    <button class="btn btn-primary">Vào gói</button>
+                </div>
+                @error('join_code')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+            </div>
+        </form>
+    @endif
+
     <div class="row g-3 mb-4">
         <div class="col-12 col-lg-6">
             <div class="card border h-100 {{ $current ? 'border-success' : '' }}">

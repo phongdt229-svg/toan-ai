@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Subscription extends Model
 {
@@ -26,7 +27,7 @@ class Subscription extends Model
     protected $fillable = [
         'user_id', 'purchased_by', 'package_id', 'status', 'price_paid', 'duration_days',
         'starts_at', 'ends_at', 'activated_at', 'cancelled_at', 'cancel_reason', 'source',
-        'expiry_reminded_days',
+        'expiry_reminded_days', 'join_code',
     ];
 
     protected function casts(): array
@@ -43,6 +44,12 @@ class Subscription extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** Thành viên gói gia đình (không gồm chủ gói `user_id`). Chỉ FamilyPlanService ghi bảng này. */
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'subscription_members')->withPivot('joined_at')->withTimestamps();
     }
 
     public function purchaser(): BelongsTo

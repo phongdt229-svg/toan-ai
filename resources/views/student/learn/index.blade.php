@@ -17,6 +17,24 @@
         </form>
     </div>
 
+    @if ($geometryTools->isNotEmpty())
+        <div class="row g-2 mb-3" data-geometry-tools>
+            @foreach ($geometryTools as $tool)
+                <div class="col-12 col-md-6">
+                    <a href="{{ route($tool['route'], ['grade' => $grade->slug]) }}"
+                       class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none text-body border bg-body h-100">
+                        <i class="bi {{ $tool['icon'] }} fs-4 text-primary"></i>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">{{ $tool['label'] }}</div>
+                            <div class="text-secondary small">{{ $tool['hint'] }}</div>
+                        </div>
+                        <i class="bi bi-chevron-right text-secondary"></i>
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     @if ($subjects->isEmpty())
         <div class="card border">
             <div class="card-body text-center p-4 text-secondary">

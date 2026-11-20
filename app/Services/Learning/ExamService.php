@@ -286,10 +286,10 @@ class ExamService
             ->join('questions', 'questions.id', '=', 'student_answers.question_id')
             ->leftJoin('topics', 'topics.id', '=', 'questions.topic_id')
             ->groupBy('topics.id', 'topics.name')
-            ->selectRaw("COALESCE(topics.name, 'Khác') as topic")
+            ->selectRaw("topics.id as topic_id, COALESCE(topics.name, 'Khác') as topic")
             ->selectRaw('ROUND(SUM(student_answers.score) / NULLIF(SUM(student_answers.max_score), 0) * 100) as percent')
             ->get()
-            ->map(fn ($r) => ['topic' => $r->topic, 'percent' => (int) $r->percent])
+            ->map(fn ($r) => ['topic_id' => $r->topic_id ? (int) $r->topic_id : null, 'topic' => $r->topic, 'percent' => (int) $r->percent])
             ->all();
     }
 }

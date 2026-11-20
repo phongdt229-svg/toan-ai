@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Services\AI\AiUsageGuard;
+use App\Services\FamilyPlanService;
 use App\Services\Learning\PracticeService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
@@ -16,12 +17,14 @@ class SubscriptionController extends Controller
         private readonly SubscriptionService $subscriptions,
         private readonly AiUsageGuard $aiUsage,
         private readonly PracticeService $practice,
+        private readonly FamilyPlanService $family,
     ) {}
 
     public function index(Request $request): View
     {
         $user = $request->user();
         $current = $this->subscriptions->effective($user);
+        $owned = $this->family->ownedBy($user);
 
         return view('student.subscription.index', [
             'current' => $current,
@@ -29,6 +32,10 @@ class SubscriptionController extends Controller
             'aiUsage' => $this->aiUsage->status($user),
             'practiceUsage' => $this->practice->dailyStatus($user),
             'history' => $this->subscriptions->history($user),
+            // Gói gia đình: em đứng tên (thấy mã + thành viên) hoặc em là thành viên (thấy nút rời).
+            'ownedFamily' => $owned,
+            'seatsLeft' => $owned ? $this->family->seatsLeft($owned) : 0,
+            'memberFamily' => $owned ? null : $this->family->memberOf($user),
         ]);
     }
 }

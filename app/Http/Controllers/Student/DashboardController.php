@@ -7,6 +7,7 @@ use App\Models\AssignmentStudent;
 use App\Models\Package;
 use App\Models\PlacementTest;
 use App\Models\StudentLessonProgress;
+use App\Models\UserBadge;
 use App\Services\Learning\ActivityService;
 use App\Services\Learning\LearningPathService;
 use App\Services\Learning\MasteryService;
@@ -16,6 +17,7 @@ use App\Services\Learning\StreakService;
 use App\Services\Learning\StudentReportService;
 use App\Services\Learning\StudyScheduleService;
 use App\Services\Learning\TopicSignalService;
+use App\Services\Rewards\RewardService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -33,6 +35,7 @@ class DashboardController extends Controller
         private readonly StudyScheduleService $schedules,
         private readonly TopicSignalService $signals,
         private readonly StreakService $streaks,
+        private readonly RewardService $rewards,
     ) {}
 
     public function index(Request $request): View
@@ -53,6 +56,8 @@ class DashboardController extends Controller
             'user' => $user,
             'activityToday' => $this->activity->today($user),
             'streak' => $this->streaks->forStudent($user),
+            'rewardPoints' => $this->rewards->total($user),
+            'badgeCount' => UserBadge::where('user_id', $user->id)->count(),
             // TA-18: nhắc nhẹ khi em hay xem lời giải thay vì tự làm sau gợi ý.
             'helpNudge' => $this->signals->helpSeeking($user)['nudge'],
             'todaySlot' => $this->schedules->slotOn($user, today()),

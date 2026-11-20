@@ -23,6 +23,7 @@ class UpdatePersonalizationRequest extends FormRequest
             'favorite_color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'interests' => ['nullable', 'string', 'max:255'],
             'target_score' => ['nullable', 'numeric', 'min:0', 'max:10'],
+            'hide_from_leaderboard' => ['nullable', 'boolean'],
         ];
     }
 

@@ -48,7 +48,7 @@
             @foreach ($t['packages'] as $package)
                 <a href="{{ auth()->check() ? route('packages.checkout', $package) : route('login') }}"
                    class="btn {{ $package->is_highlighted ? 'btn-primary' : 'btn-outline-primary' }} btn-touch d-flex justify-content-between">
-                    <span>{{ $package->durationLabel() }}</span>
+                    <span>{{ $package->durationLabel() }}{{ $package->isFamily() ? ' · '.$package->max_members.' học sinh' : '' }}</span>
                     <span class="fw-semibold">{{ $package->priceLabel() }}</span>
                 </a>
             @endforeach

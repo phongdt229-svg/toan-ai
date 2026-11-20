@@ -8,8 +8,10 @@ use App\Http\Requests\Auth\StudentRegisterRequest;
 use App\Http\Requests\Auth\TeacherRegisterRequest;
 use App\Models\Grade;
 use App\Services\Auth\RegistrationService;
+use App\Services\Referral\ReferralService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
@@ -32,6 +34,10 @@ class RegisterController extends Controller
     public function storeStudent(StudentRegisterRequest $request): RedirectResponse
     {
         $user = $this->registration->registerStudent($request->validated());
+
+        // Đến từ link giới thiệu (cookie chỉ chứa MÃ) → gắn người giới thiệu + tặng mã chào mừng.
+        app(ReferralService::class)->attach($user, $request->cookie(ReferralService::COOKIE));
+        Cookie::queue(Cookie::forget(ReferralService::COOKIE));
 
         // Cố ý KHÔNG bắn Registered: framework tự gắn listener gửi mail xác thực cho User (MustVerifyEmail),
         // mà đăng ký không còn bước xác nhận email.

@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\LegalPageController as AdminLegalPageController;
 use App\Http\Controllers\Admin\MaintenanceController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\ReferralController as AdminReferralController;
+use App\Http\Controllers\Admin\RewardRuleController as AdminRewardRuleController;
 use App\Http\Controllers\Admin\SeoPageController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
@@ -39,14 +41,18 @@ use App\Http\Controllers\Student\AssignmentController as StudentAssignmentContro
 use App\Http\Controllers\Student\ClassController as StudentClassController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
+use App\Http\Controllers\Student\FamilyPlanController as StudentFamilyPlanController;
 use App\Http\Controllers\Student\LearnController;
 use App\Http\Controllers\Student\LearningPathController;
 use App\Http\Controllers\Student\LessonController as StudentLessonController;
+use App\Http\Controllers\Student\MockExamController as StudentMockExamController;
 use App\Http\Controllers\Student\ParentConnectionController;
 use App\Http\Controllers\Student\PlacementController;
 use App\Http\Controllers\Student\PlaneGeometryController;
 use App\Http\Controllers\Student\PracticeController;
 use App\Http\Controllers\Student\QaController;
+use App\Http\Controllers\Student\ReferralController as StudentReferralController;
+use App\Http\Controllers\Student\RewardController as StudentRewardController;
 use App\Http\Controllers\Student\SettingsController as StudentSettingsController;
 use App\Http\Controllers\Student\SolidGeometryController;
 use App\Http\Controllers\Student\StudyScheduleController as StudentStudyScheduleController;
@@ -65,6 +71,7 @@ use App\Http\Controllers\Teacher\ReportController as TeacherReportController;
 use App\Http\Controllers\Teacher\SearchController as TeacherSearchController;
 use App\Http\Controllers\Teacher\SettingsController as TeacherSettingsController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
+use App\Http\Controllers\Teacher\WordQuestionImportController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\CookieConsentController;
@@ -78,6 +85,7 @@ use App\Http\Controllers\Web\PackageController;
 use App\Http\Controllers\Web\PaymentController;
 use App\Http\Controllers\Web\PublicCurriculumController;
 use App\Http\Controllers\Web\PushSubscriptionController;
+use App\Http\Controllers\Web\ReferralLinkController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SupportController;
 use App\Http\Controllers\Web\VoucherController;
@@ -89,6 +97,12 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [LandingController::class, 'index'])->name('home');
+
+// Link giới thiệu bạn bè: đặt cookie chứa MÃ rồi sang trang đăng ký học sinh (ReferralService).
+Route::get('gioi-thieu/{code}', ReferralLinkController::class)
+    ->where('code', '[A-Za-z0-9]{4,20}')
+    ->middleware('throttle:30,1')
+    ->name('referral.link');
 // Bảng giá công khai (§18) — đã đăng nhập vẫn dùng chung trang này.
 Route::get('goi-hoc', [PackageController::class, 'index'])->name('packages.index');
 
@@ -292,6 +306,11 @@ Route::middleware('auth')->group(function () {
             Route::get('hinh-hoc-phang', [PlaneGeometryController::class, 'index'])->name('plane-geometry.index');
 
             Route::get('goi-cua-toi', [StudentSubscriptionController::class, 'index'])->name('subscription.index');
+            // Gói gia đình: nhập mã (throttle chống dò mã), chủ gói gỡ thành viên / thành viên tự rời.
+            Route::post('goi-cua-toi/gia-dinh', [StudentFamilyPlanController::class, 'join'])
+                ->middleware('throttle:10,1')->name('family.join');
+            Route::delete('goi-cua-toi/gia-dinh/{subscription}/{member}', [StudentFamilyPlanController::class, 'remove'])
+                ->name('family.remove');
 
             Route::get('phu-huynh', [ParentConnectionController::class, 'index'])->middleware('portal:parent')->name('parents.index');
             Route::post('phu-huynh/doi-ma', [ParentConnectionController::class, 'regenerate'])->middleware('portal:parent')->name('parents.regenerate');
@@ -308,6 +327,10 @@ Route::middleware('auth')->group(function () {
                 ->name('assignments.submit');
             Route::get('bai-duoc-giao/{assignment}/ket-qua/{submission}', [StudentAssignmentController::class, 'result'])
                 ->name('assignments.result');
+
+            Route::get('thanh-tich', [StudentRewardController::class, 'index'])->name('rewards.index');
+            Route::get('thi-thu', [StudentMockExamController::class, 'index'])->name('mock-exams.index');
+            Route::get('moi-ban', [StudentReferralController::class, 'index'])->name('referrals.index');
 
             Route::get('de-kiem-tra', [StudentExamController::class, 'index'])->name('exams.index');
             Route::get('de-kiem-tra/{exam}', [StudentExamController::class, 'show'])->name('exams.show');
@@ -409,6 +432,15 @@ Route::middleware('auth')->group(function () {
             Route::post('cau-hoi-nhap', [QuestionImportController::class, 'store'])->name('questions.import.store');
             Route::get('cau-hoi-nhap/mau', [QuestionImportController::class, 'template'])
                 ->name('questions.import.template');
+            // Nhập đề Word: tải lên → xem trước (kết quả giữ ở cache server) → xác nhận.
+            Route::post('cau-hoi-nhap/word', [WordQuestionImportController::class, 'upload'])
+                ->middleware('throttle:20,1')->name('questions.import.word');
+            Route::get('cau-hoi-nhap/word/mau', [WordQuestionImportController::class, 'template'])
+                ->name('questions.import.word.template');
+            Route::get('cau-hoi-nhap/word/{token}', [WordQuestionImportController::class, 'preview'])
+                ->where('token', '[A-Za-z0-9]{32}')->name('questions.import.word.preview');
+            Route::post('cau-hoi-nhap/word/{token}', [WordQuestionImportController::class, 'confirm'])
+                ->where('token', '[A-Za-z0-9]{32}')->name('questions.import.word.confirm');
 
             Route::get('de-kiem-tra', [TeacherExamController::class, 'index'])->name('exams.index');
             Route::get('de-kiem-tra/tao-moi', [TeacherExamController::class, 'create'])->name('exams.create');
@@ -548,6 +580,11 @@ Route::middleware('auth')->group(function () {
             Route::post('danh-muc-bai-viet', [BlogCategoryController::class, 'store'])->name('blog-categories.store');
             Route::put('danh-muc-bai-viet/{category}', [BlogCategoryController::class, 'update'])->name('blog-categories.update');
             Route::delete('danh-muc-bai-viet/{category}', [BlogCategoryController::class, 'destroy'])->name('blog-categories.destroy');
+
+            Route::get('gioi-thieu-ban-be', [AdminReferralController::class, 'index'])->name('referrals.index');
+            Route::put('gioi-thieu-ban-be', [AdminReferralController::class, 'update'])->name('referrals.update');
+            Route::get('diem-thuong', [AdminRewardRuleController::class, 'index'])->name('rewards.index');
+            Route::put('diem-thuong', [AdminRewardRuleController::class, 'update'])->name('rewards.update');
 
             Route::get('seo', [SeoPageController::class, 'index'])->name('seo.index');
             Route::put('seo', [SeoPageController::class, 'update'])->name('seo.update');
